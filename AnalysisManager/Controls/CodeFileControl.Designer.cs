@@ -1,6 +1,6 @@
 ﻿namespace AnalysisManager.Controls
 {
-    partial class CodeFile
+    partial class CodeFileControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -33,14 +33,13 @@
             this.label2 = new System.Windows.Forms.Label();
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.cmdLoadFile = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             this.pnlMetadata = new System.Windows.Forms.Panel();
-            this.cmdMetadataToggle = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.lblChecksum = new System.Windows.Forms.Label();
             this.lblLastCached = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.lblChecksum = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.cmdDelete = new System.Windows.Forms.Button();
+            this.lnkDetails = new System.Windows.Forms.LinkLabel();
             this.pnlMetadata.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -100,16 +99,6 @@
             this.cmdLoadFile.UseVisualStyleBackColor = true;
             this.cmdLoadFile.Click += new System.EventHandler(this.cmdLoadFile_Click);
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(3, 58);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(45, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Details:";
-            // 
             // pnlMetadata
             // 
             this.pnlMetadata.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -123,39 +112,6 @@
             this.pnlMetadata.Name = "pnlMetadata";
             this.pnlMetadata.Size = new System.Drawing.Size(463, 65);
             this.pnlMetadata.TabIndex = 7;
-            // 
-            // cmdMetadataToggle
-            // 
-            this.cmdMetadataToggle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdMetadataToggle.Font = new System.Drawing.Font("Segoe UI", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdMetadataToggle.Location = new System.Drawing.Point(51, 58);
-            this.cmdMetadataToggle.Margin = new System.Windows.Forms.Padding(0);
-            this.cmdMetadataToggle.Name = "cmdMetadataToggle";
-            this.cmdMetadataToggle.Size = new System.Drawing.Size(30, 15);
-            this.cmdMetadataToggle.TabIndex = 8;
-            this.cmdMetadataToggle.Text = ">>";
-            this.cmdMetadataToggle.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.cmdMetadataToggle.UseVisualStyleBackColor = true;
-            this.cmdMetadataToggle.Click += new System.EventHandler(this.cmdMetadataToggle_Click);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 8.25F);
-            this.label4.Location = new System.Drawing.Point(3, 30);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(62, 13);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Checksum:";
-            // 
-            // lblChecksum
-            // 
-            this.lblChecksum.AutoSize = true;
-            this.lblChecksum.Location = new System.Drawing.Point(79, 30);
-            this.lblChecksum.Name = "lblChecksum";
-            this.lblChecksum.Size = new System.Drawing.Size(80, 13);
-            this.lblChecksum.TabIndex = 1;
-            this.lblChecksum.Text = "(Not available)";
             // 
             // lblLastCached
             // 
@@ -176,6 +132,25 @@
             this.label6.TabIndex = 2;
             this.label6.Text = "Last cached:";
             // 
+            // lblChecksum
+            // 
+            this.lblChecksum.AutoSize = true;
+            this.lblChecksum.Location = new System.Drawing.Point(79, 30);
+            this.lblChecksum.Name = "lblChecksum";
+            this.lblChecksum.Size = new System.Drawing.Size(80, 13);
+            this.lblChecksum.TabIndex = 1;
+            this.lblChecksum.Text = "(Not available)";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.label4.Location = new System.Drawing.Point(3, 30);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(62, 13);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "Checksum:";
+            // 
             // cmdDelete
             // 
             this.cmdDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -187,22 +162,34 @@
             this.cmdDelete.Size = new System.Drawing.Size(20, 20);
             this.cmdDelete.TabIndex = 9;
             this.cmdDelete.UseVisualStyleBackColor = true;
+            this.cmdDelete.Click += new System.EventHandler(this.cmdDelete_Click);
             // 
-            // CodeFile
+            // lnkDetails
+            // 
+            this.lnkDetails.AutoSize = true;
+            this.lnkDetails.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.lnkDetails.Location = new System.Drawing.Point(0, 59);
+            this.lnkDetails.Name = "lnkDetails";
+            this.lnkDetails.Size = new System.Drawing.Size(42, 13);
+            this.lnkDetails.TabIndex = 10;
+            this.lnkDetails.TabStop = true;
+            this.lnkDetails.Text = "Details";
+            this.lnkDetails.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkDetails_Clicked);
+            // 
+            // CodeFileControl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.Controls.Add(this.lnkDetails);
             this.Controls.Add(this.cmdDelete);
-            this.Controls.Add(this.cmdMetadataToggle);
             this.Controls.Add(this.pnlMetadata);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.cmdLoadFile);
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cboStatPackage);
             this.Margin = new System.Windows.Forms.Padding(5);
-            this.Name = "CodeFile";
+            this.Name = "CodeFileControl";
             this.Size = new System.Drawing.Size(466, 142);
             this.Load += new System.EventHandler(this.CodeFile_Load);
             this.pnlMetadata.ResumeLayout(false);
@@ -219,13 +206,12 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.Button cmdLoadFile;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Panel pnlMetadata;
-        private System.Windows.Forms.Button cmdMetadataToggle;
         private System.Windows.Forms.Button cmdDelete;
         private System.Windows.Forms.Label lblLastCached;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label lblChecksum;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.LinkLabel lnkDetails;
     }
 }

@@ -55,8 +55,11 @@
             // 
             // cmdLoadCode
             // 
+            this.cmdLoadCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdLoadCode.Image = global::AnalysisManager.Properties.Resources._1446845069_Copy;
             this.cmdLoadCode.Label = "Load Analysis Code";
             this.cmdLoadCode.Name = "cmdLoadCode";
+            this.cmdLoadCode.ShowImage = true;
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
             // 
             // MainRibbon

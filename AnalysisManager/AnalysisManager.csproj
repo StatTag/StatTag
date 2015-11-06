@@ -157,11 +157,11 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Controls\CodeFile.cs">
+    <Compile Include="Controls\CodeFileControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\CodeFile.Designer.cs">
-      <DependentUpon>CodeFile.cs</DependentUpon>
+    <Compile Include="Controls\CodeFileControl.Designer.cs">
+      <DependentUpon>CodeFileControl.cs</DependentUpon>
     </Compile>
     <Compile Include="LoadAnalysisCode.cs">
       <SubType>Form</SubType>
@@ -178,8 +178,8 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="Controls\CodeFile.resx">
-      <DependentUpon>CodeFile.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\CodeFileControl.resx">
+      <DependentUpon>CodeFileControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadAnalysisCode.resx">
       <DependentUpon>LoadAnalysisCode.cs</DependentUpon>
@@ -223,6 +223,15 @@
   <ItemGroup>
     <None Include="Resources\1446843246_delete.png" />
     <None Include="Resources\DeleteTablefromDatabase_270.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1446845069_Copy.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

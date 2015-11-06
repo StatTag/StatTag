@@ -33,6 +33,7 @@
             this.cmdCancel = new System.Windows.Forms.Button();
             this.pnlFiles = new System.Windows.Forms.FlowLayoutPanel();
             this.cmdAdd = new System.Windows.Forms.Button();
+            this.lblEmpty = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -55,6 +56,7 @@
             this.cmdOK.TabIndex = 2;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // cmdCancel
             // 
@@ -84,6 +86,8 @@
             this.pnlFiles.TabIndex = 4;
             this.pnlFiles.WrapContents = false;
             this.pnlFiles.SizeChanged += new System.EventHandler(this.pnlFiles_SizeChanged);
+            this.pnlFiles.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.pnlFiles_ControlAdded);
+            this.pnlFiles.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.pnlFiles_ControlRemoved);
             // 
             // cmdAdd
             // 
@@ -97,6 +101,19 @@
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
+            // lblEmpty
+            // 
+            this.lblEmpty.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEmpty.ForeColor = System.Drawing.Color.Gray;
+            this.lblEmpty.Location = new System.Drawing.Point(355, 280);
+            this.lblEmpty.Name = "lblEmpty";
+            this.lblEmpty.Size = new System.Drawing.Size(356, 24);
+            this.lblEmpty.TabIndex = 5;
+            this.lblEmpty.Text = "There are no files currently loaded.  Please click the \"+\" icon to add a new file" +
+    ".";
+            this.lblEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblEmpty.Visible = false;
+            // 
             // LoadAnalysisCode
             // 
             this.AcceptButton = this.cmdOK;
@@ -104,6 +121,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(723, 347);
+            this.Controls.Add(this.lblEmpty);
             this.Controls.Add(this.cmdAdd);
             this.Controls.Add(this.pnlFiles);
             this.Controls.Add(this.cmdCancel);
@@ -127,5 +145,6 @@
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.FlowLayoutPanel pnlFiles;
         private System.Windows.Forms.Button cmdAdd;
+        private System.Windows.Forms.Label lblEmpty;
     }
 }
