@@ -131,7 +131,7 @@
             this.HelpButton = true;
             this.Name = "LoadAnalysisCode";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Load Code Files";
+            this.Text = "Analysis Manager - Manage Code Files";
             this.Load += new System.EventHandler(this.LoadAnalysisCode_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

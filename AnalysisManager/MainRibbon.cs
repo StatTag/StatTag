@@ -18,5 +18,11 @@ namespace AnalysisManager
             var dialog = new LoadAnalysisCode();
             dialog.ShowDialog();
         }
+
+        private void cmdManageOutput_Click(object sender, RibbonControlEventArgs e)
+        {
+            var dialog = new ManageCodeBlocks();
+            dialog.ShowDialog();
+        }
     }
 }

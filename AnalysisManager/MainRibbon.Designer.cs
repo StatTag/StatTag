@@ -37,6 +37,7 @@
             this.tab1 = this.Factory.CreateRibbonTab();
             this.codeGroup = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
+            this.cmdManageOutput = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
             // 
@@ -44,23 +45,33 @@
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.Groups.Add(this.codeGroup);
-            this.tab1.Label = "TabAddIns";
+            this.tab1.Label = "Analysis Manager";
             this.tab1.Name = "tab1";
             // 
             // codeGroup
             // 
             this.codeGroup.Items.Add(this.cmdLoadCode);
-            this.codeGroup.Label = "Manage Code";
+            this.codeGroup.Items.Add(this.cmdManageOutput);
+            this.codeGroup.Label = "Analysis Manager";
             this.codeGroup.Name = "codeGroup";
             // 
             // cmdLoadCode
             // 
             this.cmdLoadCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.cmdLoadCode.Image = global::AnalysisManager.Properties.Resources._1446845069_Copy;
-            this.cmdLoadCode.Label = "Load Analysis Code";
+            this.cmdLoadCode.Label = "Code Files";
             this.cmdLoadCode.Name = "cmdLoadCode";
             this.cmdLoadCode.ShowImage = true;
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
+            // 
+            // cmdManageOutput
+            // 
+            this.cmdManageOutput.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdManageOutput.Image = global::AnalysisManager.Properties.Resources._1447149791_file_manager;
+            this.cmdManageOutput.Label = "Annotations";
+            this.cmdManageOutput.Name = "cmdManageOutput";
+            this.cmdManageOutput.ShowImage = true;
+            this.cmdManageOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageOutput_Click);
             // 
             // MainRibbon
             // 
@@ -80,6 +91,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup codeGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdLoadCode;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageOutput;
     }
 
     partial class ThisRibbonCollection

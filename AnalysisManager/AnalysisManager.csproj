@@ -157,6 +157,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="ManageAnnotation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManageAnnotation.Designer.cs">
+      <DependentUpon>ManageAnnotation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\CodeFileControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -175,9 +181,18 @@
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="ManageCodeBlocks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManageCodeBlocks.Designer.cs">
+      <DependentUpon>ManageCodeBlocks.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <EmbeddedResource Include="ManageAnnotation.resx">
+      <DependentUpon>ManageAnnotation.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\CodeFileControl.resx">
       <DependentUpon>CodeFileControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -186,6 +201,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainRibbon.resx">
       <DependentUpon>MainRibbon.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ManageCodeBlocks.resx">
+      <DependentUpon>ManageCodeBlocks.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -232,6 +250,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\1446845069_Copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1447149705_Gnome-System-File-Manager-64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1447149791_file-manager.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

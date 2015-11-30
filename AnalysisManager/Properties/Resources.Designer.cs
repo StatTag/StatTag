@@ -93,6 +93,26 @@ namespace AnalysisManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _1447149705_Gnome_System_File_Manager_64 {
+            get {
+                object obj = ResourceManager.GetObject("1447149705_Gnome-System-File-Manager-64", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1447149791_file_manager {
+            get {
+                object obj = ResourceManager.GetObject("1447149791_file-manager", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DeleteTablefromDatabase_270 {
             get {
                 object obj = ResourceManager.GetObject("DeleteTablefromDatabase_270", resourceCulture);

@@ -8,5 +8,9 @@ namespace AnalysisManager.Core.Models
 {
     public class Annotation
     {
+        public string StatisticalPackage { get; set; }
+        public string Type { get; set; }
+        public string OutputLabel { get; set; }
+        public string RunFrequency { get; set; }
     }
 }
