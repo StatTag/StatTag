@@ -1,6 +1,6 @@
 ﻿namespace AnalysisManager
 {
-    partial class ManageAnnotation
+    sealed partial class ManageAnnotation
     {
         /// <summary>
         /// Required designer variable.
@@ -61,6 +61,7 @@
             // cmdOK
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cmdOK.Location = new System.Drawing.Point(143, 520);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -150,13 +151,14 @@
             // 
             // cmdValue
             // 
+            this.cmdValue.BackColor = System.Drawing.Color.White;
             this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmdValue.Location = new System.Drawing.Point(16, 353);
             this.cmdValue.Name = "cmdValue";
             this.cmdValue.Size = new System.Drawing.Size(83, 30);
             this.cmdValue.TabIndex = 18;
             this.cmdValue.Text = "Value";
-            this.cmdValue.UseVisualStyleBackColor = true;
+            this.cmdValue.UseVisualStyleBackColor = false;
             this.cmdValue.Click += new System.EventHandler(this.cmdValue_Click);
             // 
             // cmdFigure
@@ -197,11 +199,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(594, 558);
+            this.Controls.Add(this.pnlType);
             this.Controls.Add(this.cboCodeFiles);
             this.Controls.Add(this.cmdTable);
             this.Controls.Add(this.cmdFigure);
             this.Controls.Add(this.cmdValue);
-            this.Controls.Add(this.pnlType);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtOutputLabel);
             this.Controls.Add(this.label4);

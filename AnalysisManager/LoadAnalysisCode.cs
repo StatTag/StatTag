@@ -3,84 +3,108 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Controls;
+using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
 using Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager
 {
-    public partial class LoadAnalysisCode : Form
+    public sealed partial class LoadAnalysisCode : Form
     {
-        public LoadAnalysisCode()
+        private const int CheckColumn = 0;
+        private const int StatPackageColumn = 1;
+        private const int FilePathColumn = 2;
+        private const int FileEditColumn = 3;
+        private const int DetailsColumn = 4;
+
+        public List<CodeFile> Files { get; set; } 
+
+        public LoadAnalysisCode(List<CodeFile> files = null)
         {
             InitializeComponent();
+            Files = files;
+            this.MinimumSize = this.Size;
         }
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
         {
-            UpdateForControlListChange();
+            colStatPackage.Items.AddRange(Utility.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
         }
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var file = new CodeFileControl();
-            pnlFiles.Controls.Add(file);
-            file.Width = pnlFiles.Width - pnlFiles.Margin.Left - pnlFiles.Margin.Right - file.Margin.Left - file.Margin.Right;
-            file.Delete += CodeFileControl_Deleted;
-        }
-
-        private void CodeFileControl_Deleted(object sender, EventArgs e)
-        {
-            var control = sender as CodeFileControl;
-            if (control != null)
+            string fileName = GetFileName();
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
-                control.Delete -= CodeFileControl_Deleted;
-                pnlFiles.Controls.Remove(control);
-            }
-        }
-
-        private void pnlFiles_SizeChanged(object sender, EventArgs e)
-        {
-            foreach (var control in pnlFiles.Controls.OfType<CodeFileControl>())
-            {
-                control.Width = pnlFiles.Width - pnlFiles.Margin.Left - pnlFiles.Margin.Right - control.Margin.Left - control.Margin.Right;                
+                dgvItems.Rows.Add(new object[] { false, "", fileName, Constants.DialogLabels.Elipsis, Constants.DialogLabels.Details});
             }
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
-            var files = pnlFiles.Controls.OfType<CodeFileControl>().Select(control => control.Details).Where(x => !string.IsNullOrWhiteSpace(x.FilePath)).ToList();
+            var files = new List<CodeFile>();
+            for (int index = 0; index < dgvItems.Rows.Count; index++)
+            {
+                var item = dgvItems.Rows[index];
+                files.Add(new CodeFile()
+                {
+                    FilePath = item.Cells[FilePathColumn].Value.ToString(),
+                    StatisticalPackage = item.Cells[StatPackageColumn].Value.ToString()
+                });
+            }
+            Files = files;
+
             this.Close();
         }
 
-        private void pnlFiles_ControlRemoved(object sender, ControlEventArgs e)
+        private void cmdRemove_Click(object sender, EventArgs e)
         {
-            UpdateForControlListChange();
+            UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            //var removeList = new List<DataGridViewRow>();
+            //for (int index = 0; index < dgvItems.Rows.Count; index++)
+            //{
+            //    var item = dgvItems.Rows[index];
+            //    var cell = item.Cells[CheckColumn] as DataGridViewCheckBoxCell;
+            //    if (cell != null && cell.Value.ToString() == "true")
+            //    {
+            //        removeList.Add(item);
+            //    }
+            //}
+
+            //foreach (var item in removeList)
+            //{
+            //    dgvItems.Rows.Remove(item);
+            //}
         }
 
-        private void UpdateForControlListChange()
+        private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (pnlFiles.Controls.OfType<CodeFileControl>().Any())
+            if (e.ColumnIndex == FileEditColumn)
             {
-                lblEmpty.Visible = false;
-            }
-            else
-            {
-                lblEmpty.Visible = true;
-                lblEmpty.Top = pnlFiles.Top;
-                lblEmpty.Left = pnlFiles.Left;
-                lblEmpty.Width = pnlFiles.Width;
-                lblEmpty.Height = pnlFiles.Height;
+                string fileName = GetFileName();
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    dgvItems.Rows[e.RowIndex].Cells[FilePathColumn].Value = fileName;
+                }    
             }
         }
 
-        private void pnlFiles_ControlAdded(object sender, ControlEventArgs e)
+        private string GetFileName()
         {
-            UpdateForControlListChange();
+            FileDialog openFile = new OpenFileDialog();
+            if (DialogResult.OK == openFile.ShowDialog())
+            {
+                return openFile.FileName;
+            }
+
+            return null;
         }
     }
 }

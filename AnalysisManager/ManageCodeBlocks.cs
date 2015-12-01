@@ -11,13 +11,18 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
-    public partial class ManageCodeBlocks : Form
+    public sealed partial class ManageCodeBlocks : Form
     {
-        public ManageCodeBlocks()
+        private const int CheckColumn = 0;
+
+        public List<CodeFile> Files { get; set; }
+
+        public ManageCodeBlocks(List<CodeFile> files)
         {
             InitializeComponent();
-
-            dgvItems.Rows.Add(new object[] {"Stata", "Value", "Sample mean", Constants.RunFrequency.Always});
+//            dgvItems.Rows.Add(new object[] {false, "Stata", "Value", "Sample mean", Constants.RunFrequency.Always, Constants.DialogLabels.Edit });
+            this.MinimumSize = this.Size;
+            Files = files;
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -27,8 +32,13 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new ManageAnnotation();
+            var dialog = new ManageAnnotation(Files);
             dialog.ShowDialog();
+        }
+
+        private void cmdRemove_Click(object sender, EventArgs e)
+        {
+            UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
         }
     }
 }

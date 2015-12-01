@@ -14,7 +14,7 @@ namespace AnalysisManager.Core.Models
             public const string R = "R";
             public const string SAS = "SAS";
 
-            public string[] GetList()
+            public static string[] GetList()
             {
                 return new[]
                 {
@@ -28,13 +28,20 @@ namespace AnalysisManager.Core.Models
             public const string Always = "Always";
             public const string OnDemand = "On Demand";
 
-            public string[] GetList()
+            public static string[] GetList()
             {
                 return new[]
                 {
                     Always, OnDemand
                 };
             }
+        }
+
+        public class DialogLabels
+        {
+            public const string Elipsis = "...";
+            public const string Details = "Detail";
+            public const string Edit = "Edit";
         }
     }
 }
