@@ -10,7 +10,7 @@ namespace AnalysisManager
 {
     public partial class MainRibbon
     {
-        public List<CodeFile> Files = new List<CodeFile>(); 
+        public List<CodeFile> Files = new List<CodeFile>();
 
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
@@ -19,7 +19,7 @@ namespace AnalysisManager
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new LoadAnalysisCode();
+            var dialog = new LoadAnalysisCode(Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Files = dialog.Files;

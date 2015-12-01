@@ -1,14 +1,10 @@
-﻿using System;
+﻿using AnalysisManager.Core;
+using AnalysisManager.Core.Models;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
@@ -20,6 +16,9 @@ namespace AnalysisManager
         public readonly Font UnselectedButtonFont = DefaultFont;
 
         public List<CodeFile> Files { get; set; }
+        public Annotation Annotation { get; set; }
+
+        private string AnnotationType { get; set; }
 
         public ManageAnnotation(List<CodeFile> files = null)
         {
@@ -27,13 +26,6 @@ namespace AnalysisManager
             SelectedButtonFont = Font;
             UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
             Files = files;
-            UpdateForTypeClick(cmdValue);
-
-            cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
-            if (Files != null)
-            {
-                cboCodeFiles.Items.AddRange(Utility.StringArrayToObjectArray(Files.Select(x => x.FilePath).ToArray()));
-            }
         }
 
         private void cmdValue_Click(object sender, EventArgs e)
@@ -65,16 +57,19 @@ namespace AnalysisManager
             {
                 UnselectTypeButton(cmdFigure);
                 UnselectTypeButton(cmdTable);
+                AnnotationType = Constants.AnnotationType.Value;
             }
             else if (button == cmdFigure)
             {
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdTable);
+                AnnotationType = Constants.AnnotationType.Figure;
             }
             else if (button == cmdTable)
             {
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdFigure);
+                AnnotationType = Constants.AnnotationType.Table;
             }
 
         }
@@ -87,6 +82,49 @@ namespace AnalysisManager
         private void cmdTable_Click(object sender, EventArgs e)
         {
             UpdateForTypeClick(sender as Button);
+        }
+
+        private void ManageAnnotation_Load(object sender, EventArgs e)
+        {
+            UpdateForTypeClick(cmdValue);
+
+            cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
+            cboCodeFiles.DisplayMember = "FilePath";
+            if (Files != null)
+            {
+                cboCodeFiles.Items.AddRange(Files.Select(x => x as object).ToArray());
+            }
+
+            if (Annotation != null)
+            {
+                cboCodeFiles.SelectedItem = Annotation.CodeFile;
+                cboRunFrequency.SelectedItem = Annotation.RunFrequency;
+                txtOutputLabel.Text = Annotation.OutputLabel;
+            }
+            else
+            {
+                // If there is only one file available, select it by default
+                if (Files != null && Files.Count == 1)
+                {
+                    cboCodeFiles.SelectedIndex = 0;
+                }
+
+                // Always default the run frequency to "Always" (always)
+                cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
+            }
+        }
+
+        private void cmdOK_Click(object sender, EventArgs e)
+        {
+            if (Annotation == null)
+            {
+                Annotation = new Annotation();
+            }
+
+            Annotation.Type = AnnotationType;
+            Annotation.OutputLabel = txtOutputLabel.Text;
+            Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
+            Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
         }
     }
 }

@@ -37,6 +37,13 @@ namespace AnalysisManager.Core.Models
             }
         }
 
+        public class AnnotationType
+        {
+            public const string Value = "Value";
+            public const string Figure = "Figure";
+            public const string Table = "Table";
+        }
+
         public class DialogLabels
         {
             public const string Elipsis = "...";

@@ -20,8 +20,7 @@ namespace AnalysisManager
         public ManageCodeBlocks(List<CodeFile> files)
         {
             InitializeComponent();
-//            dgvItems.Rows.Add(new object[] {false, "Stata", "Value", "Sample mean", Constants.RunFrequency.Always, Constants.DialogLabels.Edit });
-            this.MinimumSize = this.Size;
+            MinimumSize = Size;
             Files = files;
         }
 
@@ -33,12 +32,44 @@ namespace AnalysisManager
         private void cmdAdd_Click(object sender, EventArgs e)
         {
             var dialog = new ManageAnnotation(Files);
-            dialog.ShowDialog();
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+                {
+                    // Add the annotation reference to the code file (which saves it for later use).
+                    // If we don't do this, we will lose the reference (which is fine for a Cancel
+                    // operation).
+                    dialog.Annotation.CodeFile.Annotations.Add(dialog.Annotation);
+                    AddRow(dialog.Annotation);
+                }
+            }
+        }
+
+        private void AddRow(Annotation annotation)
+        {
+            if (annotation == null || annotation.CodeFile == null)
+            {
+                return;
+            }
+
+            int row = dgvItems.Rows.Add(new object[] { false, annotation.CodeFile.StatisticalPackage, annotation.Type, annotation.OutputLabel, annotation.RunFrequency, Constants.DialogLabels.Edit });
+            dgvItems.Rows[row].Tag = annotation;
         }
 
         private void cmdRemove_Click(object sender, EventArgs e)
         {
             UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+        }
+
+        private void ManageCodeBlocks_Load(object sender, EventArgs e)
+        {
+            foreach (var file in Files)
+            {
+                foreach (var annotation in file.Annotations)
+                {
+                    AddRow(annotation);
+                }
+            }
         }
     }
 }

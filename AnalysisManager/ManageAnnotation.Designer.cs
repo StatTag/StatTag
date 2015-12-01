@@ -70,6 +70,7 @@
             this.cmdOK.TabIndex = 6;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // label1
             // 
@@ -220,6 +221,7 @@
             this.Name = "ManageAnnotation";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Annotation";
+            this.Load += new System.EventHandler(this.ManageAnnotation_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

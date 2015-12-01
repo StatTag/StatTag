@@ -36,6 +36,13 @@ namespace AnalysisManager
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
         {
             colStatPackage.Items.AddRange(Utility.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
+            if (Files != null)
+            {
+                foreach (var file in Files)
+                {
+                    AddItem(file);
+                }
+            }
         }
 
         private void cmdAdd_Click(object sender, EventArgs e)
@@ -43,8 +50,14 @@ namespace AnalysisManager
             string fileName = GetFileName();
             if (!string.IsNullOrWhiteSpace(fileName))
             {
-                dgvItems.Rows.Add(new object[] { false, "", fileName, Constants.DialogLabels.Elipsis, Constants.DialogLabels.Details});
+                AddItem(new CodeFile() { FilePath = fileName });
             }
+        }
+
+        private void AddItem(CodeFile file)
+        {
+            int index = dgvItems.Rows.Add(new object[] { false, file.StatisticalPackage, file.FilePath, Constants.DialogLabels.Elipsis, Constants.DialogLabels.Details });
+            dgvItems.Rows[index].Tag = file;
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -56,7 +69,7 @@ namespace AnalysisManager
                 files.Add(new CodeFile()
                 {
                     FilePath = item.Cells[FilePathColumn].Value.ToString(),
-                    StatisticalPackage = item.Cells[StatPackageColumn].Value.ToString()
+                    StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
                 });
             }
             Files = files;
@@ -67,21 +80,6 @@ namespace AnalysisManager
         private void cmdRemove_Click(object sender, EventArgs e)
         {
             UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
-            //var removeList = new List<DataGridViewRow>();
-            //for (int index = 0; index < dgvItems.Rows.Count; index++)
-            //{
-            //    var item = dgvItems.Rows[index];
-            //    var cell = item.Cells[CheckColumn] as DataGridViewCheckBoxCell;
-            //    if (cell != null && cell.Value.ToString() == "true")
-            //    {
-            //        removeList.Add(item);
-            //    }
-            //}
-
-            //foreach (var item in removeList)
-            //{
-            //    dgvItems.Rows.Remove(item);
-            //}
         }
 
         private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
