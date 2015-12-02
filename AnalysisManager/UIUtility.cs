@@ -11,6 +11,13 @@ namespace AnalysisManager
     {
         public static void RemoveSelectedItems(DataGridView dgvItems, int checkColumn)
         {
+            if (dgvItems == null)
+            {
+                return;
+            }
+
+            dgvItems.CurrentCell = null;  //Force any changes to save
+
             var removeList = new List<DataGridViewRow>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)
             {

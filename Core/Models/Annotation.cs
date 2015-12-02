@@ -14,7 +14,17 @@ namespace AnalysisManager.Core.Models
         public string RunFrequency { get; set; }
 
         public ValueFormat ValueFormat { get; set; }
+
+        /// <summary>
+        /// The starting line is the 0-based line index where the opening
+        /// annotation tag exists.
+        /// </summary>
         public int? LineStart { get; set; }
+
+        /// <summary>
+        /// The ending line is the 0-based line index where the closing
+        /// annotation tag exists.
+        /// </summary>
         public int? LineEnd { get; set; }
     }
 }

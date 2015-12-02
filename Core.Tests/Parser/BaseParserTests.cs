@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AnalysisManager.Core.Parser;
@@ -37,6 +38,53 @@ namespace Core.Tests.Parser
             result = parser.Parse(new string[]{});
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Length);
+        }
+
+        [TestMethod]
+        public void Parse_Simple()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>AM:Value",
+                "declare value",
+                "**<<<AM:Value"
+            });
+            var result = parser.Parse(lines.ToArray());
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.AreEqual(2, result[0].LineEnd);
+        }
+
+        [TestMethod]
+        public void Parse_StartNoEnd()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>AM:Value",
+                "declare value"
+            });
+            var result = parser.Parse(lines.ToArray());
+            Assert.AreEqual(0, result.Length);
+        }
+
+        [TestMethod]
+        public void Parse_TwoStartsOneEnd()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>AM:Value",
+                "declare value",
+                "**>>>AM:Value",
+                "declare value",
+                "**<<<AM:Value"
+            });
+            var result = parser.Parse(lines.ToArray());
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual(2, result[0].LineStart);
+            Assert.AreEqual(4, result[0].LineEnd);
         }
 
         [TestMethod]

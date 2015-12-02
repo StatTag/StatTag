@@ -15,13 +15,12 @@ namespace AnalysisManager.Core.Parser
         public const string AnnotationPrefix = "AM:";
         public abstract char CommentCharacter { get; }
 
-        protected readonly Regex StartAnnotationRegEx = null;
-        protected readonly Regex EndAnnotationRegEx = null;
+        protected Regex StartAnnotationRegEx = null;
+        protected Regex EndAnnotationRegEx = null;
 
         protected BaseParser()
         {
-            StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}.*", CommentCharacter, StartAnnotation, AnnotationPrefix), RegexOptions.Singleline);
-            EndAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, EndAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+            SetupRegEx();
         }
 
         protected Match DetectAnnotation(Regex annotationRegex, string line)
@@ -34,19 +33,51 @@ namespace AnalysisManager.Core.Parser
             return annotationRegex.Match(line);
         }
 
+        private void SetupRegEx()
+        {
+            if (StartAnnotationRegEx == null)
+            {
+                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}.*", CommentCharacter, StartAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+            }
+
+            if (EndAnnotationRegEx == null)
+            {
+                EndAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, EndAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+            }
+        }
+
         public Annotation[] Parse(string[] lines)
         {
+            SetupRegEx();
+
             var annotations = new List<Annotation>();
             if (lines == null)
             {
                 return annotations.ToArray();
             }
 
-            
-            foreach (var line in lines)
+            int? startIndex = null;
+            for (int index = 0; index < lines.Length; index++)
             {
-                // Strip whitespace
-                
+                var line = lines[index].Trim();
+                var match = StartAnnotationRegEx.Match(line);
+                if (match.Success)
+                {
+                    startIndex = index;
+                }
+                else if (startIndex.HasValue)
+                {
+                    match = EndAnnotationRegEx.Match(line);
+                    if (match.Success)
+                    {
+                        annotations.Add(new Annotation()
+                        {
+                            LineStart = startIndex,
+                            LineEnd = index
+                        });
+                        startIndex = null;
+                    }
+                }
             }
 
             return annotations.ToArray();
