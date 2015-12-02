@@ -99,9 +99,22 @@ namespace AnalysisManager
             if (Annotation != null)
             {
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
+                cboCodeFiles.Enabled = false;  // We don't allow switching code files
                 cboRunFrequency.SelectedItem = Annotation.RunFrequency;
                 txtOutputLabel.Text = Annotation.OutputLabel;
                 AnnotationType = Annotation.Type;
+                LoadCodeFile(Annotation.CodeFile);
+                if (Annotation.LineStart.HasValue && Annotation.LineEnd.HasValue)
+                {
+                    int maxIndex = lstCode.Items.Count - 1;
+                    int startIndex = Math.Max(0, Annotation.LineStart.Value);
+                    startIndex = Math.Min(startIndex, maxIndex);
+                    int endIndex = Math.Min(Annotation.LineEnd.Value, maxIndex);
+                    for (int index = startIndex; index <= endIndex; index++)
+                    {
+                        lstCode.SelectedIndices.Add(index);
+                    }                    
+                }
 
                 switch (AnnotationType)
                 {
@@ -134,12 +147,43 @@ namespace AnalysisManager
             Annotation.OutputLabel = txtOutputLabel.Text;
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
             Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
+            var selectedIndices = lstCode.SelectedIndices.OfType<int>().ToArray();
+            if (!selectedIndices.Any())
+            {
+                Annotation.LineStart = null;
+                Annotation.LineEnd = null;
+            }
+            else if (selectedIndices.Length == 1)
+            {
+                Annotation.LineStart = selectedIndices[0];
+                Annotation.LineEnd = Annotation.LineStart;
+            }
+            else
+            {
+
+                Annotation.LineStart = selectedIndices.Min();
+                Annotation.LineEnd = selectedIndices.Max();
+            }
 
             switch (AnnotationType)
             {
                 case Constants.AnnotationType.Value:
                     Annotation.ValueFormat = valueProperties.GetValueFormat();
                     break;
+            }
+        }
+
+        private void cboCodeFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadCodeFile(cboCodeFiles.SelectedItem as CodeFile);
+        }
+
+        private void LoadCodeFile(CodeFile file)
+        {
+            lstCode.Items.Clear();
+            if (file != null)
+            {
+                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.GetContent()));
             }
         }
     }

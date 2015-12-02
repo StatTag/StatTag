@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace AnalysisManager.Core.Models
 
         public override string ToString()
         {
-            return FilePath;
+            return FilePath ?? string.Empty;
         }
 
         public override int GetHashCode()
@@ -37,6 +38,11 @@ namespace AnalysisManager.Core.Models
             }
 
             return item.FilePath.Equals(FilePath, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public string[] GetContent()
+        {
+            return File.ReadAllLines(FilePath);
         }
     }
 }

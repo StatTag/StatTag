@@ -14,5 +14,7 @@ namespace AnalysisManager.Core.Models
         public string RunFrequency { get; set; }
 
         public ValueFormat ValueFormat { get; set; }
+        public int? LineStart { get; set; }
+        public int? LineEnd { get; set; }
     }
 }

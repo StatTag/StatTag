@@ -62,6 +62,8 @@ namespace AnalysisManager
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
+            dgvItems.CurrentCell = null;
+
             var files = new List<CodeFile>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)
             {

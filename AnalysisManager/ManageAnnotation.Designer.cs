@@ -34,7 +34,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.cboRunFrequency = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtCode = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txtOutputLabel = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -44,6 +43,7 @@
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
+            this.lstCode = new System.Windows.Forms.ListBox();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -109,14 +109,6 @@
             this.label3.Size = new System.Drawing.Size(182, 17);
             this.label3.TabIndex = 12;
             this.label3.Text = "Select the code region to use:";
-            // 
-            // txtCode
-            // 
-            this.txtCode.Location = new System.Drawing.Point(16, 125);
-            this.txtCode.Multiline = true;
-            this.txtCode.Name = "txtCode";
-            this.txtCode.Size = new System.Drawing.Size(566, 180);
-            this.txtCode.TabIndex = 13;
             // 
             // label4
             // 
@@ -206,6 +198,21 @@
             this.cboCodeFiles.Name = "cboCodeFiles";
             this.cboCodeFiles.Size = new System.Drawing.Size(379, 25);
             this.cboCodeFiles.TabIndex = 21;
+            this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
+            // 
+            // lstCode
+            // 
+            this.lstCode.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstCode.CausesValidation = false;
+            this.lstCode.FormattingEnabled = true;
+            this.lstCode.ItemHeight = 17;
+            this.lstCode.Location = new System.Drawing.Point(16, 126);
+            this.lstCode.Name = "lstCode";
+            this.lstCode.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.lstCode.Size = new System.Drawing.Size(566, 191);
+            this.lstCode.TabIndex = 22;
             // 
             // ManageAnnotation
             // 
@@ -214,6 +221,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(594, 558);
+            this.Controls.Add(this.lstCode);
             this.Controls.Add(this.pnlType);
             this.Controls.Add(this.cboCodeFiles);
             this.Controls.Add(this.cmdTable);
@@ -222,7 +230,6 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtOutputLabel);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.txtCode);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.cboRunFrequency);
             this.Controls.Add(this.label2);
@@ -250,7 +257,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cboRunFrequency;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtCode;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtOutputLabel;
         private System.Windows.Forms.Label label5;
@@ -260,5 +266,6 @@
         private System.Windows.Forms.Button cmdTable;
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private Controls.ValueProperties valueProperties;
+        private System.Windows.Forms.ListBox lstCode;
     }
 }
