@@ -99,6 +99,7 @@ namespace AnalysisManager
         private string GetFileName()
         {
             FileDialog openFile = new OpenFileDialog();
+            openFile.Filter = Constants.FileFilters.FormatForFileDialog();
             if (DialogResult.OK == openFile.ShowDialog())
             {
                 return openFile.FileName;

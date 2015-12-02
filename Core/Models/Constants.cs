@@ -8,7 +8,7 @@ namespace AnalysisManager.Core.Models
 {
     public class Constants
     {
-        public class StatisticalPackages
+        public static class StatisticalPackages
         {
             public const string Stata = "Stata";
             public const string R = "R";
@@ -23,7 +23,7 @@ namespace AnalysisManager.Core.Models
             }
         }
 
-        public class RunFrequency
+        public static class RunFrequency
         {
             public const string Always = "Always";
             public const string OnDemand = "On Demand";
@@ -37,14 +37,14 @@ namespace AnalysisManager.Core.Models
             }
         }
 
-        public class AnnotationType
+        public static class AnnotationType
         {
             public const string Value = "Value";
             public const string Figure = "Figure";
             public const string Table = "Table";
         }
 
-        public class ValueFormatType
+        public static class ValueFormatType
         {
             public const string Default = "Default";
             public const string Numeric = "Numeric";
@@ -52,11 +52,29 @@ namespace AnalysisManager.Core.Models
             public const string Percentage = "Percentage";
         }
 
-        public class DialogLabels
+        public static class DialogLabels
         {
             public const string Elipsis = "...";
             public const string Details = "Detail";
             public const string Edit = "Edit";
+        }
+
+        public static class FileFilters
+        {
+            public const string StataLabel = "Stata Do Files";
+            public const string StataFilter = "*.do;*.ado";
+            public const string RLabel = "R";
+            public const string RFilter = "*.r";
+            public const string SASLabel = "SAS";
+            public const string SASFilter = "*.sas";
+            public const string AllLabel = "All files";
+            public const string AllFilter = "*.*";
+
+            public static string FormatForFileDialog()
+            {
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                    StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
+            }
         }
     }
 }
