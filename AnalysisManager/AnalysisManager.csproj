@@ -157,17 +157,35 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="Controls\DateTimeValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DateTimeValueProperties.Designer.cs">
+      <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NumericValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\NumericValueProperties.Designer.cs">
+      <DependentUpon>NumericValueProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PercentageValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PercentageValueProperties.Designer.cs">
+      <DependentUpon>PercentageValueProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ValueProperties.Designer.cs">
+      <DependentUpon>ValueProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="ManageAnnotation.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ManageAnnotation.Designer.cs">
       <DependentUpon>ManageAnnotation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\CodeFileControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CodeFileControl.Designer.cs">
-      <DependentUpon>CodeFileControl.cs</DependentUpon>
     </Compile>
     <Compile Include="LoadAnalysisCode.cs">
       <SubType>Form</SubType>
@@ -191,11 +209,20 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UIUtility.cs" />
+    <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
+      <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\NumericValueProperties.resx">
+      <DependentUpon>NumericValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PercentageValueProperties.resx">
+      <DependentUpon>PercentageValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ValueProperties.resx">
+      <DependentUpon>ValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ManageAnnotation.resx">
       <DependentUpon>ManageAnnotation.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CodeFileControl.resx">
-      <DependentUpon>CodeFileControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadAnalysisCode.resx">
       <DependentUpon>LoadAnalysisCode.cs</DependentUpon>
