@@ -78,6 +78,7 @@
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.Size = new System.Drawing.Size(662, 201);
             this.dgvItems.TabIndex = 1;
+            this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
             // 
             // colCheck
             // 

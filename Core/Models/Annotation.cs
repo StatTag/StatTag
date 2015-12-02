@@ -12,5 +12,7 @@ namespace AnalysisManager.Core.Models
         public string Type { get; set; }
         public string OutputLabel { get; set; }
         public string RunFrequency { get; set; }
+
+        public ValueFormat ValueFormat { get; set; }
     }
 }

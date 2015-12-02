@@ -39,10 +39,12 @@
             this.txtOutputLabel = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.pnlType = new System.Windows.Forms.Panel();
+            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.cmdValue = new System.Windows.Forms.Button();
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
+            this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -145,10 +147,22 @@
             // 
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlType.Controls.Add(this.valueProperties);
             this.pnlType.Location = new System.Drawing.Point(98, 353);
             this.pnlType.Name = "pnlType";
+            this.pnlType.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
             this.pnlType.Size = new System.Drawing.Size(484, 160);
             this.pnlType.TabIndex = 17;
+            // 
+            // valueProperties
+            // 
+            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.valueProperties.Location = new System.Drawing.Point(5, 0);
+            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.valueProperties.Name = "valueProperties";
+            this.valueProperties.Size = new System.Drawing.Size(477, 158);
+            this.valueProperties.TabIndex = 0;
             // 
             // cmdValue
             // 
@@ -222,6 +236,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Annotation";
             this.Load += new System.EventHandler(this.ManageAnnotation_Load);
+            this.pnlType.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -244,5 +259,6 @@
         private System.Windows.Forms.Button cmdFigure;
         private System.Windows.Forms.Button cmdTable;
         private System.Windows.Forms.ComboBox cboCodeFiles;
+        private Controls.ValueProperties valueProperties;
     }
 }

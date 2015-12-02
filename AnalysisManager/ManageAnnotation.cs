@@ -1,4 +1,5 @@
-﻿using AnalysisManager.Core;
+﻿using AnalysisManager.Controls;
+using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -100,6 +101,14 @@ namespace AnalysisManager
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
                 cboRunFrequency.SelectedItem = Annotation.RunFrequency;
                 txtOutputLabel.Text = Annotation.OutputLabel;
+                AnnotationType = Annotation.Type;
+
+                switch (AnnotationType)
+                {
+                    case Constants.AnnotationType.Value:
+                        valueProperties.SetValueFormat(Annotation.ValueFormat);
+                        break;
+                }
             }
             else
             {
@@ -125,6 +134,13 @@ namespace AnalysisManager
             Annotation.OutputLabel = txtOutputLabel.Text;
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
             Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
+
+            switch (AnnotationType)
+            {
+                case Constants.AnnotationType.Value:
+                    Annotation.ValueFormat = valueProperties.GetValueFormat();
+                    break;
+            }
         }
     }
 }
