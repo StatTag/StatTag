@@ -44,6 +44,14 @@ namespace AnalysisManager.Core.Models
             public const string Table = "Table";
         }
 
+        public class ValueFormatType
+        {
+            public const string Default = "Default";
+            public const string Numeric = "Numeric";
+            public const string DateTime = "DateTime";
+            public const string Percentage = "Percentage";
+        }
+
         public class DialogLabels
         {
             public const string Elipsis = "...";

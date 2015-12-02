@@ -26,6 +26,11 @@ namespace AnalysisManager.Controls
 
         private void PercentageValueProperties_Load(object sender, EventArgs e)
         {
+            UpdateValues();
+        }
+
+        public void UpdateValues()
+        {
             nudDecimalPlaces.Value = DecimalPlaces;
         }
     }

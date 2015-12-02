@@ -22,6 +22,11 @@ namespace AnalysisManager.Controls
 
         private void NumericValueProperties_Load(object sender, EventArgs e)
         {
+            UpdateValues();
+        }
+
+        public void UpdateValues()
+        {
             nudDecimalPlaces.Value = DecimalPlaces;
             chkThousandSeparator.Checked = UseThousands;
         }

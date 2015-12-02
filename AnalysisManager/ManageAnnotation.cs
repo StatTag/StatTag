@@ -101,6 +101,14 @@ namespace AnalysisManager
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
                 cboRunFrequency.SelectedItem = Annotation.RunFrequency;
                 txtOutputLabel.Text = Annotation.OutputLabel;
+                AnnotationType = Annotation.Type;
+
+                switch (AnnotationType)
+                {
+                    case Constants.AnnotationType.Value:
+                        valueProperties.SetValueFormat(Annotation.ValueFormat);
+                        break;
+                }
             }
             else
             {

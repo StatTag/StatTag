@@ -49,18 +49,7 @@ namespace AnalysisManager.Controls
                 "19:30:50"
             });
 
-            if (!string.IsNullOrWhiteSpace(DateFormat))
-            {
-                cboDate.SelectedItem = DateFormat;
-                chkShowDate.Checked = true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(TimeFormat))
-            {
-                cboTime.SelectedItem = TimeFormat;
-                chkShowTime.Checked = true;
-            }
-
+            UpdateValues();
         }
 
         private void UpdateDate()
@@ -81,6 +70,21 @@ namespace AnalysisManager.Controls
         private void cboTime_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateTime();
+        }
+
+        public void UpdateValues()
+        {
+            if (!string.IsNullOrWhiteSpace(DateFormat))
+            {
+                cboDate.SelectedItem = DateFormat;
+                chkShowDate.Checked = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(TimeFormat))
+            {
+                cboTime.SelectedItem = TimeFormat;
+                chkShowTime.Checked = true;
+            }
         }
     }
 }

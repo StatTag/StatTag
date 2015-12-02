@@ -14,6 +14,11 @@ namespace AnalysisManager
     public sealed partial class ManageCodeBlocks : Form
     {
         private const int CheckColumn = 0;
+        private const int StatPackageColumn = 1;
+        private const int TypeColumn = 2;
+        private const int LabelColumn = 3;
+        private const int WhenToRunColumn = 4;
+        private const int EditColumn = 5;
 
         public List<CodeFile> Files { get; set; }
 
@@ -68,6 +73,22 @@ namespace AnalysisManager
                 foreach (var annotation in file.Annotations)
                 {
                     AddRow(annotation);
+                }
+            }
+        }
+
+        private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == EditColumn)
+            {
+                var dialog = new ManageAnnotation(Files);
+                dialog.Annotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+                    {
+                        dgvItems.Rows[e.RowIndex].Tag = dialog.Annotation;
+                    }
                 }
             }
         }

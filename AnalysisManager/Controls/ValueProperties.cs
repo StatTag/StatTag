@@ -70,24 +70,62 @@ namespace AnalysisManager.Controls
         public ValueFormat GetValueFormat()
         {
             var format = new ValueFormat();
-            if (radNumeric.Checked)
+            if (radDefault.Checked)
+            {
+                format.FormatType = Constants.ValueFormatType.Default;
+            }
+            else if (radNumeric.Checked)
             {
                 var numProperties = pnlDetails.Controls.OfType<NumericValueProperties>().First();
                 format.DecimalPlaces = numProperties.DecimalPlaces;
                 format.UseThousands = numProperties.UseThousands;
+                format.FormatType = Constants.ValueFormatType.Numeric;
             }
             else if (radDateTime.Checked)
             {
                 var dateTimeProperties = pnlDetails.Controls.OfType<DateTimeValueProperties>().First();
                 format.DateFormat = dateTimeProperties.DateFormat;
                 format.TimeFormat = dateTimeProperties.TimeFormat;
+                format.FormatType = Constants.ValueFormatType.DateTime;
             }
             else if (radPercentage.Checked)
             {
                 var pctProperties = pnlDetails.Controls.OfType<PercentageValueProperties>().First();
                 format.DecimalPlaces = pctProperties.DecimalPlaces;
+                format.FormatType = Constants.ValueFormatType.Percentage;
             }
             return format;
+        }
+
+        public void SetValueFormat(ValueFormat format)
+        {
+            if (format.FormatType == Constants.ValueFormatType.Default)
+            {
+                radDefault.Checked = true;
+            }
+            else if (format.FormatType == Constants.ValueFormatType.Numeric)
+            {
+                radNumeric.Checked = true;
+                var numProperties = pnlDetails.Controls.OfType<NumericValueProperties>().First();
+                numProperties.DecimalPlaces = format.DecimalPlaces;
+                numProperties.UseThousands = format.UseThousands;
+                numProperties.UpdateValues();
+            }
+            else if (format.FormatType == Constants.ValueFormatType.DateTime)
+            {
+                radDateTime.Checked = true;
+                var dateTimeProperties = pnlDetails.Controls.OfType<DateTimeValueProperties>().First();
+                dateTimeProperties.DateFormat = format.DateFormat;
+                dateTimeProperties.TimeFormat = format.TimeFormat;
+                dateTimeProperties.UpdateValues();
+            }
+            else if (format.FormatType == Constants.ValueFormatType.Percentage)
+            {
+                radPercentage.Checked = true;
+                var pctProperties = pnlDetails.Controls.OfType<PercentageValueProperties>().First();
+                pctProperties.DecimalPlaces = format.DecimalPlaces;
+                pctProperties.UpdateValues();
+            }
         }
     }
 }
