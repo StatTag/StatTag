@@ -17,7 +17,7 @@ namespace AnalysisManager.Core.Parser
 
         protected static Regex BuildRegex(string name, string valueMatch, bool isQuoted)
         {
-            return new Regex(string.Format("\\{2}.*{0}={1}({4}){1}.*\\{3}",
+            return new Regex(string.Format("\\{2}.*{0}\\s*=\\s*{1}({4}){1}.*\\{3}",
                 name, (isQuoted ? "\\\"" : string.Empty), ParamStart, ParamEnd, valueMatch));
         }
 
