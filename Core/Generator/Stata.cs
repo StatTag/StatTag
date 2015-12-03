@@ -14,17 +14,17 @@ namespace AnalysisManager.Core.Generator
             get { return Constants.CodeFileComment.Stata; }
         }
 
-        public override string CreateOpenTag(Annotation annotation)
-        {
-            string openBase = CreateOpenTagBase();
+        //public override string CreateOpenTag(Annotation annotation)
+        //{
+        //    string openBase = CreateOpenTagBase();
 
-            if (annotation.Type.Equals(Constants.AnnotationType.Value))
-            {
-                var valueGenerator = new ValueGenerator();
-                openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Value, Constants.AnnotationTags.ParamStart, valueGenerator.CreateParameters(annotation), Constants.AnnotationTags.ParamEnd);
-            }
+        //    if (annotation.Type.Equals(Constants.AnnotationType.Value))
+        //    {
+        //        var valueGenerator = new ValueGenerator();
+        //        openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Value, Constants.AnnotationTags.ParamStart, valueGenerator.CreateParameters(annotation), Constants.AnnotationTags.ParamEnd);
+        //    }
 
-            return openBase;
-        }
+        //    return openBase;
+        //}
     }
 }

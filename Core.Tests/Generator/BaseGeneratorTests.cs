@@ -15,11 +15,6 @@ namespace Core.Tests.Generator
             {
                 get { return "*"; }
             }
-
-            public override string CreateOpenTag(Annotation annotation)
-            {
-                return CreateOpenTagBase();
-            }
         }
 
         [TestMethod]
@@ -34,6 +29,18 @@ namespace Core.Tests.Generator
         {
             var generator = new StubGenerator();
             Assert.AreEqual("**<<<", generator.CreateClosingTag());
+        }
+
+        [TestMethod]
+        public void CreateOpenTag_Value()
+        {
+            var generator = new StubGenerator();
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            Assert.AreEqual("**>>>AM:Value(Type=\"Default\")", generator.CreateOpenTag(annotation));
         }
     }
 }
