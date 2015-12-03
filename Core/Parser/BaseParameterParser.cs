@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
 {
     public class BaseParameterParser
     {
-        public const string ParamStart = "(";
-        public const string ParamEnd = ")";
         public const string StringValueMatch = ".*?";
         public const string IntValueMatch = "\\d+";
         public const string BoolValueMatch = "true|false";
@@ -18,7 +17,7 @@ namespace AnalysisManager.Core.Parser
         protected static Regex BuildRegex(string name, string valueMatch, bool isQuoted)
         {
             return new Regex(string.Format("\\{2}.*{0}\\s*=\\s*{1}({4}){1}.*\\{3}",
-                name, (isQuoted ? "\\\"" : string.Empty), ParamStart, ParamEnd, valueMatch));
+                name, (isQuoted ? "\\\"" : string.Empty), Constants.AnnotationTags.ParamStart, Constants.AnnotationTags.ParamEnd, valueMatch));
         }
 
         protected static string GetParameter(string name, string valueMatch, string text, string defaultValue = "", bool quoted = true)

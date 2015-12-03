@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
 {
@@ -12,11 +13,9 @@ namespace AnalysisManager.Core.Parser
     /// </summary>
     public sealed class Stata : BaseParser
     {
-        public const char StataCommentCharacter = '*';
-
-        public override char CommentCharacter
+        public override string CommentCharacter
         {
-            get { return StataCommentCharacter; }
+            get { return Constants.CodeFileComment.Stata; }
         }
     }
 }

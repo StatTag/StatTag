@@ -11,9 +11,9 @@ namespace Core.Tests.Parser
     {
         public sealed class StubParser : BaseParser
         {
-            public override char CommentCharacter
+            public override string CommentCharacter
             {
-                get { return '*'; }
+                get { return "*"; }
             }
 
             public Match DetectStartAnnotation(string line)
