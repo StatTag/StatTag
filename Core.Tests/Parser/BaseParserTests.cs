@@ -46,9 +46,9 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Value",
+                "**>>>AM:Test",
                 "declare value",
-                "**<<<AM:Value"
+                "**<<<AM:Test"
             });
             var result = parser.Parse(lines.ToArray());
             Assert.AreEqual(1, result.Length);
@@ -62,7 +62,7 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Value",
+                "**>>>AM:Test",
                 "declare value"
             });
             var result = parser.Parse(lines.ToArray());
@@ -75,11 +75,11 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Value",
+                "**>>>AM:Test",
                 "declare value",
-                "**>>>AM:Value",
+                "**>>>AM:Test",
                 "declare value",
-                "**<<<AM:Value"
+                "**<<<AM:Test"
             });
             var result = parser.Parse(lines.ToArray());
             Assert.AreEqual(1, result.Length);

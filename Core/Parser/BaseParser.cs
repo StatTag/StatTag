@@ -37,7 +37,7 @@ namespace AnalysisManager.Core.Parser
         {
             if (StartAnnotationRegEx == null)
             {
-                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}.*", CommentCharacter, StartAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, StartAnnotation, AnnotationPrefix), RegexOptions.Singleline);
             }
 
             if (EndAnnotationRegEx == null)
@@ -56,6 +56,7 @@ namespace AnalysisManager.Core.Parser
                 return annotations.ToArray();
             }
 
+            Annotation annotation = null;
             int? startIndex = null;
             for (int index = 0; index < lines.Length; index++)
             {
@@ -63,7 +64,12 @@ namespace AnalysisManager.Core.Parser
                 var match = StartAnnotationRegEx.Match(line);
                 if (match.Success)
                 {
+                    annotation = new Annotation()
+                    {
+                        LineStart = index
+                    };
                     startIndex = index;
+                    ProcessAnnotation(match.Groups[1].Value, annotation);
                 }
                 else if (startIndex.HasValue)
                 {
@@ -81,6 +87,15 @@ namespace AnalysisManager.Core.Parser
             }
 
             return annotations.ToArray();
+        }
+
+        protected void ProcessAnnotation(string annotationText, Annotation annotation)
+        {
+            if (annotationText.StartsWith(Constants.AnnotationType.Value))
+            {
+                annotation.Type = Constants.AnnotationType.Value;
+                ValueParser.Parse(annotationText, annotation);
+            }
         }
     }
 }

@@ -76,5 +76,15 @@ namespace AnalysisManager.Core.Models
                     StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
             }
         }
+
+        public static class ValueParameters
+        {
+            public const string Label = "Label";
+            public const string Type = "Type";
+            public const string Decimals = "Decimals";
+            public const string UseThousands = "Thousands";
+            public const string DateFormat = "DateFormat";
+            public const string TimeFormat = "TimeFormat";
+        }
     }
 }

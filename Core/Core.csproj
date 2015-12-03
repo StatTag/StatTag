@@ -43,8 +43,10 @@
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\ValueFormat.cs" />
+    <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\Stata.cs" />
+    <Compile Include="Parser\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
