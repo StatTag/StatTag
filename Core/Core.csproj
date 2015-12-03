@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generator\BaseGenerator.cs" />
+    <Compile Include="Generator\Stata.cs" />
+    <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\Constants.cs" />

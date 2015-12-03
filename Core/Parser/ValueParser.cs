@@ -13,7 +13,7 @@ namespace AnalysisManager.Core.Parser
         public static void Parse(string annotationText, Annotation annotation)
         {
             annotation.ValueFormat = new ValueFormat();
-            int paramIndex = annotationText.IndexOf(ParamStart, StringComparison.CurrentCulture);
+            int paramIndex = annotationText.IndexOf(Constants.AnnotationTags.ParamStart, StringComparison.CurrentCulture);
             // If no parameters are set, fill in default values
             if (paramIndex == -1)
             {

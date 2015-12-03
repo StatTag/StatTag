@@ -86,5 +86,21 @@ namespace AnalysisManager.Core.Models
             public const string DateFormat = "DateFormat";
             public const string TimeFormat = "TimeFormat";
         }
+
+        public static class CodeFileComment
+        {
+            public const string Stata = "*";
+            //public const string R = "*";
+            //public const string SAS = "";
+        }
+
+        public static class AnnotationTags
+        {
+            public const string StartAnnotation = ">>>";
+            public const string EndAnnotation = "<<<";
+            public const string AnnotationPrefix = "AM:";
+            public const string ParamStart = "(";
+            public const string ParamEnd = ")";
+        }
     }
 }

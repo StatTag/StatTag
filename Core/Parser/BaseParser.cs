@@ -10,10 +10,7 @@ namespace AnalysisManager.Core.Parser
 {
     public abstract class BaseParser
     {
-        public const string StartAnnotation = ">>>";
-        public const string EndAnnotation = "<<<";
-        public const string AnnotationPrefix = "AM:";
-        public abstract char CommentCharacter { get; }
+        public abstract string CommentCharacter { get; }
 
         protected Regex StartAnnotationRegEx = null;
         protected Regex EndAnnotationRegEx = null;
@@ -37,12 +34,12 @@ namespace AnalysisManager.Core.Parser
         {
             if (StartAnnotationRegEx == null)
             {
-                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, StartAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.AnnotationTags.StartAnnotation, Constants.AnnotationTags.AnnotationPrefix), RegexOptions.Singleline);
             }
 
             if (EndAnnotationRegEx == null)
             {
-                EndAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, EndAnnotation, AnnotationPrefix), RegexOptions.Singleline);
+                EndAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.AnnotationTags.EndAnnotation, Constants.AnnotationTags.AnnotationPrefix), RegexOptions.Singleline);
             }
         }
 
@@ -56,7 +53,6 @@ namespace AnalysisManager.Core.Parser
                 return annotations.ToArray();
             }
 
-            Annotation annotation = null;
             int? startIndex = null;
             for (int index = 0; index < lines.Length; index++)
             {
@@ -64,7 +60,7 @@ namespace AnalysisManager.Core.Parser
                 var match = StartAnnotationRegEx.Match(line);
                 if (match.Success)
                 {
-                    annotation = new Annotation()
+                    var annotation = new Annotation()
                     {
                         LineStart = index
                     };
