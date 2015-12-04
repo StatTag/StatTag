@@ -38,6 +38,7 @@
             this.codeGroup = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
             this.cmdManageOutput = this.Factory.CreateRibbonButton();
+            this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
             // 
@@ -52,6 +53,7 @@
             // 
             this.codeGroup.Items.Add(this.cmdLoadCode);
             this.codeGroup.Items.Add(this.cmdManageOutput);
+            this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Label = "Analysis Manager";
             this.codeGroup.Name = "codeGroup";
             // 
@@ -73,6 +75,12 @@
             this.cmdManageOutput.ShowImage = true;
             this.cmdManageOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageOutput_Click);
             // 
+            // cmdInsertOutput
+            // 
+            this.cmdInsertOutput.Label = "Insert Output";
+            this.cmdInsertOutput.Name = "cmdInsertOutput";
+            this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
+            // 
             // MainRibbon
             // 
             this.Name = "MainRibbon";
@@ -92,6 +100,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup codeGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdLoadCode;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageOutput;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
     }
 
     partial class ThisRibbonCollection

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Interfaces;
 using AnalysisManager.Core.Parser;
+using Newtonsoft.Json;
 
 namespace AnalysisManager.Core.Models
 {
@@ -14,6 +15,7 @@ namespace AnalysisManager.Core.Models
         public string StatisticalPackage { get; set; }
         public string FilePath { get; set; }
         public DateTime? LastCached { get; set; }
+        [JsonIgnore]
         public List<Annotation> Annotations { get; set; }
 
         protected IFileHandler FileHandler { get; set; }
@@ -76,6 +78,11 @@ namespace AnalysisManager.Core.Models
             {
                 FileHandler.Copy(FilePath, backupFile);
             }
+        }
+
+        public static string SerializeList(List<CodeFile> files)
+        {
+            return JsonConvert.SerializeObject(files);
         }
     }
 }
