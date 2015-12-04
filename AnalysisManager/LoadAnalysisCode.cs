@@ -75,6 +75,7 @@ namespace AnalysisManager
                 };
                 file.LoadAnnotationsFromContent();
                 files.Add(file);
+                file.SaveBackup();
             }
             Files = files;
 
@@ -114,7 +115,7 @@ namespace AnalysisManager
         private string GetFileName()
         {
             FileDialog openFile = new OpenFileDialog();
-            openFile.Filter = Constants.FileFilters.FormatForFileDialog();
+            openFile.Filter = Constants.FileFilters.FormatForOpenFileDialog();
             if (DialogResult.OK == openFile.ShowDialog())
             {
                 return openFile.FileName;

@@ -43,9 +43,11 @@
     <Compile Include="Generator\BaseGenerator.cs" />
     <Compile Include="Generator\Stata.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
+    <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\Constants.cs" />
+    <Compile Include="Models\FileHandler.cs" />
     <Compile Include="Models\ValueFormat.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />

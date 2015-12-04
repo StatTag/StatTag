@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -70,11 +71,16 @@ namespace AnalysisManager.Core.Models
             public const string AllLabel = "All files";
             public const string AllFilter = "*.*";
 
-            public static string FormatForFileDialog()
+            public static string FormatForOpenFileDialog()
             {
                 return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                     StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
             }
+        }
+
+        public static class FileExtensions
+        {
+            public const string Backup = "am-bak";
         }
 
         /// <summary>
