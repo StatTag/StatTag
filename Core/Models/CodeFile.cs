@@ -84,5 +84,10 @@ namespace AnalysisManager.Core.Models
         {
             return JsonConvert.SerializeObject(files);
         }
+
+        public static List<CodeFile> DeserializeList(string value)
+        {
+            return JsonConvert.DeserializeObject<List<CodeFile>>(value);
+        }
     }
 }

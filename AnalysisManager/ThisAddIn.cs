@@ -24,7 +24,12 @@ namespace AnalysisManager
 
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
-            Manager.SaveFileListToDocument();
+            Manager.SaveFilesToDocument(doc);
+        }
+
+        void Application_DocumentOpen(Word.Document doc)
+        {
+            Manager.LoadFilesFromDocument(doc);
         }
 
         #region VSTO generated code
@@ -38,6 +43,7 @@ namespace AnalysisManager
             this.Startup += new System.EventHandler(ThisAddIn_Startup);
             this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
             this.Application.DocumentBeforeSave += new Word.ApplicationEvents4_DocumentBeforeSaveEventHandler(Application_DocumentBeforeSave);
+            this.Application.DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(Application_DocumentOpen);
         }
         
         #endregion

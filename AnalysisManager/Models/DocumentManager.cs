@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using AnalysisManager.Core.Models;
+using Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager.Models
 {
@@ -14,12 +17,62 @@ namespace AnalysisManager.Models
             Files = new List<CodeFile>();
         }
 
-        public void SaveFileListToDocument()
+        /// <summary>
+        /// Provider a wrapper to check if a variable exists in the document.
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <returns></returns>
+        protected bool DocumentVariableExists(Variable variable)
         {
-            var document = Globals.ThisAddIn.Application.ActiveDocument;
-            var attribute = CodeFile.SerializeList(Files);
-            document.Variables.Add(ConfigurationAttribute, attribute);
-            var test = document.Variables[ConfigurationAttribute].Value;
+            // The Word interop doesn't provide a nice check mechanism, and uses exceptions instead.
+            try
+            {
+
+                var value = variable.Value;
+                return true;
+            }
+            catch (COMException exc)
+            {
+                return false;
+            }
+        }
+
+        public void SaveFilesToDocument(Document document)
+        {
+            var variables = document.Variables;
+            var variable = variables[ConfigurationAttribute];
+            try
+            {
+                var attribute = CodeFile.SerializeList(Files);
+                if (!DocumentVariableExists(variable))
+                {
+                    variables.Add(ConfigurationAttribute, attribute);
+                }
+                else
+                {
+                    variable.Value = attribute;
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variables);
+                Marshal.ReleaseComObject(variable);
+            }
+        }
+
+        public void LoadFilesFromDocument(Document document)
+        {
+            var variables = document.Variables;
+            var variable = variables[ConfigurationAttribute];
+            try
+            {
+                Files = DocumentVariableExists(variable) ? CodeFile.DeserializeList(variable.Value) : new List<CodeFile>();
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variables);
+                Marshal.ReleaseComObject(variable);
+            }
         }
     }
 }
