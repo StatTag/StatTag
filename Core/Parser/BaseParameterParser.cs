@@ -13,11 +13,28 @@ namespace AnalysisManager.Core.Parser
         public const string StringValueMatch = ".*?";
         public const string IntValueMatch = "\\d+";
         public const string BoolValueMatch = "true|false";
+        protected static Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
 
+        /// <summary>
+        /// Build the regex to identify and extract a parameter from an annotation string.
+        /// Internally this uses a cache to save created regexes.  These are keyed by the
+        /// parameters, as that will uniquely create the regex string.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="valueMatch"></param>
+        /// <param name="isQuoted"></param>
+        /// <returns></returns>
         protected static Regex BuildRegex(string name, string valueMatch, bool isQuoted)
         {
-            return new Regex(string.Format("\\{2}.*{0}\\s*=\\s*{1}({4}){1}.*\\{3}",
-                name, (isQuoted ? "\\\"" : string.Empty), Constants.AnnotationTags.ParamStart, Constants.AnnotationTags.ParamEnd, valueMatch));
+            string key = string.Format("{0}-{1}-{2}", name, valueMatch, isQuoted);
+            if (!RegexCache.ContainsKey(key))
+            {
+                RegexCache.Add(key, new Regex(string.Format("\\{2}.*{0}\\s*=\\s*{1}({4}){1}.*\\{3}",
+                    name, (isQuoted ? "\\\"" : string.Empty), Constants.AnnotationTags.ParamStart,
+                    Constants.AnnotationTags.ParamEnd, valueMatch)));
+            }
+
+            return RegexCache[key];
         }
 
         protected static string GetParameter(string name, string valueMatch, string text, string defaultValue = "", bool quoted = true)

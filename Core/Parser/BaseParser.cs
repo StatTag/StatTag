@@ -8,7 +8,7 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
 {
-    public abstract class BaseParser
+    public abstract class BaseParser : IParser
     {
         public abstract string CommentCharacter { get; }
 
@@ -54,13 +54,14 @@ namespace AnalysisManager.Core.Parser
             }
 
             int? startIndex = null;
+            Annotation annotation = null;
             for (int index = 0; index < lines.Length; index++)
             {
                 var line = lines[index].Trim();
                 var match = StartAnnotationRegEx.Match(line);
                 if (match.Success)
                 {
-                    var annotation = new Annotation()
+                    annotation = new Annotation()
                     {
                         LineStart = index
                     };
@@ -72,11 +73,9 @@ namespace AnalysisManager.Core.Parser
                     match = EndAnnotationRegEx.Match(line);
                     if (match.Success)
                     {
-                        annotations.Add(new Annotation()
-                        {
-                            LineStart = startIndex,
-                            LineEnd = index
-                        });
+                        annotation.LineStart = startIndex;
+                        annotation.LineEnd = index;
+                        annotations.Add(annotation);
                         startIndex = null;
                     }
                 }

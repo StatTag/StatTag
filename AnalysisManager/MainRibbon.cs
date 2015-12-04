@@ -29,7 +29,10 @@ namespace AnalysisManager
         private void cmdManageOutput_Click(object sender, RibbonControlEventArgs e)
         {
             var dialog = new ManageCodeBlocks(Files);
-            dialog.ShowDialog();
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                //dialog.Annotations;
+            }
         }
     }
 }

@@ -77,9 +77,18 @@ namespace AnalysisManager.Core.Models
             }
         }
 
-        public static class ValueParameters
+        /// <summary>
+        /// A list of parameter names that are available across all types of
+        /// annotations.
+        /// </summary>
+        public static class AnnotationParameters
         {
             public const string Label = "Label";
+            public const string Frequency = "Frequency";
+        }
+
+        public static class ValueParameters
+        {
             public const string Type = "Type";
             public const string Decimals = "Decimals";
             public const string UseThousands = "Thousands";

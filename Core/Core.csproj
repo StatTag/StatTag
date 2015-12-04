@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories.cs" />
     <Compile Include="Generator\BaseGenerator.cs" />
     <Compile Include="Generator\Stata.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="Models\ValueFormat.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />
+    <Compile Include="Parser\IParser.cs" />
     <Compile Include="Parser\Stata.cs" />
     <Compile Include="Parser\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

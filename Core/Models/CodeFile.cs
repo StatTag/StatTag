@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Parser;
 
 namespace AnalysisManager.Core.Models
 {
@@ -40,9 +41,28 @@ namespace AnalysisManager.Core.Models
             return item.FilePath.Equals(FilePath, StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public string[] GetContent()
+        public virtual string[] GetContent()
         {
             return File.ReadAllLines(FilePath);
+        }
+
+        public void LoadAnnotationsFromContent()
+        {
+            Annotations = new List<Annotation>(); // Any time we try to load, reset the list of annotations that may exist
+            var content = GetContent();
+            if (content == null || content.Length == 0)
+            {
+                return;
+            }
+
+            var parser = Factories.GetParser(this);
+            if (parser == null)
+            {
+                return;
+            }
+
+            Annotations = new List<Annotation>(parser.Parse(content).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
+            Annotations.ForEach(x => x.CodeFile = this);
         }
     }
 }

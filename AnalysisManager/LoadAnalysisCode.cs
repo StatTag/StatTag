@@ -68,11 +68,13 @@ namespace AnalysisManager
             for (int index = 0; index < dgvItems.Rows.Count; index++)
             {
                 var item = dgvItems.Rows[index];
-                files.Add(new CodeFile()
+                var file = new CodeFile()
                 {
                     FilePath = item.Cells[FilePathColumn].Value.ToString(),
                     StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
-                });
+                };
+                file.LoadAnnotationsFromContent();
+                files.Add(file);
             }
             Files = files;
 
@@ -93,6 +95,19 @@ namespace AnalysisManager
                 {
                     dgvItems.Rows[e.RowIndex].Cells[FilePathColumn].Value = fileName;
                 }    
+            }
+            else if (e.ColumnIndex == DetailsColumn)
+            {
+                var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
+                if (file != null)
+                {
+                    file.LoadAnnotationsFromContent();
+                    var dialog = new ManageCodeBlocks(new List<CodeFile>(new []{ file }));
+                    if (DialogResult.OK == dialog.ShowDialog())
+                    {
+                        
+                    }
+                }
             }
         }
 

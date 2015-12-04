@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageCodeBlocks));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.label1 = new System.Windows.Forms.Label();
             this.dgvItems = new System.Windows.Forms.DataGridView();
-            this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
-            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
-            this.cmdRemove = new System.Windows.Forms.Button();
-            this.cmdAdd = new System.Windows.Forms.Button();
             this.colCheck = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colStatPackage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colOutputLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRunFrequency = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.cmdCancel = new System.Windows.Forms.Button();
+            this.cmdOK = new System.Windows.Forms.Button();
+            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.cmdRemove = new System.Windows.Forms.Button();
+            this.cmdAdd = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -77,9 +77,63 @@
             this.dgvItems.Location = new System.Drawing.Point(15, 29);
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
+            this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvItems.Size = new System.Drawing.Size(662, 201);
             this.dgvItems.TabIndex = 1;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
+            // 
+            // colCheck
+            // 
+            this.colCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colCheck.HeaderText = "";
+            this.colCheck.MinimumWidth = 20;
+            this.colCheck.Name = "colCheck";
+            this.colCheck.Width = 20;
+            // 
+            // colStatPackage
+            // 
+            this.colStatPackage.HeaderText = "Run In";
+            this.colStatPackage.MinimumWidth = 70;
+            this.colStatPackage.Name = "colStatPackage";
+            this.colStatPackage.ReadOnly = true;
+            this.colStatPackage.Width = 70;
+            // 
+            // colType
+            // 
+            this.colType.HeaderText = "Type";
+            this.colType.Name = "colType";
+            this.colType.ReadOnly = true;
+            this.colType.Width = 61;
+            // 
+            // colOutputLabel
+            // 
+            this.colOutputLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colOutputLabel.HeaderText = "Output Label";
+            this.colOutputLabel.MinimumWidth = 200;
+            this.colOutputLabel.Name = "colOutputLabel";
+            this.colOutputLabel.ReadOnly = true;
+            // 
+            // colRunFrequency
+            // 
+            this.colRunFrequency.HeaderText = "When to Run";
+            this.colRunFrequency.MinimumWidth = 150;
+            this.colRunFrequency.Name = "colRunFrequency";
+            this.colRunFrequency.Width = 150;
+            // 
+            // colEdit
+            // 
+            this.colEdit.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopCenter;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.colEdit.DefaultCellStyle = dataGridViewCellStyle1;
+            this.colEdit.HeaderText = "";
+            this.colEdit.MinimumWidth = 40;
+            this.colEdit.Name = "colEdit";
+            this.colEdit.ReadOnly = true;
+            this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.colEdit.Text = "";
+            this.colEdit.ToolTipText = "Edit this item";
+            this.colEdit.Width = 40;
             // 
             // cmdCancel
             // 
@@ -150,59 +204,6 @@
             this.cmdAdd.Text = "Add Item";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
-            // 
-            // colCheck
-            // 
-            this.colCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colCheck.HeaderText = "";
-            this.colCheck.MinimumWidth = 20;
-            this.colCheck.Name = "colCheck";
-            this.colCheck.Width = 20;
-            // 
-            // colStatPackage
-            // 
-            this.colStatPackage.HeaderText = "Run In";
-            this.colStatPackage.MinimumWidth = 70;
-            this.colStatPackage.Name = "colStatPackage";
-            this.colStatPackage.ReadOnly = true;
-            this.colStatPackage.Width = 70;
-            // 
-            // colType
-            // 
-            this.colType.HeaderText = "Type";
-            this.colType.Name = "colType";
-            this.colType.ReadOnly = true;
-            this.colType.Width = 61;
-            // 
-            // colOutputLabel
-            // 
-            this.colOutputLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colOutputLabel.HeaderText = "Output Label";
-            this.colOutputLabel.MinimumWidth = 200;
-            this.colOutputLabel.Name = "colOutputLabel";
-            this.colOutputLabel.ReadOnly = true;
-            // 
-            // colRunFrequency
-            // 
-            this.colRunFrequency.HeaderText = "When to Run";
-            this.colRunFrequency.MinimumWidth = 150;
-            this.colRunFrequency.Name = "colRunFrequency";
-            this.colRunFrequency.Width = 150;
-            // 
-            // colEdit
-            // 
-            this.colEdit.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopCenter;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.colEdit.DefaultCellStyle = dataGridViewCellStyle1;
-            this.colEdit.HeaderText = "";
-            this.colEdit.MinimumWidth = 40;
-            this.colEdit.Name = "colEdit";
-            this.colEdit.ReadOnly = true;
-            this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.colEdit.Text = "";
-            this.colEdit.ToolTipText = "Edit this item";
-            this.colEdit.Width = 40;
             // 
             // ManageCodeBlocks
             // 
