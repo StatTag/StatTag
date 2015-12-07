@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace AnalysisManager.Properties {
+    using System;
     
     
     /// <summary>
@@ -18,7 +19,7 @@ namespace AnalysisManager.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -56,6 +57,66 @@ namespace AnalysisManager.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1446843246_delete {
+            get {
+                object obj = ResourceManager.GetObject("1446843246_delete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1446843266_plus {
+            get {
+                object obj = ResourceManager.GetObject("1446843266_plus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1446845069_Copy {
+            get {
+                object obj = ResourceManager.GetObject("1446845069_Copy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1447149705_Gnome_System_File_Manager_64 {
+            get {
+                object obj = ResourceManager.GetObject("1447149705_Gnome-System-File-Manager-64", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _1447149791_file_manager {
+            get {
+                object obj = ResourceManager.GetObject("1447149791_file-manager", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DeleteTablefromDatabase_270 {
+            get {
+                object obj = ResourceManager.GetObject("DeleteTablefromDatabase_270", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
