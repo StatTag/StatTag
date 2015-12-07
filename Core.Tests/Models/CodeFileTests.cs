@@ -88,5 +88,33 @@ namespace Core.Tests.Models
             codeFile.SaveBackup();
             mock.Verify(file => file.Copy(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
+
+        [TestMethod]
+        public void GuessStatisticalPackage_Empty()
+        {
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage(""));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("  "));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage(null));
+        }
+
+        [TestMethod]
+        public void GuessStatisticalPackage_Valid()
+        {
+            Assert.AreEqual(Constants.StatisticalPackages.Stata, CodeFile.GuessStatisticalPackage("C:\\test.do"));
+            Assert.AreEqual(Constants.StatisticalPackages.Stata, CodeFile.GuessStatisticalPackage("  C:\\test.do  "));
+            Assert.AreEqual(Constants.StatisticalPackages.R, CodeFile.GuessStatisticalPackage("C:\\test.r"));
+            Assert.AreEqual(Constants.StatisticalPackages.R, CodeFile.GuessStatisticalPackage("  C:\\test.r  "));
+            Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("C:\\test.sas"));
+            Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("  C:\\test.sas  "));
+        }
+
+        [TestMethod]
+        public void GuessStatisticalPackage_Unknown()
+        {
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.txt"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.dor"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.r t"));
+        }
     }
 }

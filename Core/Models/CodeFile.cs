@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Interfaces;
@@ -88,6 +89,43 @@ namespace AnalysisManager.Core.Models
         public static List<CodeFile> DeserializeList(string value)
         {
             return JsonConvert.DeserializeObject<List<CodeFile>>(value);
+        }
+
+        private static bool FilterMatches(string filter, string path)
+        {
+            string[] extensions = filter.Split(';');
+            string normalizedPath = path.ToUpper();
+            if (extensions.Any(extension => normalizedPath.EndsWith(extension.Replace("*", "").ToUpper())))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static string GuessStatisticalPackage(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            path = path.Trim();
+
+            if (FilterMatches(Constants.FileFilters.StataFilter, path))
+            {
+                return Constants.StatisticalPackages.Stata;
+            }
+            else if (FilterMatches(Constants.FileFilters.SASFilter, path))
+            {
+                return Constants.StatisticalPackages.SAS;
+            }
+            else if (FilterMatches(Constants.FileFilters.RFilter, path))
+            {
+                return Constants.StatisticalPackages.R;
+            }
+
+            return string.Empty;
         }
     }
 }

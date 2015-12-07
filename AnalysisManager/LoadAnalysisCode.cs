@@ -50,7 +50,8 @@ namespace AnalysisManager
             string fileName = GetFileName();
             if (!string.IsNullOrWhiteSpace(fileName))
             {
-                AddItem(new CodeFile() { FilePath = fileName });
+                string package = CodeFile.GuessStatisticalPackage(fileName);
+                AddItem(new CodeFile() { FilePath = fileName, StatisticalPackage = package});
             }
         }
 

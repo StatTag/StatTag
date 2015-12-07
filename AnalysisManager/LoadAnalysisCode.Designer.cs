@@ -33,12 +33,12 @@
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdAdd = new System.Windows.Forms.Button();
             this.dgvItems = new System.Windows.Forms.DataGridView();
+            this.cmdRemove = new System.Windows.Forms.Button();
             this.colSelect = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colStatPackage = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFile = new System.Windows.Forms.DataGridViewButtonColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.cmdRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -119,6 +119,19 @@
             this.dgvItems.TabIndex = 4;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
             // 
+            // cmdRemove
+            // 
+            this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdRemove.Location = new System.Drawing.Point(388, 243);
+            this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cmdRemove.Name = "cmdRemove";
+            this.cmdRemove.Size = new System.Drawing.Size(103, 25);
+            this.cmdRemove.TabIndex = 5;
+            this.cmdRemove.Text = "Remove File(s)";
+            this.cmdRemove.UseVisualStyleBackColor = true;
+            this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
+            // 
             // colSelect
             // 
             this.colSelect.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
@@ -166,20 +179,8 @@
             this.colEdit.ReadOnly = true;
             this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.colEdit.Text = "Edit";
+            this.colEdit.Visible = false;
             this.colEdit.Width = 50;
-            // 
-            // cmdRemove
-            // 
-            this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdRemove.Location = new System.Drawing.Point(388, 243);
-            this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cmdRemove.Name = "cmdRemove";
-            this.cmdRemove.Size = new System.Drawing.Size(103, 25);
-            this.cmdRemove.TabIndex = 5;
-            this.cmdRemove.Text = "Remove File(s)";
-            this.cmdRemove.UseVisualStyleBackColor = true;
-            this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
             // 
             // LoadAnalysisCode
             // 
