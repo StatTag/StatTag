@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace AnalysisManager.Core.Models
 {
     public class Annotation
     {
+        [JsonIgnore]
         public CodeFile CodeFile { get; set; }
         public string Type { get; set; }
         public string OutputLabel { get; set; }
@@ -26,5 +28,20 @@ namespace AnalysisManager.Core.Models
         /// annotation tag exists.
         /// </summary>
         public int? LineEnd { get; set; }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrWhiteSpace(OutputLabel))
+            {
+                return OutputLabel;
+            }
+
+            return base.ToString();
+        }
+
+        public string Serialize()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

@@ -232,6 +232,12 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SelectOutput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectOutput.Designer.cs">
+      <DependentUpon>SelectOutput.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIUtility.cs" />
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
@@ -267,6 +273,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SelectOutput.resx">
+      <DependentUpon>SelectOutput.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="AnalysisManager_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -298,6 +307,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Stata\Stata.csproj">
+      <Project>{b3eec6bd-9314-4bf4-9971-535a87e6df5d}</Project>
+      <Name>Stata</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

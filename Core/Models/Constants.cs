@@ -117,5 +117,11 @@ namespace AnalysisManager.Core.Models
             public const string ParamStart = "(";
             public const string ParamEnd = ")";
         }
+
+        public static class ParserFilterMode
+        {
+            public const int IncludeAll = 0;
+            public const int ExcludeOnDemand = 1;
+        }
     }
 }

@@ -64,6 +64,7 @@
             this.cmdLoadCode.Label = "Code Files";
             this.cmdLoadCode.Name = "cmdLoadCode";
             this.cmdLoadCode.ShowImage = true;
+            this.cmdLoadCode.SuperTip = "Manage the list of analysis source code files used within this document.";
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
             // 
             // cmdManageOutput
@@ -73,12 +74,16 @@
             this.cmdManageOutput.Label = "Annotations";
             this.cmdManageOutput.Name = "cmdManageOutput";
             this.cmdManageOutput.ShowImage = true;
+            this.cmdManageOutput.SuperTip = "Manage the list of annotations that are used and referenced within this document." +
+    "";
             this.cmdManageOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageOutput_Click);
             // 
             // cmdInsertOutput
             // 
             this.cmdInsertOutput.Label = "Insert Output";
             this.cmdInsertOutput.Name = "cmdInsertOutput";
+            this.cmdInsertOutput.SuperTip = "Insert output from your statistical analysis into the document at the current cur" +
+    "sor location.";
             this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
             // 
             // MainRibbon

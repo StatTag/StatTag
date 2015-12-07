@@ -43,7 +43,7 @@ namespace AnalysisManager.Core.Parser
             }
         }
 
-        public Annotation[] Parse(string[] lines)
+        public Annotation[] Parse(string[] lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
             SetupRegEx();
 
@@ -81,7 +81,66 @@ namespace AnalysisManager.Core.Parser
                 }
             }
 
+            if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand)
+            {
+                return annotations.Where(x => x.RunFrequency == Constants.RunFrequency.Always).ToArray();
+            }
+
             return annotations.ToArray();
+        }
+
+        public string[] Filter(string[] lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
+        {
+            SetupRegEx();
+
+            if (lines == null)
+            {
+                return null;
+            }
+
+            var filteredLines = new List<string>();
+            var isSkipping = false;
+            int? startIndex = null;
+            for (var index = 0; index < lines.Length; index++)
+            {
+                var line = lines[index].Trim();
+                var match = StartAnnotationRegEx.Match(line);
+                if (match.Success)
+                {
+                    var annotation = new Annotation();
+                    startIndex = index;
+                    ProcessAnnotation(match.Groups[1].Value, annotation);
+                    if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
+                        && annotation.RunFrequency == Constants.RunFrequency.OnDemand)
+                    {
+                        isSkipping = true;
+                    }
+                    else
+                    {
+                        filteredLines.Add(lines[index]);
+                    }
+                }
+                else if (startIndex.HasValue)
+                {
+                    if (!isSkipping)
+                    {
+                        filteredLines.Add(lines[index]);
+                    }
+
+                    match = EndAnnotationRegEx.Match(line);
+                    if (match.Success)
+                    {
+                        isSkipping = false;
+                        startIndex = null;
+                    }
+                }
+                else if (!isSkipping)
+                {
+                    filteredLines.Add(lines[index]);
+                }
+            }
+
+            return filteredLines.ToArray();
         }
 
         protected void ProcessAnnotation(string annotationText, Annotation annotation)

@@ -55,8 +55,8 @@ namespace AnalysisManager.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variables);
                 Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
             }
         }
 
@@ -70,8 +70,43 @@ namespace AnalysisManager.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variables);
                 Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+        }
+
+        public void InsertField(Annotation annotation)
+        {
+            if (annotation == null)
+            {
+                return;
+            }
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            var fields = document.Fields;
+            try
+            {
+                var selection = application.Selection;
+                if (selection == null)
+                {
+                    return;
+                }
+
+                var range = selection.Range;
+                Marshal.ReleaseComObject(selection);
+
+                var field = fields.Add(range, WdFieldType.wdFieldEmpty, 
+                    string.Format("ADDIN AnalysisManager {0}", annotation.OutputLabel), false);
+                
+                field.Data = annotation.Serialize();
+                Marshal.ReleaseComObject(field);
+                Marshal.ReleaseComObject(range);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(fields);
+                Marshal.ReleaseComObject(document);
             }
         }
     }
