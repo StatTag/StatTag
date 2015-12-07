@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AnalysisManager.Controls;
-using AnalysisManager.Core;
+﻿using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
-using Microsoft.Office.Interop.Word;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace AnalysisManager
 {
@@ -30,7 +20,7 @@ namespace AnalysisManager
         {
             InitializeComponent();
             Files = files;
-            this.MinimumSize = this.Size;
+            MinimumSize = Size;
         }
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
@@ -51,7 +41,7 @@ namespace AnalysisManager
             if (!string.IsNullOrWhiteSpace(fileName))
             {
                 string package = CodeFile.GuessStatisticalPackage(fileName);
-                AddItem(new CodeFile() { FilePath = fileName, StatisticalPackage = package});
+                AddItem(new CodeFile { FilePath = fileName, StatisticalPackage = package});
             }
         }
 
@@ -69,7 +59,7 @@ namespace AnalysisManager
             for (int index = 0; index < dgvItems.Rows.Count; index++)
             {
                 var item = dgvItems.Rows[index];
-                var file = new CodeFile()
+                var file = new CodeFile
                 {
                     FilePath = item.Cells[FilePathColumn].Value.ToString(),
                     StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
@@ -80,7 +70,7 @@ namespace AnalysisManager
             }
             Files = files;
 
-            this.Close();
+            Close();
         }
 
         private void cmdRemove_Click(object sender, EventArgs e)

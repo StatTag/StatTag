@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace AnalysisManager.Core.Models
 {
+    /// <summary>
+    /// An annotation is a sequence of lines in a CodeFile that is defined by special
+    /// comment tags.  It contains configuration information on how to interpret and
+    /// format the result of the code block within the document.
+    /// </summary>
     public class Annotation
     {
         [JsonIgnore]
@@ -39,6 +39,10 @@ namespace AnalysisManager.Core.Models
             return base.ToString();
         }
 
+        /// <summary>
+        /// Serialize the current object, excluding circular elements like CodeFile
+        /// </summary>
+        /// <returns></returns>
         public string Serialize()
         {
             return JsonConvert.SerializeObject(this);

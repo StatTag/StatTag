@@ -13,7 +13,7 @@ namespace Core.Tests.Models
         {
             Assert.AreEqual(string.Empty, new CodeFile().ToString());
 
-            var file = new CodeFile()
+            var file = new CodeFile
             {
                 FilePath = "C:\\Test.txt",
                 StatisticalPackage = Constants.StatisticalPackages.Stata

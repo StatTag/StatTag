@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AnalysisManager.Core.Interfaces;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AnalysisManager.Core.Interfaces;
 
 namespace AnalysisManager.Core.Models
 {
+    /// <summary>
+    /// Lightweight wrapper on top of the File class from System.IO
+    /// </summary>
     public class FileHandler : IFileHandler
     {
         public string[] ReadAllLines(string filePath)
