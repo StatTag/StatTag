@@ -1,4 +1,6 @@
-﻿using AnalysisManager.Core.Interfaces;
+﻿using System.IO;
+using System.Runtime.InteropServices;
+using AnalysisManager.Core.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,11 +15,20 @@ namespace AnalysisManager.Core.Models
     /// </summary>
     public class CodeFile
     {
+        private List<string> ContentCache = null;
+
         public string StatisticalPackage { get; set; }
         public string FilePath { get; set; }
         public DateTime? LastCached { get; set; }
         [JsonIgnore]
         public List<Annotation> Annotations { get; set; }
+
+        [JsonIgnore]
+        public List<string> Content
+        {
+            get { return ContentCache ?? (ContentCache = LoadFileContent()); }
+            set { ContentCache = value; }
+        }
 
         /// <summary>
         /// This is typically a lightweight wrapper around the standard
@@ -57,9 +68,10 @@ namespace AnalysisManager.Core.Models
         /// Return the contents of the CodeFile
         /// </summary>
         /// <returns></returns>
-        public virtual string[] GetContent()
+        public virtual List<string> LoadFileContent()
         {
-            return FileHandler.ReadAllLines(FilePath);
+            ContentCache = new List<string>(FileHandler.ReadAllLines(FilePath));
+            return ContentCache;
         }
 
         /// <summary>
@@ -69,8 +81,8 @@ namespace AnalysisManager.Core.Models
         public void LoadAnnotationsFromContent()
         {
             Annotations = new List<Annotation>(); // Any time we try to load, reset the list of annotations that may exist
-            var content = GetContent();
-            if (content == null || content.Length == 0)
+            var content = LoadFileContent();
+            if (content == null || !content.Any())
             {
                 return;
             }
@@ -83,6 +95,14 @@ namespace AnalysisManager.Core.Models
 
             Annotations = new List<Annotation>(parser.Parse(content).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
             Annotations.ForEach(x => x.CodeFile = this);
+        }
+
+        /// <summary>
+        /// Save the content to the code file
+        /// </summary>
+        public void Save()
+        {
+            FileHandler.WriteAllLines(FilePath, Content);
         }
 
         /// <summary>
@@ -170,6 +190,31 @@ namespace AnalysisManager.Core.Models
             }
 
             return string.Empty;
+        }
+
+        public Annotation AddAnnotation(Annotation annotation, Annotation oldAnnotation = null)
+        {
+            // Do some sanity checking before modifying anything
+            if (annotation == null || !annotation.LineStart.HasValue || !annotation.LineEnd.HasValue)
+            {
+                return null;
+            }
+
+            if (annotation.LineStart > annotation.LineEnd)
+            {
+                throw new InvalidDataException("The annotation start index is after the end index, which is not allowed.");
+            }
+
+            var updatedAnnotation = new Annotation(annotation);
+            var generator = Factories.GetGenerator(this);
+            var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
+            ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
+            updatedAnnotation.LineEnd += 2;  // Move it down one line based on our insert
+            ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
+
+            // Add to our collection of annotations
+            Annotations.Add(updatedAnnotation);
+            return updatedAnnotation;
         }
     }
 }

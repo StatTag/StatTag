@@ -11,7 +11,7 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
-    public sealed partial class ManageCodeBlocks : Form
+    public sealed partial class ManageAnnotations : Form
     {
         private const int CheckColumn = 0;
         private const int StatPackageColumn = 1;
@@ -22,7 +22,7 @@ namespace AnalysisManager
 
         public List<CodeFile> Files { get; set; }
 
-        public ManageCodeBlocks(List<CodeFile> files)
+        public ManageAnnotations(List<CodeFile> files)
         {
             InitializeComponent();
             MinimumSize = Size;
@@ -36,7 +36,7 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new ManageAnnotation(Files);
+            var dialog = new EditAnnotation(Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
@@ -44,7 +44,7 @@ namespace AnalysisManager
                     // Add the annotation reference to the code file (which saves it for later use).
                     // If we don't do this, we will lose the reference (which is fine for a Cancel
                     // operation).
-                    dialog.Annotation.CodeFile.Annotations.Add(dialog.Annotation);
+                    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
                     AddRow(dialog.Annotation);
                 }
             }
@@ -81,7 +81,7 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                var dialog = new ManageAnnotation(Files);
+                var dialog = new EditAnnotation(Files);
                 dialog.Annotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
                 if (DialogResult.OK == dialog.ShowDialog())
                 {

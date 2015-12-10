@@ -1,4 +1,6 @@
-﻿using AnalysisManager.Core.Interfaces;
+﻿using System.Collections;
+using System.Collections.Generic;
+using AnalysisManager.Core.Interfaces;
 using System.IO;
 
 namespace AnalysisManager.Core.Models
@@ -21,6 +23,11 @@ namespace AnalysisManager.Core.Models
         public void Copy(string sourceFile, string destinationFile)
         {
             File.Copy(sourceFile, destinationFile);
+        }
+
+        public void WriteAllLines(string filePath, IEnumerable<string> content)
+        {
+            File.WriteAllLines(filePath, content);
         }
     }
 }

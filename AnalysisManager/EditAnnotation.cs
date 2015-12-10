@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace AnalysisManager
 {
-    public sealed partial class ManageAnnotation : Form
+    public sealed partial class EditAnnotation : Form
     {
         public const int SelectedButtonWidth = 83;
         public const int UnselectedButtonWidth = 70;
@@ -21,7 +21,7 @@ namespace AnalysisManager
 
         private string AnnotationType { get; set; }
 
-        public ManageAnnotation(List<CodeFile> files = null)
+        public EditAnnotation(List<CodeFile> files = null)
         {
             InitializeComponent();
             SelectedButtonFont = Font;
@@ -160,16 +160,20 @@ namespace AnalysisManager
             }
             else
             {
-
                 Annotation.LineStart = selectedIndices.Min();
                 Annotation.LineEnd = selectedIndices.Max();
             }
+
+            // Step 1 - remove the existing annotations that were associated with this
+            //   a. adjust the indices appropriately
 
             switch (AnnotationType)
             {
                 case Constants.AnnotationType.Value:
                     Annotation.ValueFormat = valueProperties.GetValueFormat();
                     break;
+                default:
+                    throw new NotSupportedException("This annotation type is not yet supported");
             }
         }
 
@@ -183,7 +187,7 @@ namespace AnalysisManager
             lstCode.Items.Clear();
             if (file != null)
             {
-                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.GetContent()));
+                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.LoadFileContent().ToArray()));
             }
         }
     }

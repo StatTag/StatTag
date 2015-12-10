@@ -29,6 +29,19 @@ namespace AnalysisManager.Core.Models
         /// </summary>
         public int? LineEnd { get; set; }
 
+        public Annotation() { }
+
+        public Annotation(Annotation annotation)
+        {
+            CodeFile = annotation.CodeFile;
+            Type = annotation.Type;
+            OutputLabel = annotation.OutputLabel;
+            RunFrequency = annotation.RunFrequency;
+            ValueFormat = annotation.ValueFormat;
+            LineStart = annotation.LineStart;
+            LineEnd = annotation.LineEnd;
+        }
+
         public override string ToString()
         {
             if (!string.IsNullOrWhiteSpace(OutputLabel))

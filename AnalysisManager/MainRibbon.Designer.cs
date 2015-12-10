@@ -37,7 +37,7 @@
             this.tab1 = this.Factory.CreateRibbonTab();
             this.codeGroup = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
-            this.cmdManageOutput = this.Factory.CreateRibbonButton();
+            this.cmdManageAnnotations = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
@@ -52,7 +52,7 @@
             // codeGroup
             // 
             this.codeGroup.Items.Add(this.cmdLoadCode);
-            this.codeGroup.Items.Add(this.cmdManageOutput);
+            this.codeGroup.Items.Add(this.cmdManageAnnotations);
             this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Label = "Analysis Manager";
             this.codeGroup.Name = "codeGroup";
@@ -67,16 +67,16 @@
             this.cmdLoadCode.SuperTip = "Manage the list of analysis source code files used within this document.";
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
             // 
-            // cmdManageOutput
+            // cmdManageAnnotations
             // 
-            this.cmdManageOutput.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdManageOutput.Image = global::AnalysisManager.Properties.Resources._1447149791_file_manager;
-            this.cmdManageOutput.Label = "Annotations";
-            this.cmdManageOutput.Name = "cmdManageOutput";
-            this.cmdManageOutput.ShowImage = true;
-            this.cmdManageOutput.SuperTip = "Manage the list of annotations that are used and referenced within this document." +
+            this.cmdManageAnnotations.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdManageAnnotations.Image = global::AnalysisManager.Properties.Resources._1447149791_file_manager;
+            this.cmdManageAnnotations.Label = "Annotations";
+            this.cmdManageAnnotations.Name = "cmdManageAnnotations";
+            this.cmdManageAnnotations.ShowImage = true;
+            this.cmdManageAnnotations.SuperTip = "Manage the list of annotations that are used and referenced within this document." +
     "";
-            this.cmdManageOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageOutput_Click);
+            this.cmdManageAnnotations.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageAnnotations_Click);
             // 
             // cmdInsertOutput
             // 
@@ -104,7 +104,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup codeGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdLoadCode;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageOutput;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageAnnotations;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
     }
 

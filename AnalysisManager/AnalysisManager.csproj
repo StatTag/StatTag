@@ -204,11 +204,11 @@
     <Compile Include="Controls\ValueProperties.Designer.cs">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="ManageAnnotation.cs">
+    <Compile Include="EditAnnotation.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ManageAnnotation.Designer.cs">
-      <DependentUpon>ManageAnnotation.cs</DependentUpon>
+    <Compile Include="EditAnnotation.Designer.cs">
+      <DependentUpon>EditAnnotation.cs</DependentUpon>
     </Compile>
     <Compile Include="LoadAnalysisCode.cs">
       <SubType>Form</SubType>
@@ -222,11 +222,11 @@
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="ManageCodeBlocks.cs">
+    <Compile Include="ManageAnnotations.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ManageCodeBlocks.Designer.cs">
-      <DependentUpon>ManageCodeBlocks.cs</DependentUpon>
+    <Compile Include="ManageAnnotations.Designer.cs">
+      <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -251,8 +251,8 @@
     <EmbeddedResource Include="Controls\ValueProperties.resx">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageAnnotation.resx">
-      <DependentUpon>ManageAnnotation.cs</DependentUpon>
+    <EmbeddedResource Include="EditAnnotation.resx">
+      <DependentUpon>EditAnnotation.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadAnalysisCode.resx">
       <DependentUpon>LoadAnalysisCode.cs</DependentUpon>
@@ -260,8 +260,8 @@
     <EmbeddedResource Include="MainRibbon.resx">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageCodeBlocks.resx">
-      <DependentUpon>ManageCodeBlocks.cs</DependentUpon>
+    <EmbeddedResource Include="ManageAnnotations.resx">
+      <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
