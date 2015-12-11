@@ -229,6 +229,8 @@
       <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DocumentManager.cs" />
+    <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\StateCapture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

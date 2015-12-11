@@ -52,8 +52,15 @@ namespace AnalysisManager
             var dialog = new SelectOutput(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                foreach (var annotation in dialog.GetSelectedAnnotations())
+                var refreshedFiles = new HashSet<CodeFile>();
+                var annotations = dialog.GetSelectedAnnotations();
+                foreach (var annotation in annotations)
                 {
+                    if (!refreshedFiles.Contains(annotation.CodeFile))
+                    {
+                        ExecuteStatPackage(annotation.CodeFile);
+                    }
+
                     Manager.InsertField(annotation);
                 }
             }
@@ -71,8 +78,19 @@ namespace AnalysisManager
                 return;
             }
 
-            var filteredLines = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
-            //var results = automation.RunCommands(filteredLines);
+            var steps = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+            foreach (var step in steps)
+            {
+                var results = automation.RunCommands(step.Code.ToArray());
+                if (step.Annotation != null)
+                {
+                    var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
+                    if (annotation != null)
+                    {
+                        annotation.CachedResult = new List<string>(results);
+                    }
+                }
+            }
         }
 
         private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)
