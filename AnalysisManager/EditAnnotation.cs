@@ -187,7 +187,7 @@ namespace AnalysisManager
             lstCode.Items.Clear();
             if (file != null)
             {
-                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.LoadFileContent().ToArray()));
+                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.Content.ToArray()));
             }
         }
     }

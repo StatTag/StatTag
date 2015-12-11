@@ -39,14 +39,15 @@ namespace AnalysisManager
             var dialog = new EditAnnotation(Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                {
-                    // Add the annotation reference to the code file (which saves it for later use).
-                    // If we don't do this, we will lose the reference (which is fine for a Cancel
-                    // operation).
-                    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
-                    AddRow(dialog.Annotation);
-                }
+                SaveAnnotation(dialog);
+                //if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+                //{
+                //    var codeFile = dialog.Annotation.CodeFile;
+                //    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
+                //    codeFile.Save();
+
+                //    ReloadAnnotations();
+                //}
             }
         }
 
@@ -68,8 +69,16 @@ namespace AnalysisManager
 
         private void ManageCodeBlocks_Load(object sender, EventArgs e)
         {
+            ReloadAnnotations();
+        }
+
+        private void ReloadAnnotations()
+        {
+            dgvItems.Rows.Clear();
+
             foreach (var file in Files)
             {
+                file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
                 {
                     AddRow(annotation);
@@ -82,14 +91,24 @@ namespace AnalysisManager
             if (e.ColumnIndex == EditColumn)
             {
                 var dialog = new EditAnnotation(Files);
-                dialog.Annotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
+                var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
+                dialog.Annotation = new Annotation(existingAnnotation);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                    {
-                        dgvItems.Rows[e.RowIndex].Tag = dialog.Annotation;
-                    }
+                    SaveAnnotation(dialog, existingAnnotation);
                 }
+            }
+        }
+
+        private void SaveAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
+        {
+            if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+            {
+                var codeFile = dialog.Annotation.CodeFile;
+                dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.Save();
+
+                ReloadAnnotations();
             }
         }
     }

@@ -250,6 +250,101 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void AddAnnotation_Update()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "third line",
+                "**<<<",
+                "fourth line",
+                "fifth line",
+            });
+
+            var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
+            codeFile.LoadAnnotationsFromContent();
+
+            // Overlap the new selection with the existing opening annotation tag
+            var oldAnnotation = codeFile.Annotations[0];
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 0,
+                LineEnd = 2,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(0, updatedAnnotation.LineStart);
+            Assert.AreEqual(3, updatedAnnotation.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+
+            // Now select the last two lines and update that annotation
+            oldAnnotation = codeFile.Annotations[0];
+            newAnnotation = new Annotation()
+            {
+                LineStart = 5,
+                LineEnd = 6,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(3, updatedAnnotation.LineStart);
+            Assert.AreEqual(6, updatedAnnotation.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+
+            // Select an annotation that's entirely before the existing annotation
+            oldAnnotation = codeFile.Annotations[0];
+            newAnnotation = new Annotation()
+            {
+                LineStart = 1,
+                LineEnd = 2,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(1, updatedAnnotation.LineStart);
+            Assert.AreEqual(4, updatedAnnotation.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+
+            // Overlap the selection with the existing closing annotation tag
+            oldAnnotation = codeFile.Annotations[0];
+            newAnnotation = new Annotation()
+            {
+                LineStart = 5,
+                LineEnd = 6,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(3, updatedAnnotation.LineStart);
+            Assert.AreEqual(6, updatedAnnotation.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+        }
+
+        [TestMethod]
         public void Save()
         {
             var mock = new Mock<IFileHandler>();

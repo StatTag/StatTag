@@ -68,10 +68,19 @@ namespace AnalysisManager.Core.Models
         /// Return the contents of the CodeFile
         /// </summary>
         /// <returns></returns>
-        public virtual List<string> LoadFileContent()
+        public List<string> LoadFileContent()
+        {
+            RefreshContent();
+            return ContentCache;
+        }
+
+        /// <summary>
+        /// Return the contents of the CodeFile
+        /// </summary>
+        /// <returns></returns>
+        public void RefreshContent()
         {
             ContentCache = new List<string>(FileHandler.ReadAllLines(FilePath));
-            return ContentCache;
         }
 
         /// <summary>
@@ -202,12 +211,46 @@ namespace AnalysisManager.Core.Models
 
             if (annotation.LineStart > annotation.LineEnd)
             {
-                throw new InvalidDataException("The annotation start index is after the end index, which is not allowed.");
+                throw new InvalidDataException("The new annotation start index is after the end index, which is not allowed.");
             }
 
             var updatedAnnotation = new Annotation(annotation);
-            var generator = Factories.GetGenerator(this);
             var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
+            if (oldAnnotation != null)
+            {
+                if (oldAnnotation.LineStart > oldAnnotation.LineEnd)
+                {
+                    throw new InvalidDataException("The existing annotation start index is after the end index, which is not allowed.");
+                }
+
+                // Remove the starting annotation and then adjust indices as appropriate
+                ContentCache.RemoveAt(oldAnnotation.LineStart.Value);
+                if (updatedAnnotation.LineStart > oldAnnotation.LineStart)
+                {
+                    updatedAnnotation.LineStart -= 1;
+                    updatedAnnotation.LineEnd -= 1;  // We know line end >= line start
+                }
+                else if (updatedAnnotation.LineEnd > oldAnnotation.LineStart)
+                {
+                    updatedAnnotation.LineEnd -= 1;
+                }
+
+                oldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
+                ContentCache.RemoveAt(oldAnnotation.LineEnd.Value);
+                if (updatedAnnotation.LineStart > oldAnnotation.LineEnd)
+                {
+                    updatedAnnotation.LineStart -= 1;
+                    updatedAnnotation.LineEnd -= 1;
+                }
+                else if (updatedAnnotation.LineEnd > oldAnnotation.LineEnd)
+                {
+                    updatedAnnotation.LineEnd -= 1;
+                }
+
+                Annotations.Remove(oldAnnotation);
+            }
+
+            var generator = Factories.GetGenerator(this);
             ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
             updatedAnnotation.LineEnd += 2;  // Move it down one line based on our insert
             ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
