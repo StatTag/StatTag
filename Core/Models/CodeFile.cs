@@ -201,6 +201,39 @@ namespace AnalysisManager.Core.Models
             return string.Empty;
         }
 
+        public void RemoveAnnotation(Annotation annotation)
+        {
+            if (annotation == null)
+            {
+                return;
+            }
+
+            if (!Annotations.Remove(annotation))
+            {
+                // If the exact object doesn't match, then search by name
+                var foundAnnotation = Annotations.Find(x => x.OutputLabel.Equals(annotation.OutputLabel));
+                if (foundAnnotation == null)
+                {
+                    return;
+                }
+                Annotations.Remove(foundAnnotation);
+            }
+
+            ContentCache.RemoveAt(annotation.LineEnd.Value);
+            ContentCache.RemoveAt(annotation.LineStart.Value);
+
+            // Any annotations below the one being removed need to be adjusted
+            foreach (var otherAnnotation in Annotations)
+            {
+                // Annotations can't overlap, so we can simply check for the start after the end.
+                if (otherAnnotation.LineStart > annotation.LineEnd)
+                {
+                    otherAnnotation.LineStart -= 2;
+                    otherAnnotation.LineEnd -= 2;
+                }
+            }
+        }
+
         public Annotation AddAnnotation(Annotation annotation, Annotation oldAnnotation = null)
         {
             // Do some sanity checking before modifying anything
@@ -242,7 +275,7 @@ namespace AnalysisManager.Core.Models
                     updatedAnnotation.LineStart -= 1;
                     updatedAnnotation.LineEnd -= 1;
                 }
-                else if (updatedAnnotation.LineEnd > oldAnnotation.LineEnd)
+                else if (updatedAnnotation.LineEnd >= oldAnnotation.LineEnd)
                 {
                     updatedAnnotation.LineEnd -= 1;
                 }
@@ -252,7 +285,7 @@ namespace AnalysisManager.Core.Models
 
             var generator = Factories.GetGenerator(this);
             ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
-            updatedAnnotation.LineEnd += 2;  // Move it down one line based on our insert
+            updatedAnnotation.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
             ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
 
             // Add to our collection of annotations

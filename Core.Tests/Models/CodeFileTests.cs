@@ -250,6 +250,44 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void AddAnnotation_NoChange()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "first line",
+                "second line",
+                "**<<<",
+                "third line",
+                "fourth line",
+                "fifth line",
+            });
+
+            var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
+            codeFile.LoadAnnotationsFromContent();
+
+            // Overlap the new selection with the existing opening annotation tag
+            var oldAnnotation = codeFile.Annotations[0];
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 0,
+                LineEnd = 3,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(0, updatedAnnotation.LineStart);
+            Assert.AreEqual(3, updatedAnnotation.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+        }
+
+        [TestMethod]
         public void AddAnnotation_Update()
         {
             var mock = new Mock<IFileHandler>();
@@ -352,6 +390,37 @@ namespace Core.Tests.Models
             var codeFile = new CodeFile(mock.Object);
             codeFile.Save();
             mock.Verify();
+        }
+
+        [TestMethod]
+        public void RemoveAnnotation_Exists()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line",
+                "fifth line",
+            });
+
+            var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
+            codeFile.LoadAnnotationsFromContent();
+
+            codeFile.RemoveAnnotation(codeFile.Annotations[0]);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(7, codeFile.Content.Count);
+            Assert.AreEqual(2, codeFile.Annotations[0].LineStart);
+            Assert.AreEqual(4, codeFile.Annotations[0].LineEnd);
+
+            codeFile.RemoveAnnotation(codeFile.Annotations[0]);
+            Assert.AreEqual(0, codeFile.Annotations.Count);
+            Assert.AreEqual(5, codeFile.Content.Count);
         }
     }
 }

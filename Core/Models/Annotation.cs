@@ -60,5 +60,21 @@ namespace AnalysisManager.Core.Models
         {
             return JsonConvert.SerializeObject(this);
         }
+
+        public override bool Equals(object other)
+        {
+            var annotation = other as Annotation;
+            if (annotation == null)
+            {
+                return false;
+            }
+
+            return string.Equals(OutputLabel, annotation.OutputLabel) && string.Equals(Type, annotation.Type);
+        }
+
+        public override int GetHashCode()
+        {
+            return ((OutputLabel != null && Type != null) ? (string.Format("{0}--{1}", OutputLabel, Type)).GetHashCode() : 0);
+        }
     }
 }

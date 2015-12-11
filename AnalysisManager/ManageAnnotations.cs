@@ -64,7 +64,15 @@ namespace AnalysisManager
 
         private void cmdRemove_Click(object sender, EventArgs e)
         {
-            UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            var removedTags = UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            if (removedTags != null)
+            {
+                var removedItems = removedTags.Select(x => x as Annotation);
+                foreach (var item in removedItems)
+                {
+                    item.CodeFile.RemoveAnnotation(item);
+                }
+            }
         }
 
         private void ManageCodeBlocks_Load(object sender, EventArgs e)
