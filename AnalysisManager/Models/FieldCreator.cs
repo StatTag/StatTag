@@ -135,6 +135,11 @@ namespace AnalysisManager.Models
                 fieldRange.SetRange(newPos, newPos);
                 fieldRange.Select();
 
+                foreach (var f in fields)
+                {
+                    f.Update();
+                }
+
                 // Update the result of the outer field object.
                 result.Update();
 

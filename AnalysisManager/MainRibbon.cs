@@ -10,6 +10,7 @@ using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
+using System = Microsoft.Office.Interop.Word.System;
 
 namespace AnalysisManager
 {
@@ -58,7 +59,12 @@ namespace AnalysisManager
                 {
                     if (!refreshedFiles.Contains(annotation.CodeFile))
                     {
-                        ExecuteStatPackage(annotation.CodeFile);
+                        if (!ExecuteStatPackage(annotation.CodeFile))
+                        {
+                            break;
+                        }
+
+                        refreshedFiles.Add(annotation.CodeFile);
                     }
 
                     Manager.InsertField(annotation);
@@ -66,7 +72,7 @@ namespace AnalysisManager
             }
         }
 
-        private void ExecuteStatPackage(CodeFile file)
+        private bool ExecuteStatPackage(CodeFile file)
         {
             var automation = new Stata.Automation();
             automation.Initialize();
@@ -75,22 +81,32 @@ namespace AnalysisManager
             var parser = Factories.GetParser(file);
             if (parser == null)
             {
-                return;
+                return false;
             }
 
-            var steps = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
-            foreach (var step in steps)
+            try
             {
-                var results = automation.RunCommands(step.Code.ToArray());
-                if (step.Annotation != null)
+                var steps = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+                foreach (var step in steps)
                 {
-                    var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
-                    if (annotation != null)
+                    var results = automation.RunCommands(step.Code.ToArray());
+                    if (step.Annotation != null)
                     {
-                        annotation.CachedResult = new List<string>(results);
+                        var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
+                        if (annotation != null)
+                        {
+                            annotation.CachedResult = new List<string>(results);
+                        }
                     }
                 }
             }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message, "Analysis Manager");
+                return false;
+            }
+
+            return true;
         }
 
         private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)

@@ -16,7 +16,7 @@ namespace Stata
         public void Initialize()
         {
             Application = new stata.StataOLEApp();
-            //Application.UtilShowStata(StataHidden);
+            Application.UtilShowStata(StataHidden);
         }
 
         public bool IsReturnable(string command)
