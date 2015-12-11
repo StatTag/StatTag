@@ -1,6 +1,6 @@
 ﻿namespace AnalysisManager
 {
-    sealed partial class ManageAnnotation
+    sealed partial class EditAnnotation
     {
         /// <summary>
         /// Required designer variable.

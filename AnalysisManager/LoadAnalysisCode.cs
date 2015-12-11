@@ -94,7 +94,7 @@ namespace AnalysisManager
                 if (file != null)
                 {
                     file.LoadAnnotationsFromContent();
-                    var dialog = new ManageCodeBlocks(new List<CodeFile>(new []{ file }));
+                    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
                     if (DialogResult.OK == dialog.ShowDialog())
                     {
                         

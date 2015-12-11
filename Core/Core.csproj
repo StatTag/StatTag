@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Factories.cs" />
     <Compile Include="Generator\BaseGenerator.cs" />
+    <Compile Include="Generator\IGenerator.cs" />
     <Compile Include="Generator\Stata.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />

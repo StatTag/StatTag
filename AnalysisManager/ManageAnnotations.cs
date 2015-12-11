@@ -11,7 +11,7 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
-    public sealed partial class ManageCodeBlocks : Form
+    public sealed partial class ManageAnnotations : Form
     {
         private const int CheckColumn = 0;
         private const int StatPackageColumn = 1;
@@ -22,7 +22,7 @@ namespace AnalysisManager
 
         public List<CodeFile> Files { get; set; }
 
-        public ManageCodeBlocks(List<CodeFile> files)
+        public ManageAnnotations(List<CodeFile> files)
         {
             InitializeComponent();
             MinimumSize = Size;
@@ -36,17 +36,18 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new ManageAnnotation(Files);
+            var dialog = new EditAnnotation(Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                {
-                    // Add the annotation reference to the code file (which saves it for later use).
-                    // If we don't do this, we will lose the reference (which is fine for a Cancel
-                    // operation).
-                    dialog.Annotation.CodeFile.Annotations.Add(dialog.Annotation);
-                    AddRow(dialog.Annotation);
-                }
+                SaveAnnotation(dialog);
+                //if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+                //{
+                //    var codeFile = dialog.Annotation.CodeFile;
+                //    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
+                //    codeFile.Save();
+
+                //    ReloadAnnotations();
+                //}
             }
         }
 
@@ -63,13 +64,29 @@ namespace AnalysisManager
 
         private void cmdRemove_Click(object sender, EventArgs e)
         {
-            UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            var removedTags = UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            if (removedTags != null)
+            {
+                var removedItems = removedTags.Select(x => x as Annotation);
+                foreach (var item in removedItems)
+                {
+                    item.CodeFile.RemoveAnnotation(item);
+                }
+            }
         }
 
         private void ManageCodeBlocks_Load(object sender, EventArgs e)
         {
+            ReloadAnnotations();
+        }
+
+        private void ReloadAnnotations()
+        {
+            dgvItems.Rows.Clear();
+
             foreach (var file in Files)
             {
+                file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
                 {
                     AddRow(annotation);
@@ -81,15 +98,25 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                var dialog = new ManageAnnotation(Files);
-                dialog.Annotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
+                var dialog = new EditAnnotation(Files);
+                var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
+                dialog.Annotation = new Annotation(existingAnnotation);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                    {
-                        dgvItems.Rows[e.RowIndex].Tag = dialog.Annotation;
-                    }
+                    SaveAnnotation(dialog, existingAnnotation);
                 }
+            }
+        }
+
+        private void SaveAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
+        {
+            if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+            {
+                var codeFile = dialog.Annotation.CodeFile;
+                dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.Save();
+
+                ReloadAnnotations();
             }
         }
     }

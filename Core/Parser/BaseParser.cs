@@ -43,7 +43,7 @@ namespace AnalysisManager.Core.Parser
             }
         }
 
-        public Annotation[] Parse(string[] lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
+        public Annotation[] Parse(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
             SetupRegEx();
 
@@ -55,7 +55,7 @@ namespace AnalysisManager.Core.Parser
 
             int? startIndex = null;
             Annotation annotation = null;
-            for (int index = 0; index < lines.Length; index++)
+            for (int index = 0; index < lines.Count(); index++)
             {
                 var line = lines[index].Trim();
                 var match = StartAnnotationRegEx.Match(line);
@@ -89,7 +89,7 @@ namespace AnalysisManager.Core.Parser
             return annotations.ToArray();
         }
 
-        public string[] Filter(string[] lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
+        public string[] Filter(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
             SetupRegEx();
 
@@ -101,7 +101,7 @@ namespace AnalysisManager.Core.Parser
             var filteredLines = new List<string>();
             var isSkipping = false;
             int? startIndex = null;
-            for (var index = 0; index < lines.Length; index++)
+            for (var index = 0; index < lines.Count(); index++)
             {
                 var line = lines[index].Trim();
                 var match = StartAnnotationRegEx.Match(line);

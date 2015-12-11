@@ -9,11 +9,11 @@ namespace AnalysisManager
 {
     public static class UIUtility
     {
-        public static void RemoveSelectedItems(DataGridView dgvItems, int checkColumn)
+        public static IEnumerable<object> RemoveSelectedItems(DataGridView dgvItems, int checkColumn)
         {
             if (dgvItems == null)
             {
-                return;
+                return null;
             }
 
             dgvItems.CurrentCell = null;  //Force any changes to save
@@ -33,6 +33,8 @@ namespace AnalysisManager
             {
                 dgvItems.Rows.Remove(item);
             }
+
+            return removeList.Select(x => x.Tag);
         }
     }
 }
