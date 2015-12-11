@@ -71,8 +71,8 @@ namespace AnalysisManager
                 return;
             }
 
-            var filteredLines = parser.Filter(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
-            var results = automation.RunCommands(filteredLines);
+            var filteredLines = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+            //var results = automation.RunCommands(filteredLines);
         }
 
         private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)

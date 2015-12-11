@@ -93,8 +93,7 @@ namespace AnalysisManager.Core.Parser
             int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
             var executionSteps = new List<ExecutionStep>();
-            var filteredLines = Filter(lines, filterMode);
-            if (filteredLines == null || filteredLines.Length == 0)
+            if (lines == null || lines.Count == 0)
             {
                 return executionSteps;
             }
@@ -102,9 +101,9 @@ namespace AnalysisManager.Core.Parser
             int? startIndex = null;
             var isSkipping = false;
             ExecutionStep step = null;
-            for (var index = 0; index < filteredLines.Count(); index++)
+            for (var index = 0; index < lines.Count(); index++)
             {
-                var line = filteredLines[index].Trim();
+                var line = lines[index].Trim();
 
                 if (step == null)
                 {
@@ -146,9 +145,10 @@ namespace AnalysisManager.Core.Parser
                     match = EndAnnotationRegEx.Match(line);
                     if (match.Success)
                     {
+                        isSkipping = false;
                         startIndex = null;
 
-                        if (!isSkipping)
+                        if (!isSkipping && step.Code.Count > 0)
                         {
                             executionSteps.Add(step);
                         }
@@ -167,61 +167,6 @@ namespace AnalysisManager.Core.Parser
             }
 
             return executionSteps;
-        }
-
-        // This duplicates a LOT of code in GetExecutionSteps.  Refactor or remove.
-        public string[] Filter(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
-        {
-            SetupRegEx();
-
-            if (lines == null)
-            {
-                return null;
-            }
-
-            var filteredLines = new List<string>();
-            var isSkipping = false;
-            int? startIndex = null;
-            for (var index = 0; index < lines.Count(); index++)
-            {
-                var line = lines[index].Trim();
-                var match = StartAnnotationRegEx.Match(line);
-                if (match.Success)
-                {
-                    var annotation = new Annotation();
-                    startIndex = index;
-                    ProcessAnnotation(match.Groups[1].Value, annotation);
-                    if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
-                        && annotation.RunFrequency == Constants.RunFrequency.OnDemand)
-                    {
-                        isSkipping = true;
-                    }
-                    else
-                    {
-                        filteredLines.Add(lines[index]);
-                    }
-                }
-                else if (startIndex.HasValue)
-                {
-                    if (!isSkipping)
-                    {
-                        filteredLines.Add(lines[index]);
-                    }
-
-                    match = EndAnnotationRegEx.Match(line);
-                    if (match.Success)
-                    {
-                        isSkipping = false;
-                        startIndex = null;
-                    }
-                }
-                else if (!isSkipping)
-                {
-                    filteredLines.Add(lines[index]);
-                }
-            }
-
-            return filteredLines.ToArray();
         }
 
         protected void ProcessAnnotation(string annotationText, Annotation annotation)
