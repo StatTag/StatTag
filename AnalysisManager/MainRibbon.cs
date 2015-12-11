@@ -74,5 +74,10 @@ namespace AnalysisManager
             var filteredLines = parser.Filter(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
             var results = automation.RunCommands(filteredLines);
         }
+
+        private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)
+        {
+            ExecuteStatPackage(Manager.Files[0]);
+        }
     }
 }

@@ -89,6 +89,87 @@ namespace AnalysisManager.Core.Parser
             return annotations.ToArray();
         }
 
+        public List<ExecutionStep> GetExecutionSteps(IList<string> lines,
+            int filterMode = Constants.ParserFilterMode.IncludeAll)
+        {
+            var executionSteps = new List<ExecutionStep>();
+            var filteredLines = Filter(lines, filterMode);
+            if (filteredLines == null || filteredLines.Length == 0)
+            {
+                return executionSteps;
+            }
+
+            int? startIndex = null;
+            var isSkipping = false;
+            ExecutionStep step = null;
+            for (var index = 0; index < filteredLines.Count(); index++)
+            {
+                var line = filteredLines[index].Trim();
+
+                if (step == null)
+                {
+                    step = new ExecutionStep();
+                }
+
+                var match = StartAnnotationRegEx.Match(line);
+                if (match.Success)
+                {
+                    // If the previous code block had content, save it off and create a new one
+                    if (step.Code.Count > 0)
+                    {
+                        executionSteps.Add(step);
+                        step = new ExecutionStep();
+                    }
+
+                    var annotation = new Annotation();
+                    startIndex = index;
+                    ProcessAnnotation(match.Groups[1].Value, annotation);
+                    if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
+                        && annotation.RunFrequency == Constants.RunFrequency.OnDemand)
+                    {
+                        isSkipping = true;
+                    }
+                    else
+                    {
+                        step.Type = Constants.ExecutionStepType.Annotation;
+                        step.Annotation = annotation;
+                        step.Code.Add(line);
+                    }
+                }
+                else if (startIndex.HasValue)
+                {
+                    if (!isSkipping)
+                    {
+                        step.Code.Add(line);
+                    }
+                    
+                    match = EndAnnotationRegEx.Match(line);
+                    if (match.Success)
+                    {
+                        startIndex = null;
+
+                        if (!isSkipping)
+                        {
+                            executionSteps.Add(step);
+                        }
+                        step = new ExecutionStep();
+                    }
+                }
+                else if (!isSkipping)
+                {
+                    step.Code.Add(line);
+                }
+            }
+
+            if (step != null && step.Code.Count > 0)
+            {
+                executionSteps.Add(step);
+            }
+
+            return executionSteps;
+        }
+
+        // This duplicates a LOT of code in GetExecutionSteps.  Refactor or remove.
         public string[] Filter(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
             SetupRegEx();
