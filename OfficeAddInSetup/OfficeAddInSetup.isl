@@ -225,7 +225,7 @@
 	<table name="AppSearch">
 		<col key="yes" def="s72">Property</col>
 		<col key="yes" def="s72">Signature_</col>
-		<row><td>DOTNETVERSION40CLIENT</td><td>DotNet40Client</td></row>
+		<row><td>DOTNETVERSION45FULL</td><td>DotNet45Full</td></row>
 	</table>
 
 	<table name="BBControl">
@@ -343,6 +343,7 @@
 		<row><td>AnalysisManager.Primary_output</td><td>{A228C2AF-5F01-4C7F-9CE8-06DA6607F997}</td><td>INSTALLDIR</td><td>2</td><td/><td>analysismanager.primary_outp</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Core.Primary_output</td><td>{C834205A-DDEE-48D0-97FD-FFA46C5F8CDE}</td><td>INSTALLDIR</td><td>2</td><td/><td>core.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td>{D62D35C2-88B4-4A60-BAB1-0A940D52D307}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISX_DEFAULTCOMPONENT1</td><td>{484D4617-A262-4C65-B417-7E4F0BBE942B}</td><td>INSTALLDIR</td><td>258</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Stata.Primary_output</td><td>{756FC6B3-DD2E-4A7E-A66C-EF6459CDDC9F}</td><td>INSTALLDIR</td><td>2</td><td/><td>stata.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -1055,6 +1056,7 @@
 		<row><td>INSTALLDIR</td><td>AnalysisManager.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>Core.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT</td></row>
+		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>INSTALLDIR</td><td>Stata.Primary_output</td></row>
 	</table>
 
@@ -1869,6 +1871,7 @@
 		<row><td>AlwaysInstall</td><td>AnalysisManager.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>Core.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT</td></row>
+		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>AlwaysInstall</td><td>Stata.Primary_output</td></row>
 	</table>
 
@@ -1904,6 +1907,8 @@
 	<table name="ISAssistantTag">
 		<col key="yes" def="s72">Tag</col>
 		<col def="S255">Data</col>
+		<row><td>PROJECT_ASSISTANT_DEFAULT_FEATURE</td><td>AlwaysInstall</td></row>
+		<row><td>RegistryPageEnabled</td><td>Yes</td></row>
 	</table>
 
 	<table name="ISBillBoard">
@@ -2033,6 +2038,7 @@
 		<row><td>AnalysisManager.Primary_output</td><td/><td/><td>_2F94D674_DB66_4CFF_A8D8_1CCA545FE414_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Core.Primary_output</td><td/><td/><td>_44E9E718_6013_453D_B755_732E3BB4D780_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td/><td/><td>_034497B7_7EEB_4C17_8C6C_6B5ADB6C69F4_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISX_DEFAULTCOMPONENT1</td><td/><td/><td>_D3944672_90F7_4A99_B502_33CBF155B8C9_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Stata.Primary_output</td><td/><td/><td>_961E1804_3179_4EC3_B9A7_701B5E32643E_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -2625,11 +2631,11 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1042516713</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1579408523</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION40CLIENT</td><td>1033</td><td>Microsoft .NET Framework 4.0 Client Package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042496553</td></row>
-		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL</td><td>1033</td><td>Microsoft .NET Framework 4.5 Full package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042486025</td></row>
+		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL</td><td>1033</td><td>Microsoft .NET Framework 4.5 Full package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1579391116</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_MSOFFICE2007</td><td>1033</td><td>Microsoft Office 2007 or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042498569</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_MSOFFICE2010</td><td>1033</td><td>Microsoft Office 2010 or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042502665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
@@ -3729,8 +3735,8 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.northwestern.edu/</td><td>0</td><td/><td>1042539241</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1042516713</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.northwestern.edu</td><td>0</td><td/><td>1579386315</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1579408523</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>1042514665</td></row>
 	</table>
 
@@ -3977,7 +3983,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{406211D2-4E87-422C-B327-E0F2A69792C0}</td></row>
 		<row><td>ISUSSignature</td><td>{BFCDC41D-2695-442B-A72E-686AD97B4866}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4035,7 +4041,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 	<table name="LaunchCondition">
 		<col key="yes" def="s255">Condition</col>
 		<col def="l255">Description</col>
-		<row><td>DOTNETVERSION40CLIENT&gt;="#1"</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION40CLIENT##</td></row>
+		<row><td>DOTNETVERSION45FULL&gt;="#1"</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL##</td></row>
 	</table>
 
 	<table name="ListBox">
@@ -4282,7 +4288,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col key="yes" def="s72">Property</col>
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
-		<row><td>ALLUSERS</td><td>1</td><td/></row>
+		<row><td>ALLUSERS</td><td>2</td><td/></row>
 		<row><td>ARPINSTALLLOCATION</td><td/><td/></row>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPSIZE</td><td/><td/></row>
@@ -4350,9 +4356,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{4650B39E-B562-4CEC-8D6E-65890AE4C189}</td><td/></row>
+		<row><td>ProductCode</td><td>{FDE75490-E9EF-4480-873A-99A2B0D3F190}</td><td/></row>
 		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.1.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.1.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4364,7 +4370,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>RestartManagerOption</td><td>CloseRestart</td><td/></row>
 		<row><td>SERIALNUMBER</td><td/><td/></row>
 		<row><td>SERIALNUMVALSUCCESSRETVAL</td><td>1</td><td/></row>
-		<row><td>SecureCustomProperties</td><td>ISFOUNDNEWERPRODUCTVERSION;USERNAME;COMPANYNAME;ISX_SERIALNUM;SUPPORTDIR;DOTNETVERSION40CLIENT</td><td/></row>
+		<row><td>SecureCustomProperties</td><td>ISFOUNDNEWERPRODUCTVERSION;USERNAME;COMPANYNAME;ISX_SERIALNUM;SUPPORTDIR;DOTNETVERSION45FULL</td><td/></row>
 		<row><td>SelectedSetupType</td><td>##IDS__DisplayName_Typical##</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
 		<row><td>UpgradeCode</td><td>{CA8AC9EB-749E-4F49-9EA2-2827D49EADBA}</td><td/></row>
@@ -4409,7 +4415,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s255">Key</col>
 		<col def="S255">Name</col>
 		<col def="I2">Type</col>
-		<row><td>DotNet40Client</td><td>2</td><td>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client</td><td>Install</td><td>2</td></row>
+		<row><td>DotNet45Full</td><td>2</td><td>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</td><td>Version</td><td>2</td></row>
 	</table>
 
 	<table name="Registry">
@@ -4420,6 +4426,15 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry10</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry11</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry12</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]AnalysisManager.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry2</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins</td><td/><td/><td>ISX_DEFAULTCOMPONENT1</td><td>1</td></row>
+		<row><td>Registry3</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry4</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry5</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]AnalysisManager.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry9</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">
