@@ -7,11 +7,11 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Generator
 {
-    public class Stata : BaseGenerator
+    public interface IGenerator
     {
-        public override string CommentCharacter
-        {
-            get { return Constants.CodeFileComment.Stata; }
-        }
+        string CommentCharacter { get; }
+        string CreateOpenTagBase();
+        string CreateClosingTag();
+        string CreateOpenTag(Annotation annotation);
     }
 }

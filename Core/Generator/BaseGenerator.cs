@@ -7,11 +7,11 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Generator
 {
-    public abstract class BaseGenerator
+    public abstract class BaseGenerator : IGenerator
     {
         public abstract string CommentCharacter { get; }
         
-        protected string CreateOpenTagBase()
+        public string CreateOpenTagBase()
         {
             return string.Format("{0}{0}{1}{2}", CommentCharacter, Constants.AnnotationTags.StartAnnotation,
                 Constants.AnnotationTags.AnnotationPrefix);

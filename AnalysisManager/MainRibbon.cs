@@ -34,12 +34,16 @@ namespace AnalysisManager
             }
         }
 
-        private void cmdManageOutput_Click(object sender, RibbonControlEventArgs e)
+        private void cmdManageAnnotations_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new ManageCodeBlocks(Manager.Files);
+            var dialog = new ManageAnnotations(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                //dialog.Annotations;
+                // Update the code files with their annotations
+                foreach (var file in Manager.Files)
+                {
+                    file.Save();
+                }
             }
         }
 
@@ -67,7 +71,7 @@ namespace AnalysisManager
                 return;
             }
 
-            var filteredLines = parser.Filter(file.GetContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+            var filteredLines = parser.Filter(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
             var results = automation.RunCommands(filteredLines);
         }
     }

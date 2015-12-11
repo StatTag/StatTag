@@ -66,6 +66,7 @@ namespace Core.Tests.Generator
         {
             var generator = new ValueGenerator();
             Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Annotation()));
+            Assert.AreEqual("Label=\"Test\", Type=\"Default\"", generator.CreateParameters(new Annotation() { OutputLabel = "Test" }));
             Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Annotation() { ValueFormat = new ValueFormat() { FormatType = "Unknown" }}));
         }
 
