@@ -53,21 +53,29 @@ namespace AnalysisManager
             var dialog = new SelectOutput(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                var refreshedFiles = new HashSet<CodeFile>();
-                var annotations = dialog.GetSelectedAnnotations();
-                foreach (var annotation in annotations)
+                Cursor.Current = Cursors.WaitCursor;
+                try
                 {
-                    if (!refreshedFiles.Contains(annotation.CodeFile))
+                    var refreshedFiles = new HashSet<CodeFile>();
+                    var annotations = dialog.GetSelectedAnnotations();
+                    foreach (var annotation in annotations)
                     {
-                        if (!ExecuteStatPackage(annotation.CodeFile))
+                        if (!refreshedFiles.Contains(annotation.CodeFile))
                         {
-                            break;
+                            if (!ExecuteStatPackage(annotation.CodeFile))
+                            {
+                                break;
+                            }
+
+                            refreshedFiles.Add(annotation.CodeFile);
                         }
 
-                        refreshedFiles.Add(annotation.CodeFile);
+                        Manager.InsertField(annotation);
                     }
-
-                    Manager.InsertField(annotation);
+                }
+                finally
+                {
+                    Cursor.Current = Cursors.Default;   
                 }
             }
         }

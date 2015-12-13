@@ -7,18 +7,13 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager.Models
 {
-    using System;
-    using System.Collections;
-    using System.Runtime.InteropServices;
-    using Word = Microsoft.Office.Interop.Word;
-
     /// <summary>
     /// The class <see cref="FieldCreator"/> simplifies the creation of <see cref="Word.Field"/>s.
     /// </summary>
@@ -124,7 +119,7 @@ namespace AnalysisManager.Models
                         // Field close, so pop the last range from the stack and insert the field.
                         fieldRange = (Word.Range)fieldStack.Pop();
                         fieldRange.End = nextClose.End;
-                        result = this.InsertEmpty(fieldRange);
+                        result = InsertEmpty(fieldRange);
                         fields.Add(result);
                     }
                 }
@@ -135,13 +130,11 @@ namespace AnalysisManager.Models
                 fieldRange.SetRange(newPos, newPos);
                 fieldRange.Select();
 
-                foreach (var f in fields)
-                {
-                    f.Update();
-                }
-
                 // Update the result of the outer field object.
-                result.Update();
+                if (result != null)
+                {
+                    result.Update();
+                }
 
                 return fields.ToArray();
             }
@@ -188,7 +181,7 @@ namespace AnalysisManager.Models
             return range.Fields.Add(
                 range,
                 type,
-                (null == text) ? Type.Missing : text,
+                text ?? Type.Missing,
                 preserveFormatting);
         }
 

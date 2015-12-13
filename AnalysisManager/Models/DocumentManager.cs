@@ -101,6 +101,14 @@ namespace AnalysisManager.Models
                 var dataField = fields[0];
                 dataField.Data = annotation.Serialize();
 
+                #region Nothing to see here
+                // Awful little hack... something with the way the InsertField method works returns fields
+                // with special characters in the embedded fields.  A workaround is toggling the fields
+                // to show and hide codes.
+                document.Fields.ToggleShowCodes();
+                document.Fields.ToggleShowCodes();
+                #endregion
+
                 Marshal.ReleaseComObject(range);
                 Marshal.ReleaseComObject(selection);
             }
