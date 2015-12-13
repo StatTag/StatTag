@@ -9,12 +9,14 @@ namespace AnalysisManager.Models
     public class DocumentManager
     {
         public List<CodeFile> Files { get; set; }
+        public FieldCreator FieldManager { get; set; }
 
         public const string ConfigurationAttribute = "Analysis Manager Configuration";
 
         public DocumentManager()
         {
             Files = new List<CodeFile>();
+            FieldManager = new FieldCreator();
         }
 
         /// <summary>
@@ -84,7 +86,6 @@ namespace AnalysisManager.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
-            var fields = document.Fields;
             try
             {
                 var selection = application.Selection;
@@ -94,20 +95,48 @@ namespace AnalysisManager.Models
                 }
 
                 var range = selection.Range;
-                Marshal.ReleaseComObject(selection);
 
-                var field = fields.Add(range, WdFieldType.wdFieldEmpty, 
-                    string.Format("ADDIN AnalysisManager {0}", annotation.OutputLabel), false);
-                
-                field.Data = annotation.Serialize();
-                Marshal.ReleaseComObject(field);
+                var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton AnalysisManager {0}{{{{ADDIN {1}}}}}}}}}",
+                    annotation.FormattedResult, annotation.OutputLabel));
+                var dataField = fields[0];
+                dataField.Data = annotation.Serialize();
+
+                #region Nothing to see here
+                // Awful little hack... something with the way the InsertField method works returns fields
+                // with special characters in the embedded fields.  A workaround is toggling the fields
+                // to show and hide codes.
+                document.Fields.ToggleShowCodes();
+                document.Fields.ToggleShowCodes();
+                #endregion
+
                 Marshal.ReleaseComObject(range);
+                Marshal.ReleaseComObject(selection);
             }
             finally
             {
-                Marshal.ReleaseComObject(fields);
                 Marshal.ReleaseComObject(document);
             }
+        }
+
+        public Annotation FindAnnotation(string name, string type)
+        {
+            if (Files == null)
+            {
+                return null;
+            }
+
+            foreach (var file in Files)
+            {
+                foreach (var annotation in file.Annotations)
+                {
+                    if (annotation.OutputLabel.Equals(name) && annotation.Type.Equals(type))
+                    {
+                        return annotation;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

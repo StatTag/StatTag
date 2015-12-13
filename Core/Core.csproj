@@ -52,6 +52,7 @@
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\Constants.cs" />
+    <Compile Include="Models\ExecutionStep.cs" />
     <Compile Include="Models\FileHandler.cs" />
     <Compile Include="Models\ValueFormat.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />

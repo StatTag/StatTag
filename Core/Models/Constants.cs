@@ -116,5 +116,11 @@
             public const int IncludeAll = 0;
             public const int ExcludeOnDemand = 1;
         }
+
+        public static class ExecutionStepType
+        {
+            public const int CodeBlock = 0;
+            public const int Annotation = 1;
+        }
     }
 }

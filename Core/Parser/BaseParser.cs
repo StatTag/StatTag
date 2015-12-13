@@ -89,24 +89,37 @@ namespace AnalysisManager.Core.Parser
             return annotations.ToArray();
         }
 
-        public string[] Filter(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
+        public List<ExecutionStep> GetExecutionSteps(IList<string> lines,
+            int filterMode = Constants.ParserFilterMode.IncludeAll)
         {
-            SetupRegEx();
-
-            if (lines == null)
+            var executionSteps = new List<ExecutionStep>();
+            if (lines == null || lines.Count == 0)
             {
-                return null;
+                return executionSteps;
             }
 
-            var filteredLines = new List<string>();
-            var isSkipping = false;
             int? startIndex = null;
+            var isSkipping = false;
+            ExecutionStep step = null;
             for (var index = 0; index < lines.Count(); index++)
             {
                 var line = lines[index].Trim();
+
+                if (step == null)
+                {
+                    step = new ExecutionStep();
+                }
+
                 var match = StartAnnotationRegEx.Match(line);
                 if (match.Success)
                 {
+                    // If the previous code block had content, save it off and create a new one
+                    if (step.Code.Count > 0)
+                    {
+                        executionSteps.Add(step);
+                        step = new ExecutionStep();
+                    }
+
                     var annotation = new Annotation();
                     startIndex = index;
                     ProcessAnnotation(match.Groups[1].Value, annotation);
@@ -117,30 +130,43 @@ namespace AnalysisManager.Core.Parser
                     }
                     else
                     {
-                        filteredLines.Add(lines[index]);
+                        step.Type = Constants.ExecutionStepType.Annotation;
+                        step.Annotation = annotation;
+                        step.Code.Add(line);
                     }
                 }
                 else if (startIndex.HasValue)
                 {
                     if (!isSkipping)
                     {
-                        filteredLines.Add(lines[index]);
+                        step.Code.Add(line);
                     }
-
+                    
                     match = EndAnnotationRegEx.Match(line);
                     if (match.Success)
                     {
                         isSkipping = false;
                         startIndex = null;
+
+                        if (!isSkipping && step.Code.Count > 0)
+                        {
+                            executionSteps.Add(step);
+                        }
+                        step = new ExecutionStep();
                     }
                 }
                 else if (!isSkipping)
                 {
-                    filteredLines.Add(lines[index]);
+                    step.Code.Add(line);
                 }
             }
 
-            return filteredLines.ToArray();
+            if (step != null && step.Code.Count > 0)
+            {
+                executionSteps.Add(step);
+            }
+
+            return executionSteps;
         }
 
         protected void ProcessAnnotation(string annotationText, Annotation annotation)
