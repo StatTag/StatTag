@@ -186,6 +186,12 @@
     <Compile Include="Controls\DateTimeValueProperties.Designer.cs">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FigureProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FigureProperties.Designer.cs">
+      <DependentUpon>FigureProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NumericValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -229,6 +235,8 @@
       <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DocumentManager.cs" />
+    <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\StateCapture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -276,6 +284,7 @@
     <EmbeddedResource Include="SelectOutput.resx">
       <DependentUpon>SelectOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="AnalysisManager_1_TemporaryKey.pfx" />
     <None Include="AnalysisManager_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -330,10 +339,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>AnalysisManager_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>AnalysisManager_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>EE8916B4EB8D4B6EF6FC52E5ED6AF09641A6F366</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>8178F581ED7D876A6727AA07904310BBE604781E</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

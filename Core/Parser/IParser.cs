@@ -10,6 +10,10 @@ namespace AnalysisManager.Core.Parser
     public interface IParser
     {
         Annotation[] Parse(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll);
-        string[] Filter(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll);
+        List<ExecutionStep> GetExecutionSteps(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll);
+        bool IsImageExport(string command);
+        string GetImageSaveLocation(string command);
+        bool IsValueDisplay(string command);
+        string GetValueName(string command);
     }
 }

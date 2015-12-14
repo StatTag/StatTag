@@ -7,16 +7,13 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Generator
 {
-    public class ValueGenerator
+    public class ValueGenerator : BaseParameterGenerator
     {
         public string CreateParameters(Annotation annotation)
         {
             var builder = new StringBuilder();
 
-            if (!string.IsNullOrWhiteSpace(annotation.OutputLabel))
-            {
-                builder.AppendFormat("Label=\"{0}\", ", annotation.OutputLabel);
-            }
+            builder.Append(GetLabelParameter(annotation));
 
             if (annotation.ValueFormat == null)
             {
@@ -44,7 +41,7 @@ namespace AnalysisManager.Core.Generator
                 }
             }
 
-            return builder.ToString().Trim().Trim(new []{','});
+            return CleanResult(builder.ToString());
         }
 
         public string CreatePercentageParameters(ValueFormat format)

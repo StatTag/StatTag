@@ -10,6 +10,7 @@ using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
+//using System = Microsoft.Office.Interop.Word.System;
 
 namespace AnalysisManager
 {
@@ -52,14 +53,34 @@ namespace AnalysisManager
             var dialog = new SelectOutput(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                foreach (var annotation in dialog.GetSelectedAnnotations())
+                Cursor.Current = Cursors.WaitCursor;
+                try
                 {
-                    Manager.InsertField(annotation);
+                    var refreshedFiles = new HashSet<CodeFile>();
+                    var annotations = dialog.GetSelectedAnnotations();
+                    foreach (var annotation in annotations)
+                    {
+                        if (!refreshedFiles.Contains(annotation.CodeFile))
+                        {
+                            if (!ExecuteStatPackage(annotation.CodeFile))
+                            {
+                                break;
+                            }
+
+                            refreshedFiles.Add(annotation.CodeFile);
+                        }
+
+                        Manager.InsertField(annotation);
+                    }
+                }
+                finally
+                {
+                    Cursor.Current = Cursors.Default;   
                 }
             }
         }
 
-        private void ExecuteStatPackage(CodeFile file)
+        private bool ExecuteStatPackage(CodeFile file)
         {
             var automation = new Stata.Automation();
             automation.Initialize();
@@ -68,11 +89,37 @@ namespace AnalysisManager
             var parser = Factories.GetParser(file);
             if (parser == null)
             {
-                return;
+                return false;
             }
 
-            var filteredLines = parser.Filter(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
-            var results = automation.RunCommands(filteredLines);
+            try
+            {
+                var steps = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+                foreach (var step in steps)
+                {
+                    var results = automation.RunCommands(step.Code.ToArray());
+                    if (step.Annotation != null)
+                    {
+                        var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
+                        if (annotation != null)
+                        {
+                            annotation.CachedResult = new List<string>(results);
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message, System.Windows.Forms.Application.ProductName);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)
+        {
+            ExecuteStatPackage(Manager.Files[0]);
         }
     }
 }

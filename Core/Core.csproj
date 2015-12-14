@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="Factories.cs" />
     <Compile Include="Generator\BaseGenerator.cs" />
+    <Compile Include="Generator\BaseParameterGenerator.cs" />
+    <Compile Include="Generator\FigureGenerator.cs" />
     <Compile Include="Generator\IGenerator.cs" />
     <Compile Include="Generator\Stata.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
@@ -52,10 +54,13 @@
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\Constants.cs" />
+    <Compile Include="Models\ExecutionStep.cs" />
+    <Compile Include="Models\FigureFormat.cs" />
     <Compile Include="Models\FileHandler.cs" />
     <Compile Include="Models\ValueFormat.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />
+    <Compile Include="Parser\FigureParser.cs" />
     <Compile Include="Parser\IParser.cs" />
     <Compile Include="Parser\Stata.cs" />
     <Compile Include="Parser\ValueParser.cs" />

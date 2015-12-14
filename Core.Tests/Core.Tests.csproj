@@ -55,6 +55,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Generator\BaseGeneratorTests.cs" />
+    <Compile Include="Generator\FigureGeneratorTests.cs" />
     <Compile Include="Generator\ValueGeneratorTests.cs" />
     <Compile Include="Models\AnnotationTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
