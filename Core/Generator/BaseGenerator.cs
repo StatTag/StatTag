@@ -34,6 +34,17 @@ namespace AnalysisManager.Core.Generator
                         Constants.AnnotationTags.ParamStart, valueGenerator.CreateParameters(annotation),
                         Constants.AnnotationTags.ParamEnd);
                 }
+                else if (annotation.Type.Equals(Constants.AnnotationType.Figure))
+                {
+                    var figureGenerator = new FigureGenerator();
+                    openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Figure,
+                        Constants.AnnotationTags.ParamStart, figureGenerator.CreateParameters(annotation),
+                        Constants.AnnotationTags.ParamEnd);
+                }
+                else
+                {
+                    throw new Exception("Unsupported annotation type");
+                }
             }
 
             return openBase;

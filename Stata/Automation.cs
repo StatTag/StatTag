@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Parser;
 using stata;
 
 namespace Stata
@@ -10,8 +11,14 @@ namespace Stata
     public class Automation : IDisposable
     {
         protected stata.StataOLEApp Application { get; set; }
+        protected IParser Parser { get; set; }
 
         private const int StataHidden = 1;
+
+        public Automation()
+        {
+            Parser = new AnalysisManager.Core.Parser.Stata();
+        }
 
         public void Initialize()
         {
@@ -21,7 +28,7 @@ namespace Stata
 
         public bool IsReturnable(string command)
         {
-            return command.Trim().StartsWith("display ");
+            return Parser.IsValueDisplay(command) || Parser.IsImageExport(command);
         }
 
         public string[] RunCommands(string[] commands)
@@ -31,9 +38,9 @@ namespace Stata
 
         public string RunCommand(string command)
         {
-            if (IsReturnable(command))
+            if (Parser.IsValueDisplay(command))
             {
-                return Application.StReturnString(command.Trim().Replace("display ", ""));
+                return Application.StReturnString(Parser.GetValueName(command));
             }
 
             int returnCode = Application.DoCommand(command);
@@ -41,6 +48,12 @@ namespace Stata
             {
                 throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
             }
+
+            if (Parser.IsImageExport(command))
+            {
+                return Parser.GetImageSaveLocation(command);
+            }
+            
             return null;
         }
 

@@ -26,6 +26,26 @@ namespace Core.Tests.Parser
             {
                 return base.DetectAnnotation(EndAnnotationRegEx, line);
             }
+
+            public override bool IsImageExport(string command)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool IsValueDisplay(string command)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string GetImageSaveLocation(string command)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string GetValueName(string command)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestMethod]

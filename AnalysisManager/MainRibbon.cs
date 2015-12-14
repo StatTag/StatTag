@@ -10,7 +10,7 @@ using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
-using System = Microsoft.Office.Interop.Word.System;
+//using System = Microsoft.Office.Interop.Word.System;
 
 namespace AnalysisManager
 {
@@ -110,7 +110,7 @@ namespace AnalysisManager
             }
             catch (Exception exc)
             {
-                MessageBox.Show(exc.Message, "Analysis Manager");
+                MessageBox.Show(exc.Message, System.Windows.Forms.Application.ProductName);
                 return false;
             }
 

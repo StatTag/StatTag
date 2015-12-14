@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using AnalysisManager.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -95,6 +96,17 @@ namespace Core.Tests.Models
 
             annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1", "Test 2" }) };
             Assert.AreEqual("Test 1\r\nTest 2", annotation.FormattedResult);
+        }
+
+        [TestMethod]
+        public void ToString_Tests()
+        {
+            var annotation = new Annotation();
+            Assert.AreEqual("AnalysisManager.Core.Models.Annotation", annotation.ToString());
+            annotation.Type = Constants.AnnotationType.Figure;
+            Assert.AreEqual("Figure", annotation.ToString());
+            annotation.OutputLabel = "Test";
+            Assert.AreEqual("Test", annotation.ToString());
         }
     }
 }

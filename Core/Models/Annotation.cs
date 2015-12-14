@@ -16,6 +16,7 @@ namespace AnalysisManager.Core.Models
         public string OutputLabel { get; set; }
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
+        public FigureFormat FigureFormat { get; set; }
         public List<string> CachedResult { get; set; }
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace AnalysisManager.Core.Models
             OutputLabel = annotation.OutputLabel;
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
+            FigureFormat = annotation.FigureFormat;
             LineStart = annotation.LineStart;
             LineEnd = annotation.LineEnd;
             CachedResult = annotation.CachedResult;
@@ -67,6 +69,11 @@ namespace AnalysisManager.Core.Models
             if (!string.IsNullOrWhiteSpace(OutputLabel))
             {
                 return OutputLabel;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Type))
+            {
+                return Type;
             }
 
             return base.ToString();

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using AnalysisManager.Core.Models;
 using Microsoft.Office.Interop.Word;
@@ -77,10 +79,44 @@ namespace AnalysisManager.Models
             }
         }
 
+        public void InsertImage(Annotation annotation)
+        {
+            if (annotation == null)
+            {
+                return;
+            }
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+
+            string fileName = annotation.CachedResult[0];
+            if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
+            {
+                object fileNameObject = fileName;
+                object classType = "AcroExch.Document.DC";
+                object oFalse = false;
+                object oTrue = true;
+                object missing = System.Reflection.Missing.Value;
+                // For PDFs, we can ONLY insert them as a link to the file.  Trying it any other way will cause
+                // an error during the insert.
+                application.Selection.InlineShapes.AddOLEObject(ref classType, ref fileNameObject, 
+                    ref oTrue, ref oFalse, ref missing, ref missing, ref missing, ref missing);
+            }
+            else
+            {
+                application.Selection.InlineShapes.AddPicture(fileName);
+            }
+        }
+
         public void InsertField(Annotation annotation)
         {
             if (annotation == null)
             {
+                return;
+            }
+
+            if (annotation.Type == Constants.AnnotationType.Figure)
+            {
+                InsertImage(annotation);
                 return;
             }
 

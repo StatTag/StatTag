@@ -38,12 +38,13 @@
             this.txtOutputLabel = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.pnlType = new System.Windows.Forms.Panel();
-            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.cmdValue = new System.Windows.Forms.Button();
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.lstCode = new System.Windows.Forms.ListBox();
+            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
+            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -139,22 +140,13 @@
             // 
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlType.Controls.Add(this.figureProperties);
             this.pnlType.Controls.Add(this.valueProperties);
             this.pnlType.Location = new System.Drawing.Point(98, 353);
             this.pnlType.Name = "pnlType";
             this.pnlType.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
             this.pnlType.Size = new System.Drawing.Size(484, 160);
             this.pnlType.TabIndex = 17;
-            // 
-            // valueProperties
-            // 
-            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(5, 0);
-            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(477, 158);
-            this.valueProperties.TabIndex = 0;
             // 
             // cmdValue
             // 
@@ -214,7 +206,26 @@
             this.lstCode.Size = new System.Drawing.Size(566, 191);
             this.lstCode.TabIndex = 22;
             // 
-            // ManageAnnotation
+            // figureProperties
+            // 
+            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.figureProperties.Location = new System.Drawing.Point(5, 0);
+            this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.figureProperties.Name = "figureProperties";
+            this.figureProperties.Size = new System.Drawing.Size(477, 158);
+            this.figureProperties.TabIndex = 1;
+            // 
+            // valueProperties
+            // 
+            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.valueProperties.Location = new System.Drawing.Point(5, 0);
+            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.valueProperties.Name = "valueProperties";
+            this.valueProperties.Size = new System.Drawing.Size(477, 158);
+            this.valueProperties.TabIndex = 0;
+            // 
+            // EditAnnotation
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -239,7 +250,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "ManageAnnotation";
+            this.Name = "EditAnnotation";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Annotation";
             this.Load += new System.EventHandler(this.ManageAnnotation_Load);
@@ -267,5 +278,6 @@
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private Controls.ValueProperties valueProperties;
         private System.Windows.Forms.ListBox lstCode;
+        private Controls.FigureProperties figureProperties;
     }
 }

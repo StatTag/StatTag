@@ -56,18 +56,24 @@ namespace AnalysisManager
 
             if (button == cmdValue)
             {
+                valueProperties.Visible = true;
+                figureProperties.Visible = false;
                 UnselectTypeButton(cmdFigure);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Value;
             }
             else if (button == cmdFigure)
             {
+                valueProperties.Visible = false;
+                figureProperties.Visible = true;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Figure;
             }
             else if (button == cmdTable)
             {
+                valueProperties.Visible = false;
+                figureProperties.Visible = true;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdFigure);
                 AnnotationType = Constants.AnnotationType.Table;
@@ -119,7 +125,12 @@ namespace AnalysisManager
                 switch (AnnotationType)
                 {
                     case Constants.AnnotationType.Value:
+                        UpdateForTypeClick(cmdValue);
                         valueProperties.SetValueFormat(Annotation.ValueFormat);
+                        break;
+                    case Constants.AnnotationType.Figure:
+                        UpdateForTypeClick(cmdFigure);
+                        figureProperties.SetFigureFormat(Annotation.FigureFormat);
                         break;
                 }
             }
@@ -164,13 +175,13 @@ namespace AnalysisManager
                 Annotation.LineEnd = selectedIndices.Max();
             }
 
-            // Step 1 - remove the existing annotations that were associated with this
-            //   a. adjust the indices appropriately
-
             switch (AnnotationType)
             {
                 case Constants.AnnotationType.Value:
                     Annotation.ValueFormat = valueProperties.GetValueFormat();
+                    break;
+                case Constants.AnnotationType.Figure:
+                    Annotation.FigureFormat = figureProperties.GetFigureFormat();
                     break;
                 default:
                     throw new NotSupportedException("This annotation type is not yet supported");

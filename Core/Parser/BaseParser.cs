@@ -20,6 +20,11 @@ namespace AnalysisManager.Core.Parser
             SetupRegEx();
         }
 
+        public abstract bool IsImageExport(string command);
+        public abstract string GetImageSaveLocation(string command);
+        public abstract bool IsValueDisplay(string command);
+        public abstract string GetValueName(string command);
+
         protected Match DetectAnnotation(Regex annotationRegex, string line)
         {
             if (line == null)
@@ -175,6 +180,15 @@ namespace AnalysisManager.Core.Parser
             {
                 annotation.Type = Constants.AnnotationType.Value;
                 ValueParser.Parse(annotationText, annotation);
+            }
+            else if (annotationText.StartsWith(Constants.AnnotationType.Figure))
+            {
+                annotation.Type = Constants.AnnotationType.Figure;
+                FigureParser.Parse(annotationText, annotation);
+            }
+            else
+            {
+                //throw new Exception("Unsupported annotation type");
             }
         }
     }
