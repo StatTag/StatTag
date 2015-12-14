@@ -15,7 +15,7 @@ namespace AnalysisManager.Core.Parser
     public sealed class Stata : BaseParser
     {
         private static string ValueCommand = "display";
-        private static Regex ValueRegex = new Regex(string.Format("{0}\\s+\\\"(.*)\\\"", ValueCommand.Replace(" ", "\\s+")));
+        private static Regex ValueRegex = new Regex(string.Format("{0}\\s+(.*)", ValueCommand.Replace(" ", "\\s+")));
         private static string GraphCommand = "graph export";
         private static Regex GraphRegex = new Regex(string.Format("{0}\\s+\\\"(.*)\\\"", GraphCommand.Replace(" ", "\\s+")));
 
