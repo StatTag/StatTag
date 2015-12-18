@@ -122,5 +122,17 @@
             public const int CodeBlock = 0;
             public const int Annotation = 1;
         }
+
+        public static class DateFormats
+        {
+            public const string MMDDYYYY = "MM/dd/yyyy";
+            public const string MonthDDYYYY = "MMMM dd, yyyy";
+        }
+
+        public static class TimeFormats
+        {
+            public const string HHMM = "HH:mm";
+            public const string HHMMSS = "HH:mm:ss";
+        }
     }
 }

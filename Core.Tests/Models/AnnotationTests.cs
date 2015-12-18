@@ -95,7 +95,10 @@ namespace Core.Tests.Models
             Assert.AreEqual("Test 1", annotation.FormattedResult);
 
             annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1", "Test 2" }) };
-            Assert.AreEqual("Test 1\r\nTest 2", annotation.FormattedResult);
+            Assert.AreEqual("Test 2", annotation.FormattedResult);
+
+            annotation = new Annotation() { CachedResult = new List<string>(new[] { "1234", "456789" }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
+            Assert.AreEqual("456,789", annotation.FormattedResult);
         }
 
         [TestMethod]

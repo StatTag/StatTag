@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace AnalysisManager.Core.Models
@@ -28,12 +29,22 @@ namespace AnalysisManager.Core.Models
         {
             get
             {
-                if (CachedResult == null)
+                if (CachedResult == null || CachedResult.Count == 0)
                 {
                     return string.Empty;
                 }
 
-                return string.Join("\r\n", CachedResult);
+                // When formatting a value, it is possible the user has selected multiple 
+                // display commands.  We will only return the last cached result, and format
+                // that if our formatter is available.
+                string lastValue = CachedResult.Last();
+                if (!string.IsNullOrWhiteSpace(Type)
+                    && Type.Equals(Constants.AnnotationType.Value) && ValueFormat != null)
+                {
+                    return ValueFormat.Format(lastValue);
+                }
+
+                return lastValue;
             }
         }
 
