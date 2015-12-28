@@ -15,9 +15,11 @@ namespace AnalysisManager.Core.Parser
     public sealed class Stata : BaseParser
     {
         private static string ValueCommand = "display";
-        private static Regex ValueRegex = new Regex(string.Format("{0}\\s+(.*)", ValueCommand.Replace(" ", "\\s+")));
+        private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand.Replace(" ", "\\s+")));
+        private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand.Replace(" ", "\\s+")));
         private static string GraphCommand = "graph export";
-        private static Regex GraphRegex = new Regex(string.Format("{0}\\s+\\\"(.*)\\\"", GraphCommand.Replace(" ", "\\s+")));
+        private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
+        private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"(.*)\\\"", GraphCommand.Replace(" ", "\\s+")));
 
         public override string CommentCharacter
         {
@@ -31,12 +33,12 @@ namespace AnalysisManager.Core.Parser
         /// <returns></returns>
         public override bool IsImageExport(string command)
         {
-            return command.Trim().StartsWith(GraphCommand);
+            return GraphKeywordRegex.IsMatch(command);
         }
 
         public override bool IsValueDisplay(string command)
         {
-            return command.Trim().StartsWith(ValueCommand);
+            return ValueKeywordRegex.IsMatch(command);
         }
 
         /// <summary>
@@ -52,18 +54,25 @@ namespace AnalysisManager.Core.Parser
             var match = GraphRegex.Match(command);
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return match.Groups[1].Value.Trim();
             }
 
             return string.Empty;
         }
 
+        /// <summary>
+        /// Returns the name of the variable/scalar to display.
+        /// </summary>
+        /// <remarks>Assumes that you have verified this is a display command using
+        /// IsValueDisplay first.</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetValueName(string command)
         {
             var match = ValueRegex.Match(command);
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return match.Groups[1].Value.Trim();
             }
 
             return string.Empty;
