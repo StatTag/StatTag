@@ -35,6 +35,18 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void IsMacroDisplayValue()
+        {
+            var parser = new Stata();
+            Assert.IsFalse(parser.IsMacroDisplayValue("displa `x'"));
+            Assert.IsTrue(parser.IsMacroDisplayValue("display `x'"));
+            Assert.IsTrue(parser.IsMacroDisplayValue("display ` x '"));
+            Assert.IsTrue(parser.IsMacroDisplayValue("  display   `x'   "));
+            Assert.IsFalse(parser.IsMacroDisplayValue("display 'x'"));
+            Assert.IsFalse(parser.IsMacroDisplayValue("display `'"));
+        }
+
+        [TestMethod]
         public void GetImageSaveLocation()
         {
             var parser = new Stata();
@@ -51,11 +63,20 @@ namespace Core.Tests.Parser
         {
             var parser = new Stata();
             Assert.AreEqual("test", parser.GetValueName("display test"));
+            Assert.AreEqual("`x2'", parser.GetValueName("display  `x2'"));
             Assert.AreEqual("test", parser.GetValueName(" display   test  "));
             Assert.AreEqual(string.Empty, parser.GetValueName("adisplay test"));
             // Stata does not appear to support multiple commands on one line, even in a do file, so this shouldn't work.  We are just asserting that we don't
             // support this functionality.
             Assert.AreNotEqual("test", parser.GetValueName("display test; display test"));
+        }
+
+        [TestMethod]
+        public void GetMacroValueName()
+        {
+            var parser = new Stata();
+            Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'"));
+            Assert.AreEqual("test", parser.GetMacroValueName("display test"));   // This isn't a proper Stata macro value, but is the expected return
         }
     }
 }
