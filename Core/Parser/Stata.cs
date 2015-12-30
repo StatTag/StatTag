@@ -15,12 +15,12 @@ namespace AnalysisManager.Core.Parser
     public sealed class Stata : BaseParser
     {
         private static readonly char[] MacroDelimiters = {'`', '\''};
-        private static string ValueCommand = "display";
+        private static string ValueCommand = "di(?:splay)?";
         private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
         private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
-        private static string GraphCommand = "graph export";
+        private static string GraphCommand = "gr(?:aph)? export";
         private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
-        private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"(.*)\\\"", GraphCommand.Replace(" ", "\\s+")));
+        private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
         /// <summary>
         /// This is used to test/extract a macro display value.
         /// <remarks>It assumes the rest of the display command has been extracted, 

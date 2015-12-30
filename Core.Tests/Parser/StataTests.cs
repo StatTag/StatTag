@@ -32,6 +32,8 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsValueDisplay("adisplay"));
             Assert.IsFalse(parser.IsValueDisplay("a display"));
             Assert.IsTrue(parser.IsValueDisplay("display value"));
+            Assert.IsTrue(parser.IsValueDisplay("di value"));  // Handle abbreviated command
+            Assert.IsFalse(parser.IsValueDisplay("dis value"));  // Handle abbreviated command
         }
 
         [TestMethod]
@@ -53,9 +55,11 @@ namespace Core.Tests.Parser
             Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation("graph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
             Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation(" graph   export   \"C:\\Development\\Stats\\bpgraph.pdf\" ,  as(pdf)  replace"));
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("agraph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
-            // Stata does not appear to support multiple commands on one line, even in a do file, so this shouldn't work.  We are just asserting that we don't
-            // support this functionality.
-            Assert.AreNotEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation("graph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace;  graph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
+            Assert.AreEqual("mygraph.pdf", parser.GetImageSaveLocation("graph export mygraph.pdf"));
+            Assert.AreEqual("mygraph.pdf", parser.GetImageSaveLocation("graph export mygraph.pdf, as(pdf)"));
+            Assert.AreEqual("mygraph.pdf", parser.GetImageSaveLocation("gr export mygraph.pdf")); // "gr" shortcut
+            Assert.AreNotEqual("mygraph.pdf", parser.GetImageSaveLocation("gra export mygraph.pdf"));
+            Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation("gr export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
         }
 
         [TestMethod]
