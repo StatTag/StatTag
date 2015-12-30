@@ -40,6 +40,7 @@
             this.cmdManageAnnotations = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.cmdSettings = this.Factory.CreateRibbonButton();
+            this.button1 = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
             // 
@@ -56,6 +57,7 @@
             this.codeGroup.Items.Add(this.cmdManageAnnotations);
             this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Items.Add(this.cmdSettings);
+            this.codeGroup.Items.Add(this.button1);
             this.codeGroup.Label = "Analysis Manager";
             this.codeGroup.Name = "codeGroup";
             // 
@@ -115,6 +117,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageAnnotations;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdSettings;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
     }
 
     partial class ThisRibbonCollection

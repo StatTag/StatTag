@@ -21,6 +21,11 @@ namespace AnalysisManager
             get { return Globals.ThisAddIn.Manager; }
         }
 
+        public PropertiesManager PropertiesManager
+        {
+            get { return Globals.ThisAddIn.PropertiesManager;  }
+        }
+
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
 
@@ -124,8 +129,12 @@ namespace AnalysisManager
 
         private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new Settings();
-            dialog.ShowDialog();
+            var dialog = new Settings(PropertiesManager.Properties);
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                PropertiesManager.Properties = dialog.Properties;
+                PropertiesManager.Save();
+            }
         }
     }
 }

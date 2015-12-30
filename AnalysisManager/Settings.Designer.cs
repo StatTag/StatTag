@@ -33,10 +33,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.txtStataLocation = new System.Windows.Forms.TextBox();
-            this.cmdStataLocation = new System.Windows.Forms.Button();
-            this.cmdRegisterStataAutomation = new System.Windows.Forms.Button();
             this.cmdDisableStataAutomation = new System.Windows.Forms.Button();
+            this.cmdRegisterStataAutomation = new System.Windows.Forms.Button();
+            this.cmdStataLocation = new System.Windows.Forms.Button();
+            this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +65,7 @@
             this.cmdOK.TabIndex = 8;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // label1
             // 
@@ -98,23 +99,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Stata";
             // 
-            // txtStataLocation
+            // cmdDisableStataAutomation
             // 
-            this.txtStataLocation.Location = new System.Drawing.Point(9, 42);
-            this.txtStataLocation.Name = "txtStataLocation";
-            this.txtStataLocation.Size = new System.Drawing.Size(395, 25);
-            this.txtStataLocation.TabIndex = 11;
-            this.txtStataLocation.TextChanged += new System.EventHandler(this.txtStataLocation_TextChanged);
-            // 
-            // cmdStataLocation
-            // 
-            this.cmdStataLocation.Location = new System.Drawing.Point(407, 42);
-            this.cmdStataLocation.Name = "cmdStataLocation";
-            this.cmdStataLocation.Size = new System.Drawing.Size(28, 23);
-            this.cmdStataLocation.TabIndex = 12;
-            this.cmdStataLocation.Text = "...";
-            this.cmdStataLocation.UseVisualStyleBackColor = true;
-            this.cmdStataLocation.Click += new System.EventHandler(this.cmdStataLocation_Click);
+            this.cmdDisableStataAutomation.Location = new System.Drawing.Point(230, 76);
+            this.cmdDisableStataAutomation.Name = "cmdDisableStataAutomation";
+            this.cmdDisableStataAutomation.Size = new System.Drawing.Size(174, 27);
+            this.cmdDisableStataAutomation.TabIndex = 14;
+            this.cmdDisableStataAutomation.Text = "Disable Automation";
+            this.cmdDisableStataAutomation.UseVisualStyleBackColor = true;
+            this.cmdDisableStataAutomation.Click += new System.EventHandler(this.cmdDisableStataAutomation_Click);
             // 
             // cmdRegisterStataAutomation
             // 
@@ -126,20 +119,30 @@
             this.cmdRegisterStataAutomation.UseVisualStyleBackColor = true;
             this.cmdRegisterStataAutomation.Click += new System.EventHandler(this.cmdRegisterStataAutomation_Click);
             // 
-            // cmdDisableStataAutomation
+            // cmdStataLocation
             // 
-            this.cmdDisableStataAutomation.Location = new System.Drawing.Point(230, 76);
-            this.cmdDisableStataAutomation.Name = "cmdDisableStataAutomation";
-            this.cmdDisableStataAutomation.Size = new System.Drawing.Size(174, 27);
-            this.cmdDisableStataAutomation.TabIndex = 14;
-            this.cmdDisableStataAutomation.Text = "Disable Automation";
-            this.cmdDisableStataAutomation.UseVisualStyleBackColor = true;
-            this.cmdDisableStataAutomation.Click += new System.EventHandler(this.cmdDisableStataAutomation_Click);
+            this.cmdStataLocation.Location = new System.Drawing.Point(407, 42);
+            this.cmdStataLocation.Name = "cmdStataLocation";
+            this.cmdStataLocation.Size = new System.Drawing.Size(28, 23);
+            this.cmdStataLocation.TabIndex = 12;
+            this.cmdStataLocation.Text = "...";
+            this.cmdStataLocation.UseVisualStyleBackColor = true;
+            this.cmdStataLocation.Click += new System.EventHandler(this.cmdStataLocation_Click);
+            // 
+            // txtStataLocation
+            // 
+            this.txtStataLocation.Location = new System.Drawing.Point(9, 42);
+            this.txtStataLocation.Name = "txtStataLocation";
+            this.txtStataLocation.Size = new System.Drawing.Size(395, 25);
+            this.txtStataLocation.TabIndex = 11;
+            this.txtStataLocation.TextChanged += new System.EventHandler(this.txtStataLocation_TextChanged);
             // 
             // Settings
             // 
+            this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(465, 275);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);

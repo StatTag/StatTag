@@ -12,14 +12,19 @@ namespace AnalysisManager
 {
     public partial class Settings : Form
     {
-        public Settings()
+        private const string ExecutableFileFilter = "Application Executable|*.exe";
+
+        public Models.Properties Properties { get; set; }
+
+        public Settings(Models.Properties properties)
         {
+            Properties = properties;
             InitializeComponent();
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
         {
-            var stataPath = UIUtility.GetFileName("Application Executable|*.exe");
+            var stataPath = UIUtility.GetFileName(ExecutableFileFilter);
             if (!string.IsNullOrWhiteSpace(stataPath))
             {
                 txtStataLocation.Text = stataPath;
@@ -40,6 +45,7 @@ namespace AnalysisManager
 
         private void Settings_Load(object sender, EventArgs e)
         {
+            txtStataLocation.Text = Properties.StataLocation;
             UpdateStataControls();
         }
 
@@ -97,6 +103,11 @@ namespace AnalysisManager
                 string.Format(
                     "The Stata Automation API has been successfully {0}.",
                 action));
+        }
+
+        private void cmdOK_Click(object sender, EventArgs e)
+        {
+            Properties.StataLocation = txtStataLocation.Text;
         }
     }
 }
