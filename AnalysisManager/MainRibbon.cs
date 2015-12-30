@@ -83,7 +83,12 @@ namespace AnalysisManager
         private bool ExecuteStatPackage(CodeFile file)
         {
             var automation = new Stata.Automation();
-            automation.Initialize();
+            if (!automation.Initialize())
+            {
+                MessageBox.Show(
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in Analysis Manager.\r\n\r\nThis can be done from Analysis Manager > Settings, or see http://www.stata.com/automation");
+                return false;
+            }
 
             // Get all of the commands in the code file that are not marked to be run as "on demand"
             var parser = Factories.GetParser(file);
@@ -117,9 +122,10 @@ namespace AnalysisManager
             return true;
         }
 
-        private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)
+        private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
-            ExecuteStatPackage(Manager.Files[0]);
+            var dialog = new Settings();
+            dialog.ShowDialog();
         }
     }
 }

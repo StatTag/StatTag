@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Parser;
-using stata;
 
 namespace Stata
 {
     public class Automation : IDisposable
     {
         public const string LocalMacroPrefix = "_";
+
+        // The following are constants used to manage the Stata Automation API
+        public const string RegisterParameter = "/Register";
+        public const string UnregisterParameter = "/Unregister";
 
         protected stata.StataOLEApp Application { get; set; }
         protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
@@ -29,10 +34,19 @@ namespace Stata
             Parser = new AnalysisManager.Core.Parser.Stata();
         }
 
-        public void Initialize()
+        public bool Initialize()
         {
-            Application = new stata.StataOLEApp();
-            Application.UtilShowStata(StataHidden);
+            try
+            {
+                Application = new stata.StataOLEApp();
+                Application.UtilShowStata(StataHidden);
+            }
+            catch (COMException comExc)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsReturnable(string command)
@@ -98,6 +112,32 @@ namespace Stata
         public void Dispose()
         {
             Application = null;
+        }
+
+        public static bool UnregisterAutomationAPI(string path)
+        {
+            return RunCommand(path, UnregisterParameter);
+        }
+
+        public static bool RegisterAutomationAPI(string path)
+        {
+            return RunCommand(path, RegisterParameter);
+        }
+
+        protected static bool RunCommand(string path, string parameters)
+        {
+            var startInfo = new ProcessStartInfo(path, parameters);
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.Verb = "runas";  // Allows running as administrator, needed to change COM registration
+            var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                return false;
+            }
+
+            process.WaitForExit(30000);
+
+            return (0 == process.ExitCode);
         }
     }
 }

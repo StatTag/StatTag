@@ -246,6 +246,12 @@
     <Compile Include="SelectOutput.Designer.cs">
       <DependentUpon>SelectOutput.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIUtility.cs" />
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
@@ -283,6 +289,9 @@
     </Compile>
     <EmbeddedResource Include="SelectOutput.resx">
       <DependentUpon>SelectOutput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="AnalysisManager_1_TemporaryKey.pfx" />
     <None Include="AnalysisManager_TemporaryKey.pfx" />

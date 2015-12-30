@@ -36,5 +36,17 @@ namespace AnalysisManager
 
             return removeList.Select(x => x.Tag);
         }
+
+        public static string GetFileName(string filter)
+        {
+            FileDialog openFile = new OpenFileDialog();
+            openFile.Filter = filter;
+            if (DialogResult.OK == openFile.ShowDialog())
+            {
+                return openFile.FileName;
+            }
+
+            return null;
+        }
     }
 }
