@@ -13,9 +13,13 @@ namespace AnalysisManager
     public partial class ThisAddIn
     {
         public DocumentManager Manager = new DocumentManager();
+        public PropertiesManager PropertiesManager = new PropertiesManager();
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
+            // a change and then confirms it through the Settings dialog.
+            PropertiesManager.Load();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

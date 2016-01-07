@@ -95,7 +95,10 @@ namespace Core.Tests.Models
             Assert.AreEqual("Test 1", annotation.FormattedResult);
 
             annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1", "Test 2" }) };
-            Assert.AreEqual("Test 1\r\nTest 2", annotation.FormattedResult);
+            Assert.AreEqual("Test 2", annotation.FormattedResult);
+
+            annotation = new Annotation() { CachedResult = new List<string>(new[] { "1234", "456789" }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
+            Assert.AreEqual("456,789", annotation.FormattedResult);
         }
 
         [TestMethod]
@@ -107,6 +110,23 @@ namespace Core.Tests.Models
             Assert.AreEqual("Figure", annotation.ToString());
             annotation.OutputLabel = "Test";
             Assert.AreEqual("Test", annotation.ToString());
+        }
+
+        [TestMethod]
+        public void Serialize_Deserialize()
+        {
+            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<string>(new[] { "Test 1" }) };
+            var serialized = annotation.Serialize();
+            var recreatedAnnotation = Annotation.Deserialize(serialized);
+            Assert.AreEqual(annotation.CodeFile, recreatedAnnotation.CodeFile);
+            Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
+            Assert.AreEqual(annotation.FormattedResult, recreatedAnnotation.FormattedResult);
+            Assert.AreEqual(annotation.LineEnd, recreatedAnnotation.LineEnd);
+            Assert.AreEqual(annotation.LineStart, recreatedAnnotation.LineStart);
+            Assert.AreEqual(annotation.OutputLabel, recreatedAnnotation.OutputLabel);
+            Assert.AreEqual(annotation.RunFrequency, recreatedAnnotation.RunFrequency);
+            Assert.AreEqual(annotation.Type, recreatedAnnotation.Type);
+            Assert.AreEqual(annotation.ValueFormat, recreatedAnnotation.ValueFormat);
         }
     }
 }

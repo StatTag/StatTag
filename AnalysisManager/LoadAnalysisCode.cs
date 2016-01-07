@@ -37,7 +37,7 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            string fileName = GetFileName();
+            string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
             if (!string.IsNullOrWhiteSpace(fileName))
             {
                 string package = CodeFile.GuessStatisticalPackage(fileName);
@@ -82,7 +82,7 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == FileEditColumn)
             {
-                string fileName = GetFileName();
+                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
                     dgvItems.Rows[e.RowIndex].Cells[FilePathColumn].Value = fileName;
@@ -101,18 +101,6 @@ namespace AnalysisManager
                     }
                 }
             }
-        }
-
-        private string GetFileName()
-        {
-            FileDialog openFile = new OpenFileDialog();
-            openFile.Filter = Constants.FileFilters.FormatForOpenFileDialog();
-            if (DialogResult.OK == openFile.ShowDialog())
-            {
-                return openFile.FileName;
-            }
-
-            return null;
         }
     }
 }

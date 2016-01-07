@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -14,6 +15,7 @@ namespace AnalysisManager.Models
         public FieldCreator FieldManager { get; set; }
 
         public const string ConfigurationAttribute = "Analysis Manager Configuration";
+        public const string MacroButtonName = "AnalysisManager";
 
         public DocumentManager()
         {
@@ -107,6 +109,73 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Finds the first annotation that matches a given label.
+        /// </summary>
+        /// <param name="annotationLabel"></param>
+        /// <returns></returns>
+        private Annotation FindAnnotation(string annotationLabel)
+        {
+            return Files.Select(codeFile => codeFile.Annotations.Find(x => x.OutputLabel.Equals(annotationLabel))).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Update all of the field values in the current document.
+        /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
+        /// that has already been done.  Instead it just updates the displayed text of a field
+        /// with whatever is set as the current cached value.</remarks>
+        /// </summary>
+        public void UpdateFields()
+        {
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            try
+            {
+                var fields = document.Fields;
+                // Fields is a 1-based index
+                for (int index = 1; index <= fields.Count; index++)
+                {
+                    var field = fields[index];
+                    if (field == null)
+                    {
+                        continue;
+                    }
+
+                    if (field.Type == WdFieldType.wdFieldMacroButton
+                        && field.Code != null && field.Code.Text.Contains(MacroButtonName)
+                        && field.Code.Fields.Count > 0)
+                    {
+                        var code = field.Code;
+                        var nestedField = field.Code.Fields[1];
+                        var annotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
+                        var updatedAnnotation = FindAnnotation(annotation.OutputLabel);
+                        field.Select();
+
+                        if (updatedAnnotation != null)
+                        {
+                            InsertField(updatedAnnotation);
+                        }
+
+                        Marshal.ReleaseComObject(code);
+                        Marshal.ReleaseComObject(nestedField);
+                    }
+                    Marshal.ReleaseComObject(field);
+                }
+                Marshal.ReleaseComObject(fields);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
+        }
+
+        /// <summary>
+        /// Given an annotation, insert the result into the document at the current cursor position.
+        /// <remarks>This method assumes the annotation result is already refreshed.  It does not
+        /// attempt to refresh or recalculate it.</remarks>
+        /// </summary>
+        /// <param name="annotation"></param>
         public void InsertField(Annotation annotation)
         {
             if (annotation == null)
@@ -132,8 +201,8 @@ namespace AnalysisManager.Models
 
                 var range = selection.Range;
 
-                var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton AnalysisManager {0}{{{{ADDIN {1}}}}}}}}}",
-                    annotation.FormattedResult, annotation.OutputLabel));
+                var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
+                    MacroButtonName, annotation.FormattedResult, annotation.OutputLabel));
                 var dataField = fields[0];
                 dataField.Data = annotation.Serialize();
 

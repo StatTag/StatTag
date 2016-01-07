@@ -236,6 +236,8 @@
     </Compile>
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\Properties.cs" />
+    <Compile Include="Models\PropertiesManager.cs" />
     <Compile Include="Models\StateCapture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -245,6 +247,12 @@
     </Compile>
     <Compile Include="SelectOutput.Designer.cs">
       <DependentUpon>SelectOutput.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="UIUtility.cs" />
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
@@ -283,6 +291,9 @@
     </Compile>
     <EmbeddedResource Include="SelectOutput.resx">
       <DependentUpon>SelectOutput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="AnalysisManager_1_TemporaryKey.pfx" />
     <None Include="AnalysisManager_TemporaryKey.pfx" />

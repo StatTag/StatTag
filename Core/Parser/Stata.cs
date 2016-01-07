@@ -14,10 +14,19 @@ namespace AnalysisManager.Core.Parser
     /// </summary>
     public sealed class Stata : BaseParser
     {
-        private static string ValueCommand = "display";
-        private static Regex ValueRegex = new Regex(string.Format("{0}\\s+(.*)", ValueCommand.Replace(" ", "\\s+")));
-        private static string GraphCommand = "graph export";
-        private static Regex GraphRegex = new Regex(string.Format("{0}\\s+\\\"(.*)\\\"", GraphCommand.Replace(" ", "\\s+")));
+        private static readonly char[] MacroDelimiters = {'`', '\''};
+        private static string ValueCommand = "di(?:splay)?";
+        private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
+        private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
+        private static string GraphCommand = "gr(?:aph)? export";
+        private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
+        private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
+        /// <summary>
+        /// This is used to test/extract a macro display value.
+        /// <remarks>It assumes the rest of the display command has been extracted, 
+        /// and only the value name remains.</remarks>
+        /// </summary>
+        private static Regex MacroValueRegex = new Regex("^\\s*`(.+)'");
 
         public override string CommentCharacter
         {
@@ -31,12 +40,24 @@ namespace AnalysisManager.Core.Parser
         /// <returns></returns>
         public override bool IsImageExport(string command)
         {
-            return command.Trim().StartsWith(GraphCommand);
+            return GraphKeywordRegex.IsMatch(command);
         }
 
         public override bool IsValueDisplay(string command)
         {
-            return command.Trim().StartsWith(ValueCommand);
+            return ValueKeywordRegex.IsMatch(command);
+        }
+
+        /// <summary>
+        /// Determine if a display value is a macro type.
+        /// </summary>
+        /// <remarks>Assumes that you have already verified the command contains a display value.</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsMacroDisplayValue(string command)
+        {
+            string value = GetValueName(command);
+            return MacroValueRegex.IsMatch(value);
         }
 
         /// <summary>
@@ -52,21 +73,39 @@ namespace AnalysisManager.Core.Parser
             var match = GraphRegex.Match(command);
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return match.Groups[1].Value.Trim();
             }
 
             return string.Empty;
         }
 
+        /// <summary>
+        /// Returns the name of the variable/scalar to display.
+        /// </summary>
+        /// <remarks>Assumes that you have verified this is a display command using
+        /// IsValueDisplay first.</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetValueName(string command)
         {
             var match = ValueRegex.Match(command);
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return match.Groups[1].Value.Trim();
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// A specialized version of GetValueName that prepares a macro display value
+        /// for use.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public string GetMacroValueName(string command)
+        {
+            return GetValueName(command).Trim(MacroDelimiters);
         }
     }
 }

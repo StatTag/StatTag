@@ -21,6 +21,11 @@ namespace AnalysisManager
             get { return Globals.ThisAddIn.Manager; }
         }
 
+        public PropertiesManager PropertiesManager
+        {
+            get { return Globals.ThisAddIn.PropertiesManager;  }
+        }
+
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
 
@@ -83,7 +88,12 @@ namespace AnalysisManager
         private bool ExecuteStatPackage(CodeFile file)
         {
             var automation = new Stata.Automation();
-            automation.Initialize();
+            if (!automation.Initialize())
+            {
+                MessageBox.Show(
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in Analysis Manager.\r\n\r\nThis can be done from Analysis Manager > Settings, or see http://www.stata.com/automation");
+                return false;
+            }
 
             // Get all of the commands in the code file that are not marked to be run as "on demand"
             var parser = Factories.GetParser(file);
@@ -117,9 +127,47 @@ namespace AnalysisManager
             return true;
         }
 
-        private void cmdTestStata_Click(object sender, RibbonControlEventArgs e)
+        private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
-            ExecuteStatPackage(Manager.Files[0]);
+            var dialog = new Settings(PropertiesManager.Properties);
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                PropertiesManager.Properties = dialog.Properties;
+                PropertiesManager.Save();
+            }
+        }
+
+        private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                // First, go through and update all of the code files to ensure we have all
+                // refreshed annotations.
+                var refreshedFiles = new HashSet<CodeFile>();
+                foreach (var codeFile in Manager.Files)
+                {
+                    if (!refreshedFiles.Contains(codeFile))
+                    {
+                        if (!ExecuteStatPackage(codeFile))
+                        {
+                            break;
+                        }
+
+                        refreshedFiles.Add(codeFile);
+                    }
+                }
+
+
+                // Now we will refresh all of the annotations that are fields.  Since we most likely
+                // have more fields than annotations, we are going to use the approach of looping
+                // through all fields and updating them (via the DocumentManager).
+                Manager.UpdateFields();
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
         }
     }
 }

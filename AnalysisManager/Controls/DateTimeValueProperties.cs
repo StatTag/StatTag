@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Controls
 {
@@ -34,32 +35,37 @@ namespace AnalysisManager.Controls
 
         private void DateTimeValueProperties_Load(object sender, EventArgs e)
         {
-            cboDate.Items.AddRange(new object[]
+            var dateFormats = new Dictionary<string, string>
             {
-                "03/14/2001",
-                "March 14, 2001",
-                "Wednesday, March 14, 2001"
-            });
+                { "", "" },
+                { "03/14/2001", Constants.DateFormats.MMDDYYYY },
+                { "March 14, 2001", Constants.DateFormats.MonthDDYYYY },
+            };
+            cboDate.DataSource = new BindingSource(dateFormats, null);
+            cboDate.DisplayMember = "Key";
+            cboDate.ValueMember = "Value";
 
-            cboTime.Items.AddRange(new object[]
+            var timeFormats = new Dictionary<string, string>
             {
-                "7:30:50 pm",
-                "19:30",
-                "7:30 pm",
-                "19:30:50"
-            });
+                {"", ""},
+                {"19:30", Constants.TimeFormats.HHMM},
+                {"19:30:50", Constants.TimeFormats.HHMMSS}
+            };
+            cboTime.DataSource = new BindingSource(dateFormats, null);
+            cboTime.DisplayMember = "Key";
+            cboTime.ValueMember = "Value";
 
             UpdateValues();
         }
 
         private void UpdateDate()
         {
-            DateFormat = (cboDate.Enabled ? cboDate.SelectedItem as string : string.Empty);
+            DateFormat = (cboDate.Enabled ? cboDate.SelectedValue as string : string.Empty);
         }
 
         private void UpdateTime()
         {
-            TimeFormat = (cboTime.Enabled ? cboTime.SelectedItem as string : string.Empty);
+            TimeFormat = (cboTime.Enabled ? cboTime.SelectedValue as string : string.Empty);
         }
 
         private void cboDate_SelectedIndexChanged(object sender, EventArgs e)
@@ -76,13 +82,13 @@ namespace AnalysisManager.Controls
         {
             if (!string.IsNullOrWhiteSpace(DateFormat))
             {
-                cboDate.SelectedItem = DateFormat;
+                cboDate.SelectedValue = DateFormat;
                 chkShowDate.Checked = true;
             }
 
             if (!string.IsNullOrWhiteSpace(TimeFormat))
             {
-                cboTime.SelectedItem = TimeFormat;
+                cboTime.SelectedValue = TimeFormat;
                 chkShowTime.Checked = true;
             }
         }
