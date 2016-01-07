@@ -1887,9 +1887,9 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>analysismanager.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.MAN|AnalysisManager.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Debug\AnalysisManager.dll.manifest</td><td>1</td><td/></row>
+		<row><td>analysismanager.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.MAN|AnalysisManager.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\AnalysisManager.dll.manifest</td><td>1</td><td/></row>
 		<row><td>analysismanager.primary_outp</td><td>AnalysisManager.Primary_output</td><td>AnalysisManager.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;AnalysisManager&gt;|Built</td><td>3</td><td/></row>
-		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|AnalysisManager.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Debug\AnalysisManager.vsto</td><td>1</td><td/></row>
+		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|AnalysisManager.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\AnalysisManager.vsto</td><td>1</td><td/></row>
 		<row><td>core.primary_output</td><td>Core.Primary_output</td><td>Core.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Core&gt;|Built</td><td>3</td><td/></row>
 		<row><td>stata.primary_output</td><td>Stata.Primary_output</td><td>Stata.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Stata&gt;|Built</td><td>3</td><td/></row>
 	</table>
@@ -3743,7 +3743,7 @@
 	<table name="ISSwidtagProperty">
 		<col key="yes" def="s72">Name</col>
 		<col def="s0">Value</col>
-		<row><td>UniqueId</td><td>0B1B8F91-05A0-45F2-88A5-07EE75983E93</td></row>
+		<row><td>UniqueId</td><td>12C3D1FB-ADAD-471F-80B1-5DB5DAA0D1B9</td></row>
 	</table>
 
 	<table name="ISTargetImage">
@@ -3983,7 +3983,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{406211D2-4E87-422C-B327-E0F2A69792C0}</td></row>
 		<row><td>ISUSSignature</td><td>{BFCDC41D-2695-442B-A72E-686AD97B4866}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry,viewAppFiles</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4358,7 +4358,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{0832435E-E4BE-47DC-999B-B5EFEE31509C}</td><td/></row>
 		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.2.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.3.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
