@@ -136,5 +136,38 @@ namespace AnalysisManager
                 PropertiesManager.Save();
             }
         }
+
+        private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                // First, go through and update all of the code files to ensure we have all
+                // refreshed annotations.
+                var refreshedFiles = new HashSet<CodeFile>();
+                foreach (var codeFile in Manager.Files)
+                {
+                    if (!refreshedFiles.Contains(codeFile))
+                    {
+                        if (!ExecuteStatPackage(codeFile))
+                        {
+                            break;
+                        }
+
+                        refreshedFiles.Add(codeFile);
+                    }
+                }
+
+
+                // Now we will refresh all of the annotations that are fields.  Since we most likely
+                // have more fields than annotations, we are going to use the approach of looping
+                // through all fields and updating them (via the DocumentManager).
+                Manager.UpdateFields();
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+        }
     }
 }

@@ -41,6 +41,7 @@
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.button1 = this.Factory.CreateRibbonButton();
+            this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
             // 
@@ -56,6 +57,7 @@
             this.codeGroup.Items.Add(this.cmdLoadCode);
             this.codeGroup.Items.Add(this.cmdManageAnnotations);
             this.codeGroup.Items.Add(this.cmdInsertOutput);
+            this.codeGroup.Items.Add(this.cmdUpdateOutput);
             this.codeGroup.Items.Add(this.cmdSettings);
             this.codeGroup.Items.Add(this.button1);
             this.codeGroup.Label = "Analysis Manager";
@@ -96,6 +98,17 @@
             this.cmdSettings.Name = "cmdSettings";
             this.cmdSettings.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdSettings_Click);
             // 
+            // button1
+            // 
+            this.button1.Label = "";
+            this.button1.Name = "button1";
+            // 
+            // cmdUpdateOutput
+            // 
+            this.cmdUpdateOutput.Label = "Update Output";
+            this.cmdUpdateOutput.Name = "cmdUpdateOutput";
+            this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
+            // 
             // MainRibbon
             // 
             this.Name = "MainRibbon";
@@ -118,6 +131,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdSettings;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdUpdateOutput;
     }
 
     partial class ThisRibbonCollection

@@ -99,6 +99,11 @@ namespace AnalysisManager.Core.Models
             return JsonConvert.SerializeObject(this);
         }
 
+        public static Annotation Deserialize(string json)
+        {
+            return JsonConvert.DeserializeObject<Annotation>(json);
+        }
+
         public override bool Equals(object other)
         {
             var annotation = other as Annotation;

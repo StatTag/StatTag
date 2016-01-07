@@ -111,5 +111,22 @@ namespace Core.Tests.Models
             annotation.OutputLabel = "Test";
             Assert.AreEqual("Test", annotation.ToString());
         }
+
+        [TestMethod]
+        public void Serialize_Deserialize()
+        {
+            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<string>(new[] { "Test 1" }) };
+            var serialized = annotation.Serialize();
+            var recreatedAnnotation = Annotation.Deserialize(serialized);
+            Assert.AreEqual(annotation.CodeFile, recreatedAnnotation.CodeFile);
+            Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
+            Assert.AreEqual(annotation.FormattedResult, recreatedAnnotation.FormattedResult);
+            Assert.AreEqual(annotation.LineEnd, recreatedAnnotation.LineEnd);
+            Assert.AreEqual(annotation.LineStart, recreatedAnnotation.LineStart);
+            Assert.AreEqual(annotation.OutputLabel, recreatedAnnotation.OutputLabel);
+            Assert.AreEqual(annotation.RunFrequency, recreatedAnnotation.RunFrequency);
+            Assert.AreEqual(annotation.Type, recreatedAnnotation.Type);
+            Assert.AreEqual(annotation.ValueFormat, recreatedAnnotation.ValueFormat);
+        }
     }
 }
