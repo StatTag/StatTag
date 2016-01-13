@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -48,7 +49,9 @@ namespace AnalysisManager.Core.Parser
             }
         }
 
-        public Annotation[] Parse(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll)
+        public Annotation[] Parse(IList<string> lines,
+            int filterMode = Constants.ParserFilterMode.IncludeAll,
+            List<Annotation> annotationsToRun = null)
         {
             SetupRegEx();
 
@@ -88,14 +91,19 @@ namespace AnalysisManager.Core.Parser
 
             if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand)
             {
-                return annotations.Where(x => x.RunFrequency == Constants.RunFrequency.Always).ToArray();
+                return annotations.Where(x => x.RunFrequency == Constants.RunFrequency.Default).ToArray();
+            }
+            else if (filterMode == Constants.ParserFilterMode.AnnotationList && annotationsToRun != null)
+            {
+                return annotations.Where(x => annotationsToRun.Contains(x)).ToArray();
             }
 
             return annotations.ToArray();
         }
 
         public List<ExecutionStep> GetExecutionSteps(IList<string> lines,
-            int filterMode = Constants.ParserFilterMode.IncludeAll)
+            int filterMode = Constants.ParserFilterMode.IncludeAll,
+            List<Annotation> annotationsToRun = null)
         {
             var executionSteps = new List<ExecutionStep>();
             if (lines == null || lines.Count == 0)
@@ -130,6 +138,12 @@ namespace AnalysisManager.Core.Parser
                     ProcessAnnotation(match.Groups[1].Value, annotation);
                     if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
                         && annotation.RunFrequency == Constants.RunFrequency.OnDemand)
+                    {
+                        isSkipping = true;
+                    }
+                    else if (filterMode == Constants.ParserFilterMode.AnnotationList
+                             && annotationsToRun != null
+                             && !annotationsToRun.Contains(annotation))
                     {
                         isSkipping = true;
                     }

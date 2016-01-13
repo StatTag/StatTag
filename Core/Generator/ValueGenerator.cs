@@ -14,6 +14,7 @@ namespace AnalysisManager.Core.Generator
             var builder = new StringBuilder();
 
             builder.Append(GetLabelParameter(annotation));
+            builder.Append(GetRunFrequencyParameter(annotation));
 
             if (annotation.ValueFormat == null)
             {
@@ -24,15 +25,15 @@ namespace AnalysisManager.Core.Generator
                 switch (annotation.ValueFormat.FormatType)
                 {
                     case Constants.ValueFormatType.Numeric:
-                        builder.AppendFormat("{0}=\"{1}\", ", Constants.ValueParameters.Type, annotation.ValueFormat.FormatType);
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
                         builder.Append(CreateNumericParameters(annotation.ValueFormat));
                         break;
                     case Constants.ValueFormatType.DateTime:
-                        builder.AppendFormat("{0}=\"{1}\", ", Constants.ValueParameters.Type, annotation.ValueFormat.FormatType);
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
                         builder.Append(CreateDateTimeParameters(annotation.ValueFormat));
                         break;
                     case Constants.ValueFormatType.Percentage:
-                        builder.AppendFormat("{0}=\"{1}\", ", Constants.ValueParameters.Type, annotation.ValueFormat.FormatType);
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
                         builder.Append(CreatePercentageParameters(annotation.ValueFormat));
                         break;
                     default:
@@ -72,9 +73,13 @@ namespace AnalysisManager.Core.Generator
                 Constants.ValueParameters.UseThousands, format.UseThousands.ToString().ToLower());
         }
 
-        public string CreateDefaultParameters()
+        /// <summary>
+        /// Establishes the default
+        /// </summary>
+        /// <returns></returns>
+        public string CreateDefaultParameters(string type = Constants.ValueFormatType.Default)
         {
-            return string.Format("{0}=\"{1}\"", Constants.ValueParameters.Type, Constants.ValueFormatType.Default);
+            return string.Format("{0}=\"{1}\", ", Constants.ValueParameters.Type, type);
         }
     }
 }

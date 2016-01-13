@@ -142,8 +142,8 @@ namespace AnalysisManager
                     cboCodeFiles.SelectedIndex = 0;
                 }
 
-                // Always default the run frequency to "Always" (always)
-                cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
+                // Default the default run frequency to "Default" (by default)
+                cboRunFrequency.SelectedItem = Constants.RunFrequency.Default;
             }
         }
 

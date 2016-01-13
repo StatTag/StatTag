@@ -18,11 +18,12 @@ namespace AnalysisManager.Core.Parser
             if (paramIndex == -1)
             {
                 annotation.ValueFormat.FormatType = Constants.ValueFormatType.Default;
+                annotation.RunFrequency = Constants.RunFrequency.Default;
                 return;
             }
 
             annotation.OutputLabel = GetStringParameter(Constants.AnnotationParameters.Label, annotationText);
-            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Always);
+            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
             annotation.ValueFormat.FormatType = GetStringParameter(Constants.ValueParameters.Type, annotationText, Constants.ValueFormatType.Default);
             int? intValue = GetIntParameter(Constants.ValueParameters.Decimals, annotationText, 0);
             annotation.ValueFormat.DecimalPlaces = intValue.Value;  // Since we specify a default, we assume it won't ever be null

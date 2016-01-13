@@ -19,14 +19,14 @@
 
         public static class RunFrequency
         {
-            public const string Always = "Always";
+            public const string Default = "Default";
             public const string OnDemand = "On Demand";
 
             public static string[] GetList()
             {
                 return new[]
                 {
-                    Always, OnDemand
+                    Default, OnDemand
                 };
             }
         }
@@ -115,6 +115,7 @@
         {
             public const int IncludeAll = 0;
             public const int ExcludeOnDemand = 1;
+            public const int AnnotationList = 2;
         }
 
         public static class ExecutionStepType

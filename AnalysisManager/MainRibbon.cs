@@ -67,7 +67,7 @@ namespace AnalysisManager
                     {
                         if (!refreshedFiles.Contains(annotation.CodeFile))
                         {
-                            if (!ExecuteStatPackage(annotation.CodeFile))
+                            if (!ExecuteStatPackage(annotation.CodeFile, Constants.ParserFilterMode.AnnotationList, annotations))
                             {
                                 break;
                             }
@@ -85,7 +85,7 @@ namespace AnalysisManager
             }
         }
 
-        private bool ExecuteStatPackage(CodeFile file)
+        private bool ExecuteStatPackage(CodeFile file, int filterMode = Constants.ParserFilterMode.ExcludeOnDemand, List<Annotation> annotationsToRun = null)
         {
             var automation = new Stata.Automation();
             if (!automation.Initialize())
@@ -104,7 +104,7 @@ namespace AnalysisManager
 
             try
             {
-                var steps = parser.GetExecutionSteps(file.LoadFileContent(), Constants.ParserFilterMode.ExcludeOnDemand);
+                var steps = parser.GetExecutionSteps(file.LoadFileContent(), filterMode, annotationsToRun);
                 foreach (var step in steps)
                 {
                     var results = automation.RunCommands(step.Code.ToArray());
@@ -139,6 +139,13 @@ namespace AnalysisManager
 
         private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
         {
+            var dialog = new UpdateOutput(Manager.GetAnnotations());
+            if (DialogResult.OK != dialog.ShowDialog())
+            {
+                return;
+            }
+
+            var annotations = dialog.SelectedAnnotations;
             Cursor.Current = Cursors.WaitCursor;
             try
             {
@@ -149,7 +156,7 @@ namespace AnalysisManager
                 {
                     if (!refreshedFiles.Contains(codeFile))
                     {
-                        if (!ExecuteStatPackage(codeFile))
+                        if (!ExecuteStatPackage(codeFile, Constants.ParserFilterMode.AnnotationList, annotations))
                         {
                             break;
                         }

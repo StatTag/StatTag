@@ -21,9 +21,9 @@ namespace AnalysisManager
             Files = files;
         }
 
-        public Annotation[] GetSelectedAnnotations()
+        public List<Annotation> GetSelectedAnnotations()
         {
-            return clbOutput.CheckedItems.Cast<Annotation>().ToArray();
+            return clbOutput.CheckedItems.Cast<Annotation>().ToList();
         }
 
         private void SelectOutput_Load(object sender, EventArgs e)

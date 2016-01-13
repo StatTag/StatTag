@@ -243,5 +243,12 @@ namespace AnalysisManager.Models
 
             return null;
         }
+
+        public List<Annotation> GetAnnotations()
+        {
+            var annotations = new List<Annotation>();
+            Files.ForEach(file => annotations.AddRange(file.Annotations));
+            return annotations;
+        }
     }
 }

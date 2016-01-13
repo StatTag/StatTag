@@ -255,6 +255,12 @@
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="UIUtility.cs" />
+    <Compile Include="UpdateOutput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpdateOutput.Designer.cs">
+      <DependentUpon>UpdateOutput.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </EmbeddedResource>
@@ -294,6 +300,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpdateOutput.resx">
+      <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="AnalysisManager_1_TemporaryKey.pfx" />
     <None Include="AnalysisManager_TemporaryKey.pfx" />

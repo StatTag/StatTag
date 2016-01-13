@@ -13,7 +13,17 @@ namespace AnalysisManager.Core.Generator
         {
             if (!string.IsNullOrWhiteSpace(annotation.OutputLabel))
             {
-                return string.Format("Label=\"{0}\", ", annotation.OutputLabel);
+                return string.Format("{0}=\"{1}\", ", Constants.AnnotationParameters.Label, annotation.OutputLabel);
+            }
+
+            return string.Empty;
+        }
+
+        public string GetRunFrequencyParameter(Annotation annotation)
+        {
+            if (!string.IsNullOrWhiteSpace(annotation.RunFrequency))
+            {
+                return string.Format("{0}=\"{1}\", ", Constants.AnnotationParameters.Frequency, annotation.RunFrequency);
             }
 
             return string.Empty;

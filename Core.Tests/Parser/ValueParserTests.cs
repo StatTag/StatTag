@@ -14,6 +14,7 @@ namespace Core.Tests.Parser
             var annotation = new Annotation();
             ValueParser.Parse("Value", annotation);
             Assert.AreEqual(Constants.ValueFormatType.Default, annotation.ValueFormat.FormatType);
+            Assert.AreEqual(Constants.RunFrequency.Default, annotation.RunFrequency);
         }
 
         [TestMethod]
