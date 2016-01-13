@@ -47,11 +47,7 @@ namespace AnalysisManager
             var dialog = new ManageAnnotations(Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                // Update the code files with their annotations
-                foreach (var file in Manager.Files)
-                {
-                    file.Save();
-                }
+                Manager.SaveAllCodeFiles();
             }
         }
 
