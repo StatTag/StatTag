@@ -42,7 +42,7 @@ namespace AnalysisManager
 
         private void cmdManageAnnotations_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new ManageAnnotations(Manager.Files);
+            var dialog = new ManageAnnotations(Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 // Update the code files with their annotations

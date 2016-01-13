@@ -250,5 +250,44 @@ namespace AnalysisManager.Models
             Files.ForEach(file => annotations.AddRange(file.Annotations));
             return annotations;
         }
+
+        public void UpdateAnnotationLabel(Annotation oldAnnotation, Annotation newAnnotation)
+        {
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            try
+            {
+                var fields = document.Fields;
+                // Fields is a 1-based index
+                for (int index = 1; index <= fields.Count; index++)
+                {
+                    var field = fields[index];
+                    if (field == null)
+                    {
+                        continue;
+                    }
+
+                    if (field.Type == WdFieldType.wdFieldMacroButton
+                        && field.Code != null && field.Code.Text.Contains(MacroButtonName)
+                        && field.Code.Fields.Count > 0)
+                    {
+                        var code = field.Code;
+                        var nestedField = code.Fields[1];
+                        var fieldAnnotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
+                        nestedField.Data = newAnnotation.Serialize();
+
+                        Marshal.ReleaseComObject(nestedField);
+                        Marshal.ReleaseComObject(code);
+                    }
+                    Marshal.ReleaseComObject(field);
+                }
+                Marshal.ReleaseComObject(fields);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
+        }
     }
 }

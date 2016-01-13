@@ -90,16 +90,16 @@ namespace AnalysisManager
             }
             else if (e.ColumnIndex == DetailsColumn)
             {
-                var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
-                if (file != null)
-                {
-                    file.LoadAnnotationsFromContent();
-                    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
-                    if (DialogResult.OK == dialog.ShowDialog())
-                    {
+                //var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
+                //if (file != null)
+                //{
+                //    file.LoadAnnotationsFromContent();
+                //    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
+                //    if (DialogResult.OK == dialog.ShowDialog())
+                //    {
                         
-                    }
-                }
+                //    }
+                //}
             }
         }
     }

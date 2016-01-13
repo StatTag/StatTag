@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -20,13 +21,14 @@ namespace AnalysisManager
         private const int WhenToRunColumn = 4;
         private const int EditColumn = 5;
 
-        public List<CodeFile> Files { get; set; }
+        //public List<CodeFile> Files { get; set; }
+        public DocumentManager Manager { get; set; }
 
-        public ManageAnnotations(List<CodeFile> files)
+        public ManageAnnotations(DocumentManager manager)
         {
             InitializeComponent();
             MinimumSize = Size;
-            Files = files;
+            Manager = manager;
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -36,18 +38,10 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new EditAnnotation(Files);
+            var dialog = new EditAnnotation(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 SaveAnnotation(dialog);
-                //if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                //{
-                //    var codeFile = dialog.Annotation.CodeFile;
-                //    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
-                //    codeFile.Save();
-
-                //    ReloadAnnotations();
-                //}
             }
         }
 
@@ -84,7 +78,7 @@ namespace AnalysisManager
         {
             dgvItems.Rows.Clear();
 
-            foreach (var file in Files)
+            foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
@@ -98,11 +92,17 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                var dialog = new EditAnnotation(Files);
+                var dialog = new EditAnnotation(Manager.Files);
                 var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
                 dialog.Annotation = new Annotation(existingAnnotation);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
+                    bool labelChanged = !existingAnnotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
+                    if (labelChanged)
+                    {
+                        Manager.UpdateAnnotationLabel(existingAnnotation, dialog.Annotation);
+                    }
+
                     SaveAnnotation(dialog, existingAnnotation);
                 }
             }
