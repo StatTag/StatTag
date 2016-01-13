@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using AnalysisManager.Core.Models;
 using Microsoft.Office.Interop.Word;
 
@@ -142,23 +143,14 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (field.Type == WdFieldType.wdFieldMacroButton
-                        && field.Code != null && field.Code.Text.Contains(MacroButtonName)
-                        && field.Code.Fields.Count > 0)
+                    if (IsAnalysisManagerField(field))
                     {
-                        var code = field.Code;
-                        var nestedField = field.Code.Fields[1];
-                        var annotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
-                        var updatedAnnotation = FindAnnotation(annotation.OutputLabel);
-                        field.Select();
-
-                        if (updatedAnnotation != null)
+                        field.Select(); 
+                        var annotation = GetFieldAnnotation(field);
+                        if (annotation != null)
                         {
-                            InsertField(updatedAnnotation);
+                            InsertField(annotation);
                         }
-
-                        Marshal.ReleaseComObject(code);
-                        Marshal.ReleaseComObject(nestedField);
                     }
                     Marshal.ReleaseComObject(field);
                 }
@@ -223,6 +215,11 @@ namespace AnalysisManager.Models
             }
         }
 
+        public Annotation FindAnnotation(Annotation annotation)
+        {
+            return FindAnnotation(annotation.OutputLabel, annotation.Type);
+        }
+
         public Annotation FindAnnotation(string name, string type)
         {
             if (Files == null)
@@ -251,6 +248,12 @@ namespace AnalysisManager.Models
             return annotations;
         }
 
+        /// <summary>
+        /// Given an old and a new annotation, update all of the Fields in the document to refer
+        /// to the new annotation's name (label).
+        /// </summary>
+        /// <param name="oldAnnotation"></param>
+        /// <param name="newAnnotation"></param>
         public void UpdateAnnotationLabel(Annotation oldAnnotation, Annotation newAnnotation)
         {
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
@@ -268,13 +271,10 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (field.Type == WdFieldType.wdFieldMacroButton
-                        && field.Code != null && field.Code.Text.Contains(MacroButtonName)
-                        && field.Code.Fields.Count > 0)
+                    if (IsAnalysisManagerField(field))
                     {
                         var code = field.Code;
                         var nestedField = code.Fields[1];
-                        var fieldAnnotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
                         nestedField.Data = newAnnotation.Serialize();
 
                         Marshal.ReleaseComObject(nestedField);
@@ -287,6 +287,75 @@ namespace AnalysisManager.Models
             finally
             {
                 Marshal.ReleaseComObject(document);
+            }
+        }
+
+        /// <summary>
+        /// Given a Word field, determine if it is our specialized Analysis Manager field type given
+        /// its composition.
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool IsAnalysisManagerField(Field field)
+        {
+            return (field != null
+                && field.Type == WdFieldType.wdFieldMacroButton
+                && field.Code != null && field.Code.Text.Contains(MacroButtonName)
+                && field.Code.Fields.Count > 0);
+        }
+
+        /// <summary>
+        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
+        /// associated with it.
+        /// </summary>
+        /// <param name="field">The Word field object to investigate</param>
+        /// <returns></returns>
+        public Annotation GetFieldAnnotation(Field field)
+        {
+            var code = field.Code;
+            var nestedField = code.Fields[1];
+            var fieldAnnotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
+            Marshal.ReleaseComObject(nestedField);
+            Marshal.ReleaseComObject(code);
+
+            return FindAnnotation(fieldAnnotation);
+        }
+
+        public bool EditAnnotation(Annotation annotation)
+        {
+            var dialog = new EditAnnotation(Files);
+            dialog.Annotation = new Annotation(annotation);
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
+                if (labelChanged)
+                {
+                    UpdateAnnotationLabel(annotation, dialog.Annotation);
+                }
+
+                SaveEditedAnnotation(dialog, annotation);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void SaveEditedAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
+        {
+            if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+            {
+                var codeFile = dialog.Annotation.CodeFile;
+                dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.Save();
+            }
+        }
+
+        public void SaveAllCodeFiles()
+        {
+            // Update the code files with their annotations
+            foreach (var file in Files)
+            {
+                file.Save();
             }
         }
     }
