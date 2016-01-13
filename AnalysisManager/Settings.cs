@@ -70,6 +70,14 @@ namespace AnalysisManager
 
         private void cmdDisableStataAutomation_Click(object sender, EventArgs e)
         {
+            if (DialogResult.Yes !=
+                MessageBox.Show(this,
+                    "If you disable Stata Automation, Analysis Manager will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
+                    UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
+            {
+                return;
+            }
+
             try
             {
                 Cursor = Cursors.WaitCursor;
@@ -93,7 +101,7 @@ namespace AnalysisManager
             MessageBox.Show(
                 string.Format(
                     "There was an error trying to {0} the Stata Automation API.\r\nMore information about Stata Automation can be found at: http://www.stata.com/automation",
-                action));
+                action), UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void ShowStataCommandSuccess(string action)
@@ -102,7 +110,7 @@ namespace AnalysisManager
             MessageBox.Show(
                 string.Format(
                     "The Stata Automation API has been successfully {0}.",
-                action));
+                action), UIUtility.GetAddInName());
         }
 
         private void cmdOK_Click(object sender, EventArgs e)

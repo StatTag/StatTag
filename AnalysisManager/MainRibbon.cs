@@ -10,6 +10,8 @@ using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
+using Application = System.Windows.Forms.Application;
+
 //using System = Microsoft.Office.Interop.Word.System;
 
 namespace AnalysisManager
@@ -91,7 +93,8 @@ namespace AnalysisManager
             if (!automation.Initialize())
             {
                 MessageBox.Show(
-                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in Analysis Manager.\r\n\r\nThis can be done from Analysis Manager > Settings, or see http://www.stata.com/automation");
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in Analysis Manager.\r\n\r\nThis can be done from Analysis Manager > Settings, or see http://www.stata.com/automation",
+                    UIUtility.GetAddInName());
                 return false;
             }
 
@@ -120,7 +123,7 @@ namespace AnalysisManager
             }
             catch (Exception exc)
             {
-                MessageBox.Show(exc.Message, System.Windows.Forms.Application.ProductName);
+                MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
