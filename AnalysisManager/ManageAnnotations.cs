@@ -21,7 +21,6 @@ namespace AnalysisManager
         private const int WhenToRunColumn = 4;
         private const int EditColumn = 5;
 
-        //public List<CodeFile> Files { get; set; }
         public DocumentManager Manager { get; set; }
 
         public ManageAnnotations(DocumentManager manager)
@@ -41,7 +40,6 @@ namespace AnalysisManager
             var dialog = new EditAnnotation(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                //SaveAnnotation(dialog);
                 Manager.SaveEditedAnnotation(dialog);
             }
         }
@@ -93,36 +91,12 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                //var dialog = new EditAnnotation(Manager.Files);
                 var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
                 if (Manager.EditAnnotation(existingAnnotation))
                 {
                     ReloadAnnotations();
                 }
-                //dialog.Annotation = new Annotation(existingAnnotation);
-                //if (DialogResult.OK == dialog.ShowDialog())
-                //{
-                //    bool labelChanged = !existingAnnotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
-                //    if (labelChanged)
-                //    {
-                //        Manager.UpdateAnnotationLabel(existingAnnotation, dialog.Annotation);
-                //    }
-
-                //    SaveAnnotation(dialog, existingAnnotation);
-                //}
             }
         }
-
-        //private void SaveAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
-        //{
-        //    if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-        //    {
-        //        var codeFile = dialog.Annotation.CodeFile;
-        //        dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
-        //        codeFile.Save();
-
-        //        ReloadAnnotations();
-        //    }
-        //}
     }
 }

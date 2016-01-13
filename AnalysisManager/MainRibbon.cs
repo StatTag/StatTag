@@ -12,8 +12,6 @@ using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
 using Application = System.Windows.Forms.Application;
 
-//using System = Microsoft.Office.Interop.Word.System;
-
 namespace AnalysisManager
 {
     public partial class MainRibbon

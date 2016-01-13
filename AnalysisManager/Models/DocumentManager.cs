@@ -145,20 +145,12 @@ namespace AnalysisManager.Models
 
                     if (IsAnalysisManagerField(field))
                     {
+                        field.Select(); 
                         var annotation = GetFieldAnnotation(field);
-                        //var code = field.Code;
-                        //var nestedField = field.Code.Fields[1];
-                        //var annotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
-                        //var updatedAnnotation = FindAnnotation(annotation.OutputLabel);
-                        field.Select();
-
                         if (annotation != null)
                         {
                             InsertField(annotation);
                         }
-
-                        //Marshal.ReleaseComObject(code);
-                        //Marshal.ReleaseComObject(nestedField);
                     }
                     Marshal.ReleaseComObject(field);
                 }

@@ -49,14 +49,7 @@ namespace AnalysisManager
                 if (Manager.IsAnalysisManagerField(field))
                 {
                     var annotation = Manager.GetFieldAnnotation(field);
-                    //var existingAnnotation = Manager.FindAnnotation(annotation);
                     Manager.EditAnnotation(annotation);
-                    //var dialog = new EditAnnotation(Manager.Files);
-                    //var annotation = Manager.GetFieldAnnotation(field);
-                    //dialog.Annotation = new Annotation(annotation);
-                    //if (DialogResult.OK == dialog.ShowDialog())
-                    //{
-                    //}
                 }
                 Marshal.ReleaseComObject(field);
             }
