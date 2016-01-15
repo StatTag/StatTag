@@ -125,5 +125,56 @@ namespace AnalysisManager.Core.Models
         {
             return new StringBuilder().Insert(0, value, count).ToString();
         }
+
+        #region ReSharper-generated equality members
+        protected bool Equals(ValueFormat other)
+        {
+            return string.Equals(FormatType, other.FormatType)
+                   && DecimalPlaces == other.DecimalPlaces
+                   && UseThousands.Equals(other.UseThousands)
+                   && string.Equals(DateFormat, other.DateFormat)
+                   && string.Equals(TimeFormat, other.TimeFormat);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((ValueFormat) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = (FormatType != null ? FormatType.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ DecimalPlaces;
+                hashCode = (hashCode*397) ^ UseThousands.GetHashCode();
+                hashCode = (hashCode*397) ^ (DateFormat != null ? DateFormat.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (TimeFormat != null ? TimeFormat.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ValueFormat left, ValueFormat right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ValueFormat left, ValueFormat right)
+        {
+            return !Equals(left, right);
+        }
+        #endregion
     }
 }

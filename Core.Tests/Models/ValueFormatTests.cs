@@ -95,5 +95,40 @@ namespace Core.Tests.Models
             Assert.AreEqual(string.Empty, ValueFormat.Repeat("test", 0));
             Assert.AreEqual(string.Empty, ValueFormat.Repeat(null, 5));
         }
+
+        [TestMethod]
+        public void Equals()
+        {
+            var firstObject = new ValueFormat()
+            {
+                DateFormat = "DateTest",
+                DecimalPlaces = 1,
+                FormatType = "FormatTest",
+                TimeFormat = "TimeTest",
+                UseThousands = true
+            };
+            var secondObject = new ValueFormat()
+            {
+                DateFormat = "DateTest",
+                DecimalPlaces = 1,
+                FormatType = "FormatTest",
+                TimeFormat = "TimeTest",
+                UseThousands = true
+            };
+            Assert.IsTrue(firstObject.Equals(secondObject));
+            Assert.IsTrue(secondObject.Equals(firstObject));
+            Assert.AreEqual(firstObject, secondObject);
+            Assert.AreEqual(secondObject, firstObject);
+            Assert.IsTrue(firstObject == secondObject);
+            Assert.IsTrue(secondObject == firstObject);
+
+            secondObject.DateFormat += "1";
+            Assert.IsFalse(firstObject.Equals(secondObject));
+            Assert.IsFalse(secondObject.Equals(firstObject));
+            Assert.AreNotEqual(firstObject, secondObject);
+            Assert.AreNotEqual(secondObject, firstObject);
+            Assert.IsFalse(firstObject == secondObject);
+            Assert.IsFalse(secondObject == firstObject);
+        }
     }
 }

@@ -10,6 +10,9 @@ using Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager.Models
 {
+    /// <summary>
+    /// Manages interactions with the Word document, including managing attributes and annotations.
+    /// </summary>
     public class DocumentManager
     {
         public List<CodeFile> Files { get; set; }
@@ -44,6 +47,10 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Save the referenced code files to the current Word document.
+        /// </summary>
+        /// <param name="document">The Word document of interest</param>
         public void SaveFilesToDocument(Document document)
         {
             var variables = document.Variables;
@@ -67,6 +74,10 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Load the list of associated Code Files from a Word document.
+        /// </summary>
+        /// <param name="document">The Word document of interest</param>
         public void LoadFilesFromDocument(Document document)
         {
             var variables = document.Variables;
@@ -82,6 +93,11 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Insert an image (given a definition from an annotation) into the current Word
+        /// document at the current cursor location.
+        /// </summary>
+        /// <param name="annotation"></param>
         public void InsertImage(Annotation annotation)
         {
             if (annotation == null)
@@ -125,8 +141,9 @@ namespace AnalysisManager.Models
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
         /// with whatever is set as the current cached value.</remarks>
+        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.  If not specified, all annotation fields will be updated</param>
         /// </summary>
-        public void UpdateFields()
+        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
         {
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
@@ -145,10 +162,24 @@ namespace AnalysisManager.Models
 
                     if (IsAnalysisManagerField(field))
                     {
-                        field.Select(); 
                         var annotation = GetFieldAnnotation(field);
+                        
                         if (annotation != null)
                         {
+                            // If we are asked to update an annotation, we are only going to update that
+                            // annotation specifically.  Otherwise, we will process all annotation fields.
+                            if (annotationUpdatePair != null)
+                            {
+                                if (!annotation.Equals(annotationUpdatePair.Old))
+                                {
+                                    continue;
+                                }
+
+                                annotation = annotationUpdatePair.New;
+                                UpdateAnnotationFieldData(field, annotation);
+                            }
+
+                            field.Select();
                             InsertField(annotation);
                         }
                     }
@@ -215,11 +246,24 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Find the master reference of an annotation, which is contained in the code files
+        /// associated with the current document
+        /// </summary>
+        /// <param name="annotation">The annotation to find</param>
+        /// <returns></returns>
         public Annotation FindAnnotation(Annotation annotation)
         {
             return FindAnnotation(annotation.OutputLabel, annotation.Type);
         }
 
+        /// <summary>
+        /// Find the master reference of an annotation, which is contained in the code files
+        /// associated with the current document
+        /// </summary>
+        /// <param name="name">The annotation name to search for</param>
+        /// <param name="type">The annotation type to search for</param>
+        /// <returns></returns>
         public Annotation FindAnnotation(string name, string type)
         {
             if (Files == null)
@@ -241,6 +285,11 @@ namespace AnalysisManager.Models
             return null;
         }
 
+        /// <summary>
+        /// For all of the code files associated with the current document, get all of the
+        /// annotations as a single list.
+        /// </summary>
+        /// <returns></returns>
         public List<Annotation> GetAnnotations()
         {
             var annotations = new List<Annotation>();
@@ -252,9 +301,8 @@ namespace AnalysisManager.Models
         /// Given an old and a new annotation, update all of the Fields in the document to refer
         /// to the new annotation's name (label).
         /// </summary>
-        /// <param name="oldAnnotation"></param>
-        /// <param name="newAnnotation"></param>
-        public void UpdateAnnotationLabel(Annotation oldAnnotation, Annotation newAnnotation)
+        /// <param name="annotations">The pair of old and new annotations</param>
+        public void UpdateAnnotationLabel(UpdatePair<Annotation> annotations)
         {
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
@@ -273,12 +321,13 @@ namespace AnalysisManager.Models
 
                     if (IsAnalysisManagerField(field))
                     {
-                        var code = field.Code;
-                        var nestedField = code.Fields[1];
-                        nestedField.Data = newAnnotation.Serialize();
+                        //var code = field.Code;
+                        //var nestedField = code.Fields[1];
+                        //nestedField.Data = annotations.New.Serialize();
 
-                        Marshal.ReleaseComObject(nestedField);
-                        Marshal.ReleaseComObject(code);
+                        //Marshal.ReleaseComObject(nestedField);
+                        //Marshal.ReleaseComObject(code);
+                        UpdateAnnotationFieldData(field, annotations.New);
                     }
                     Marshal.ReleaseComObject(field);
                 }
@@ -288,6 +337,22 @@ namespace AnalysisManager.Models
             {
                 Marshal.ReleaseComObject(document);
             }
+        }
+
+        /// <summary>
+        /// Update the annotation data in a field.
+        /// </summary>
+        /// <remarks>Assumes that the field parameter is known to be an annotation field</remarks>
+        /// <param name="field">The field to update.  This is the outermost layer of the annotation field.</param>
+        /// <param name="annotation">The annotation to be updated.</param>
+        private void UpdateAnnotationFieldData(Field field, Annotation annotation)
+        {
+            var code = field.Code;
+            var nestedField = code.Fields[1];
+            nestedField.Data = annotation.Serialize();
+
+            Marshal.ReleaseComObject(nestedField);
+            Marshal.ReleaseComObject(code);
         }
 
         /// <summary>
@@ -321,6 +386,12 @@ namespace AnalysisManager.Models
             return FindAnnotation(fieldAnnotation);
         }
 
+        /// <summary>
+        /// Manage the process of editing an annotation via a dialog, and processing any
+        /// changes within the document.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <returns></returns>
         public bool EditAnnotation(Annotation annotation)
         {
             var dialog = new EditAnnotation(Files);
@@ -330,7 +401,14 @@ namespace AnalysisManager.Models
                 bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
                 if (labelChanged)
                 {
-                    UpdateAnnotationLabel(annotation, dialog.Annotation);
+                    UpdateAnnotationLabel(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                }
+
+                // If the value format has changed, refresh the values in the document with the
+                // new formatting of the results.
+                if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
+                {
+                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }
 
                 SaveEditedAnnotation(dialog, annotation);
@@ -340,6 +418,12 @@ namespace AnalysisManager.Models
             return false;
         }
 
+        /// <summary>
+        /// After an annotation has been edited in a dialog, handle all reference updates and saving
+        /// that annotation in its source file.
+        /// </summary>
+        /// <param name="dialog"></param>
+        /// <param name="existingAnnotation"></param>
         public void SaveEditedAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
         {
             if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
@@ -350,6 +434,9 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Save all changes to all code files referenced by the current document.
+        /// </summary>
         public void SaveAllCodeFiles()
         {
             // Update the code files with their annotations
