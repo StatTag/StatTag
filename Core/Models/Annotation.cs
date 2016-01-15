@@ -75,21 +75,6 @@ namespace AnalysisManager.Core.Models
             CachedResult = annotation.CachedResult;
         }
 
-        public override string ToString()
-        {
-            if (!string.IsNullOrWhiteSpace(OutputLabel))
-            {
-                return OutputLabel;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Type))
-            {
-                return Type;
-            }
-
-            return base.ToString();
-        }
-
         /// <summary>
         /// Serialize the current object, excluding circular elements like CodeFile
         /// </summary>
@@ -99,6 +84,11 @@ namespace AnalysisManager.Core.Models
             return JsonConvert.SerializeObject(this);
         }
 
+        /// <summary>
+        /// Create a new Annotation object given a JSON string
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
         public static Annotation Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<Annotation>(json);
@@ -118,6 +108,21 @@ namespace AnalysisManager.Core.Models
         public override int GetHashCode()
         {
             return ((OutputLabel != null && Type != null) ? (string.Format("{0}--{1}", OutputLabel, Type)).GetHashCode() : 0);
+        }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrWhiteSpace(OutputLabel))
+            {
+                return OutputLabel;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Type))
+            {
+                return Type;
+            }
+
+            return base.ToString();
         }
     }
 }

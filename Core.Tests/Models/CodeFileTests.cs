@@ -422,5 +422,32 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, codeFile.Annotations.Count);
             Assert.AreEqual(5, codeFile.Content.Count);
         }
+
+        [TestMethod]
+        public void RemoveAnnotation_DoesNotExist()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line",
+                "fifth line",
+            });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+
+            codeFile.RemoveAnnotation(null);
+            codeFile.RemoveAnnotation(new Annotation() { OutputLabel = "NotHere", Type = Constants.AnnotationType.Value });
+            codeFile.RemoveAnnotation(new Annotation() { OutputLabel = "test", Type = Constants.AnnotationType.Value });
+            Assert.AreEqual(2, codeFile.Annotations.Count);
+            Assert.AreEqual(9, codeFile.Content.Count);
+        }
     }
 }

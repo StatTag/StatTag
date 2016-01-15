@@ -11,6 +11,11 @@ namespace AnalysisManager.Core.Models
         public string DateFormat { get; set; }
         public string TimeFormat { get; set; }
 
+        /// <summary>
+        /// Formats a result given the current configuration
+        /// </summary>
+        /// <param name="value">The string value to be formatted</param>
+        /// <returns></returns>
         public string Format(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -31,6 +36,11 @@ namespace AnalysisManager.Core.Models
             return value;
         }
 
+        /// <summary>
+        /// Format a numeric result
+        /// </summary>
+        /// <param name="value">The string value to be formatted</param>
+        /// <returns></returns>
         protected string FormatNumeric(string value)
         {
             double numericValue = 0;
@@ -49,6 +59,11 @@ namespace AnalysisManager.Core.Models
             return roundedValue.ToString(string.Format("{0}.{1}", formatPrefix, Repeat("0", DecimalPlaces)));
         }
 
+        /// <summary>
+        /// Format a result as a percentage
+        /// </summary>
+        /// <param name="value">The string value to be formatted</param>
+        /// <returns></returns>
         protected string FormatPercentage(string value)
         {
             double numericValue = 0;
@@ -61,6 +76,11 @@ namespace AnalysisManager.Core.Models
             return numericValue.ToString(string.Format("#.{0}%", Repeat("0", DecimalPlaces)));
         }
 
+        /// <summary>
+        /// Format a result as a date and/or time
+        /// </summary>
+        /// <param name="value">The string value to be formatted</param>
+        /// <returns></returns>
         protected string FormatDateTime(string value)
         {
             var dateTime = new DateTime();
@@ -95,6 +115,12 @@ namespace AnalysisManager.Core.Models
             return dateTime.ToString(format.Trim());
         }
 
+        /// <summary>
+        /// Repeat a string value a number of times
+        /// </summary>
+        /// <param name="value">The string to be repeated</param>
+        /// <param name="count">The number of times to repeat the value</param>
+        /// <returns></returns>
         public static string Repeat(string value, int count)
         {
             return new StringBuilder().Insert(0, value, count).ToString();
