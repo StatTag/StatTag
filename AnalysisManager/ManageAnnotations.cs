@@ -73,15 +73,27 @@ namespace AnalysisManager
             ReloadAnnotations();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ReloadAnnotations()
         {
             dgvItems.Rows.Clear();
+
+            // Save off the values that may already be cached for an annotation.
+            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
 
             foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
                 {
+                    var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+                    if (existingAnnotation != null)
+                    {
+                        annotation.CachedResult = new List<string>(existingAnnotation.CachedResult);
+                    }
+
                     AddRow(annotation);
                 }
             }

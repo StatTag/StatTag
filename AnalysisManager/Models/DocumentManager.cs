@@ -321,13 +321,11 @@ namespace AnalysisManager.Models
 
                     if (IsAnalysisManagerField(field))
                     {
-                        //var code = field.Code;
-                        //var nestedField = code.Fields[1];
-                        //nestedField.Data = annotations.New.Serialize();
-
-                        //Marshal.ReleaseComObject(nestedField);
-                        //Marshal.ReleaseComObject(code);
-                        UpdateAnnotationFieldData(field, annotations.New);
+                        var annotation = GetFieldAnnotation(field);
+                        if (annotation != null && annotation.Equals(annotations.Old))
+                        {
+                            UpdateAnnotationFieldData(field, annotations.New);
+                        }
                     }
                     Marshal.ReleaseComObject(field);
                 }
@@ -390,6 +388,8 @@ namespace AnalysisManager.Models
         /// Manage the process of editing an annotation via a dialog, and processing any
         /// changes within the document.
         /// </summary>
+        /// <remarks>This does not call the statistical software to update values.  It assumes that the annotation
+        /// contains the most up-to-date cached value and that it may be used for display if needed.</remarks>
         /// <param name="annotation"></param>
         /// <returns></returns>
         public bool EditAnnotation(Annotation annotation)
@@ -398,17 +398,19 @@ namespace AnalysisManager.Models
             dialog.Annotation = new Annotation(annotation);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
-                if (labelChanged)
-                {
-                    UpdateAnnotationLabel(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
-
                 // If the value format has changed, refresh the values in the document with the
                 // new formatting of the results.
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                }
+
+                // Perform label changes AFTER any other updates.  This way we don't have to worry about
+                // managing name changes.
+                bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
+                if (labelChanged)
+                {
+                    UpdateAnnotationLabel(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }
 
                 SaveEditedAnnotation(dialog, annotation);
