@@ -41,6 +41,7 @@ namespace AnalysisManager
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.SaveEditedAnnotation(dialog);
+                AddRow(dialog.Annotation);
             }
         }
 
@@ -88,8 +89,10 @@ namespace AnalysisManager
                 file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
                 {
+                    // Since we are reloading from a file, at this point if we had any cached results for
+                    // an annotation we want to associate that back with the annotation.
                     var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
-                    if (existingAnnotation != null)
+                    if (existingAnnotation != null && existingAnnotation.CachedResult != null)
                     {
                         annotation.CachedResult = new List<string>(existingAnnotation.CachedResult);
                     }
