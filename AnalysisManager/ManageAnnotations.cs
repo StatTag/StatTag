@@ -102,16 +102,26 @@ namespace AnalysisManager
             }
         }
 
+        private void EditAnnotation(int rowIndex)
+        {
+            var existingAnnotation = dgvItems.Rows[rowIndex].Tag as Annotation;
+            if (Manager.EditAnnotation(existingAnnotation))
+            {
+                ReloadAnnotations();
+            }
+        }
+
         private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == EditColumn)
             {
-                var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
-                if (Manager.EditAnnotation(existingAnnotation))
-                {
-                    ReloadAnnotations();
-                }
+                EditAnnotation(e.RowIndex);
             }
+        }
+
+        private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            EditAnnotation(e.RowIndex);
         }
     }
 }

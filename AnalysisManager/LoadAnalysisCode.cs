@@ -78,15 +78,20 @@ namespace AnalysisManager
             UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
         }
 
+        private void EditFilePath(int rowIndex)
+        {
+            string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                dgvItems.Rows[rowIndex].Cells[FilePathColumn].Value = fileName;
+            }   
+        }
+
         private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == FileEditColumn)
             {
-                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    dgvItems.Rows[e.RowIndex].Cells[FilePathColumn].Value = fileName;
-                }    
+                EditFilePath(e.RowIndex);
             }
             else if (e.ColumnIndex == DetailsColumn)
             {
@@ -101,6 +106,11 @@ namespace AnalysisManager
                 //    }
                 //}
             }
+        }
+
+        private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            EditFilePath(e.RowIndex);
         }
     }
 }

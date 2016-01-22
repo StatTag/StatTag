@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageAnnotations));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.label1 = new System.Windows.Forms.Label();
             this.dgvItems = new System.Windows.Forms.DataGridView();
+            this.cmdCancel = new System.Windows.Forms.Button();
+            this.cmdOK = new System.Windows.Forms.Button();
+            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.cmdRemove = new System.Windows.Forms.Button();
+            this.cmdAdd = new System.Windows.Forms.Button();
             this.colCheck = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colStatPackage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colOutputLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRunFrequency = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
-            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
-            this.cmdRemove = new System.Windows.Forms.Button();
-            this.cmdAdd = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -78,69 +78,17 @@
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvItems.Size = new System.Drawing.Size(662, 201);
+            this.dgvItems.Size = new System.Drawing.Size(589, 201);
             this.dgvItems.TabIndex = 1;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
-            // 
-            // colCheck
-            // 
-            this.colCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colCheck.HeaderText = "";
-            this.colCheck.MinimumWidth = 20;
-            this.colCheck.Name = "colCheck";
-            this.colCheck.Width = 20;
-            // 
-            // colStatPackage
-            // 
-            this.colStatPackage.HeaderText = "Run In";
-            this.colStatPackage.MinimumWidth = 70;
-            this.colStatPackage.Name = "colStatPackage";
-            this.colStatPackage.ReadOnly = true;
-            this.colStatPackage.Width = 70;
-            // 
-            // colType
-            // 
-            this.colType.HeaderText = "Type";
-            this.colType.Name = "colType";
-            this.colType.ReadOnly = true;
-            this.colType.Width = 61;
-            // 
-            // colOutputLabel
-            // 
-            this.colOutputLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colOutputLabel.HeaderText = "Output Label";
-            this.colOutputLabel.MinimumWidth = 200;
-            this.colOutputLabel.Name = "colOutputLabel";
-            this.colOutputLabel.ReadOnly = true;
-            // 
-            // colRunFrequency
-            // 
-            this.colRunFrequency.HeaderText = "When to Run";
-            this.colRunFrequency.MinimumWidth = 150;
-            this.colRunFrequency.Name = "colRunFrequency";
-            this.colRunFrequency.Width = 150;
-            // 
-            // colEdit
-            // 
-            this.colEdit.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopCenter;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.colEdit.DefaultCellStyle = dataGridViewCellStyle3;
-            this.colEdit.HeaderText = "";
-            this.colEdit.MinimumWidth = 40;
-            this.colEdit.Name = "colEdit";
-            this.colEdit.ReadOnly = true;
-            this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.colEdit.Text = "";
-            this.colEdit.ToolTipText = "Edit this item";
-            this.colEdit.Width = 40;
+            this.dgvItems.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentDoubleClick);
             // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(401, 293);
+            this.cmdCancel.Location = new System.Drawing.Point(365, 293);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
             this.cmdCancel.TabIndex = 5;
@@ -152,7 +100,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(200, 293);
+            this.cmdOK.Location = new System.Drawing.Point(164, 293);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
             this.cmdOK.TabIndex = 4;
@@ -183,7 +131,7 @@
             // 
             this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdRemove.Location = new System.Drawing.Point(347, 237);
+            this.cmdRemove.Location = new System.Drawing.Point(311, 237);
             this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(148, 25);
@@ -196,7 +144,7 @@
             // 
             this.cmdAdd.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAdd.Location = new System.Drawing.Point(193, 237);
+            this.cmdAdd.Location = new System.Drawing.Point(157, 237);
             this.cmdAdd.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(148, 25);
@@ -205,13 +153,68 @@
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
+            // colCheck
+            // 
+            this.colCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colCheck.HeaderText = "";
+            this.colCheck.MinimumWidth = 20;
+            this.colCheck.Name = "colCheck";
+            this.colCheck.Width = 20;
+            // 
+            // colStatPackage
+            // 
+            this.colStatPackage.HeaderText = "Run In";
+            this.colStatPackage.MinimumWidth = 70;
+            this.colStatPackage.Name = "colStatPackage";
+            this.colStatPackage.ReadOnly = true;
+            this.colStatPackage.Width = 70;
+            // 
+            // colType
+            // 
+            this.colType.HeaderText = "Type";
+            this.colType.Name = "colType";
+            this.colType.ReadOnly = true;
+            this.colType.Width = 61;
+            // 
+            // colOutputLabel
+            // 
+            this.colOutputLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colOutputLabel.HeaderText = "Output Label";
+            this.colOutputLabel.MinimumWidth = 150;
+            this.colOutputLabel.Name = "colOutputLabel";
+            this.colOutputLabel.ReadOnly = true;
+            // 
+            // colRunFrequency
+            // 
+            this.colRunFrequency.HeaderText = "When to Run";
+            this.colRunFrequency.MinimumWidth = 100;
+            this.colRunFrequency.Name = "colRunFrequency";
+            this.colRunFrequency.Width = 108;
+            // 
+            // colEdit
+            // 
+            this.colEdit.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopCenter;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.colEdit.DefaultCellStyle = dataGridViewCellStyle3;
+            this.colEdit.HeaderText = "";
+            this.colEdit.MinimumWidth = 40;
+            this.colEdit.Name = "colEdit";
+            this.colEdit.ReadOnly = true;
+            this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.colEdit.Text = "";
+            this.colEdit.ToolTipText = "Edit this item";
+            this.colEdit.Width = 40;
+            // 
             // ManageAnnotations
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(689, 330);
+            this.ClientSize = new System.Drawing.Size(616, 330);
             this.Controls.Add(this.cmdRemove);
             this.Controls.Add(this.cmdAdd);
             this.Controls.Add(this.cmdCancel);
