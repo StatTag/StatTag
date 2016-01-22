@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Linq;
+using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using Word = Microsoft.Office.Interop.Word;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Word;
+using System.Windows.Forms;
 
 namespace AnalysisManager
 {
@@ -34,6 +38,44 @@ namespace AnalysisManager
         void Application_DocumentOpen(Word.Document doc)
         {
             Manager.LoadFilesFromDocument(doc);
+            var filesNotFound = new List<CodeFile>();
+            foreach (var file in Manager.Files)
+            {
+                if (!File.Exists(file.FilePath))
+                {
+                    filesNotFound.Add(file);
+                }
+                else
+                {
+                    file.LoadAnnotationsFromContent();
+                }
+            }
+
+            if (filesNotFound.Any())
+            {
+                MessageBox.Show(
+                    string.Format("The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}", string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
+                    UIUtility.GetAddInName(),
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);   
+            }
+        }
+
+        void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)
+        {
+            var fields = selection.Fields;
+            if (fields.Count > 0)
+            {
+                // We will only handle the first, if there are multiple
+                var field = selection.Fields[1];
+                if (Manager.IsAnalysisManagerField(field))
+                {
+                    var annotation = Manager.GetFieldAnnotation(field);
+                    Manager.EditAnnotation(annotation);
+                }
+                Marshal.ReleaseComObject(field);
+            }
+
+            Marshal.ReleaseComObject(fields);
         }
 
         #region VSTO generated code
@@ -48,6 +90,8 @@ namespace AnalysisManager
             this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
             this.Application.DocumentBeforeSave += new Word.ApplicationEvents4_DocumentBeforeSaveEventHandler(Application_DocumentBeforeSave);
             this.Application.DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(Application_DocumentOpen);
+            this.Application.WindowBeforeDoubleClick +=
+                new Word.ApplicationEvents4_WindowBeforeDoubleClickEventHandler(Application_BeforeDoubleClick);
         }
         
         #endregion

@@ -78,29 +78,39 @@ namespace AnalysisManager
             UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
         }
 
+        private void EditFilePath(int rowIndex)
+        {
+            string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                dgvItems.Rows[rowIndex].Cells[FilePathColumn].Value = fileName;
+            }   
+        }
+
         private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == FileEditColumn)
             {
-                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    dgvItems.Rows[e.RowIndex].Cells[FilePathColumn].Value = fileName;
-                }    
+                EditFilePath(e.RowIndex);
             }
             else if (e.ColumnIndex == DetailsColumn)
             {
-                var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
-                if (file != null)
-                {
-                    file.LoadAnnotationsFromContent();
-                    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
-                    if (DialogResult.OK == dialog.ShowDialog())
-                    {
+                //var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
+                //if (file != null)
+                //{
+                //    file.LoadAnnotationsFromContent();
+                //    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
+                //    if (DialogResult.OK == dialog.ShowDialog())
+                //    {
                         
-                    }
-                }
+                //    }
+                //}
             }
+        }
+
+        private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            EditFilePath(e.RowIndex);
         }
     }
 }

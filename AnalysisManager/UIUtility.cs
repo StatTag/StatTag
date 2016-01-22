@@ -48,5 +48,10 @@ namespace AnalysisManager
 
             return null;
         }
+
+        public static string GetAddInName()
+        {
+            return "Analysis Manager";
+        }
     }
 }

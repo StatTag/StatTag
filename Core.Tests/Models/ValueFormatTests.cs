@@ -64,7 +64,7 @@ namespace Core.Tests.Models
         public void Format_DateTime()
         {
             // Date only
-            var format = new ValueFormat() { FormatType = Constants.ValueFormatType.DateTime };
+            var format = new ValueFormat() {FormatType = Constants.ValueFormatType.DateTime};
             Assert.AreEqual(string.Empty, format.Format("Not a date"));
             format.DateFormat = Constants.DateFormats.MMDDYYYY;
             Assert.AreEqual("03/11/2012", format.Format("3/11/2012"));
@@ -84,6 +84,51 @@ namespace Core.Tests.Models
             format.DateFormat = Constants.DateFormats.MMDDYYYY;
             format.TimeFormat = Constants.TimeFormats.HHMMSS;
             Assert.AreEqual("03/11/2012 11:30:00", format.Format("3/11/2012 11:30"));
+        }
+
+        [TestMethod]
+        public void Repeat()
+        {
+            Assert.AreEqual("aaaaa", ValueFormat.Repeat("a", 5));
+            Assert.AreEqual("aAaAaA", ValueFormat.Repeat("aA", 3));
+            Assert.AreEqual(string.Empty, ValueFormat.Repeat(string.Empty, 5));
+            Assert.AreEqual(string.Empty, ValueFormat.Repeat("test", 0));
+            Assert.AreEqual(string.Empty, ValueFormat.Repeat(null, 5));
+        }
+
+        [TestMethod]
+        public void Equals()
+        {
+            var firstObject = new ValueFormat()
+            {
+                DateFormat = "DateTest",
+                DecimalPlaces = 1,
+                FormatType = "FormatTest",
+                TimeFormat = "TimeTest",
+                UseThousands = true
+            };
+            var secondObject = new ValueFormat()
+            {
+                DateFormat = "DateTest",
+                DecimalPlaces = 1,
+                FormatType = "FormatTest",
+                TimeFormat = "TimeTest",
+                UseThousands = true
+            };
+            Assert.IsTrue(firstObject.Equals(secondObject));
+            Assert.IsTrue(secondObject.Equals(firstObject));
+            Assert.AreEqual(firstObject, secondObject);
+            Assert.AreEqual(secondObject, firstObject);
+            Assert.IsTrue(firstObject == secondObject);
+            Assert.IsTrue(secondObject == firstObject);
+
+            secondObject.DateFormat += "1";
+            Assert.IsFalse(firstObject.Equals(secondObject));
+            Assert.IsFalse(secondObject.Equals(firstObject));
+            Assert.AreNotEqual(firstObject, secondObject);
+            Assert.AreNotEqual(secondObject, firstObject);
+            Assert.IsFalse(firstObject == secondObject);
+            Assert.IsFalse(secondObject == firstObject);
         }
     }
 }

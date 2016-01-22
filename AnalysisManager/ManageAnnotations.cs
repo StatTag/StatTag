@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -20,13 +21,13 @@ namespace AnalysisManager
         private const int WhenToRunColumn = 4;
         private const int EditColumn = 5;
 
-        public List<CodeFile> Files { get; set; }
+        public DocumentManager Manager { get; set; }
 
-        public ManageAnnotations(List<CodeFile> files)
+        public ManageAnnotations(DocumentManager manager)
         {
             InitializeComponent();
             MinimumSize = Size;
-            Files = files;
+            Manager = manager;
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -36,18 +37,11 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new EditAnnotation(Files);
+            var dialog = new EditAnnotation(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                SaveAnnotation(dialog);
-                //if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-                //{
-                //    var codeFile = dialog.Annotation.CodeFile;
-                //    dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation);
-                //    codeFile.Save();
-
-                //    ReloadAnnotations();
-                //}
+                Manager.SaveEditedAnnotation(dialog);
+                AddRow(dialog.Annotation);
             }
         }
 
@@ -80,17 +74,40 @@ namespace AnalysisManager
             ReloadAnnotations();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ReloadAnnotations()
         {
             dgvItems.Rows.Clear();
 
-            foreach (var file in Files)
+            // Save off the values that may already be cached for an annotation.
+            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
+
+            foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
                 foreach (var annotation in file.Annotations)
                 {
+                    // Since we are reloading from a file, at this point if we had any cached results for
+                    // an annotation we want to associate that back with the annotation.
+                    var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+                    if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+                    {
+                        annotation.CachedResult = new List<string>(existingAnnotation.CachedResult);
+                    }
+
                     AddRow(annotation);
                 }
+            }
+        }
+
+        private void EditAnnotation(int rowIndex)
+        {
+            var existingAnnotation = dgvItems.Rows[rowIndex].Tag as Annotation;
+            if (Manager.EditAnnotation(existingAnnotation))
+            {
+                ReloadAnnotations();
             }
         }
 
@@ -98,26 +115,13 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                var dialog = new EditAnnotation(Files);
-                var existingAnnotation = dgvItems.Rows[e.RowIndex].Tag as Annotation;
-                dialog.Annotation = new Annotation(existingAnnotation);
-                if (DialogResult.OK == dialog.ShowDialog())
-                {
-                    SaveAnnotation(dialog, existingAnnotation);
-                }
+                EditAnnotation(e.RowIndex);
             }
         }
 
-        private void SaveAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
+        private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
-            {
-                var codeFile = dialog.Annotation.CodeFile;
-                dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
-                codeFile.Save();
-
-                ReloadAnnotations();
-            }
+            EditAnnotation(e.RowIndex);
         }
     }
 }

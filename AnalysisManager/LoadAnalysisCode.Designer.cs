@@ -33,12 +33,12 @@
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdAdd = new System.Windows.Forms.Button();
             this.dgvItems = new System.Windows.Forms.DataGridView();
-            this.cmdRemove = new System.Windows.Forms.Button();
             this.colSelect = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colStatPackage = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFile = new System.Windows.Forms.DataGridViewButtonColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.cmdRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -57,7 +57,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(226, 299);
+            this.cmdOK.Location = new System.Drawing.Point(179, 299);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
@@ -71,7 +71,7 @@
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(461, 299);
+            this.cmdCancel.Location = new System.Drawing.Point(414, 299);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
@@ -83,7 +83,7 @@
             // 
             this.cmdAdd.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAdd.Location = new System.Drawing.Point(284, 243);
+            this.cmdAdd.Location = new System.Drawing.Point(237, 243);
             this.cmdAdd.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(98, 25);
@@ -115,22 +115,10 @@
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvItems.Size = new System.Drawing.Size(743, 197);
+            this.dgvItems.Size = new System.Drawing.Size(649, 197);
             this.dgvItems.TabIndex = 4;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
-            // 
-            // cmdRemove
-            // 
-            this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdRemove.Location = new System.Drawing.Point(388, 243);
-            this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cmdRemove.Name = "cmdRemove";
-            this.cmdRemove.Size = new System.Drawing.Size(103, 25);
-            this.cmdRemove.TabIndex = 5;
-            this.cmdRemove.Text = "Remove File(s)";
-            this.cmdRemove.UseVisualStyleBackColor = true;
-            this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
+            this.dgvItems.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentDoubleClick);
             // 
             // colSelect
             // 
@@ -182,13 +170,26 @@
             this.colEdit.Visible = false;
             this.colEdit.Width = 50;
             // 
+            // cmdRemove
+            // 
+            this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdRemove.Location = new System.Drawing.Point(341, 243);
+            this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cmdRemove.Name = "cmdRemove";
+            this.cmdRemove.Size = new System.Drawing.Size(103, 25);
+            this.cmdRemove.TabIndex = 5;
+            this.cmdRemove.Text = "Remove File(s)";
+            this.cmdRemove.UseVisualStyleBackColor = true;
+            this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
+            // 
             // LoadAnalysisCode
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(775, 337);
+            this.ClientSize = new System.Drawing.Size(681, 337);
             this.Controls.Add(this.cmdRemove);
             this.Controls.Add(this.dgvItems);
             this.Controls.Add(this.cmdAdd);

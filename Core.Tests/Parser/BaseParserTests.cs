@@ -109,6 +109,55 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void Parse_OnDemandFilter()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "declare value",
+                "**>>>AM:Value(Frequency=\"On Demand\")",
+                "declare value",
+                "**<<<",
+                "**>>>AM:Value",
+                "declare value2",
+                "**<<<"
+            });
+            var results = parser.Parse(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            Assert.AreEqual(1, results.Length);
+            Assert.AreEqual(Constants.RunFrequency.Default, results[0].RunFrequency);
+
+            results = parser.Parse(lines);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual(Constants.RunFrequency.OnDemand, results[0].RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Default, results[1].RunFrequency);
+        }
+
+        [TestMethod]
+        public void Parse_AnnotationList()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "declare value",
+                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "declare value",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test2\")",
+                "declare value2",
+                "**<<<"
+            });
+            var results = parser.Parse(lines, Constants.ParserFilterMode.AnnotationList);
+            Assert.AreEqual(2, results.Length);
+
+            results = parser.Parse(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            {
+                new Annotation() { OutputLabel = "Test2", Type = Constants.AnnotationType.Value }
+            });
+            Assert.AreEqual(1, results.Length);
+            Assert.AreEqual("Test2", results[0].OutputLabel);
+        }
+
+        [TestMethod]
         public void DetectStartAnnotation_Null_Empty()
         {
             var parser = new StubParser();
@@ -228,6 +277,35 @@ namespace Core.Tests.Parser
             Assert.IsNotNull(results[1].Annotation);
             Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[2].Type);
             Assert.IsNotNull(results[2].Annotation);
+        }
+
+        [TestMethod]
+        public void GetExecutionSteps_AnnotationList()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "declare value",
+                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "declare value",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test2\")",
+                "declare value2",
+                "**<<<"
+            });
+            var results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.AnnotationList);
+            Assert.AreEqual(3, results.Count);
+
+            results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            {
+                new Annotation() { OutputLabel = "Test1", Type = Constants.AnnotationType.Value }
+            });
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
+            Assert.IsNull(results[0].Annotation);
+            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
+            Assert.IsNotNull(results[1].Annotation);
+            Assert.AreEqual("Test1", results[1].Annotation.OutputLabel);
         }
     }
 }

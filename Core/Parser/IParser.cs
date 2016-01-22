@@ -9,8 +9,8 @@ namespace AnalysisManager.Core.Parser
 {
     public interface IParser
     {
-        Annotation[] Parse(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll);
-        List<ExecutionStep> GetExecutionSteps(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll);
+        Annotation[] Parse(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Annotation> annotationsToRun = null);
+        List<ExecutionStep> GetExecutionSteps(IList<string> lines, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Annotation> annotationsToRun = null);
         bool IsImageExport(string command);
         string GetImageSaveLocation(string command);
         bool IsValueDisplay(string command);
