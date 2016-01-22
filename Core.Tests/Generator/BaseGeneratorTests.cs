@@ -42,5 +42,29 @@ namespace Core.Tests.Generator
             };
             Assert.AreEqual("**>>>AM:Value(Type=\"Default\")", generator.CreateOpenTag(annotation));
         }
+
+        [TestMethod]
+        public void CreateOpenTag_Figure()
+        {
+            var generator = new StubGenerator();
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Figure,
+                FigureFormat = new FigureFormat()
+            };
+            Assert.AreEqual("**>>>AM:Figure()", generator.CreateOpenTag(annotation));
+        }
+
+        [TestMethod]
+        public void CreateOpenTag_Table()
+        {
+            var generator = new StubGenerator();
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                TableFormat = new TableFormat()
+            };
+            Assert.AreEqual("**>>>AM:Table()", generator.CreateOpenTag(annotation));
+        }
     }
 }

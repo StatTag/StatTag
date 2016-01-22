@@ -15,5 +15,7 @@ namespace AnalysisManager.Core.Parser
         string GetImageSaveLocation(string command);
         bool IsValueDisplay(string command);
         string GetValueName(string command);
+        bool IsTableResult(string command);
+        string GetTableName(string command);
     }
 }

@@ -39,9 +39,9 @@
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
             this.cmdManageAnnotations = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
+            this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.button1 = this.Factory.CreateRibbonButton();
-            this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.codeGroup.SuspendLayout();
             // 
@@ -92,6 +92,12 @@
     "sor location.";
             this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
             // 
+            // cmdUpdateOutput
+            // 
+            this.cmdUpdateOutput.Label = "Update Output";
+            this.cmdUpdateOutput.Name = "cmdUpdateOutput";
+            this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
+            // 
             // cmdSettings
             // 
             this.cmdSettings.Label = "Settings";
@@ -102,12 +108,6 @@
             // 
             this.button1.Label = "";
             this.button1.Name = "button1";
-            // 
-            // cmdUpdateOutput
-            // 
-            this.cmdUpdateOutput.Label = "Update Output";
-            this.cmdUpdateOutput.Name = "cmdUpdateOutput";
-            this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
             // 
             // MainRibbon
             // 

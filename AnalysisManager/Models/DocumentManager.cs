@@ -212,6 +212,11 @@ namespace AnalysisManager.Models
                 return;
             }
 
+            if (annotation.Type == Constants.AnnotationType.Table)
+            {
+                //throw new Exception("Not supported");
+            }
+
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
             try

@@ -58,6 +58,7 @@ namespace AnalysisManager
             {
                 valueProperties.Visible = true;
                 figureProperties.Visible = false;
+                tableProperties.Visible = false;
                 UnselectTypeButton(cmdFigure);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Value;
@@ -66,6 +67,7 @@ namespace AnalysisManager
             {
                 valueProperties.Visible = false;
                 figureProperties.Visible = true;
+                tableProperties.Visible = false;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Figure;
@@ -73,7 +75,8 @@ namespace AnalysisManager
             else if (button == cmdTable)
             {
                 valueProperties.Visible = false;
-                figureProperties.Visible = true;
+                figureProperties.Visible = false;
+                tableProperties.Visible = true;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdFigure);
                 AnnotationType = Constants.AnnotationType.Table;
@@ -132,6 +135,10 @@ namespace AnalysisManager
                         UpdateForTypeClick(cmdFigure);
                         figureProperties.SetFigureFormat(Annotation.FigureFormat);
                         break;
+                    case Constants.AnnotationType.Table:
+                        UpdateForTypeClick(cmdTable);
+                        tableProperties.SetTableFormat(Annotation.TableFormat);
+                        break;
                 }
             }
             else
@@ -182,6 +189,9 @@ namespace AnalysisManager
                     break;
                 case Constants.AnnotationType.Figure:
                     Annotation.FigureFormat = figureProperties.GetFigureFormat();
+                    break;
+                case Constants.AnnotationType.Table:
+                    Annotation.TableFormat = tableProperties.GetTableFormat();
                     break;
                 default:
                     throw new NotSupportedException("This annotation type is not yet supported");

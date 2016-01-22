@@ -51,7 +51,7 @@ namespace Stata
 
         public bool IsReturnable(string command)
         {
-            return Parser.IsValueDisplay(command) || Parser.IsImageExport(command);
+            return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
         public string[] RunCommands(string[] commands)
@@ -88,11 +88,24 @@ namespace Stata
             }
         }
 
+        public string GetTableResult(string command)
+        {
+            var matrixName = Parser.GetTableName(command);
+            var result = Application.MatrixData(matrixName);
+
+            return string.Empty;
+        }
+
         public string RunCommand(string command)
         {
             if (Parser.IsValueDisplay(command))
             {
                 return GetDisplayResult(command);
+            }
+
+            if (Parser.IsTableResult(command))
+            {
+                return GetTableResult(command);
             }
 
             int returnCode = Application.DoCommand(command);

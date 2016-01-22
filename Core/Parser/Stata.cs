@@ -21,6 +21,10 @@ namespace AnalysisManager.Core.Parser
         private static string GraphCommand = "gr(?:aph)? export";
         private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
         private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
+        private static string TableCommand = "mat(?:rix)? l(?:ist)?";
+        private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
+        private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,\\s]*)\\b", TableCommand.Replace(" ", "\\s+")));
+
         /// <summary>
         /// This is used to test/extract a macro display value.
         /// <remarks>It assumes the rest of the display command has been extracted, 
@@ -70,13 +74,7 @@ namespace AnalysisManager.Core.Parser
         /// <returns></returns>
         public override string GetImageSaveLocation(string command)
         {
-            var match = GraphRegex.Match(command);
-            if (match.Success)
-            {
-                return match.Groups[1].Value.Trim();
-            }
-
-            return string.Empty;
+            return MatchRegexReturnGroup(command, GraphRegex, 1);
         }
 
         /// <summary>
@@ -88,13 +86,7 @@ namespace AnalysisManager.Core.Parser
         /// <returns></returns>
         public override string GetValueName(string command)
         {
-            var match = ValueRegex.Match(command);
-            if (match.Success)
-            {
-                return match.Groups[1].Value.Trim();
-            }
-
-            return string.Empty;
+            return MatchRegexReturnGroup(command, ValueRegex, 1);
         }
 
         /// <summary>
@@ -106,6 +98,28 @@ namespace AnalysisManager.Core.Parser
         public string GetMacroValueName(string command)
         {
             return GetValueName(command).Trim(MacroDelimiters);
+        }
+
+
+        public override bool IsTableResult(string command)
+        {
+            return TableKeywordRegex.IsMatch(command);
+        }
+
+        public override string GetTableName(string command)
+        {
+            return MatchRegexReturnGroup(command, TableRegex, 1);
+        }
+
+        private string MatchRegexReturnGroup(string text, Regex regex, int groupNum)
+        {
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                return match.Groups[groupNum].Value.Trim();
+            }
+
+            return string.Empty;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace AnalysisManager.Core.Models
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
         public FigureFormat FigureFormat { get; set; }
+        public TableFormat TableFormat { get; set; }
         public List<string> CachedResult { get; set; }
 
         /// <summary>
@@ -71,6 +72,7 @@ namespace AnalysisManager.Core.Models
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
             FigureFormat = annotation.FigureFormat;
+            TableFormat = annotation.TableFormat;
             LineStart = annotation.LineStart;
             LineEnd = annotation.LineEnd;
             CachedResult = annotation.CachedResult;

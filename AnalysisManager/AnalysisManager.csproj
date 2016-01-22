@@ -204,6 +204,12 @@
     <Compile Include="Controls\PercentageValueProperties.Designer.cs">
       <DependentUpon>PercentageValueProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TableProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TableProperties.Designer.cs">
+      <DependentUpon>TableProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
