@@ -20,12 +20,17 @@ namespace AnalysisManager.Controls
 
         public void SetTableFormat(TableFormat tableFormat)
         {
-
+            chkIncludeColumnNames.Checked = tableFormat.IncludeColumnNames;
+            chkIncludeRowNames.Checked = tableFormat.IncludeRowNames;
         }
 
         public TableFormat GetTableFormat()
         {
-            return new TableFormat();
+            return new TableFormat()
+            {
+                IncludeColumnNames = chkIncludeColumnNames.Checked,
+                IncludeRowNames = chkIncludeRowNames.Checked
+            };
         }
     }
 }

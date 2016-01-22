@@ -61,10 +61,12 @@ namespace Core.Tests.Generator
             var generator = new StubGenerator();
             var annotation = new Annotation()
             {
-                Type = Constants.AnnotationType.Table,
-                TableFormat = new TableFormat()
+                Type = Constants.AnnotationType.Table
             };
             Assert.AreEqual("**>>>AM:Table()", generator.CreateOpenTag(annotation));
+
+            annotation.TableFormat = new TableFormat();
+            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False)", generator.CreateOpenTag(annotation));
         }
     }
 }

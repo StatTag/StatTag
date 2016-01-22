@@ -11,10 +11,16 @@ namespace AnalysisManager.Core.Generator
     {
         public string CreateParameters(Annotation annotation)
         {
-            // Putting in StringBuilder, assuming more params will be added
             var builder = new StringBuilder();
             builder.Append(GetLabelParameter(annotation));
             builder.Append(GetRunFrequencyParameter(annotation));
+
+            if (annotation.TableFormat != null)
+            {
+                builder.AppendFormat("{0}={1}, {2}={3}", 
+                    Constants.TableParameters.ColumnNames, annotation.TableFormat.IncludeColumnNames,
+                    Constants.TableParameters.RowNames, annotation.TableFormat.IncludeRowNames);
+            }
             return CleanResult(builder.ToString());
         }
     }

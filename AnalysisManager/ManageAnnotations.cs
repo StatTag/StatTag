@@ -94,7 +94,7 @@ namespace AnalysisManager
                     var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
                     if (existingAnnotation != null && existingAnnotation.CachedResult != null)
                     {
-                        annotation.CachedResult = new List<string>(existingAnnotation.CachedResult);
+                        annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
                     }
 
                     AddRow(annotation);

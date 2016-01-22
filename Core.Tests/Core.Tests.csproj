@@ -59,6 +59,7 @@
     <Compile Include="Generator\TableGeneratorTests.cs" />
     <Compile Include="Generator\ValueGeneratorTests.cs" />
     <Compile Include="Models\AnnotationTests.cs" />
+    <Compile Include="Models\CommandResultTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />

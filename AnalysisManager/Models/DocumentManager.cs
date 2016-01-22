@@ -107,7 +107,7 @@ namespace AnalysisManager.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
-            string fileName = annotation.CachedResult[0];
+            string fileName = annotation.CachedResult[0].FigureResult;
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 object fileNameObject = fileName;

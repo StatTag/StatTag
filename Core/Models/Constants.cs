@@ -100,6 +100,12 @@
             public const string TimeFormat = "TimeFormat";
         }
 
+        public static class TableParameters
+        {
+            public const string ColumnNames = "ColumnNames";
+            public const string RowNames = "RowNames";
+        }
+
         public static class CodeFileComment
         {
             public const string Stata = "*";

@@ -84,30 +84,30 @@ namespace Core.Tests.Models
             var annotation = new Annotation();
             Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>() };
+            annotation = new Annotation() { CachedResult = new List<CommandResult>() };
             Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
         [TestMethod]
         public void FormattedResult_Values()
         {
-            var annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1" }) };
+            var annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             Assert.AreEqual("Test 1", annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1", "Test 2" }) };
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" }, new CommandResult() { ValueResult = "Test 2" } }) };
             Assert.AreEqual("Test 2", annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>(new[] { "1234", "456789" }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] {  new CommandResult() { ValueResult = "1234" },  new CommandResult() { ValueResult = "456789" } }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
             Assert.AreEqual("456,789", annotation.FormattedResult);
         }
 
         [TestMethod]
         public void FormattedResult_ValuesBlank()
         {
-            var annotation = new Annotation() { CachedResult = new List<string>(new[] { "" }) };
+            var annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "" } }) };
             Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>(new[] { "     ", "        " }) };
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "    " }, new CommandResult() { ValueResult = "         " } }) };
             Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
@@ -125,7 +125,7 @@ namespace Core.Tests.Models
         [TestMethod]
         public void Serialize_Deserialize()
         {
-            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<string>(new[] { "Test 1" }) };
+            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             var serialized = annotation.Serialize();
             var recreatedAnnotation = Annotation.Deserialize(serialized);
             Assert.AreEqual(annotation.CodeFile, recreatedAnnotation.CodeFile);

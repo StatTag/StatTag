@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Models;
 using AnalysisManager.Core.Parser;
 
 namespace Stata
@@ -54,9 +55,9 @@ namespace Stata
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
-        public string[] RunCommands(string[] commands)
+        public CommandResult[] RunCommands(string[] commands)
         {
-            return commands.Select(command => RunCommand(command)).Where(result => !string.IsNullOrWhiteSpace(result)).ToArray();
+            return commands.Select(command => RunCommand(command)).Where(result => !result.IsEmpty()).ToArray();
         }
 
         public string GetDisplayResult(string command)
@@ -88,24 +89,30 @@ namespace Stata
             }
         }
 
-        public string GetTableResult(string command)
+        public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
-            var result = Application.MatrixData(matrixName);
+            var table = new Table(
+                Application.MatrixRowNames(matrixName),
+                Application.MatrixColNames(matrixName),
+                Application.MatrixRowDim(matrixName),
+                Application.MatrixColDim(matrixName),
+                Application.MatrixData(matrixName)
+            );
 
-            return string.Empty;
+            return table;
         }
 
-        public string RunCommand(string command)
+        public CommandResult RunCommand(string command)
         {
             if (Parser.IsValueDisplay(command))
             {
-                return GetDisplayResult(command);
+                return new CommandResult() { ValueResult = GetDisplayResult(command)};
             }
 
             if (Parser.IsTableResult(command))
             {
-                return GetTableResult(command);
+                return new CommandResult() { TableResult = GetTableResult(command) };
             }
 
             int returnCode = Application.DoCommand(command);
@@ -116,7 +123,7 @@ namespace Stata
 
             if (Parser.IsImageExport(command))
             {
-                return Parser.GetImageSaveLocation(command);
+                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
             }
             
             return null;

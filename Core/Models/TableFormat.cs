@@ -8,5 +8,7 @@ namespace AnalysisManager.Core.Models
 {
     public class TableFormat
     {
+        public bool IncludeColumnNames { get; set; }
+        public bool IncludeRowNames { get; set; }
     }
 }
