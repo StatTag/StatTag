@@ -31,20 +31,21 @@ namespace AnalysisManager.Core.Models
             {
                 if (CachedResult == null || CachedResult.Count == 0)
                 {
-                    return string.Empty;
+                    return Constants.Placeholders.EmptyField;
                 }
 
                 // When formatting a value, it is possible the user has selected multiple 
                 // display commands.  We will only return the last cached result, and format
                 // that if our formatter is available.
                 string lastValue = CachedResult.Last();
+                string formattedValue = lastValue;
                 if (!string.IsNullOrWhiteSpace(Type)
                     && Type.Equals(Constants.AnnotationType.Value) && ValueFormat != null)
                 {
-                    return ValueFormat.Format(lastValue);
+                    formattedValue = ValueFormat.Format(lastValue);
                 }
 
-                return lastValue;
+                return string.IsNullOrWhiteSpace(formattedValue) ? Constants.Placeholders.EmptyField : formattedValue;
             }
         }
 

@@ -76,6 +76,11 @@
             public const string Backup = "am-bak";
         }
 
+        public static class Placeholders
+        {
+            public const string EmptyField = "[NO RESULT]";
+        }
+
         /// <summary>
         /// A list of parameter names that are available across all types of
         /// annotations.

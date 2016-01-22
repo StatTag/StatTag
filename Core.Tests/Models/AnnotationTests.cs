@@ -82,10 +82,10 @@ namespace Core.Tests.Models
         public void FormattedResult_Empty()
         {
             var annotation = new Annotation();
-            Assert.AreEqual(string.Empty, annotation.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
 
             annotation = new Annotation() { CachedResult = new List<string>() };
-            Assert.AreEqual(string.Empty, annotation.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
         [TestMethod]
@@ -99,6 +99,16 @@ namespace Core.Tests.Models
 
             annotation = new Annotation() { CachedResult = new List<string>(new[] { "1234", "456789" }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
             Assert.AreEqual("456,789", annotation.FormattedResult);
+        }
+
+        [TestMethod]
+        public void FormattedResult_ValuesBlank()
+        {
+            var annotation = new Annotation() { CachedResult = new List<string>(new[] { "" }) };
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
+
+            annotation = new Annotation() { CachedResult = new List<string>(new[] { "     ", "        " }) };
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
         [TestMethod]
