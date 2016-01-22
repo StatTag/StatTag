@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -37,6 +38,26 @@ namespace AnalysisManager
         void Application_DocumentOpen(Word.Document doc)
         {
             Manager.LoadFilesFromDocument(doc);
+            var filesNotFound = new List<CodeFile>();
+            foreach (var file in Manager.Files)
+            {
+                if (!File.Exists(file.FilePath))
+                {
+                    filesNotFound.Add(file);
+                }
+                else
+                {
+                    file.LoadAnnotationsFromContent();
+                }
+            }
+
+            if (filesNotFound.Any())
+            {
+                MessageBox.Show(
+                    string.Format("The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}", string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
+                    UIUtility.GetAddInName(),
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);   
+            }
         }
 
         void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)
