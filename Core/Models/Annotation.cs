@@ -18,7 +18,8 @@ namespace AnalysisManager.Core.Models
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
         public FigureFormat FigureFormat { get; set; }
-        public List<string> CachedResult { get; set; }
+        public TableFormat TableFormat { get; set; }
+        public List<CommandResult> CachedResult { get; set; }
 
         /// <summary>
         /// Format the results for the annotation.  This method assumes that the annotation has
@@ -37,12 +38,12 @@ namespace AnalysisManager.Core.Models
                 // When formatting a value, it is possible the user has selected multiple 
                 // display commands.  We will only return the last cached result, and format
                 // that if our formatter is available.
-                string lastValue = CachedResult.Last();
-                string formattedValue = lastValue;
+                var lastValue = CachedResult.Last();
+                string formattedValue = lastValue.ToString();
                 if (!string.IsNullOrWhiteSpace(Type)
                     && Type.Equals(Constants.AnnotationType.Value) && ValueFormat != null)
                 {
-                    formattedValue = ValueFormat.Format(lastValue);
+                    formattedValue = ValueFormat.Format(lastValue.ToString());
                 }
 
                 return string.IsNullOrWhiteSpace(formattedValue) ? Constants.Placeholders.EmptyField : formattedValue;
@@ -71,6 +72,7 @@ namespace AnalysisManager.Core.Models
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
             FigureFormat = annotation.FigureFormat;
+            TableFormat = annotation.TableFormat;
             LineStart = annotation.LineStart;
             LineEnd = annotation.LineEnd;
             CachedResult = annotation.CachedResult;

@@ -56,12 +56,16 @@
   <ItemGroup>
     <Compile Include="Generator\BaseGeneratorTests.cs" />
     <Compile Include="Generator\FigureGeneratorTests.cs" />
+    <Compile Include="Generator\TableGeneratorTests.cs" />
     <Compile Include="Generator\ValueGeneratorTests.cs" />
     <Compile Include="Models\AnnotationTests.cs" />
+    <Compile Include="Models\CommandResultTests.cs" />
+    <Compile Include="Models\TableFormatTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
+    <Compile Include="Parser\TableParserTests.cs" />
     <Compile Include="Parser\ValueParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />

@@ -107,7 +107,7 @@ namespace AnalysisManager.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
-            string fileName = annotation.CachedResult[0];
+            string fileName = annotation.CachedResult[0].FigureResult;
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 object fileNameObject = fileName;
@@ -193,6 +193,114 @@ namespace AnalysisManager.Models
             }
         }
 
+        public Columns GetSelectedColumns(Selection selection)
+        {
+            try
+            {
+                return selection.Columns;
+            }
+            catch (COMException exc)
+            {}
+
+            return null;
+        }
+
+        public Rows GetSelectedRows(Selection selection)
+        {
+            try
+            {
+                return selection.Rows;
+            }
+            catch (COMException exc)
+            { }
+
+            return null;
+        }
+
+        public Cells GetCells(Selection selection)
+        {
+            try
+            {
+                return selection.Cells;
+            }
+            catch (COMException exc)
+            {}
+
+            return null;
+        }
+
+        /// <summary>
+        /// Insert a table annotation into the current selection.
+        /// </summary>
+        /// <remarks>This assumes that the annotation is known to be a table result.</remarks>
+        /// <param name="selection"></param>
+        /// <param name="annotation"></param>
+        public void InsertTable(Selection selection, Annotation annotation)
+        {
+            var cells = GetCells(selection);
+            var table = annotation.CachedResult[0].TableResult;
+            var data = annotation.TableFormat.Format(table);
+
+            // TODO: Insert a new table if there is none selected.
+            var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
+            if (cellsCount == 0)
+            {
+                UIUtility.WarningMessageBox("Please select the cells in an existing table that you would like to fill in, and then insert the result again.");
+                return;
+            }
+
+            if (data == null || data.Length == 0)
+            {
+                UIUtility.WarningMessageBox("There are no table results to insert.");
+                return;
+            }
+
+            // Wait, why aren't I using a for (int index = 0...) loop instead of this foreach?
+            // There is some weird issue with the Cells collection that was crashing when I used
+            // a for loop and index.  After a few iterations it was chopping out a few of the
+            // cells, which caused a crash.  No idea why, and moved to this approach in the interest
+            // of time.  Long-term it'd be nice to figure out what was causing the crash.
+            int index = 0;
+            foreach (var cell in cells.OfType<Cell>())
+            {
+                if (index >= data.Length)
+                {
+                    break;
+                }
+
+                var range = cell.Range;
+                range.Text = data[index];
+                index++;
+                Marshal.ReleaseComObject(range);
+            }
+
+            WarnOnMismatchedCellCount(cellsCount, data.Length);
+
+            Marshal.ReleaseComObject(cells);
+        }
+
+        /// <summary>
+        /// Provide a warning to the user if the number of data cells available doesn't match
+        /// the number of table cells they selected in the document.
+        /// </summary>
+        /// <param name="selectedCellCount"></param>
+        /// <param name="dataLength"></param>
+        protected void WarnOnMismatchedCellCount(int selectedCellCount, int dataLength)
+        {
+            if (selectedCellCount > dataLength)
+            {
+                UIUtility.WarningMessageBox(
+                    string.Format("The number of cells you have selected ({0}) is larger than the number of cells in your results ({1}).\r\n\r\nOnly the first {1} cells have been filled in with results.",
+                    selectedCellCount, dataLength));
+            }
+            else if (selectedCellCount < dataLength)
+            {
+                UIUtility.WarningMessageBox(
+                    string.Format("The number of cells you have selected ({0}) is smaller than the number of cells in your results ({1}).\r\n\r\nOnly the first {0} cells from your results have been used.",
+                    selectedCellCount, dataLength));
+            }
+        }
+
         /// <summary>
         /// Given an annotation, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the annotation result is already refreshed.  It does not
@@ -222,22 +330,31 @@ namespace AnalysisManager.Models
                     return;
                 }
 
-                var range = selection.Range;
+                if (annotation.Type == Constants.AnnotationType.Table)
+                {
+                    InsertTable(selection, annotation);
+                    return;
+                }
+                else
+                {
+                    var range = selection.Range;
 
-                var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
-                    MacroButtonName, annotation.FormattedResult, annotation.OutputLabel));
-                var dataField = fields[0];
-                dataField.Data = annotation.Serialize();
+                    var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
+                        MacroButtonName, annotation.FormattedResult, annotation.OutputLabel));
+                    var dataField = fields[0];
+                    dataField.Data = annotation.Serialize();
 
-                #region Nothing to see here
-                // Awful little hack... something with the way the InsertField method works returns fields
-                // with special characters in the embedded fields.  A workaround is toggling the fields
-                // to show and hide codes.
-                document.Fields.ToggleShowCodes();
-                document.Fields.ToggleShowCodes();
-                #endregion
+                    #region Nothing to see here
+                    // Awful little hack... something with the way the InsertField method works returns fields
+                    // with special characters in the embedded fields.  A workaround is toggling the fields
+                    // to show and hide codes.
+                    document.Fields.ToggleShowCodes();
+                    document.Fields.ToggleShowCodes();
+                    #endregion
 
-                Marshal.ReleaseComObject(range);
+                    Marshal.ReleaseComObject(range);
+                }
+
                 Marshal.ReleaseComObject(selection);
             }
             finally

@@ -25,6 +25,8 @@ namespace AnalysisManager.Core.Parser
         public abstract string GetImageSaveLocation(string command);
         public abstract bool IsValueDisplay(string command);
         public abstract string GetValueName(string command);
+        public abstract bool IsTableResult(string command);
+        public abstract string GetTableName(string command);
 
         protected Match DetectAnnotation(Regex annotationRegex, string line)
         {
@@ -199,6 +201,11 @@ namespace AnalysisManager.Core.Parser
             {
                 annotation.Type = Constants.AnnotationType.Figure;
                 FigureParser.Parse(annotationText, annotation);
+            }
+            else if (annotationText.StartsWith(Constants.AnnotationType.Table))
+            {
+                annotation.Type = Constants.AnnotationType.Table;
+                TableParser.Parse(annotationText, annotation);
             }
             else
             {

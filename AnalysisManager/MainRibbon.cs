@@ -150,7 +150,7 @@ namespace AnalysisManager
                     var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
                     if (annotation != null)
                     {
-                        var resultList = new List<string>(results);
+                        var resultList = new List<CommandResult>(results);
 
                         // Determine if we had a cached list, and if so if the results have changed.
                         bool resultsChanged = (annotation.CachedResult != null &&

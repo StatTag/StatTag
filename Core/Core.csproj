@@ -49,14 +49,18 @@
     <Compile Include="Generator\FigureGenerator.cs" />
     <Compile Include="Generator\IGenerator.cs" />
     <Compile Include="Generator\Stata.cs" />
+    <Compile Include="Generator\TableGenerator.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
+    <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\ExecutionStep.cs" />
     <Compile Include="Models\FigureFormat.cs" />
     <Compile Include="Models\FileHandler.cs" />
+    <Compile Include="Models\Table.cs" />
+    <Compile Include="Models\TableFormat.cs" />
     <Compile Include="Models\UpdatePair.cs" />
     <Compile Include="Models\ValueFormat.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />
@@ -64,6 +68,7 @@
     <Compile Include="Parser\FigureParser.cs" />
     <Compile Include="Parser\IParser.cs" />
     <Compile Include="Parser\Stata.cs" />
+    <Compile Include="Parser\TableParser.cs" />
     <Compile Include="Parser\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />

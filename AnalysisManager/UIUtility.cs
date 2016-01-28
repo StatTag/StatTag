@@ -53,5 +53,10 @@ namespace AnalysisManager
         {
             return "Analysis Manager";
         }
+
+        public static void WarningMessageBox(string text)
+        {
+            MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
     }
 }

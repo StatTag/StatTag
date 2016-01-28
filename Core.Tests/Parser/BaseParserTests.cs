@@ -46,6 +46,16 @@ namespace Core.Tests.Parser
             {
                 throw new NotImplementedException();
             }
+
+            public override bool IsTableResult(string command)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string GetTableName(string command)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestMethod]
