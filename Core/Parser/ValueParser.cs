@@ -10,7 +10,7 @@ namespace AnalysisManager.Core.Parser
 {
     public class ValueParser : BaseParameterParser
     {
-        public static void Parse(string annotationText, Annotation annotation)
+        public new static void Parse(string annotationText, Annotation annotation)
         {
             annotation.ValueFormat = new ValueFormat();
             int paramIndex = annotationText.IndexOf(Constants.AnnotationTags.ParamStart, StringComparison.CurrentCulture);
@@ -22,8 +22,7 @@ namespace AnalysisManager.Core.Parser
                 return;
             }
 
-            annotation.OutputLabel = GetStringParameter(Constants.AnnotationParameters.Label, annotationText);
-            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
+            BaseParameterParser.Parse(annotationText, annotation);
             annotation.ValueFormat.FormatType = GetStringParameter(Constants.ValueParameters.Type, annotationText, Constants.ValueFormatType.Default);
             int? intValue = GetIntParameter(Constants.ValueParameters.Decimals, annotationText, 0);
             annotation.ValueFormat.DecimalPlaces = intValue.Value;  // Since we specify a default, we assume it won't ever be null

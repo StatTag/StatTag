@@ -16,11 +16,11 @@ namespace AnalysisManager.Core.Parser
             // If no parameters are set, fill in default values
             if (paramIndex == -1)
             {
+                annotation.RunFrequency = Constants.RunFrequency.Default;
                 return;
             }
 
-            annotation.OutputLabel = GetStringParameter(Constants.AnnotationParameters.Label, annotationText);
-            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
+            BaseParameterParser.Parse(annotationText, annotation);
         }
     }
 }

@@ -127,6 +127,7 @@
             this.txtOutputLabel.Name = "txtOutputLabel";
             this.txtOutputLabel.Size = new System.Drawing.Size(379, 25);
             this.txtOutputLabel.TabIndex = 15;
+            this.txtOutputLabel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOutputLabel_KeyPress);
             // 
             // label5
             // 

@@ -162,7 +162,7 @@ namespace AnalysisManager
             }
 
             Annotation.Type = AnnotationType;
-            Annotation.OutputLabel = txtOutputLabel.Text;
+            Annotation.OutputLabel = Annotation.NormalizeOutputLabel(txtOutputLabel.Text);
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
             Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
             var selectedIndices = lstCode.SelectedIndices.OfType<int>().ToArray();
@@ -209,6 +209,15 @@ namespace AnalysisManager
             if (file != null)
             {
                 lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.Content.ToArray()));
+            }
+        }
+
+        private void txtOutputLabel_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Ignore reserved characters
+            if (e.KeyChar == Constants.ReservedCharacters.AnnotationTableCellDelimiter)
+            {
+                e.Handled = true;
             }
         }
     }

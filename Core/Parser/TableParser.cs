@@ -20,8 +20,7 @@ namespace AnalysisManager.Core.Parser
                 return;
             }
 
-            annotation.OutputLabel = GetStringParameter(Constants.AnnotationParameters.Label, annotationText);
-            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
+            BaseParameterParser.Parse(annotationText, annotation);
             annotation.TableFormat.IncludeColumnNames = GetBoolParameter(Constants.TableParameters.ColumnNames, annotationText, Constants.TableParameterDefaults.ColumnNames).Value;
             annotation.TableFormat.IncludeRowNames = GetBoolParameter(Constants.TableParameters.RowNames, annotationText, Constants.TableParameterDefaults.RowNames).Value;
         }

@@ -68,7 +68,7 @@ namespace AnalysisManager.Core.Models
         {
             CodeFile = annotation.CodeFile;
             Type = annotation.Type;
-            OutputLabel = annotation.OutputLabel;
+            OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
             FigureFormat = annotation.FigureFormat;
@@ -84,6 +84,7 @@ namespace AnalysisManager.Core.Models
         /// <returns></returns>
         public string Serialize()
         {
+            OutputLabel = NormalizeOutputLabel(OutputLabel);
             return JsonConvert.SerializeObject(this);
         }
 
@@ -94,7 +95,9 @@ namespace AnalysisManager.Core.Models
         /// <returns></returns>
         public static Annotation Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<Annotation>(json);
+            var annotation = JsonConvert.DeserializeObject<Annotation>(json);
+            annotation.OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
+            return annotation;
         }
 
         public override bool Equals(object other)
@@ -126,6 +129,22 @@ namespace AnalysisManager.Core.Models
             }
 
             return base.ToString();
+        }
+
+        /// <summary>
+        /// Ensure that all reserved characters that appear in an output label are removed
+        /// and replaced with a space.
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public static string NormalizeOutputLabel(string label)
+        {
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                return string.Empty;
+            }
+
+            return label.Replace(Constants.ReservedCharacters.AnnotationTableCellDelimiter, ' ').Trim();
         }
     }
 }

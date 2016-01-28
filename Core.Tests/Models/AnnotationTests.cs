@@ -138,5 +138,24 @@ namespace Core.Tests.Models
             Assert.AreEqual(annotation.Type, recreatedAnnotation.Type);
             Assert.AreEqual(annotation.ValueFormat, recreatedAnnotation.ValueFormat);
         }
+
+        [TestMethod]
+        public void NormalizeOutputLabel_Blanks()
+        {
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel(null));
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel(string.Empty));
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel("   "));
+        }
+
+        [TestMethod]
+        public void NormalizeOutputLabel_Values()
+        {
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("|Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("   |   Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test|"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test |   "));
+            Assert.AreEqual("Test one", Annotation.NormalizeOutputLabel("Test|one"));
+        }
     }
 }

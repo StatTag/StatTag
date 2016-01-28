@@ -1,6 +1,6 @@
 ﻿namespace AnalysisManager.Core.Models
 {
-    public class Constants
+    public static class Constants
     {
         public static class StatisticalPackages
         {
@@ -79,6 +79,11 @@
         public static class Placeholders
         {
             public const string EmptyField = "[NO RESULT]";
+        }
+
+        public static class ReservedCharacters
+        {
+            public const char AnnotationTableCellDelimiter = '|';
         }
 
         /// <summary>
