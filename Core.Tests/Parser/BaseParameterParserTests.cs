@@ -51,6 +51,7 @@ namespace Core.Tests.Parser
         public void GetBoolParameter_Normal()
         {
             Assert.AreEqual(false, BaseParameterParser.GetBoolParameter("Test", "(Test=false)", DefaultBoolValue));
+            Assert.AreEqual(false, BaseParameterParser.GetBoolParameter("Test", "(Test=False)", DefaultBoolValue));
         }
 
         [TestMethod]

@@ -12,7 +12,7 @@ namespace AnalysisManager.Core.Parser
     {
         public const string StringValueMatch = ".*?";
         public const string IntValueMatch = "\\d+";
-        public const string BoolValueMatch = "true|false";
+        public const string BoolValueMatch = "true|false|True|False";
         protected static Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
 
         /// <summary>

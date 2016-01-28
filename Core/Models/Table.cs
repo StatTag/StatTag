@@ -28,8 +28,8 @@ namespace AnalysisManager.Core.Models
 
         public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, double[] data)
         {
-            RowNames = new List<string>(rowNames);
-            ColumnNames = new List<string>(columnNames);
+            RowNames = (rowNames == null) ? null : new List<string>(rowNames);
+            ColumnNames = (columnNames == null) ? null : new List<string>(columnNames);
             RowSize = rowSize;
             ColumnSize = columnSize;
             Data = data;

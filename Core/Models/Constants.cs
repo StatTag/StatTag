@@ -106,6 +106,12 @@
             public const string RowNames = "RowNames";
         }
 
+        public static class TableParameterDefaults
+        {
+            public const bool ColumnNames = false;
+            public const bool RowNames = false;
+        }
+
         public static class CodeFileComment
         {
             public const string Stata = "*";

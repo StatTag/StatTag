@@ -35,7 +35,7 @@
             // chkIncludeColumnNames
             // 
             this.chkIncludeColumnNames.AutoSize = true;
-            this.chkIncludeColumnNames.Location = new System.Drawing.Point(0, 0);
+            this.chkIncludeColumnNames.Location = new System.Drawing.Point(5, 5);
             this.chkIncludeColumnNames.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.chkIncludeColumnNames.Name = "chkIncludeColumnNames";
             this.chkIncludeColumnNames.Size = new System.Drawing.Size(156, 21);
@@ -46,7 +46,7 @@
             // chkIncludeRowNames
             // 
             this.chkIncludeRowNames.AutoSize = true;
-            this.chkIncludeRowNames.Location = new System.Drawing.Point(0, 29);
+            this.chkIncludeRowNames.Location = new System.Drawing.Point(5, 34);
             this.chkIncludeRowNames.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.chkIncludeRowNames.Name = "chkIncludeRowNames";
             this.chkIncludeRowNames.Size = new System.Drawing.Size(136, 21);

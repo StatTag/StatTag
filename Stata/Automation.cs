@@ -57,7 +57,8 @@ namespace Stata
 
         public CommandResult[] RunCommands(string[] commands)
         {
-            return commands.Select(command => RunCommand(command)).Where(result => !result.IsEmpty()).ToArray();
+            return commands.Select(command => RunCommand(command)).Where(
+                result => result != null && !result.IsEmpty()).ToArray();
         }
 
         public string GetDisplayResult(string command)
