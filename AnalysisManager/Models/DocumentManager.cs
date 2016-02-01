@@ -179,8 +179,12 @@ namespace AnalysisManager.Models
                                 UpdateAnnotationFieldData(field, annotation);
                             }
 
-                            field.Select();
-                            InsertField(annotation);
+                            // Table fields need special handling, so we exlcude them from this update cycle.
+                            if (annotation.Type != Constants.AnnotationType.Table)
+                            {
+                                field.Select();
+                                InsertField(annotation);
+                            }
                         }
                     }
                     Marshal.ReleaseComObject(field);
@@ -191,30 +195,6 @@ namespace AnalysisManager.Models
             {
                 Marshal.ReleaseComObject(document);
             }
-        }
-
-        public Columns GetSelectedColumns(Selection selection)
-        {
-            try
-            {
-                return selection.Columns;
-            }
-            catch (COMException exc)
-            {}
-
-            return null;
-        }
-
-        public Rows GetSelectedRows(Selection selection)
-        {
-            try
-            {
-                return selection.Rows;
-            }
-            catch (COMException exc)
-            { }
-
-            return null;
         }
 
         public Cells GetCells(Selection selection)
@@ -269,7 +249,7 @@ namespace AnalysisManager.Models
                 }
 
                 var range = cell.Range;
-                range.Text = data[index];
+                CreateAnnotationField(range, annotation.OutputLabel + "|" + index.ToString(), data[index], annotation);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -333,27 +313,21 @@ namespace AnalysisManager.Models
                 if (annotation.Type == Constants.AnnotationType.Table)
                 {
                     InsertTable(selection, annotation);
-                    return;
                 }
                 else
                 {
                     var range = selection.Range;
-
-                    var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
-                        MacroButtonName, annotation.FormattedResult, annotation.OutputLabel));
-                    var dataField = fields[0];
-                    dataField.Data = annotation.Serialize();
-
-                    #region Nothing to see here
-                    // Awful little hack... something with the way the InsertField method works returns fields
-                    // with special characters in the embedded fields.  A workaround is toggling the fields
-                    // to show and hide codes.
-                    document.Fields.ToggleShowCodes();
-                    document.Fields.ToggleShowCodes();
-                    #endregion
-
+                    CreateAnnotationField(range, annotation.OutputLabel, annotation.FormattedResult, annotation);
                     Marshal.ReleaseComObject(range);
                 }
+
+                #region Nothing to see here
+                // Awful little hack... something with the way the InsertField method works returns fields
+                // with special characters in the embedded fields.  A workaround is toggling the fields
+                // to show and hide codes.
+                document.Fields.ToggleShowCodes();
+                document.Fields.ToggleShowCodes();
+                #endregion
 
                 Marshal.ReleaseComObject(selection);
             }
@@ -361,6 +335,15 @@ namespace AnalysisManager.Models
             {
                 Marshal.ReleaseComObject(document);
             }
+        }
+
+        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
+        {
+            var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
+                MacroButtonName, displayValue, annotationIdentifier));
+            var dataField = fields[0];
+            dataField.Data = annotation.Serialize();
+
         }
 
         /// <summary>
