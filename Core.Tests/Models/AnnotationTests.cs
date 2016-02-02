@@ -137,6 +137,8 @@ namespace Core.Tests.Models
             Assert.AreEqual(annotation.RunFrequency, recreatedAnnotation.RunFrequency);
             Assert.AreEqual(annotation.Type, recreatedAnnotation.Type);
             Assert.AreEqual(annotation.ValueFormat, recreatedAnnotation.ValueFormat);
+            Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
+            Assert.AreEqual(annotation.TableFormat, recreatedAnnotation.TableFormat);
         }
 
         [TestMethod]

@@ -16,7 +16,6 @@ namespace AnalysisManager.Core.Models
         public CodeFile CodeFile { get; set; }
         public string Type { get; set; }
         public string OutputLabel { get; set; }
-        public int? CellIndex { get; set; }
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
         public FigureFormat FigureFormat { get; set; }
@@ -92,7 +91,6 @@ namespace AnalysisManager.Core.Models
             CodeFile = annotation.CodeFile;
             Type = annotation.Type;
             OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
-            CellIndex = annotation.CellIndex;
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
             FigureFormat = annotation.FigureFormat;

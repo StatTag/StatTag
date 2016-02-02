@@ -70,10 +70,6 @@ namespace AnalysisManager
                 if (Manager.IsAnalysisManagerField(field))
                 {
                     var annotation = Manager.GetFieldAnnotation(field);
-                    // A field annotation may have a cell index associated with it if it's a table
-                    // annotation.  We never want to carry that forward as an annotation parameter
-                    // that gets edited, so we explicitly clear it out each time.
-                    annotation.CellIndex = null;
                     Manager.EditAnnotation(annotation);
                 }
                 Marshal.ReleaseComObject(field);
