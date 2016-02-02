@@ -141,7 +141,8 @@ namespace AnalysisManager.Models
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
         /// with whatever is set as the current cached value.</remarks>
-        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.  If not specified, all annotation fields will be updated</param>
+        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.
+        /// If not specified, all annotation fields will be updated</param>
         /// </summary>
         public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
         {
@@ -179,12 +180,12 @@ namespace AnalysisManager.Models
                                 UpdateAnnotationFieldData(field, annotation);
                             }
 
-                            // Table fields need special handling, so we exlcude them from this update cycle.
-                            if (annotation.Type != Constants.AnnotationType.Table)
-                            {
+                            //// Table fields need special handling, so we exlcude them from this update cycle.
+                            //if (annotation.Type != Constants.AnnotationType.Table)
+                            //{
                                 field.Select();
                                 InsertField(annotation);
-                            }
+                            //}
                         }
                     }
                     Marshal.ReleaseComObject(field);
@@ -249,7 +250,13 @@ namespace AnalysisManager.Models
                 }
 
                 var range = cell.Range;
-                CreateAnnotationField(range, annotation.OutputLabel + "|" + index.ToString(), data[index], annotation);
+
+                // Make a copy of the annotation and set the cell index.  This will let us discriminate which cell an annotation
+                // value is related with, since we have multiple fields (and therefore multiple copies of the annotation) in the
+                // document.
+                var innerAnnotation = new Annotation(annotation);
+                innerAnnotation.CellIndex = index;
+                CreateAnnotationField(range, annotation.OutputLabel + "|" + index.ToString(), data[index], innerAnnotation);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -310,9 +317,20 @@ namespace AnalysisManager.Models
                     return;
                 }
 
-                if (annotation.Type == Constants.AnnotationType.Table)
+                // If the annotation is a table, and the cell index is not set, it means we are inserting the entire
+                // table into the document.  Otherwise, we are able to just insert a single table cell.
+                if (annotation.IsTableAnnotation())
                 {
-                    InsertTable(selection, annotation);
+                    if (!annotation.CellIndex.HasValue)
+                    {
+                        InsertTable(selection, annotation);
+                    }
+                    else
+                    {
+                        var range = selection.Range;
+                        CreateAnnotationField(range, annotation.OutputLabel, annotation.FormattedCell(annotation.CellIndex.Value), annotation);
+                        Marshal.ReleaseComObject(range);
+                    }
                 }
                 else
                 {
@@ -448,7 +466,6 @@ namespace AnalysisManager.Models
             var code = field.Code;
             var nestedField = code.Fields[1];
             nestedField.Data = annotation.Serialize();
-
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
         }
@@ -481,7 +498,17 @@ namespace AnalysisManager.Models
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
 
-            return FindAnnotation(fieldAnnotation);
+            var annotation = FindAnnotation(fieldAnnotation);
+
+            // The result of FindAnnotation is going to be a document-level annotation, not a
+            // cell specific one that exists as a field.  We need to re-set the CellIndex property
+            // from the annotation we found, to ensure it's available for later use.
+            if (annotation != null && fieldAnnotation != null && annotation.IsTableAnnotation())
+            {
+                annotation.CellIndex = fieldAnnotation.CellIndex;
+            }
+
+            return annotation;
         }
 
         /// <summary>

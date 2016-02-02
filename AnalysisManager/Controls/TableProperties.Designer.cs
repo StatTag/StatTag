@@ -30,6 +30,7 @@
         {
             this.chkIncludeColumnNames = new System.Windows.Forms.CheckBox();
             this.chkIncludeRowNames = new System.Windows.Forms.CheckBox();
+            this.numericValueProperties = new AnalysisManager.Controls.NumericValueProperties();
             this.SuspendLayout();
             // 
             // chkIncludeColumnNames
@@ -54,16 +55,28 @@
             this.chkIncludeRowNames.Text = "Include row names";
             this.chkIncludeRowNames.UseVisualStyleBackColor = true;
             // 
+            // numericValueProperties
+            // 
+            this.numericValueProperties.DecimalPlaces = 0;
+            this.numericValueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericValueProperties.Location = new System.Drawing.Point(183, 5);
+            this.numericValueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.numericValueProperties.Name = "numericValueProperties";
+            this.numericValueProperties.Size = new System.Drawing.Size(168, 73);
+            this.numericValueProperties.TabIndex = 2;
+            this.numericValueProperties.UseThousands = false;
+            // 
             // TableProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.numericValueProperties);
             this.Controls.Add(this.chkIncludeRowNames);
             this.Controls.Add(this.chkIncludeColumnNames);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TableProperties";
-            this.Size = new System.Drawing.Size(222, 94);
+            this.Size = new System.Drawing.Size(351, 80);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -73,5 +86,6 @@
 
         private System.Windows.Forms.CheckBox chkIncludeColumnNames;
         private System.Windows.Forms.CheckBox chkIncludeRowNames;
+        private NumericValueProperties numericValueProperties;
     }
 }

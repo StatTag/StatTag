@@ -24,12 +24,29 @@ namespace AnalysisManager.Controls
             chkIncludeRowNames.Checked = tableFormat.IncludeRowNames;
         }
 
+        public void SetValueFormat(ValueFormat valueFormat)
+        {
+            numericValueProperties.UseThousands = valueFormat.UseThousands;
+            numericValueProperties.DecimalPlaces = valueFormat.DecimalPlaces;
+            numericValueProperties.UpdateValues();
+        }
+
         public TableFormat GetTableFormat()
         {
             return new TableFormat()
             {
                 IncludeColumnNames = chkIncludeColumnNames.Checked,
                 IncludeRowNames = chkIncludeRowNames.Checked
+            };
+        }
+
+        public ValueFormat GetValueFormat()
+        {
+            return new ValueFormat()
+            {
+                FormatType = Constants.ValueFormatType.Numeric,
+                UseThousands = numericValueProperties.UseThousands,
+                DecimalPlaces = numericValueProperties.DecimalPlaces
             };
         }
     }

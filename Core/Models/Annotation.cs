@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ namespace AnalysisManager.Core.Models
         public CodeFile CodeFile { get; set; }
         public string Type { get; set; }
         public string OutputLabel { get; set; }
+        public int? CellIndex { get; set; }
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
         public FigureFormat FigureFormat { get; set; }
@@ -50,6 +52,27 @@ namespace AnalysisManager.Core.Models
             }
         }
 
+        public string FormattedCell(int index)
+        {
+            if (CachedResult == null || CachedResult.Count == 0)
+            {
+                return Constants.Placeholders.EmptyField;
+            }
+
+            // When formatting a value, it is possible the user has selected multiple 
+            // display commands.  We will only return the last cached result, and format
+            // that if our formatter is available.
+            var lastValue = CachedResult.Last();
+            if (IsTableAnnotation() && TableFormat != null
+                && lastValue != null && lastValue.TableResult != null)
+            {
+                var formattedValue = TableFormat.FormatCell(lastValue.TableResult, index);
+                return formattedValue;
+            }
+
+            return Constants.Placeholders.EmptyField;
+        }
+
         /// <summary>
         /// The starting line is the 0-based line index where the opening
         /// annotation tag exists.
@@ -69,6 +92,7 @@ namespace AnalysisManager.Core.Models
             CodeFile = annotation.CodeFile;
             Type = annotation.Type;
             OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
+            CellIndex = annotation.CellIndex;
             RunFrequency = annotation.RunFrequency;
             ValueFormat = annotation.ValueFormat;
             FigureFormat = annotation.FigureFormat;
@@ -145,6 +169,11 @@ namespace AnalysisManager.Core.Models
             }
 
             return label.Replace(Constants.ReservedCharacters.AnnotationTableCellDelimiter, ' ').Trim();
+        }
+
+        public bool IsTableAnnotation()
+        {
+            return Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
         }
     }
 }

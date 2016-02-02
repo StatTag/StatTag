@@ -157,5 +157,13 @@ namespace Core.Tests.Models
             Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test |   "));
             Assert.AreEqual("Test one", Annotation.NormalizeOutputLabel("Test|one"));
         }
+
+        [TestMethod]
+        public void IsTableAnnotation()
+        {
+            Assert.IsTrue(new Annotation() { Type = Constants.AnnotationType.Table }.IsTableAnnotation());
+            Assert.IsFalse(new Annotation() { Type = Constants.AnnotationType.Value }.IsTableAnnotation());
+            Assert.IsFalse(new Annotation() { Type = string.Empty }.IsTableAnnotation());
+        }
     }
 }

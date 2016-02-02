@@ -41,11 +41,11 @@ namespace AnalysisManager.Core.Generator
                         Constants.AnnotationTags.ParamStart, figureGenerator.CreateParameters(annotation),
                         Constants.AnnotationTags.ParamEnd);
                 }
-                else if (annotation.Type.Equals(Constants.AnnotationType.Table))
+                else if (annotation.IsTableAnnotation())
                 {
                     var tableGenerator = new TableGenerator();
                     openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Table,
-                        Constants.AnnotationTags.ParamStart, tableGenerator.CreateParameters(annotation),
+                        Constants.AnnotationTags.ParamStart, CombineValueAndTableParameters(annotation),
                         Constants.AnnotationTags.ParamEnd);
                 }
                 else
@@ -55,6 +55,17 @@ namespace AnalysisManager.Core.Generator
             }
 
             return openBase;
+        }
+
+        public string CombineValueAndTableParameters(Annotation annotation)
+        {
+            var tableGenerator = new TableGenerator();
+            var valueGenerator = new ValueGenerator();
+            string tableParameters = tableGenerator.CreateParameters(annotation);
+            string valueParameters = valueGenerator.CreateValueParameters(annotation);
+            var temp = string.Join(", ", new[] {tableParameters, valueParameters});
+            temp = temp.Trim().Trim(new [] { ',' }).Trim();
+            return temp;
         }
     }
 }

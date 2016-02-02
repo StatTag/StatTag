@@ -206,6 +206,7 @@ namespace AnalysisManager.Core.Parser
             {
                 annotation.Type = Constants.AnnotationType.Table;
                 TableParser.Parse(annotationText, annotation);
+                ValueParser.Parse(annotationText, annotation);
             }
             else
             {

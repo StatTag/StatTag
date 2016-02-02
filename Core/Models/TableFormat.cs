@@ -11,6 +11,24 @@ namespace AnalysisManager.Core.Models
         public bool IncludeColumnNames { get; set; }
         public bool IncludeRowNames { get; set; }
 
+        /// <summary>
+        /// TODO: Make this more efficient, we shouldn't format the whole table every time
+        /// we need a cell
+        /// </summary>
+        /// <param name="tableData"></param>
+        /// <param name="cellIndex"></param>
+        /// <returns></returns>
+        public string FormatCell(Table tableData, int cellIndex)
+        {
+            var cells = Format(tableData);
+            if (cellIndex < 0 || cellIndex >= cells.Length)
+            {
+                return null;
+            }
+
+            return cells[cellIndex];
+        }
+
         // This is going to start out assuming left to right filling.  In the future
         // this will have different fill options.
         public string[] Format(Table tableData)
