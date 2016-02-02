@@ -131,7 +131,7 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="annotationLabel"></param>
         /// <returns></returns>
-        private Annotation FindAnnotation(string annotationLabel)
+        public Annotation FindAnnotation(string annotationLabel)
         {
             return Files.Select(codeFile => codeFile.Annotations.Find(x => x.OutputLabel.Equals(annotationLabel))).FirstOrDefault();
         }
@@ -141,7 +141,9 @@ namespace AnalysisManager.Models
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
         /// with whatever is set as the current cached value.</remarks>
-        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.  If not specified, all annotation fields will be updated</param>
+        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.
+        /// The reaason this is an Annotation and not a FieldAnnotation is that the function is only called after a change to the main annotation reference.
+        /// If not specified, all annotation fields will be updated</param>
         /// </summary>
         public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
         {
@@ -160,33 +162,35 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (IsAnalysisManagerField(field))
+                    if (!IsAnalysisManagerField(field))
                     {
-                        var annotation = GetFieldAnnotation(field);
-                        
-                        if (annotation != null)
-                        {
-                            // If we are asked to update an annotation, we are only going to update that
-                            // annotation specifically.  Otherwise, we will process all annotation fields.
-                            if (annotationUpdatePair != null)
-                            {
-                                if (!annotation.Equals(annotationUpdatePair.Old))
-                                {
-                                    continue;
-                                }
-
-                                annotation = annotationUpdatePair.New;
-                                UpdateAnnotationFieldData(field, annotation);
-                            }
-
-                            // Table fields need special handling, so we exlcude them from this update cycle.
-                            if (annotation.Type != Constants.AnnotationType.Table)
-                            {
-                                field.Select();
-                                InsertField(annotation);
-                            }
-                        }
+                        Marshal.ReleaseComObject(field);
+                        continue;
                     }
+
+                    var annotation = GetFieldAnnotation(field);
+                    if (annotation == null)
+                    {
+                        Marshal.ReleaseComObject(field);
+                        continue;
+                    }
+
+                    // If we are asked to update an annotation, we are only going to update that
+                    // annotation specifically.  Otherwise, we will process all annotation fields.
+                    if (annotationUpdatePair != null)
+                    {
+                        if (!annotation.Equals(annotationUpdatePair.Old))
+                        {
+                            continue;
+                        }
+
+                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation.TableCellIndex);
+                        UpdateAnnotationFieldData(field, annotation);
+                    }
+
+                    field.Select();
+                    InsertField(annotation);
+
                     Marshal.ReleaseComObject(field);
                 }
                 Marshal.ReleaseComObject(fields);
@@ -219,7 +223,7 @@ namespace AnalysisManager.Models
         {
             var cells = GetCells(selection);
             var table = annotation.CachedResult[0].TableResult;
-            var data = annotation.TableFormat.Format(table);
+            table.FormattedCells = annotation.TableFormat.Format(table);
 
             // TODO: Insert a new table if there is none selected.
             var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
@@ -229,7 +233,7 @@ namespace AnalysisManager.Models
                 return;
             }
 
-            if (data == null || data.Length == 0)
+            if (table.FormattedCells == null || table.FormattedCells.Length == 0)
             {
                 UIUtility.WarningMessageBox("There are no table results to insert.");
                 return;
@@ -243,18 +247,27 @@ namespace AnalysisManager.Models
             int index = 0;
             foreach (var cell in cells.OfType<Cell>())
             {
-                if (index >= data.Length)
+                if (index >= table.FormattedCells.Length)
                 {
                     break;
                 }
 
                 var range = cell.Range;
-                CreateAnnotationField(range, annotation.OutputLabel + "|" + index.ToString(), data[index], annotation);
+
+                // Make a copy of the annotation and set the cell index.  This will let us discriminate which cell an annotation
+                // value is related with, since we have multiple fields (and therefore multiple copies of the annotation) in the
+                // document.  Note that we are wiping out the cached value to just have the individual cell value present.
+                var innerAnnotation = new FieldAnnotation(annotation, index);
+                innerAnnotation.CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[index] } };
+                CreateAnnotationField(range,
+                    string.Format("{0}{1}{2}", annotation.OutputLabel, Constants.ReservedCharacters.AnnotationTableCellDelimiter, index),
+                    innerAnnotation.FormattedResult, innerAnnotation);
+                    //data[index], innerAnnotation);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
 
-            WarnOnMismatchedCellCount(cellsCount, data.Length);
+            WarnOnMismatchedCellCount(cellsCount, table.FormattedCells.Length);
 
             Marshal.ReleaseComObject(cells);
         }
@@ -281,13 +294,18 @@ namespace AnalysisManager.Models
             }
         }
 
+        public void InsertField(Annotation annotation)
+        {
+            InsertField(new FieldAnnotation(annotation));
+        }
+
         /// <summary>
         /// Given an annotation, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the annotation result is already refreshed.  It does not
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
         /// <param name="annotation"></param>
-        public void InsertField(Annotation annotation)
+        public void InsertField(FieldAnnotation annotation)
         {
             if (annotation == null)
             {
@@ -310,7 +328,9 @@ namespace AnalysisManager.Models
                     return;
                 }
 
-                if (annotation.Type == Constants.AnnotationType.Table)
+                // If the annotation is a table, and the cell index is not set, it means we are inserting the entire
+                // table into the document.  Otherwise, we are able to just insert a single table cell.
+                if (annotation.IsTableAnnotation() && !annotation.TableCellIndex.HasValue)
                 {
                     InsertTable(selection, annotation);
                 }
@@ -337,13 +357,17 @@ namespace AnalysisManager.Models
             }
         }
 
-        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
+        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
         {
             var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
                 MacroButtonName, displayValue, annotationIdentifier));
             var dataField = fields[0];
             dataField.Data = annotation.Serialize();
+        }
 
+        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
+        {
+            CreateAnnotationField(range, annotationIdentifier, displayValue, new FieldAnnotation(annotation));
         }
 
         /// <summary>
@@ -424,7 +448,7 @@ namespace AnalysisManager.Models
                         var annotation = GetFieldAnnotation(field);
                         if (annotation != null && annotation.Equals(annotations.Old))
                         {
-                            UpdateAnnotationFieldData(field, annotations.New);
+                            UpdateAnnotationFieldData(field, new FieldAnnotation(annotations.New));
                         }
                     }
                     Marshal.ReleaseComObject(field);
@@ -443,12 +467,11 @@ namespace AnalysisManager.Models
         /// <remarks>Assumes that the field parameter is known to be an annotation field</remarks>
         /// <param name="field">The field to update.  This is the outermost layer of the annotation field.</param>
         /// <param name="annotation">The annotation to be updated.</param>
-        private void UpdateAnnotationFieldData(Field field, Annotation annotation)
+        private void UpdateAnnotationFieldData(Field field, FieldAnnotation annotation)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
             nestedField.Data = annotation.Serialize();
-
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
         }
@@ -473,15 +496,20 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="field">The Word field object to investigate</param>
         /// <returns></returns>
-        public Annotation GetFieldAnnotation(Field field)
+        public FieldAnnotation GetFieldAnnotation(Field field)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
-            var fieldAnnotation = Annotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
+            var fieldAnnotation = FieldAnnotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
 
-            return FindAnnotation(fieldAnnotation);
+            var annotation = FindAnnotation(fieldAnnotation);
+
+            // The result of FindAnnotation is going to be a document-level annotation, not a
+            // cell specific one that exists as a field.  We need to re-set the cell index
+            // from the annotation we found, to ensure it's available for later use.
+            return new FieldAnnotation(annotation, fieldAnnotation.TableCellIndex);
         }
 
         /// <summary>
@@ -500,6 +528,7 @@ namespace AnalysisManager.Models
             {
                 // If the value format has changed, refresh the values in the document with the
                 // new formatting of the results.
+                // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));

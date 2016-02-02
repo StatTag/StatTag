@@ -160,6 +160,13 @@ namespace AnalysisManager
                         // If the results did change, we need to sweep the document and update all of the results
                         if (resultsChanged)
                         {
+                            // For all table annotations, update the formatted cells collection
+                            if (annotation.IsTableAnnotation())
+                            {
+                                annotation.CachedResult.FindAll(x => x.TableResult != null).ForEach(
+                                    x => x.TableResult.FormattedCells = annotation.TableFormat.Format(x.TableResult));
+                            }
+
                             result.UpdatedAnnotations.Add(annotation);
                         }
                     }
@@ -214,7 +221,6 @@ namespace AnalysisManager
                         refreshedFiles.Add(codeFile);
                     }
                 }
-
 
                 // Now we will refresh all of the annotations that are fields.  Since we most likely
                 // have more fields than annotations, we are going to use the approach of looping

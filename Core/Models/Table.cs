@@ -19,6 +19,7 @@ namespace AnalysisManager.Core.Models
         public int RowSize { get; set; }
         public int ColumnSize { get; set; }
         public double[] Data { get; set; }
+        public string[] FormattedCells { get; set; }
 
         public Table()
         {

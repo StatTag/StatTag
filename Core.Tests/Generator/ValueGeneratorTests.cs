@@ -33,16 +33,16 @@ namespace Core.Tests.Generator
         public void CreateNumericParameters_Default()
         {
             var generator = new ValueGenerator();
-            Assert.AreEqual("Decimals=0, Thousands=false", generator.CreateNumericParameters(new ValueFormat()));
+            Assert.AreEqual("Decimals=0, Thousands=False", generator.CreateNumericParameters(new ValueFormat()));
         }
 
         [TestMethod]
         public void CreateNumericParameters_Values()
         {
             var generator = new ValueGenerator();
-            Assert.AreEqual("Decimals=1, Thousands=false", generator.CreateNumericParameters(new ValueFormat() { DecimalPlaces = 1}));
-            Assert.AreEqual("Decimals=0, Thousands=true", generator.CreateNumericParameters(new ValueFormat() { UseThousands = true}));
-            Assert.AreEqual("Decimals=2, Thousands=true", generator.CreateNumericParameters(new ValueFormat() { DecimalPlaces = 2, UseThousands = true}));
+            Assert.AreEqual("Decimals=1, Thousands=False", generator.CreateNumericParameters(new ValueFormat() { DecimalPlaces = 1}));
+            Assert.AreEqual("Decimals=0, Thousands=True", generator.CreateNumericParameters(new ValueFormat() { UseThousands = true}));
+            Assert.AreEqual("Decimals=2, Thousands=True", generator.CreateNumericParameters(new ValueFormat() { DecimalPlaces = 2, UseThousands = true}));
         }
 
         [TestMethod]

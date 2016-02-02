@@ -57,6 +57,7 @@
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\ExecutionStep.cs" />
+    <Compile Include="Models\FieldAnnotation.cs" />
     <Compile Include="Models\FigureFormat.cs" />
     <Compile Include="Models\FileHandler.cs" />
     <Compile Include="Models\Table.cs" />

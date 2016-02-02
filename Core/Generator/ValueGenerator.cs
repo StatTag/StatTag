@@ -15,7 +15,14 @@ namespace AnalysisManager.Core.Generator
 
             builder.Append(GetLabelParameter(annotation));
             builder.Append(GetRunFrequencyParameter(annotation));
+            builder.Append(CreateValueParameters(annotation));
 
+            return CleanResult(builder.ToString());
+        }
+
+        public string CreateValueParameters(Annotation annotation)
+        {
+            var builder = new StringBuilder();
             if (annotation.ValueFormat == null)
             {
                 builder.Append(CreateDefaultParameters());
@@ -70,7 +77,7 @@ namespace AnalysisManager.Core.Generator
         {
             return string.Format("{0}={1}, {2}={3}",
                 Constants.ValueParameters.Decimals, format.DecimalPlaces,
-                Constants.ValueParameters.UseThousands, format.UseThousands.ToString().ToLower());
+                Constants.ValueParameters.UseThousands, format.UseThousands);
         }
 
         /// <summary>

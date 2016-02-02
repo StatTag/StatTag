@@ -138,6 +138,7 @@ namespace AnalysisManager
                     case Constants.AnnotationType.Table:
                         UpdateForTypeClick(cmdTable);
                         tableProperties.SetTableFormat(Annotation.TableFormat);
+                        tableProperties.SetValueFormat(Annotation.ValueFormat);
                         break;
                 }
             }
@@ -192,6 +193,7 @@ namespace AnalysisManager
                     break;
                 case Constants.AnnotationType.Table:
                     Annotation.TableFormat = tableProperties.GetTableFormat();
+                    Annotation.ValueFormat = tableProperties.GetValueFormat();
                     break;
                 default:
                     throw new NotSupportedException("This annotation type is not yet supported");

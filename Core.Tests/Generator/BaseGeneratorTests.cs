@@ -63,10 +63,28 @@ namespace Core.Tests.Generator
             {
                 Type = Constants.AnnotationType.Table
             };
-            Assert.AreEqual("**>>>AM:Table()", generator.CreateOpenTag(annotation));
+            Assert.AreEqual("**>>>AM:Table(Type=\"Default\")", generator.CreateOpenTag(annotation));
 
             annotation.TableFormat = new TableFormat();
-            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False)", generator.CreateOpenTag(annotation));
+            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(annotation));
+        }
+
+        [TestMethod]
+        public void CombineValueAndTableParameters()
+        {
+            var generator = new StubGenerator();
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                ValueFormat = new ValueFormat(),
+                TableFormat = new TableFormat()
+            };
+
+            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Default\"", generator.CombineValueAndTableParameters(annotation));
+
+            annotation.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
+            annotation.ValueFormat.DecimalPlaces = 2;
+            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Numeric\", Decimals=2, Thousands=False", generator.CombineValueAndTableParameters(annotation));
         }
     }
 }
