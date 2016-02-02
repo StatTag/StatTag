@@ -41,8 +41,7 @@ namespace AnalysisManager.Core.Models
                 // that if our formatter is available.
                 var lastValue = CachedResult.Last();
                 string formattedValue = lastValue.ToString();
-                if (!string.IsNullOrWhiteSpace(Type)
-                    && Type.Equals(Constants.AnnotationType.Value) && ValueFormat != null)
+                if (!string.IsNullOrWhiteSpace(Type) && ValueFormat != null)
                 {
                     formattedValue = ValueFormat.Format(lastValue.ToString());
                 }
@@ -51,26 +50,26 @@ namespace AnalysisManager.Core.Models
             }
         }
 
-        public string FormattedCell(int index)
-        {
-            if (CachedResult == null || CachedResult.Count == 0)
-            {
-                return Constants.Placeholders.EmptyField;
-            }
+        //public string FormattedCell(int index)
+        //{
+        //    if (CachedResult == null || CachedResult.Count == 0)
+        //    {
+        //        return Constants.Placeholders.EmptyField;
+        //    }
 
-            // When formatting a value, it is possible the user has selected multiple 
-            // display commands.  We will only return the last cached result, and format
-            // that if our formatter is available.
-            var lastValue = CachedResult.Last();
-            if (IsTableAnnotation() && TableFormat != null
-                && lastValue != null && lastValue.TableResult != null)
-            {
-                var formattedValue = TableFormat.FormatCell(lastValue.TableResult, index);
-                return formattedValue;
-            }
+        //    // When formatting a value, it is possible the user has selected multiple 
+        //    // display commands.  We will only return the last cached result, and format
+        //    // that if our formatter is available.
+        //    var lastValue = CachedResult.Last();
+        //    if (IsTableAnnotation() && TableFormat != null
+        //        && lastValue != null && lastValue.TableResult != null)
+        //    {
+        //        var formattedValue = TableFormat.FormatCell(lastValue.TableResult, index);
+        //        return formattedValue;
+        //    }
 
-            return Constants.Placeholders.EmptyField;
-        }
+        //    return Constants.Placeholders.EmptyField;
+        //}
 
         /// <summary>
         /// The starting line is the 0-based line index where the opening

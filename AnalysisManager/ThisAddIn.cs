@@ -69,7 +69,8 @@ namespace AnalysisManager
                 var field = selection.Fields[1];
                 if (Manager.IsAnalysisManagerField(field))
                 {
-                    var annotation = Manager.GetFieldAnnotation(field);
+                    var fieldAnnotation = Manager.GetFieldAnnotation(field);
+                    var annotation = Manager.FindAnnotation(fieldAnnotation);
                     Manager.EditAnnotation(annotation);
                 }
                 Marshal.ReleaseComObject(field);

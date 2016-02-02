@@ -36,6 +36,7 @@ namespace AnalysisManager.Core.Models
             : base(annotation)
         {
             TableCellIndex = tableCellIndex;
+            SetCachedValue();
         }
 
         public FieldAnnotation(FieldAnnotation annotation)
@@ -64,6 +65,24 @@ namespace AnalysisManager.Core.Models
             var annotation = JsonConvert.DeserializeObject<FieldAnnotation>(json);
             annotation.OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
             return annotation;
+        }
+
+        /// <summary>
+        /// Utility function called when a FieldAnnotation is created from an existing annotation and
+        /// a cell index (meaning it's a table annotation).  We want to update this annotation to
+        /// only carry the specific cell value.
+        /// </summary>
+        protected void SetCachedValue()
+        {
+            if (IsTableAnnotation() && TableCellIndex.HasValue
+                && CachedResult != null && CachedResult.Count > 0)
+            {
+                var table = CachedResult.Last().TableResult;
+                if (table != null && table.FormattedCells != null)
+                {
+                    CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[TableCellIndex.Value] } };
+                }
+            }
         }
     }
 }

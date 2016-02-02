@@ -49,6 +49,39 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Constructor_AnnotationWithIndex_TableCell()
+        {
+            var annotation = new Annotation()
+            {
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Table,
+                CachedResult = new List<CommandResult>()
+                {
+                    new CommandResult()
+                    {
+                        TableResult = new Table()
+                        {
+                            ColumnNames = new List<string>() { "c1", "c2" },
+                            RowNames = new List<string>() { "r1", "r2" },
+                            ColumnSize = 2,
+                            RowSize = 2,
+                            Data = new []{ 1.0, 2.0, 3.0, 4.0 },
+                            FormattedCells = new []{ "1.0", "2.0", "3.0", "4.0" }
+                        }
+                    }
+                }
+            };
+
+            var fieldAnnotation = new FieldAnnotation(annotation, 0);
+            Assert.AreEqual(0, fieldAnnotation.TableCellIndex);
+            Assert.AreEqual("1.0", fieldAnnotation.FormattedResult);
+
+            fieldAnnotation = new FieldAnnotation(annotation, 2);
+            Assert.AreEqual(2, fieldAnnotation.TableCellIndex);
+            Assert.AreEqual("3.0", fieldAnnotation.FormattedResult);
+        }
+
+        [TestMethod]
         public void Constructor_Copy()
         {
             var annotation = new FieldAnnotation()
