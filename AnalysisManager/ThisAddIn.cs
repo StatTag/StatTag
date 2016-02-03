@@ -28,6 +28,17 @@ namespace AnalysisManager
             LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
             LogManager.WriteMessage("Startup completed");
             Manager.Logger = LogManager;
+
+            var document = Application.ActiveDocument;
+            if (document == null)
+            {
+                LogManager.WriteMessage("Active document not accessible");
+            }
+            else
+            {
+                LogManager.WriteMessage("Active document is " + document.Name);
+                Application_DocumentOpen(document);
+            }
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
