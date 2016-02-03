@@ -10,15 +10,17 @@ using System.Windows.Forms;
 
 namespace AnalysisManager
 {
-    public partial class Settings : Form
+    public sealed partial class Settings : Form
     {
         private const string ExecutableFileFilter = "Application Executable|*.exe";
+        private const string LogFileFilter = "Log File|*.log";
 
         public Models.Properties Properties { get; set; }
 
         public Settings(Models.Properties properties)
         {
             Properties = properties;
+            MinimumSize = Size;
             InitializeComponent();
         }
 
@@ -46,7 +48,14 @@ namespace AnalysisManager
         private void Settings_Load(object sender, EventArgs e)
         {
             txtStataLocation.Text = Properties.StataLocation;
+            chkEnableLogging.Checked = Properties.EnableLogging;
+            txtLogLocation.Text = Properties.LogLocation;
+            
+            UpdateLoggingControls();
             UpdateStataControls();
+
+            lblVersion.Text = UIUtility.GetVersionLabel();
+            lblCopyright.Text = UIUtility.GetCopyright();
         }
 
         private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
@@ -116,6 +125,28 @@ namespace AnalysisManager
         private void cmdOK_Click(object sender, EventArgs e)
         {
             Properties.StataLocation = txtStataLocation.Text;
+            Properties.EnableLogging = chkEnableLogging.Checked;
+            Properties.LogLocation = txtLogLocation.Text;
+        }
+
+        private void chkEnableLogging_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateLoggingControls();
+        }
+
+        private void UpdateLoggingControls()
+        {
+            cmdLogLocation.Enabled = chkEnableLogging.Checked;
+            txtLogLocation.Enabled = chkEnableLogging.Checked;
+        }
+
+        private void cmdLogLocation_Click(object sender, EventArgs e)
+        {
+            var logPath = UIUtility.GetFileName(LogFileFilter, false);
+            if (!string.IsNullOrWhiteSpace(logPath))
+            {
+                txtLogLocation.Text = logPath;
+            }
         }
     }
 }

@@ -12,8 +12,14 @@ namespace AnalysisManager.Core.Parser
     {
         public const string StringValueMatch = ".*?";
         public const string IntValueMatch = "\\d+";
-        public const string BoolValueMatch = "true|false";
+        public const string BoolValueMatch = "true|false|True|False";
         protected static Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
+
+        public static void Parse(string annotationText, Annotation annotation)
+        {
+            annotation.OutputLabel = Annotation.NormalizeOutputLabel(GetStringParameter(Constants.AnnotationParameters.Label, annotationText));
+            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
+        }
 
         /// <summary>
         /// Build the regex to identify and extract a parameter from an annotation string.

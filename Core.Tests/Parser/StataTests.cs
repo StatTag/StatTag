@@ -49,6 +49,20 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void IsTableResult()
+        {
+            var parser = new Stata();
+            Assert.IsFalse(parser.IsTableResult("matri lis"));
+            Assert.IsTrue(parser.IsTableResult("matrix list"));
+            Assert.IsTrue(parser.IsTableResult("  matrix   list "));
+            Assert.IsFalse(parser.IsTableResult("matrix listed"));
+            Assert.IsFalse(parser.IsTableResult("amatrix list"));
+            Assert.IsFalse(parser.IsTableResult("a matrix list"));
+            Assert.IsTrue(parser.IsTableResult("matrix list value"));
+            Assert.IsTrue(parser.IsTableResult("mat l value"));  // Handle abbreviated command
+        }
+
+        [TestMethod]
         public void GetImageSaveLocation()
         {
             var parser = new Stata();
@@ -81,6 +95,18 @@ namespace Core.Tests.Parser
             var parser = new Stata();
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'"));
             Assert.AreEqual("test", parser.GetMacroValueName("display test"));   // This isn't a proper Stata macro value, but is the expected return
+        }
+
+        [TestMethod]
+        public void GetTableName()
+        {
+            var parser = new Stata();
+            Assert.AreEqual("test_matrix", parser.GetTableName("matrix list test_matrix"));
+            Assert.AreEqual("test_matrix", parser.GetTableName("   matrix   list    test_matrix  "));
+            Assert.AreEqual("test", parser.GetTableName("   matrix   list    test  value  "));
+            Assert.AreEqual(string.Empty, parser.GetTableName("amatrix list test"));
+            Assert.AreEqual("test", parser.GetTableName("mat list test"));
+            Assert.AreEqual("test", parser.GetTableName("mat l test"));
         }
     }
 }

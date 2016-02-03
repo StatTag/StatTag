@@ -3743,7 +3743,7 @@
 	<table name="ISSwidtagProperty">
 		<col key="yes" def="s72">Name</col>
 		<col def="s0">Value</col>
-		<row><td>UniqueId</td><td>E0A33C13-3E6B-401B-BCC2-058A79DCA7EC</td></row>
+		<row><td>UniqueId</td><td>0B5D2C3B-19F2-43B5-9ED5-517DE0052654</td></row>
 	</table>
 
 	<table name="ISTargetImage">
@@ -4358,7 +4358,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{01503F12-2DB6-4081-8529-CC95F25100B8}</td><td/></row>
 		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.4.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.5.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

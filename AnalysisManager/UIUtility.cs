@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
@@ -37,9 +38,19 @@ namespace AnalysisManager
             return removeList.Select(x => x.Tag);
         }
 
-        public static string GetFileName(string filter)
+        public static FileDialog FileDialogFactory(bool isOpenFile)
         {
-            FileDialog openFile = new OpenFileDialog();
+            if (isOpenFile)
+            {
+                return new OpenFileDialog();
+            }
+
+            return new SaveFileDialog();
+        }
+
+        public static string GetFileName(string filter, bool isOpenFile = true)
+        {
+            FileDialog openFile = FileDialogFactory(isOpenFile);
             openFile.Filter = filter;
             if (DialogResult.OK == openFile.ShowDialog())
             {
@@ -52,6 +63,47 @@ namespace AnalysisManager
         public static string GetAddInName()
         {
             return "Analysis Manager";
+        }
+
+        public static string GetVersionLabel()
+        {
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Revision);
+        }
+
+        public static void WarningMessageBox(string text)
+        {
+            MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        public static string GetCopyright()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+            var copyright = GetAssemblyCustomAttribute(assembly, typeof(System.Reflection.AssemblyCopyrightAttribute));
+            var company = GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyCompanyAttribute));
+            return string.Format("{0} {1}", copyright, company);
+        }
+
+        private static string GetAssemblyCustomAttribute(System.Reflection.Assembly assembly, Type attributeType)
+        {
+            var attribute = assembly.CustomAttributes.FirstOrDefault(
+                x => x.AttributeType == attributeType);
+            if (attribute == null)
+            {
+                return string.Empty;
+            }
+
+            return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
+        }
+
+        public static void SetCachedAnnotation(List<Annotation> existingAnnotations, Annotation annotation)
+        {
+            var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+            if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+            {
+                annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
+            }
         }
     }
 }

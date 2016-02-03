@@ -1,6 +1,6 @@
 ﻿namespace AnalysisManager.Core.Models
 {
-    public class Constants
+    public static class Constants
     {
         public static class StatisticalPackages
         {
@@ -76,6 +76,16 @@
             public const string Backup = "am-bak";
         }
 
+        public static class Placeholders
+        {
+            public const string EmptyField = "[NO RESULT]";
+        }
+
+        public static class ReservedCharacters
+        {
+            public const char AnnotationTableCellDelimiter = '|';
+        }
+
         /// <summary>
         /// A list of parameter names that are available across all types of
         /// annotations.
@@ -93,6 +103,18 @@
             public const string UseThousands = "Thousands";
             public const string DateFormat = "DateFormat";
             public const string TimeFormat = "TimeFormat";
+        }
+
+        public static class TableParameters
+        {
+            public const string ColumnNames = "ColumnNames";
+            public const string RowNames = "RowNames";
+        }
+
+        public static class TableParameterDefaults
+        {
+            public const bool ColumnNames = false;
+            public const bool RowNames = false;
         }
 
         public static class CodeFileComment

@@ -38,13 +38,14 @@
             this.txtOutputLabel = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.pnlType = new System.Windows.Forms.Panel();
+            this.tableProperties = new AnalysisManager.Controls.TableProperties();
+            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
+            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.cmdValue = new System.Windows.Forms.Button();
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.lstCode = new System.Windows.Forms.ListBox();
-            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
-            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +54,7 @@
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(377, 520);
+            this.cmdCancel.Location = new System.Drawing.Point(377, 528);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 25);
@@ -66,7 +67,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(143, 520);
+            this.cmdOK.Location = new System.Drawing.Point(143, 528);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(75, 25);
@@ -126,11 +127,13 @@
             this.txtOutputLabel.Name = "txtOutputLabel";
             this.txtOutputLabel.Size = new System.Drawing.Size(379, 25);
             this.txtOutputLabel.TabIndex = 15;
+            this.txtOutputLabel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOutputLabel_KeyPress);
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(16, 332);
+            this.label5.Location = new System.Drawing.Point(13, 370);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(355, 17);
             this.label5.TabIndex = 16;
@@ -138,21 +141,54 @@
             // 
             // pnlType
             // 
+            this.pnlType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlType.Controls.Add(this.tableProperties);
             this.pnlType.Controls.Add(this.figureProperties);
             this.pnlType.Controls.Add(this.valueProperties);
-            this.pnlType.Location = new System.Drawing.Point(98, 353);
+            this.pnlType.Location = new System.Drawing.Point(95, 391);
             this.pnlType.Name = "pnlType";
             this.pnlType.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.pnlType.Size = new System.Drawing.Size(484, 160);
+            this.pnlType.Size = new System.Drawing.Size(484, 125);
             this.pnlType.TabIndex = 17;
+            // 
+            // tableProperties
+            // 
+            this.tableProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableProperties.Location = new System.Drawing.Point(5, 0);
+            this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.tableProperties.Name = "tableProperties";
+            this.tableProperties.Size = new System.Drawing.Size(477, 123);
+            this.tableProperties.TabIndex = 2;
+            // 
+            // figureProperties
+            // 
+            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.figureProperties.Location = new System.Drawing.Point(5, 0);
+            this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.figureProperties.Name = "figureProperties";
+            this.figureProperties.Size = new System.Drawing.Size(477, 123);
+            this.figureProperties.TabIndex = 1;
+            // 
+            // valueProperties
+            // 
+            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.valueProperties.Location = new System.Drawing.Point(5, 0);
+            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.valueProperties.Name = "valueProperties";
+            this.valueProperties.Size = new System.Drawing.Size(477, 123);
+            this.valueProperties.TabIndex = 0;
             // 
             // cmdValue
             // 
+            this.cmdValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdValue.BackColor = System.Drawing.Color.White;
             this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdValue.Location = new System.Drawing.Point(16, 353);
+            this.cmdValue.Location = new System.Drawing.Point(13, 391);
             this.cmdValue.Name = "cmdValue";
             this.cmdValue.Size = new System.Drawing.Size(83, 30);
             this.cmdValue.TabIndex = 18;
@@ -162,8 +198,9 @@
             // 
             // cmdFigure
             // 
+            this.cmdFigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdFigure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdFigure.Location = new System.Drawing.Point(24, 382);
+            this.cmdFigure.Location = new System.Drawing.Point(21, 420);
             this.cmdFigure.Name = "cmdFigure";
             this.cmdFigure.Size = new System.Drawing.Size(75, 30);
             this.cmdFigure.TabIndex = 19;
@@ -173,8 +210,9 @@
             // 
             // cmdTable
             // 
+            this.cmdTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdTable.Location = new System.Drawing.Point(24, 411);
+            this.cmdTable.Location = new System.Drawing.Point(21, 449);
             this.cmdTable.Name = "cmdTable";
             this.cmdTable.Size = new System.Drawing.Size(75, 30);
             this.cmdTable.TabIndex = 20;
@@ -203,27 +241,8 @@
             this.lstCode.Location = new System.Drawing.Point(16, 126);
             this.lstCode.Name = "lstCode";
             this.lstCode.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstCode.Size = new System.Drawing.Size(566, 191);
+            this.lstCode.Size = new System.Drawing.Size(566, 225);
             this.lstCode.TabIndex = 22;
-            // 
-            // figureProperties
-            // 
-            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.figureProperties.Location = new System.Drawing.Point(5, 0);
-            this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(477, 158);
-            this.figureProperties.TabIndex = 1;
-            // 
-            // valueProperties
-            // 
-            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(5, 0);
-            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(477, 158);
-            this.valueProperties.TabIndex = 0;
             // 
             // EditAnnotation
             // 
@@ -231,7 +250,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(594, 558);
+            this.ClientSize = new System.Drawing.Size(594, 566);
             this.Controls.Add(this.lstCode);
             this.Controls.Add(this.pnlType);
             this.Controls.Add(this.cboCodeFiles);
@@ -279,5 +298,6 @@
         private Controls.ValueProperties valueProperties;
         private System.Windows.Forms.ListBox lstCode;
         private Controls.FigureProperties figureProperties;
+        private Controls.TableProperties tableProperties;
     }
 }

@@ -58,6 +58,7 @@ namespace AnalysisManager
             {
                 valueProperties.Visible = true;
                 figureProperties.Visible = false;
+                tableProperties.Visible = false;
                 UnselectTypeButton(cmdFigure);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Value;
@@ -66,6 +67,7 @@ namespace AnalysisManager
             {
                 valueProperties.Visible = false;
                 figureProperties.Visible = true;
+                tableProperties.Visible = false;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdTable);
                 AnnotationType = Constants.AnnotationType.Figure;
@@ -73,7 +75,8 @@ namespace AnalysisManager
             else if (button == cmdTable)
             {
                 valueProperties.Visible = false;
-                figureProperties.Visible = true;
+                figureProperties.Visible = false;
+                tableProperties.Visible = true;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdFigure);
                 AnnotationType = Constants.AnnotationType.Table;
@@ -93,6 +96,8 @@ namespace AnalysisManager
 
         private void ManageAnnotation_Load(object sender, EventArgs e)
         {
+            OverrideCenterToScreen();
+
             UpdateForTypeClick(cmdValue);
 
             cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
@@ -119,7 +124,7 @@ namespace AnalysisManager
                     for (int index = startIndex; index <= endIndex; index++)
                     {
                         lstCode.SelectedIndices.Add(index);
-                    }                    
+                    }
                 }
 
                 switch (AnnotationType)
@@ -131,6 +136,11 @@ namespace AnalysisManager
                     case Constants.AnnotationType.Figure:
                         UpdateForTypeClick(cmdFigure);
                         figureProperties.SetFigureFormat(Annotation.FigureFormat);
+                        break;
+                    case Constants.AnnotationType.Table:
+                        UpdateForTypeClick(cmdTable);
+                        tableProperties.SetTableFormat(Annotation.TableFormat);
+                        tableProperties.SetValueFormat(Annotation.ValueFormat);
                         break;
                 }
             }
@@ -155,7 +165,7 @@ namespace AnalysisManager
             }
 
             Annotation.Type = AnnotationType;
-            Annotation.OutputLabel = txtOutputLabel.Text;
+            Annotation.OutputLabel = Annotation.NormalizeOutputLabel(txtOutputLabel.Text);
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
             Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
             var selectedIndices = lstCode.SelectedIndices.OfType<int>().ToArray();
@@ -183,6 +193,10 @@ namespace AnalysisManager
                 case Constants.AnnotationType.Figure:
                     Annotation.FigureFormat = figureProperties.GetFigureFormat();
                     break;
+                case Constants.AnnotationType.Table:
+                    Annotation.TableFormat = tableProperties.GetTableFormat();
+                    Annotation.ValueFormat = tableProperties.GetValueFormat();
+                    break;
                 default:
                     throw new NotSupportedException("This annotation type is not yet supported");
             }
@@ -200,6 +214,33 @@ namespace AnalysisManager
             {
                 lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.Content.ToArray()));
             }
+        }
+
+        private void txtOutputLabel_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Ignore reserved characters
+            if (e.KeyChar == Constants.ReservedCharacters.AnnotationTableCellDelimiter)
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Given that we are invoking this dialog from another thread in some instances, we have workarounds
+        /// for how the dialog is displayed.  That includes using this method to center the dialog in the
+        /// parent, as it does not center otherwise.
+        /// <remarks>From: http://stackoverflow.com/questions/6837463/how-come-centertoscreen-method-centers-the-form-on-the-screen-where-the-cursor-i/6837499#6837499</remarks>
+        /// </summary>
+        private void OverrideCenterToScreen()
+        {
+            Screen screen = Screen.FromControl(this);
+
+            Rectangle workingArea = screen.WorkingArea;
+            this.Location = new Point()
+            {
+                X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
+                Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
+            };
         }
     }
 }

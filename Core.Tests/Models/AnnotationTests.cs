@@ -82,23 +82,33 @@ namespace Core.Tests.Models
         public void FormattedResult_Empty()
         {
             var annotation = new Annotation();
-            Assert.AreEqual(string.Empty, annotation.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>() };
-            Assert.AreEqual(string.Empty, annotation.FormattedResult);
+            annotation = new Annotation() { CachedResult = new List<CommandResult>() };
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
         [TestMethod]
         public void FormattedResult_Values()
         {
-            var annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1" }) };
+            var annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             Assert.AreEqual("Test 1", annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>(new[] { "Test 1", "Test 2" }) };
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" }, new CommandResult() { ValueResult = "Test 2" } }) };
             Assert.AreEqual("Test 2", annotation.FormattedResult);
 
-            annotation = new Annotation() { CachedResult = new List<string>(new[] { "1234", "456789" }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] {  new CommandResult() { ValueResult = "1234" },  new CommandResult() { ValueResult = "456789" } }), Type = Constants.AnnotationType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
             Assert.AreEqual("456,789", annotation.FormattedResult);
+        }
+
+        [TestMethod]
+        public void FormattedResult_ValuesBlank()
+        {
+            var annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "" } }) };
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
+
+            annotation = new Annotation() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "    " }, new CommandResult() { ValueResult = "         " } }) };
+            Assert.AreEqual(Constants.Placeholders.EmptyField, annotation.FormattedResult);
         }
 
         [TestMethod]
@@ -115,7 +125,7 @@ namespace Core.Tests.Models
         [TestMethod]
         public void Serialize_Deserialize()
         {
-            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<string>(new[] { "Test 1" }) };
+            var annotation = new Annotation() { Type = Constants.AnnotationType.Value, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             var serialized = annotation.Serialize();
             var recreatedAnnotation = Annotation.Deserialize(serialized);
             Assert.AreEqual(annotation.CodeFile, recreatedAnnotation.CodeFile);
@@ -127,6 +137,35 @@ namespace Core.Tests.Models
             Assert.AreEqual(annotation.RunFrequency, recreatedAnnotation.RunFrequency);
             Assert.AreEqual(annotation.Type, recreatedAnnotation.Type);
             Assert.AreEqual(annotation.ValueFormat, recreatedAnnotation.ValueFormat);
+            Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
+            Assert.AreEqual(annotation.TableFormat, recreatedAnnotation.TableFormat);
+        }
+
+        [TestMethod]
+        public void NormalizeOutputLabel_Blanks()
+        {
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel(null));
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel(string.Empty));
+            Assert.AreEqual(string.Empty, Annotation.NormalizeOutputLabel("   "));
+        }
+
+        [TestMethod]
+        public void NormalizeOutputLabel_Values()
+        {
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("|Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("   |   Test"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test|"));
+            Assert.AreEqual("Test", Annotation.NormalizeOutputLabel("Test |   "));
+            Assert.AreEqual("Test one", Annotation.NormalizeOutputLabel("Test|one"));
+        }
+
+        [TestMethod]
+        public void IsTableAnnotation()
+        {
+            Assert.IsTrue(new Annotation() { Type = Constants.AnnotationType.Table }.IsTableAnnotation());
+            Assert.IsFalse(new Annotation() { Type = Constants.AnnotationType.Value }.IsTableAnnotation());
+            Assert.IsFalse(new Annotation() { Type = string.Empty }.IsTableAnnotation());
         }
     }
 }
