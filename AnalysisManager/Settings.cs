@@ -47,6 +47,7 @@ namespace AnalysisManager
         {
             txtStataLocation.Text = Properties.StataLocation;
             UpdateStataControls();
+            lblVersion.Text = UIUtility.GetVersionLabel();
         }
 
         private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)

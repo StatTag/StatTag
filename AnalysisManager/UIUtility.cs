@@ -54,6 +54,12 @@ namespace AnalysisManager
             return "Analysis Manager";
         }
 
+        public static string GetVersionLabel()
+        {
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Revision);
+        }
+
         public static void WarningMessageBox(string text)
         {
             MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
