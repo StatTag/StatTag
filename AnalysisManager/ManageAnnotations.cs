@@ -91,11 +91,12 @@ namespace AnalysisManager
                 {
                     // Since we are reloading from a file, at this point if we had any cached results for
                     // an annotation we want to associate that back with the annotation.
-                    var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
-                    if (existingAnnotation != null && existingAnnotation.CachedResult != null)
-                    {
-                        annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
-                    }
+                    UIUtility.SetCachedAnnotation(existingAnnotations, annotation);
+                    //var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+                    //if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+                    //{
+                    //    annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
+                    //}
 
                     AddRow(annotation);
                 }

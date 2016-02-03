@@ -1,8 +1,10 @@
-﻿using AnalysisManager.Core;
+﻿using System.Linq;
+using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -14,11 +16,13 @@ namespace AnalysisManager
         private const int FileEditColumn = 3;
         private const int DetailsColumn = 4;
 
-        public List<CodeFile> Files { get; set; } 
+        public List<CodeFile> Files { get; set; }
+        public DocumentManager Manager { get; set; }
 
-        public LoadAnalysisCode(List<CodeFile> files = null)
+        public LoadAnalysisCode(DocumentManager manager, List<CodeFile> files = null)
         {
             InitializeComponent();
+            Manager = manager;
             Files = files;
             MinimumSize = Size;
         }
@@ -41,19 +45,23 @@ namespace AnalysisManager
             if (!string.IsNullOrWhiteSpace(fileName))
             {
                 string package = CodeFile.GuessStatisticalPackage(fileName);
-                AddItem(new CodeFile { FilePath = fileName, StatisticalPackage = package});
+                AddItem(new CodeFile {FilePath = fileName, StatisticalPackage = package});
             }
         }
 
-        private void AddItem(CodeFile file)
+        private CodeFile AddItem(CodeFile file)
         {
             int index = dgvItems.Rows.Add(new object[] { false, file.StatisticalPackage, file.FilePath, Constants.DialogLabels.Elipsis, Constants.DialogLabels.Details });
             dgvItems.Rows[index].Tag = file;
+            return file;
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
             dgvItems.CurrentCell = null;
+
+            // Save off the values that may already be cached for an annotation.
+            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
 
             var files = new List<CodeFile>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)
@@ -65,6 +73,12 @@ namespace AnalysisManager
                     StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
                 };
                 file.LoadAnnotationsFromContent();
+                foreach (var annotation in file.Annotations)
+                {
+                    // Since we are reloading from a file, at this point if we had any cached results for
+                    // an annotation we want to associate that back with the annotation.
+                    UIUtility.SetCachedAnnotation(existingAnnotations, annotation);
+                }
                 files.Add(file);
                 file.SaveBackup();
             }
