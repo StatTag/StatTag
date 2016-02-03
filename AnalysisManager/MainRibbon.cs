@@ -23,7 +23,12 @@ namespace AnalysisManager
 
         public PropertiesManager PropertiesManager
         {
-            get { return Globals.ThisAddIn.PropertiesManager;  }
+            get { return Globals.ThisAddIn.PropertiesManager; }
+        }
+
+        public LogManager LogManager
+        {
+            get { return Globals.ThisAddIn.LogManager; }
         }
 
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
@@ -190,6 +195,7 @@ namespace AnalysisManager
             {
                 PropertiesManager.Properties = dialog.Properties;
                 PropertiesManager.Save();
+                LogManager.UpdateSettings(dialog.Properties);
             }
         }
 

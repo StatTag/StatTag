@@ -39,8 +39,13 @@
             this.lblVersion = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblCopyright = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.cmdLogLocation = new System.Windows.Forms.Button();
+            this.txtLogLocation = new System.Windows.Forms.TextBox();
+            this.chkEnableLogging = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -48,7 +53,7 @@
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(262, 228);
+            this.cmdCancel.Location = new System.Drawing.Point(262, 319);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
@@ -61,7 +66,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(112, 228);
+            this.cmdOK.Location = new System.Drawing.Point(112, 319);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
@@ -81,12 +86,14 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.cmdDisableStataAutomation);
             this.groupBox2.Controls.Add(this.cmdRegisterStataAutomation);
             this.groupBox2.Controls.Add(this.cmdStataLocation);
             this.groupBox2.Controls.Add(this.txtStataLocation);
             this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Location = new System.Drawing.Point(13, 84);
+            this.groupBox2.Location = new System.Drawing.Point(13, 178);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(441, 113);
             this.groupBox2.TabIndex = 12;
@@ -95,6 +102,7 @@
             // 
             // cmdDisableStataAutomation
             // 
+            this.cmdDisableStataAutomation.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdDisableStataAutomation.Location = new System.Drawing.Point(230, 76);
             this.cmdDisableStataAutomation.Name = "cmdDisableStataAutomation";
             this.cmdDisableStataAutomation.Size = new System.Drawing.Size(174, 27);
@@ -105,6 +113,7 @@
             // 
             // cmdRegisterStataAutomation
             // 
+            this.cmdRegisterStataAutomation.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdRegisterStataAutomation.Location = new System.Drawing.Point(37, 76);
             this.cmdRegisterStataAutomation.Name = "cmdRegisterStataAutomation";
             this.cmdRegisterStataAutomation.Size = new System.Drawing.Size(174, 27);
@@ -115,6 +124,7 @@
             // 
             // cmdStataLocation
             // 
+            this.cmdStataLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdStataLocation.Location = new System.Drawing.Point(407, 42);
             this.cmdStataLocation.Name = "cmdStataLocation";
             this.cmdStataLocation.Size = new System.Drawing.Size(28, 23);
@@ -125,6 +135,8 @@
             // 
             // txtStataLocation
             // 
+            this.txtStataLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtStataLocation.Location = new System.Drawing.Point(9, 42);
             this.txtStataLocation.Name = "txtStataLocation";
             this.txtStataLocation.Size = new System.Drawing.Size(395, 25);
@@ -161,13 +173,61 @@
             this.lblCopyright.TabIndex = 14;
             this.lblCopyright.Text = "(c) 2016";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.chkEnableLogging);
+            this.groupBox3.Controls.Add(this.cmdLogLocation);
+            this.groupBox3.Controls.Add(this.txtLogLocation);
+            this.groupBox3.Location = new System.Drawing.Point(13, 85);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(440, 87);
+            this.groupBox3.TabIndex = 15;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "General";
+            // 
+            // cmdLogLocation
+            // 
+            this.cmdLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdLogLocation.Enabled = false;
+            this.cmdLogLocation.Location = new System.Drawing.Point(407, 46);
+            this.cmdLogLocation.Name = "cmdLogLocation";
+            this.cmdLogLocation.Size = new System.Drawing.Size(28, 23);
+            this.cmdLogLocation.TabIndex = 14;
+            this.cmdLogLocation.Text = "...";
+            this.cmdLogLocation.UseVisualStyleBackColor = true;
+            this.cmdLogLocation.Click += new System.EventHandler(this.cmdLogLocation_Click);
+            // 
+            // txtLogLocation
+            // 
+            this.txtLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtLogLocation.Enabled = false;
+            this.txtLogLocation.Location = new System.Drawing.Point(27, 46);
+            this.txtLogLocation.Name = "txtLogLocation";
+            this.txtLogLocation.Size = new System.Drawing.Size(377, 25);
+            this.txtLogLocation.TabIndex = 13;
+            // 
+            // chkEnableLogging
+            // 
+            this.chkEnableLogging.AutoSize = true;
+            this.chkEnableLogging.Location = new System.Drawing.Point(9, 23);
+            this.chkEnableLogging.Name = "chkEnableLogging";
+            this.chkEnableLogging.Size = new System.Drawing.Size(156, 21);
+            this.chkEnableLogging.TabIndex = 15;
+            this.chkEnableLogging.Text = "Enable the debug log:";
+            this.chkEnableLogging.UseVisualStyleBackColor = true;
+            this.chkEnableLogging.CheckedChanged += new System.EventHandler(this.chkEnableLogging_CheckedChanged);
+            // 
             // Settings
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(465, 266);
+            this.ClientSize = new System.Drawing.Size(465, 357);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.cmdCancel);
@@ -183,6 +243,8 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -200,5 +262,9 @@
         private System.Windows.Forms.Label lblVersion;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label lblCopyright;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox chkEnableLogging;
+        private System.Windows.Forms.Button cmdLogLocation;
+        private System.Windows.Forms.TextBox txtLogLocation;
     }
 }

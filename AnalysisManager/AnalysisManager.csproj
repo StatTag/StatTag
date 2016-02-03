@@ -242,6 +242,7 @@
     </Compile>
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\PropertiesManager.cs" />
     <Compile Include="Models\StateCapture.cs" />

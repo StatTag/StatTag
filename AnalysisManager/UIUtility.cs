@@ -38,9 +38,19 @@ namespace AnalysisManager
             return removeList.Select(x => x.Tag);
         }
 
-        public static string GetFileName(string filter)
+        public static FileDialog FileDialogFactory(bool isOpenFile)
         {
-            FileDialog openFile = new OpenFileDialog();
+            if (isOpenFile)
+            {
+                return new OpenFileDialog();
+            }
+
+            return new SaveFileDialog();
+        }
+
+        public static string GetFileName(string filter, bool isOpenFile = true)
+        {
+            FileDialog openFile = FileDialogFactory(isOpenFile);
             openFile.Filter = filter;
             if (DialogResult.OK == openFile.ShowDialog())
             {

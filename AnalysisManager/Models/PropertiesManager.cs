@@ -12,6 +12,8 @@ namespace AnalysisManager.Models
     {
         private const string ApplicationKey = "Software\\Northwestern University\\AnalysisManager";
         private const string StataLocationKey = "Stata Location";
+        private const string LogLocationKey = "Log Location";
+        private const string LogEnabledKey = "Logging Enabled";
 
         public Properties Properties { get; set; }
 
@@ -24,6 +26,8 @@ namespace AnalysisManager.Models
         {
             var key = Registry.CurrentUser.CreateSubKey(ApplicationKey);
             key.SetValue(StataLocationKey, Properties.StataLocation, RegistryValueKind.String);
+            key.SetValue(LogLocationKey, Properties.LogLocation, RegistryValueKind.String);
+            key.SetValue(LogEnabledKey, Properties.EnableLogging, RegistryValueKind.DWord);
         }
 
         public void Load()
@@ -35,6 +39,8 @@ namespace AnalysisManager.Models
             }
 
             Properties.StataLocation = key.GetValue(StataLocationKey, string.Empty).ToString();
+            Properties.LogLocation = key.GetValue(LogLocationKey, string.Empty).ToString();
+            Properties.EnableLogging = ((int) key.GetValue(LogEnabledKey, false)) == 1;
         }
     }
 }

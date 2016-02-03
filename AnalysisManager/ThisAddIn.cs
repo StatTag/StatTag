@@ -16,6 +16,7 @@ namespace AnalysisManager
 {
     public partial class ThisAddIn
     {
+        public LogManager LogManager = new LogManager();
         public DocumentManager Manager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
 
@@ -24,30 +25,41 @@ namespace AnalysisManager
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
+            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            LogManager.WriteMessage("Startup completed");
+            Manager.Logger = LogManager;
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
+            LogManager.WriteMessage("Shutdown completed");
         }
 
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
+            LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
             Manager.SaveFilesToDocument(doc);
+            LogManager.WriteMessage("DocumentBeforeSave - code files saved");
         }
 
         void Application_DocumentOpen(Word.Document doc)
         {
+            LogManager.WriteMessage("DocumentOpen - Started");
             Manager.LoadFilesFromDocument(doc);
+            LogManager.WriteMessage(string.Format("Loaded {0} code files from document", Manager.Files.Count));
+
             var filesNotFound = new List<CodeFile>();
             foreach (var file in Manager.Files)
             {
                 if (!File.Exists(file.FilePath))
                 {
                     filesNotFound.Add(file);
+                    LogManager.WriteMessage(string.Format("Code file: {0} not found", file.FilePath));
                 }
                 else
                 {
                     file.LoadAnnotationsFromContent();
+                    LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
                 }
             }
 
@@ -58,6 +70,8 @@ namespace AnalysisManager
                     UIUtility.GetAddInName(),
                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation);   
             }
+
+            LogManager.WriteMessage("DocumentOpen - Completed");
         }
 
         void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)

@@ -17,6 +17,7 @@ namespace AnalysisManager.Models
     {
         public List<CodeFile> Files { get; set; }
         public FieldCreator FieldManager { get; set; }
+        public LogManager Logger { get; set; }
 
         public const string ConfigurationAttribute = "Analysis Manager Configuration";
         public const string MacroButtonName = "AnalysisManager";
@@ -53,6 +54,8 @@ namespace AnalysisManager.Models
         /// <param name="document">The Word document of interest</param>
         public void SaveFilesToDocument(Document document)
         {
+            Log("SaveFilesToDocument - Started");
+
             var variables = document.Variables;
             var variable = variables[ConfigurationAttribute];
             try
@@ -60,10 +63,12 @@ namespace AnalysisManager.Models
                 var attribute = CodeFile.SerializeList(Files);
                 if (!DocumentVariableExists(variable))
                 {
+                    Log(string.Format("Document variable does not exist.  Adding attribute value of {0}", attribute));
                     variables.Add(ConfigurationAttribute, attribute);
                 }
                 else
                 {
+                    Log(string.Format("Document variable already exists.  Updating attribute value to {0}", attribute));
                     variable.Value = attribute;
                 }
             }
@@ -72,6 +77,8 @@ namespace AnalysisManager.Models
                 Marshal.ReleaseComObject(variable);
                 Marshal.ReleaseComObject(variables);
             }
+
+            Log("SaveFilesToDocument - Finished");
         }
 
         /// <summary>
@@ -80,17 +87,30 @@ namespace AnalysisManager.Models
         /// <param name="document">The Word document of interest</param>
         public void LoadFilesFromDocument(Document document)
         {
+            Log("LoadFilesFromDocument - Started");
+
             var variables = document.Variables;
             var variable = variables[ConfigurationAttribute];
             try
             {
-                Files = DocumentVariableExists(variable) ? CodeFile.DeserializeList(variable.Value) : new List<CodeFile>();
+                if (DocumentVariableExists(variable))
+                {
+                    Files = CodeFile.DeserializeList(variable.Value);
+                    Log(string.Format("Document variable existed, loaded {0} code files", Files.Count));
+                }
+                else
+                {
+                    Files = new List<CodeFile>();
+                    Log(string.Format("Document variable does not exist, no code files loaded"));
+                }
             }
             finally
             {
                 Marshal.ReleaseComObject(variable);
                 Marshal.ReleaseComObject(variables);
             }
+
+            Log("LoadFilesFromDocument - Finished");
         }
 
         /// <summary>
@@ -201,6 +221,12 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Helper function to retrieve Cells from a Selection.  This guards against exceptions
+        /// and just returns null when thrown (indicating no Cells found).
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <returns></returns>
         public Cells GetCells(Selection selection)
         {
             try
@@ -574,6 +600,19 @@ namespace AnalysisManager.Models
             foreach (var file in Files)
             {
                 file.Save();
+            }
+        }
+
+        /// <summary>
+        /// Wrapper around a LogManager instance.  Since logging is not always enabled/available for this object
+        /// the wrapper only writes if a logger is accessible.
+        /// </summary>
+        /// <param name="text"></param>
+        protected void Log(string text)
+        {
+            if (Logger != null)
+            {
+                Logger.WriteMessage(text);
             }
         }
     }
