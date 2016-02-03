@@ -68,6 +68,7 @@
             // 
             // clbDefault
             // 
+            this.clbDefault.CheckOnClick = true;
             this.clbDefault.FormattingEnabled = true;
             this.clbDefault.Location = new System.Drawing.Point(12, 219);
             this.clbDefault.Name = "clbDefault";
@@ -76,6 +77,7 @@
             // 
             // clbOnDemand
             // 
+            this.clbOnDemand.CheckOnClick = true;
             this.clbOnDemand.FormattingEnabled = true;
             this.clbOnDemand.Location = new System.Drawing.Point(12, 29);
             this.clbOnDemand.Name = "clbOnDemand";

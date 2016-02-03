@@ -122,7 +122,7 @@ namespace AnalysisManager
                     for (int index = startIndex; index <= endIndex; index++)
                     {
                         lstCode.SelectedIndices.Add(index);
-                    }                    
+                    }
                 }
 
                 switch (AnnotationType)

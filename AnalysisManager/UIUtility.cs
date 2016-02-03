@@ -64,5 +64,26 @@ namespace AnalysisManager
         {
             MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
+
+        public static string GetCopyright()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+            var copyright = GetAssemblyCustomAttribute(assembly, typeof(System.Reflection.AssemblyCopyrightAttribute));
+            var company = GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyCompanyAttribute));
+            return string.Format("{0} {1}", copyright, company);
+        }
+
+        private static string GetAssemblyCustomAttribute(System.Reflection.Assembly assembly, Type attributeType)
+        {
+            var attribute = assembly.CustomAttributes.FirstOrDefault(
+                x => x.AttributeType == attributeType);
+            if (attribute == null)
+            {
+                return string.Empty;
+            }
+
+            return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
+        }
     }
 }
