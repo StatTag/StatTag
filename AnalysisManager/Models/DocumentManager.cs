@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -549,8 +550,10 @@ namespace AnalysisManager.Models
         public bool EditAnnotation(Annotation annotation)
         {
             var dialog = new EditAnnotation(Files);
+            IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
+
             dialog.Annotation = new Annotation(annotation);
-            if (DialogResult.OK == dialog.ShowDialog())
+            if (DialogResult.OK == dialog.ShowDialog(new WindowWrapper(hwnd)))
             {
                 // If the value format has changed, refresh the values in the document with the
                 // new formatting of the results.

@@ -96,6 +96,8 @@ namespace AnalysisManager
 
         private void ManageAnnotation_Load(object sender, EventArgs e)
         {
+            OverrideCenterToScreen();
+
             UpdateForTypeClick(cmdValue);
 
             cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
@@ -221,6 +223,24 @@ namespace AnalysisManager
             {
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// Given that we are invoking this dialog from another thread in some instances, we have workarounds
+        /// for how the dialog is displayed.  That includes using this method to center the dialog in the
+        /// parent, as it does not center otherwise.
+        /// <remarks>From: http://stackoverflow.com/questions/6837463/how-come-centertoscreen-method-centers-the-form-on-the-screen-where-the-cursor-i/6837499#6837499</remarks>
+        /// </summary>
+        private void OverrideCenterToScreen()
+        {
+            Screen screen = Screen.FromControl(this);
+
+            Rectangle workingArea = screen.WorkingArea;
+            this.Location = new Point()
+            {
+                X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
+                Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
+            };
         }
     }
 }
