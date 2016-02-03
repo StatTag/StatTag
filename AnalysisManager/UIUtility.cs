@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
@@ -84,6 +85,15 @@ namespace AnalysisManager
             }
 
             return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
+        }
+
+        public static void SetCachedAnnotation(List<Annotation> existingAnnotations, Annotation annotation)
+        {
+            var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+            if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+            {
+                annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
+            }
         }
     }
 }

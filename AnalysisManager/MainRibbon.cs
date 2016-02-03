@@ -33,7 +33,7 @@ namespace AnalysisManager
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new LoadAnalysisCode(Manager.Files);
+            var dialog = new LoadAnalysisCode(Manager, Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.Files = dialog.Files;
