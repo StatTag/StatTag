@@ -106,25 +106,37 @@ namespace AnalysisManager
 
             var selection = Application.Selection;
             var fields = selection.Fields;
-            // We require more than one field, since our AM fields show up as 2 fields.
-            if (fields.Count > 1)
+
+            try
             {
-                // If there are multiple items selected, we will grab the first field in the selection.
-                var field = selection.Fields[1];
-                if (field != null)
+                // We require more than one field, since our AM fields show up as 2 fields.
+                if (fields.Count > 1)
                 {
-                    if (Manager.IsAnalysisManagerField(field))
+                    // If there are multiple items selected, we will grab the first field in the selection.
+                    var field = selection.Fields[1];
+                    if (field != null)
                     {
-                        var fieldAnnotation = Manager.GetFieldAnnotation(field);
-                        var annotation = Manager.FindAnnotation(fieldAnnotation);
-                        Manager.EditAnnotation(annotation);
+                        if (Manager.IsAnalysisManagerField(field))
+                        {
+                            var fieldAnnotation = Manager.GetFieldAnnotation(field);
+                            var annotation = Manager.FindAnnotation(fieldAnnotation);
+                            Manager.EditAnnotation(annotation);
+                        }
+                        Marshal.ReleaseComObject(field);
                     }
-                    Marshal.ReleaseComObject(field);
                 }
             }
-
-            Marshal.ReleaseComObject(fields);
-            Marshal.ReleaseComObject(selection);
+            catch (Exception exc)
+            {
+                MessageBox.Show("There was an error attempting to load the details of this annotation.  If this problem persists, you may want to remove and insert the annotation again.", UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogManager.WriteMessage(exc.Message);
+                LogManager.WriteMessage(exc.StackTrace);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(fields);
+                Marshal.ReleaseComObject(selection);
+            }
         }
 
         #region VSTO generated code
