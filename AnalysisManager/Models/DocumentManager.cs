@@ -449,46 +449,6 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given an old and a new annotation, update all of the Fields in the document to refer
-        /// to the new annotation's name (label).
-        /// </summary>
-        /// <param name="annotations">The pair of old and new annotations</param>
-        public void UpdateAnnotationLabel(UpdatePair<Annotation> annotations)
-        {
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
-
-            try
-            {
-                var fields = document.Fields;
-                // Fields is a 1-based index
-                for (int index = 1; index <= fields.Count; index++)
-                {
-                    var field = fields[index];
-                    if (field == null)
-                    {
-                        continue;
-                    }
-
-                    if (IsAnalysisManagerField(field))
-                    {
-                        var annotation = GetFieldAnnotation(field);
-                        if (annotation != null && annotation.Equals(annotations.Old))
-                        {
-                            UpdateAnnotationFieldData(field, new FieldAnnotation(annotations.New));
-                        }
-                    }
-                    Marshal.ReleaseComObject(field);
-                }
-                Marshal.ReleaseComObject(fields);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(document);
-            }
-        }
-
-        /// <summary>
         /// Update the annotation data in a field.
         /// </summary>
         /// <remarks>Assumes that the field parameter is known to be an annotation field</remarks>
@@ -518,12 +478,11 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
-        /// associated with it.
+        /// Deserialize a field to extract the FieldAnnotation data
         /// </summary>
-        /// <param name="field">The Word field object to investigate</param>
+        /// <param name="field"></param>
         /// <returns></returns>
-        public FieldAnnotation GetFieldAnnotation(Field field)
+        public FieldAnnotation DeserializeFieldAnnotation(Field field)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
@@ -531,6 +490,18 @@ namespace AnalysisManager.Models
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
 
+            return fieldAnnotation;
+        }
+
+        /// <summary>
+        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
+        /// associated with it.
+        /// </summary>
+        /// <param name="field">The Word field object to investigate</param>
+        /// <returns></returns>
+        public FieldAnnotation GetFieldAnnotation(Field field)
+        {
+            var fieldAnnotation = DeserializeFieldAnnotation(field);
             var annotation = FindAnnotation(fieldAnnotation);
 
             // The result of FindAnnotation is going to be a document-level annotation, not a
@@ -561,14 +532,6 @@ namespace AnalysisManager.Models
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
-
-                // Perform label changes AFTER any other updates.  This way we don't have to worry about
-                // managing name changes.
-                bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
-                if (labelChanged)
-                {
-                    UpdateAnnotationLabel(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }
 
                 SaveEditedAnnotation(dialog, annotation);

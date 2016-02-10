@@ -87,6 +87,11 @@ namespace AnalysisManager.Core.Models
 
         public Annotation(Annotation annotation)
         {
+            if (annotation == null)
+            {
+                return;
+            }
+
             CodeFile = annotation.CodeFile;
             Type = annotation.Type;
             OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);

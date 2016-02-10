@@ -10,6 +10,36 @@ namespace Core.Tests.Models
     public class AnnotationTests
     {
         [TestMethod]
+        public void CopyCtor_Normal()
+        {
+            var annotation1 = new Annotation()
+            {
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                LineStart = 1,
+                LineEnd = 2
+            };
+            var annotation2 = new Annotation(annotation1);
+            Assert.IsTrue(annotation1.Equals(annotation2));
+        }
+
+        [TestMethod]
+        public void CopyCtor_Null()
+        {
+            var annotation = new Annotation(null);
+            Assert.IsNull(annotation.CodeFile);
+            Assert.IsNull(annotation.CachedResult);
+            Assert.IsNull(annotation.FigureFormat);
+            Assert.IsNull(annotation.LineEnd);
+            Assert.IsNull(annotation.LineStart);
+            Assert.IsNull(annotation.OutputLabel);
+            Assert.IsNull(annotation.RunFrequency);
+            Assert.IsNull(annotation.TableFormat);
+            Assert.IsNull(annotation.Type);
+            Assert.IsNull(annotation.ValueFormat);
+        }
+
+        [TestMethod]
         public void Equals_Match()
         {
             var annotation1 = new Annotation()
