@@ -46,30 +46,11 @@ namespace AnalysisManager.Core.Models
                     formattedValue = ValueFormat.Format(lastValue.ToString());
                 }
 
-                return string.IsNullOrWhiteSpace(formattedValue) ? Constants.Placeholders.EmptyField : formattedValue;
+                // Table annotations should never return the placeholder.  We assume that there could reasonably
+                // be empty cells at some point, so we will not correct those like we do for individual values.
+                return (!IsTableAnnotation() && string.IsNullOrWhiteSpace(formattedValue)) ? Constants.Placeholders.EmptyField : formattedValue;
             }
         }
-
-        //public string FormattedCell(int index)
-        //{
-        //    if (CachedResult == null || CachedResult.Count == 0)
-        //    {
-        //        return Constants.Placeholders.EmptyField;
-        //    }
-
-        //    // When formatting a value, it is possible the user has selected multiple 
-        //    // display commands.  We will only return the last cached result, and format
-        //    // that if our formatter is available.
-        //    var lastValue = CachedResult.Last();
-        //    if (IsTableAnnotation() && TableFormat != null
-        //        && lastValue != null && lastValue.TableResult != null)
-        //    {
-        //        var formattedValue = TableFormat.FormatCell(lastValue.TableResult, index);
-        //        return formattedValue;
-        //    }
-
-        //    return Constants.Placeholders.EmptyField;
-        //}
 
         /// <summary>
         /// The starting line is the 0-based line index where the opening
@@ -173,9 +154,13 @@ namespace AnalysisManager.Core.Models
             return label.Replace(Constants.ReservedCharacters.AnnotationTableCellDelimiter, ' ').Trim();
         }
 
+        /// <summary>
+        /// Determine if this annotation is to represent a table
+        /// </summary>
+        /// <returns></returns>
         public bool IsTableAnnotation()
         {
-            return Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
+            return Type != null && Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
         }
     }
 }

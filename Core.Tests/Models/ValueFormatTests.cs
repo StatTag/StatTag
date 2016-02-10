@@ -29,6 +29,7 @@ namespace Core.Tests.Models
         {
             var format = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric };
             Assert.AreEqual(string.Empty, format.Format("Not a number"));
+            Assert.AreEqual("0", format.Format("0.0"));
             Assert.AreEqual("1", format.Format("1.11"));  // Default numeric format
             Assert.AreEqual("1235", format.Format("1234.56789"));  // Rounds up
             format.DecimalPlaces = 2;
@@ -45,6 +46,9 @@ namespace Core.Tests.Models
             Assert.AreEqual("1.0", format.Format("1"));
             format.DecimalPlaces = 0;
             Assert.AreEqual("1,234,567,890", format.Format("1234567890"));
+
+            format.AllowInvalidTypes = true;
+            Assert.AreEqual("test", format.Format("test"));
         }
 
         [TestMethod]
@@ -58,6 +62,9 @@ namespace Core.Tests.Models
             Assert.AreEqual("12.35%", format.Format("0.123456789"));  // Rounds up with decimal places
             format.DecimalPlaces = 10;
             Assert.AreEqual("12.3400000000%", format.Format("0.1234"));  // Rounds up with decimal places
+
+            format.AllowInvalidTypes = true;
+            Assert.AreEqual("test", format.Format("test"));
         }
 
         [TestMethod]
@@ -84,6 +91,9 @@ namespace Core.Tests.Models
             format.DateFormat = Constants.DateFormats.MMDDYYYY;
             format.TimeFormat = Constants.TimeFormats.HHMMSS;
             Assert.AreEqual("03/11/2012 11:30:00", format.Format("3/11/2012 11:30"));
+
+            format.AllowInvalidTypes = true;
+            Assert.AreEqual("test", format.Format("test"));
         }
 
         [TestMethod]

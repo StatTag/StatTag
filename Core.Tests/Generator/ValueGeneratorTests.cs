@@ -13,6 +13,8 @@ namespace Core.Tests.Generator
         {
             var generator = new ValueGenerator();
             Assert.AreEqual("Type=\"Default\", ", generator.CreateDefaultParameters());
+            // It will only add the AllowInvalidTypes attribute when it is not the default value
+            Assert.AreEqual("Type=\"Default\", AllowInvalid=True, ", generator.CreateDefaultParameters(Constants.ValueFormatType.Default, true));
         }
 
         [TestMethod]

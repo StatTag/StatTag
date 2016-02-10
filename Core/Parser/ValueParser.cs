@@ -30,6 +30,8 @@ namespace AnalysisManager.Core.Parser
             annotation.ValueFormat.UseThousands = boolValue.Value;  // Since we specify a default, we assume it won't ever be null
             annotation.ValueFormat.DateFormat = GetStringParameter(Constants.ValueParameters.DateFormat, annotationText);
             annotation.ValueFormat.TimeFormat = GetStringParameter(Constants.ValueParameters.TimeFormat, annotationText);
+            boolValue = GetBoolParameter(Constants.ValueParameters.AllowInvalidTypes, annotationText, false);
+            annotation.ValueFormat.AllowInvalidTypes = boolValue.Value;  // Since we specify a default, we assume it won't ever be null
         }
     }
 }

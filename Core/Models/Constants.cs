@@ -103,6 +103,7 @@
             public const string UseThousands = "Thousands";
             public const string DateFormat = "DateFormat";
             public const string TimeFormat = "TimeFormat";
+            public const string AllowInvalidTypes = "AllowInvalid";
         }
 
         public static class TableParameters
@@ -115,6 +116,11 @@
         {
             public const bool ColumnNames = false;
             public const bool RowNames = false;
+        }
+
+        public static class ValueParameterDefaults
+        {
+            public const bool AllowInvalidTypes = false;
         }
 
         public static class CodeFileComment
