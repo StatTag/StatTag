@@ -362,6 +362,12 @@
   <ItemGroup>
     <None Include="Resources\1447149791_file-manager.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\1455152100_miscellaneous-11.png" />
+    <Content Include="Resources\1455152243_129_ArrowRight.png" />
+    <Content Include="Resources\1455152332_refresh.png" />
+    <Content Include="Resources\1455152483_compose.png" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

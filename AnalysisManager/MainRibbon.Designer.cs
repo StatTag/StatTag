@@ -34,6 +34,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainRibbon));
             this.tab1 = this.Factory.CreateRibbonTab();
             this.codeGroup = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
@@ -76,7 +77,7 @@
             // cmdManageAnnotations
             // 
             this.cmdManageAnnotations.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdManageAnnotations.Image = global::AnalysisManager.Properties.Resources._1447149791_file_manager;
+            this.cmdManageAnnotations.Image = ((System.Drawing.Image)(resources.GetObject("cmdManageAnnotations.Image")));
             this.cmdManageAnnotations.Label = "Annotations";
             this.cmdManageAnnotations.Name = "cmdManageAnnotations";
             this.cmdManageAnnotations.ShowImage = true;
@@ -86,22 +87,28 @@
             // 
             // cmdInsertOutput
             // 
+            this.cmdInsertOutput.Image = ((System.Drawing.Image)(resources.GetObject("cmdInsertOutput.Image")));
             this.cmdInsertOutput.Label = "Insert Output";
             this.cmdInsertOutput.Name = "cmdInsertOutput";
+            this.cmdInsertOutput.ShowImage = true;
             this.cmdInsertOutput.SuperTip = "Insert output from your statistical analysis into the document at the current cur" +
     "sor location.";
             this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
             // 
             // cmdUpdateOutput
             // 
+            this.cmdUpdateOutput.Image = ((System.Drawing.Image)(resources.GetObject("cmdUpdateOutput.Image")));
             this.cmdUpdateOutput.Label = "Update Output";
             this.cmdUpdateOutput.Name = "cmdUpdateOutput";
+            this.cmdUpdateOutput.ShowImage = true;
             this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
             // 
             // cmdSettings
             // 
+            this.cmdSettings.Image = ((System.Drawing.Image)(resources.GetObject("cmdSettings.Image")));
             this.cmdSettings.Label = "Settings";
             this.cmdSettings.Name = "cmdSettings";
+            this.cmdSettings.ShowImage = true;
             this.cmdSettings.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdSettings_Click);
             // 
             // button1
