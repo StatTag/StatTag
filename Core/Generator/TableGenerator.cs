@@ -12,7 +12,7 @@ namespace AnalysisManager.Core.Generator
         public string CreateParameters(Annotation annotation)
         {
             var builder = new StringBuilder();
-
+            builder.Append(GetIdParameter(annotation));
             builder.Append(GetLabelParameter(annotation));
             builder.Append(GetRunFrequencyParameter(annotation));
             builder.Append(CreateTableParameters(annotation));

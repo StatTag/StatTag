@@ -44,6 +44,7 @@ namespace Core.Tests.Models
         {
             var annotation1 = new Annotation()
             {
+                Id = "id",
                 OutputLabel= "Test",
                 Type = Constants.AnnotationType.Value,
                 LineStart = 1,
@@ -52,6 +53,7 @@ namespace Core.Tests.Models
 
             var annotation2 = new Annotation()
             {
+                Id = "id",
                 OutputLabel = "Test",
                 Type = Constants.AnnotationType.Value,
                 LineStart = 3,
@@ -60,52 +62,11 @@ namespace Core.Tests.Models
 
             Assert.IsTrue(annotation1.Equals(annotation2));
             Assert.IsTrue(annotation2.Equals(annotation1));
-        }
 
-        [TestMethod]
-        public void Equals_CaseDifference()
-        {
-            var annotation1 = new Annotation()
-            {
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
-                LineStart = 1,
-                LineEnd = 2
-            };
-
-            var annotation2 = new Annotation()
-            {
-                OutputLabel = "test",
-                Type = Constants.AnnotationType.Value,
-                LineStart = 3,
-                LineEnd = 4
-            };
-
-            Assert.IsFalse(annotation1.Equals(annotation2));
-            Assert.IsFalse(annotation2.Equals(annotation1));
-        }
-
-        [TestMethod]
-        public void Equals_TypeDifference()
-        {
-            var annotation1 = new Annotation()
-            {
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
-                LineStart = 1,
-                LineEnd = 2
-            };
-
-            var annotation2 = new Annotation()
-            {
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Figure,
-                LineStart = 3,
-                LineEnd = 4
-            };
-
-            Assert.IsFalse(annotation1.Equals(annotation2));
-            Assert.IsFalse(annotation2.Equals(annotation1));
+            // Should still be the same even though the label has changed
+            annotation1.OutputLabel = "updated";
+            Assert.IsTrue(annotation1.Equals(annotation2));
+            Assert.IsTrue(annotation2.Equals(annotation1));
         }
 
         [TestMethod]

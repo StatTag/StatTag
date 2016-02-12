@@ -147,15 +147,15 @@ namespace AnalysisManager.Models
             }
         }
 
-        /// <summary>
-        /// Finds the first annotation that matches a given label.
-        /// </summary>
-        /// <param name="annotationLabel"></param>
-        /// <returns></returns>
-        public Annotation FindAnnotation(string annotationLabel)
-        {
-            return Files.Select(codeFile => codeFile.Annotations.Find(x => x.OutputLabel.Equals(annotationLabel))).FirstOrDefault();
-        }
+        ///// <summary>
+        ///// Finds the first annotation that matches a given label.
+        ///// </summary>
+        ///// <param name="id"></param>
+        ///// <returns></returns>
+        //public Annotation FindAnnotation(Guid id)
+        //{
+        //    return Files.Select(codeFile => codeFile.Annotations.Find(x => x.Id.Equals(id))).FirstOrDefault();
+        //}
 
         /// <summary>
         /// Update all of the field values in the current document.
@@ -405,35 +405,23 @@ namespace AnalysisManager.Models
         /// <returns></returns>
         public Annotation FindAnnotation(Annotation annotation)
         {
-            return FindAnnotation(annotation.OutputLabel, annotation.Type);
+            return FindAnnotation(annotation.Id);
         }
 
         /// <summary>
         /// Find the master reference of an annotation, which is contained in the code files
         /// associated with the current document
         /// </summary>
-        /// <param name="name">The annotation name to search for</param>
-        /// <param name="type">The annotation type to search for</param>
+        /// <param name="id">The annotation identifier to search for</param>
         /// <returns></returns>
-        public Annotation FindAnnotation(string name, string type)
+        public Annotation FindAnnotation(string id)
         {
             if (Files == null)
             {
                 return null;
             }
 
-            foreach (var file in Files)
-            {
-                foreach (var annotation in file.Annotations)
-                {
-                    if (annotation.OutputLabel.Equals(name) && annotation.Type.Equals(type))
-                    {
-                        return annotation;
-                    }
-                }
-            }
-
-            return null;
+            return Files.SelectMany(file => file.Annotations).FirstOrDefault(annotation => annotation.Id.Equals(id));
         }
 
         /// <summary>
