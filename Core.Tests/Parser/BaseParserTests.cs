@@ -149,10 +149,10 @@ namespace Core.Tests.Parser
             var lines = new List<string>(new string[]
             {
                 "declare value",
-                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "**>>>AM:Value(Id=\"id\", Label=\"Test1\", Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test2\")",
+                "**>>>AM:Value(Id=\"id2\", Label=\"Test2\")",
                 "declare value2",
                 "**<<<"
             });
@@ -161,7 +161,7 @@ namespace Core.Tests.Parser
 
             results = parser.Parse(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
             {
-                new Annotation() { OutputLabel = "Test2", Type = Constants.AnnotationType.Value }
+                new Annotation() { Id = "id2", OutputLabel = "Test2", Type = Constants.AnnotationType.Value }
             });
             Assert.AreEqual(1, results.Length);
             Assert.AreEqual("Test2", results[0].OutputLabel);
@@ -296,10 +296,10 @@ namespace Core.Tests.Parser
             var lines = new List<string>(new string[]
             {
                 "declare value",
-                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "**>>>AM:Value(Id=\"id\", Label=\"Test1\", Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test2\")",
+                "**>>>AM:Value(Id=\"id2\", Label=\"Test2\")",
                 "declare value2",
                 "**<<<"
             });
@@ -308,7 +308,7 @@ namespace Core.Tests.Parser
 
             results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
             {
-                new Annotation() { OutputLabel = "Test1", Type = Constants.AnnotationType.Value }
+                new Annotation() { Id = "id", OutputLabel = "Test1", Type = Constants.AnnotationType.Value }
             });
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);

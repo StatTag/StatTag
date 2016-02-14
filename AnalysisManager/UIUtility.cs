@@ -105,5 +105,15 @@ namespace AnalysisManager
                 annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
             }
         }
+
+        public static string Pluralize(this string singularForm, int howMany)
+        {
+            return singularForm.Pluralize(howMany, singularForm + "s");
+        }
+
+        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
+        {
+            return howMany == 1 ? singularForm : pluralForm;
+        }
     }
 }

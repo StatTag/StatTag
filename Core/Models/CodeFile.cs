@@ -211,7 +211,7 @@ namespace AnalysisManager.Core.Models
             if (!Annotations.Remove(annotation))
             {
                 // If the exact object doesn't match, then search by name
-                var foundAnnotation = Annotations.Find(x => x.OutputLabel.Equals(annotation.OutputLabel));
+                var foundAnnotation = Annotations.Find(x => x.Id.Equals(annotation.Id));
                 if (foundAnnotation == null)
                 {
                     return;

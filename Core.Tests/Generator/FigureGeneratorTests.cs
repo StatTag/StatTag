@@ -12,14 +12,14 @@ namespace Core.Tests.Generator
         public void CreateParameters_NoLabel()
         {
             var generator = new FigureGenerator();
-            Assert.AreEqual("", generator.CreateParameters(new Annotation()));
+            Assert.AreEqual("Id=\"id\"", generator.CreateParameters(new Annotation(){Id = "id"}));
         }
 
         [TestMethod]
         public void CreateParameters_Label()
         {
             var generator = new FigureGenerator();
-            Assert.AreEqual("Label=\"Test\"", generator.CreateParameters(new Annotation() { OutputLabel = "Test" }));
+            Assert.AreEqual("Id=\"id\", Label=\"Test\"", generator.CreateParameters(new Annotation() { Id = "id", OutputLabel = "Test" }));
         }
     }
 }

@@ -152,7 +152,7 @@ namespace AnalysisManager
                         continue;
                     }
 
-                    var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
+                    var annotation = Manager.FindAnnotation(step.Annotation.Id);
                     if (annotation != null)
                     {
                         var resultList = new List<CommandResult>(results);

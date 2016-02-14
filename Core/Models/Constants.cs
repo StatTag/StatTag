@@ -92,6 +92,7 @@
         /// </summary>
         public static class AnnotationParameters
         {
+            public const string Id = "Id";
             public const string Label = "Label";
             public const string Frequency = "Frequency";
         }

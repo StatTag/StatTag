@@ -1,4 +1,5 @@
 ﻿using System;
+using AnalysisManager.Core.Models;
 using AnalysisManager.Core.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,6 +11,28 @@ namespace Core.Tests.Parser
         private const string DefaultStringValue = "DEFAULT";
         private const int DefaultIntValue = 9999;
         private const bool DefaultBoolValue = true;
+
+        [TestMethod]
+        public void Parse_EmptyParams()
+        {
+            const string annotationText = "()";
+            var annotation = new Annotation() { Id = string.Empty };
+            BaseParameterParser.Parse(annotationText, annotation);
+            Assert.AreNotEqual(string.Empty, annotation.Id);
+            Assert.AreEqual(string.Empty, annotation.OutputLabel);
+            Assert.AreEqual(Constants.RunFrequency.Default, annotation.RunFrequency);
+        }
+
+        [TestMethod]
+        public void Parse_Values()
+        {
+            const string annotationText = "(Id=\"id1\", Label=\"test\", Frequency=\"On Demand\")";
+            var annotation = new Annotation() { Id = string.Empty };
+            BaseParameterParser.Parse(annotationText, annotation);
+            Assert.AreEqual("id1", annotation.Id);
+            Assert.AreEqual("test", annotation.OutputLabel);
+            Assert.AreEqual(Constants.RunFrequency.OnDemand, annotation.RunFrequency);
+        }
 
         [TestMethod]
         public void GetStringParameter_Normal()
