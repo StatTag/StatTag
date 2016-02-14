@@ -273,6 +273,7 @@
             this.Name = "EditAnnotation";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Annotation";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditAnnotation_FormClosing);
             this.Load += new System.EventHandler(this.ManageAnnotation_Load);
             this.pnlType.ResumeLayout(false);
             this.ResumeLayout(false);

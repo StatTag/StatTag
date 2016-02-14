@@ -508,7 +508,7 @@ namespace AnalysisManager.Models
         /// <returns></returns>
         public bool EditAnnotation(Annotation annotation)
         {
-            var dialog = new EditAnnotation(Files);
+            var dialog = new EditAnnotation(this);
             IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
 
             dialog.Annotation = new Annotation(annotation);
