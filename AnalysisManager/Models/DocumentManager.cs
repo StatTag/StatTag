@@ -253,6 +253,17 @@ namespace AnalysisManager.Models
                 cells = GetCells(selection);
                 cellsCount = table.FormattedCells.Length;
             }
+            // Our heuristic is that a single cell selected with the selection being the same position most
+            // likely means the user has their cursor in a table.  We are going to assume they want us to
+            // fill in that table.
+            else if (cellsCount == 1 && selection.Start == selection.End)
+            {
+                var wordTable = selection.Tables[1];
+                wordTable.Select();
+                cells = GetCells(selection);
+                cellsCount = cells.Count;
+                Marshal.ReleaseComObject(wordTable);
+            }
 
             if (table.FormattedCells == null || table.FormattedCells.Length == 0)
             {
@@ -343,6 +354,13 @@ namespace AnalysisManager.Models
                     selectedCellCount, dataLength));
             }
         }
+
+        /// <summary>
+        /// Given an annotation, insert the result into the document at the current cursor position.
+        /// <remarks>This method assumes the annotation result is already refreshed.  It does not
+        /// attempt to refresh or recalculate it.</remarks>
+        /// </summary>
+        /// <param name="annotation"></param>
 
         public void InsertField(Annotation annotation)
         {
