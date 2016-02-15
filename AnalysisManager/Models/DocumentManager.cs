@@ -147,16 +147,6 @@ namespace AnalysisManager.Models
             }
         }
 
-        ///// <summary>
-        ///// Finds the first annotation that matches a given label.
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <returns></returns>
-        //public Annotation FindAnnotation(Guid id)
-        //{
-        //    return Files.Select(codeFile => codeFile.Annotations.Find(x => x.Id.Equals(id))).FirstOrDefault();
-        //}
-
         /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
@@ -252,12 +242,16 @@ namespace AnalysisManager.Models
             var table = annotation.CachedResult[0].TableResult;
             table.FormattedCells = annotation.TableFormat.Format(table);
 
-            // TODO: Insert a new table if there is none selected.
             var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
+
+            // Insert a new table if there is none selected.
             if (cellsCount == 0)
             {
-                UIUtility.WarningMessageBox("Please select the cells in an existing table that you would like to fill in, and then insert the result again.");
-                return;
+                CreateWordTableForTableResult(selection, table, annotation.TableFormat);
+                // The table will be the size we need.  Update these tracking variables with the cells and
+                // total size so that we can begin inserting data.
+                cells = GetCells(selection);
+                cellsCount = table.FormattedCells.Length;
             }
 
             if (table.FormattedCells == null || table.FormattedCells.Length == 0)
@@ -289,7 +283,6 @@ namespace AnalysisManager.Models
                 CreateAnnotationField(range,
                     string.Format("{0}{1}{2}", annotation.OutputLabel, Constants.ReservedCharacters.AnnotationTableCellDelimiter, index),
                     innerAnnotation.FormattedResult, innerAnnotation);
-                    //data[index], innerAnnotation);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -297,6 +290,36 @@ namespace AnalysisManager.Models
             WarnOnMismatchedCellCount(cellsCount, table.FormattedCells.Length);
 
             Marshal.ReleaseComObject(cells);
+        }
+
+        /// <summary>
+        /// Create a new table in the Word document at the current selection point.  This assumes we have a
+        /// statistical result containing a table that needs to be inserted.
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="table"></param>
+        /// <param name="format"></param>
+        public void CreateWordTableForTableResult(Selection selection, Core.Models.Table table, TableFormat format)
+        {
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            try
+            {
+                int rowCount = (format.IncludeColumnNames) ? (table.RowSize + 1) : (table.RowSize);
+                int columnCount = (format.IncludeRowNames) ? (table.ColumnSize + 1) : (table.ColumnSize);
+
+                var wordTable = document.Tables.Add(selection.Range, rowCount, columnCount);
+                wordTable.Select();
+                var borders = wordTable.Borders;
+                borders.InsideLineStyle = WdLineStyle.wdLineStyleSingle;
+                borders.OutsideLineStyle = WdLineStyle.wdLineStyleSingle;
+                Marshal.ReleaseComObject(borders);
+                Marshal.ReleaseComObject(wordTable);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
         }
 
         /// <summary>
