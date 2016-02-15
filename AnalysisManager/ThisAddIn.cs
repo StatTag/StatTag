@@ -42,6 +42,15 @@ namespace AnalysisManager
                 LogManager.WriteMessage("Active document is " + document.Name);
                 Application_DocumentOpen(document);
             }
+
+            if (Stata.Automation.IsAppRunning())
+            {
+                LogManager.WriteMessage("Stata appears to be running");
+                MessageBox.Show(
+                    string.Format("It appears that a copy of Stata is currently running.  Analysis Manager is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use Analysis Manager."),
+                    UIUtility.GetAddInName(),
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

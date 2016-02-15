@@ -21,6 +21,16 @@ namespace Stata
         protected stata.StataOLEApp Application { get; set; }
         protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
 
+        private static readonly List<string> StataProcessNames = new List<string>(new []
+        {
+            "StataSE-64",
+            "StataMP-64",
+            "Stata-64",
+            "StataSE",
+            "StataMP",
+            "StataSE"
+        });
+
         private static class ScalarType
         {
             public const int NotFound = 0;
@@ -29,10 +39,21 @@ namespace Stata
         }
 
         private const int StataHidden = 1;
+        private const int MinimizeStata = 2;
+        private const int ShowStata = 3;
 
         public Automation()
         {
             Parser = new AnalysisManager.Core.Parser.Stata();
+        }
+
+        /// <summary>
+        /// Determine if a copy of Stata is running
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsAppRunning()
+        {
+            return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName));
         }
 
         public bool Initialize()
