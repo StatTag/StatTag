@@ -21,14 +21,19 @@ namespace Stata
         protected stata.StataOLEApp Application { get; set; }
         protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
 
+        /// <summary>
+        /// The collection of all possible Stata process names.  These are converted to
+        /// lower case here because the comparison we do later depends on conversion to
+        /// lower case.s
+        /// </summary>
         private static readonly List<string> StataProcessNames = new List<string>(new []
         {
-            "StataSE-64",
-            "StataMP-64",
-            "Stata-64",
-            "StataSE",
-            "StataMP",
-            "StataSE"
+            "statase-64",
+            "statamp-64",
+            "stata-64",
+            "statase",
+            "statamp",
+            "statase"
         });
 
         private static class ScalarType
@@ -53,7 +58,7 @@ namespace Stata
         /// <returns></returns>
         public static bool IsAppRunning()
         {
-            return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName));
+            return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName.ToLower()));
         }
 
         public bool Initialize()
@@ -71,17 +76,33 @@ namespace Stata
             return true;
         }
 
+        /// <summary>
+        /// Determine if a command is one that would return a result of some sort.
+        /// </summary>
+        /// <param name="command">The command to evaluate</param>
+        /// <returns></returns>
         public bool IsReturnable(string command)
         {
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
+        /// <summary>
+        /// Run a collection of commands and provide all applicable results.
+        /// </summary>
+        /// <param name="commands"></param>
+        /// <returns></returns>
         public CommandResult[] RunCommands(string[] commands)
         {
             return commands.Select(command => RunCommand(command)).Where(
                 result => result != null && !result.IsEmpty()).ToArray();
         }
 
+        /// <summary>
+        /// Determine the string result for a command that returns a single value.  This includes
+        /// macros and scalars.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public string GetDisplayResult(string command)
         {
             string name;
@@ -111,6 +132,11 @@ namespace Stata
             }
         }
 
+        /// <summary>
+        /// Combines the different components of a matrix command into a single structure.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
@@ -125,6 +151,11 @@ namespace Stata
             return table;
         }
 
+        /// <summary>
+        /// Run a Stata command and provide the result of the command (if one should be returned).
+        /// </summary>
+        /// <param name="command">The command to run, taken from a Stata do file</param>
+        /// <returns>The result of the command, or null if the command does not provide a result.</returns>
         public CommandResult RunCommand(string command)
         {
             if (Parser.IsValueDisplay(command))
@@ -158,15 +189,21 @@ namespace Stata
 
         public static bool UnregisterAutomationAPI(string path)
         {
-            return RunCommand(path, UnregisterParameter);
+            return RunProcess(path, UnregisterParameter);
         }
 
         public static bool RegisterAutomationAPI(string path)
         {
-            return RunCommand(path, RegisterParameter);
+            return RunProcess(path, RegisterParameter);
         }
 
-        protected static bool RunCommand(string path, string parameters)
+        /// <summary>
+        /// Execute a process as an administrator.  Used for managing the automation API.
+        /// </summary>
+        /// <param name="path">Path of the process to run</param>
+        /// <param name="parameters">Parameters used by the process.s</param>
+        /// <returns>true if successful, false otherwise</returns>
+        protected static bool RunProcess(string path, string parameters)
         {
             var startInfo = new ProcessStartInfo(path, parameters);
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
