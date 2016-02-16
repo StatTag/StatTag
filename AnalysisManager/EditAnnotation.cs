@@ -21,6 +21,7 @@ namespace AnalysisManager
         public Annotation Annotation { get; set; }
 
         private string AnnotationType { get; set; }
+        private bool ReprocessCodeReview { get; set; }
 
         public EditAnnotation(DocumentManager manager = null)
         {
@@ -261,6 +262,52 @@ namespace AnalysisManager
                         e.Cancel = true;
                     }
                 }
+            }
+        }
+
+        private void lstCode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (codeCheckWorker.IsBusy)
+            {
+                ReprocessCodeReview = true;
+                return;
+            }
+
+            if (lstCode.SelectedItems.Count == 0)
+            {
+                lblWarning.Visible = false;
+            }
+            else
+            {
+                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
+                codeCheckWorker.RunWorkerAsync(selectedText);
+            }
+        }
+
+        private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            var automation = new Stata.Automation();
+            var commands = e.Argument as string[];
+            if (commands.Any(command => automation.IsReturnable(command)))
+            {
+                e.Result = false;
+                return;
+            }
+
+            e.Result = true;
+        }
+
+        private void codeCheckWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (ReprocessCodeReview)
+            {
+                ReprocessCodeReview = false;
+                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
+                codeCheckWorker.RunWorkerAsync(selectedText);
+            }
+            else
+            {
+                lblWarning.Visible = (bool)e.Result;
             }
         }
     }
