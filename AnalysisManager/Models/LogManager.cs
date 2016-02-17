@@ -34,5 +34,14 @@ namespace AnalysisManager.Models
                 File.AppendAllText(LogFilePath, string.Format("{0} - {1}\r\n", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), text));
             }
         }
+
+        public void WriteException(Exception exc)
+        {
+            WriteMessage(string.Format("Error: {0}\r\nStack trace: {1}", exc.Message, exc.StackTrace));
+            if (exc.InnerException != null)
+            {
+                WriteException(exc.InnerException);
+            }
+        }
     }
 }
