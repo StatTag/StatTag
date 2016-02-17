@@ -113,7 +113,7 @@ namespace AnalysisManager
                 catch (Exception exc)
                 {
                     UIUtility.ReportException(exc,
-                        "There was an unexpected error when trying to inset a value into the document.",
+                        "There was an unexpected error when trying to insert a value into the document.",
                         LogManager);
                 }
                 finally

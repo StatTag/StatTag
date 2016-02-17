@@ -72,8 +72,12 @@ namespace AnalysisManager
             return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Revision);
         }
 
-        public static void WarningMessageBox(string text)
+        public static void WarningMessageBox(string text, LogManager logger)
         {
+            if (logger != null)
+            {
+                logger.WriteMessage(text);
+            }
             MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
