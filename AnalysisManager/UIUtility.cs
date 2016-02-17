@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -114,6 +115,16 @@ namespace AnalysisManager
         public static string Pluralize(this string singularForm, int howMany, string pluralForm)
         {
             return howMany == 1 ? singularForm : pluralForm;
+        }
+
+        public static void ReportException(Exception exc, string userMessage, LogManager logger)
+        {
+            if (logger != null)
+            {
+                logger.WriteException(exc);
+            }
+
+            MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
