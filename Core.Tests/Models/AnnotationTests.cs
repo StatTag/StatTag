@@ -158,5 +158,103 @@ namespace Core.Tests.Models
             Assert.IsFalse(new Annotation() { Type = Constants.AnnotationType.Value }.IsTableAnnotation());
             Assert.IsFalse(new Annotation() { Type = string.Empty }.IsTableAnnotation());
         }
+
+        [TestMethod]
+        public void HasTableData()
+        {
+            // Null result cache
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                CachedResult = null
+            };
+            Assert.IsFalse(annotation.HasTableData());
+
+            // Non-null, but empty, result cache
+            annotation.CachedResult = new List<CommandResult>();
+            Assert.IsFalse(annotation.HasTableData());
+
+            // Non-table data
+            annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Value,
+                CachedResult = new List<CommandResult>(new[] {new CommandResult() {ValueResult = "Test 1"}})
+            };
+            Assert.IsFalse(annotation.HasTableData());
+
+            // Actual data
+            var format = new TableFormat() { IncludeColumnNames = false, IncludeRowNames = false };
+            var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2" }, 2, 2,
+                new double[4] { 0.0, 1.0, 2.0, 3.0 });
+            annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                TableFormat = format,
+                CachedResult = new List<CommandResult>(new[] {new CommandResult() {TableResult = table}})
+            };
+            Assert.IsTrue(annotation.HasTableData());
+        }
+
+        [TestMethod]
+        public void GetTableDisplayDimensions()
+        {
+            // Non-table annotation
+            var annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Value,
+                CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } })
+            };
+            Assert.IsNull(annotation.GetTableDisplayDimensions());
+
+            // No table format information
+            annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                TableFormat = null,
+                CachedResult = new List<CommandResult>(new[] { new CommandResult() { TableResult = null } })
+            };
+            Assert.IsNull(annotation.GetTableDisplayDimensions());
+
+            // No table data
+            var format = new TableFormat() { IncludeColumnNames = false, IncludeRowNames = false };
+            annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                TableFormat = format,
+                CachedResult = new List<CommandResult>(new[] { new CommandResult() { TableResult = null } })
+            };
+            Assert.IsNull(annotation.GetTableDisplayDimensions());
+
+            // Actual data
+            var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2", "Col3" }, 2, 3,
+                new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 });
+            annotation = new Annotation()
+            {
+                Type = Constants.AnnotationType.Table,
+                TableFormat = format,
+                CachedResult = new List<CommandResult>(new[] { new CommandResult() { TableResult = table } })
+            };
+            var dimensions = annotation.GetTableDisplayDimensions();
+            Assert.AreEqual(2, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Columns]);
+
+            annotation.TableFormat.IncludeColumnNames = true;
+            annotation.TableFormat.IncludeRowNames = false;
+            dimensions = annotation.GetTableDisplayDimensions();
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Columns]);
+
+            annotation.TableFormat.IncludeColumnNames = true;
+            annotation.TableFormat.IncludeRowNames = true;
+            dimensions = annotation.GetTableDisplayDimensions();
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(4, dimensions[Constants.DimensionIndex.Columns]);
+
+            annotation.TableFormat.IncludeColumnNames = false;
+            annotation.TableFormat.IncludeRowNames = true;
+            dimensions = annotation.GetTableDisplayDimensions();
+            Assert.AreEqual(2, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(4, dimensions[Constants.DimensionIndex.Columns]);
+        }
     }
 }

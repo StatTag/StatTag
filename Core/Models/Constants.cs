@@ -1,4 +1,6 @@
-﻿namespace AnalysisManager.Core.Models
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace AnalysisManager.Core.Models
 {
     public static class Constants
     {
@@ -163,6 +165,12 @@
         {
             public const string HHMM = "HH:mm";
             public const string HHMMSS = "HH:mm:ss";
+        }
+
+        public static class DimensionIndex
+        {
+            public const int Rows = 0;
+            public const int Columns = 1;
         }
     }
 }

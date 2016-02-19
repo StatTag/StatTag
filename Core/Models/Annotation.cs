@@ -170,15 +170,57 @@ namespace AnalysisManager.Core.Models
             return Type != null && Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
         }
 
+        /// <summary>
+        /// Determine if there is any table data saved and available for this annotation.  It will perform this check
+        /// regardless of the annotation type (although it's not expected to be called for non-table annotations).
+        /// If the table was set but has 0 dimension, this will still return true.  It asserts that a table result
+        /// was initialized.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasTableData()
+        {
+            return !(CachedResult == null || CachedResult.Count == 0 || CachedResult[0].TableResult == null);
+        }
+
+        /// <summary>
+        /// Update the underlying table data associated with this annotation.
+        /// </summary>
         public void UpdateFormattedTableData()
         {
-            if (CachedResult == null || CachedResult.Count == 0 || CachedResult[0].TableResult == null)
+            if (!IsTableAnnotation() || !HasTableData())
             {
                 return;
             }
 
             var table = CachedResult[0].TableResult;
             table.FormattedCells = TableFormat.Format(table);
+        }
+
+        /// <summary>
+        /// Get the dimensions for the displayable table.  This factors in not only the data, but if column and
+        /// row labels are included.
+        /// </summary>
+        /// <returns></returns>
+        public int[] GetTableDisplayDimensions()
+        {
+            if (!IsTableAnnotation() || TableFormat == null || !HasTableData())
+            {
+                return null;
+            }
+
+            var tableData = CachedResult[0].TableResult;
+            var dimensions = new[] { tableData.RowSize, tableData.ColumnSize };
+            if (TableFormat.IncludeColumnNames && tableData.ColumnNames != null)
+            {
+                dimensions[Constants.DimensionIndex.Rows]++;
+            }
+
+            if (TableFormat.IncludeRowNames && tableData.RowNames != null)
+            {
+                dimensions[Constants.DimensionIndex.Columns]++;
+            }
+
+            return dimensions;
         }
     }
 }

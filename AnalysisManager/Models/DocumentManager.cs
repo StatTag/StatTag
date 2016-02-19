@@ -248,6 +248,41 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Utility method that assumes the cursor is in a single cell of an existing table.  It then finds the maximum number
+        /// of cells that it can fill in that fit within the dimensions of that table, and that use the available data for
+        /// the resulting table.
+        /// </summary>
+        /// <param name="selectedCell"></param>
+        /// <param name="table"></param>
+        /// <param name="dimensions"></param>
+        /// <returns></returns>
+        private Cells SelectExistingTableRange(Cell selectedCell, Microsoft.Office.Interop.Word.Table table, int[] dimensions)
+        {
+            var columns = table.Columns;
+            var rows = table.Rows;
+            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns]);
+            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows]);
+
+            Log(string.Format("Selecting in existing to row {0}, column {1}", endRow, endColumn));
+            Log(string.Format("Selected table has {0} rows and {1} columns", rows.Count, columns.Count));
+            Log(string.Format("Table to insert has dimensions {0} by {1}", dimensions[0], dimensions[1]));
+
+            var endCell = table.Cell(endRow, endColumn);
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            document.Range(selectedCell.Range.Start, endCell.Range.End).Select();
+
+            var cells = GetCells(application.Selection);
+
+            Marshal.ReleaseComObject(endCell);
+            Marshal.ReleaseComObject(columns);
+            Marshal.ReleaseComObject(rows);
+            Marshal.ReleaseComObject(document);
+            return cells;
+        }
+
+        /// <summary>
         /// Insert a table annotation into the current selection.
         /// </summary>
         /// <remarks>This assumes that the annotation is known to be a table result.</remarks>
@@ -263,7 +298,7 @@ namespace AnalysisManager.Models
                 return;
             }
 
-            if (annotation.CachedResult == null || annotation.CachedResult.Count == 0)
+            if (!annotation.HasTableData())
             {
                 var selectionRange = selection.Range;
                 CreateAnnotationField(selectionRange, annotation.Id, Constants.Placeholders.EmptyField, annotation);
@@ -272,8 +307,10 @@ namespace AnalysisManager.Models
             }
 
             var cells = GetCells(selection);
+            annotation.UpdateFormattedTableData();
             var table = annotation.CachedResult[0].TableResult;
-            table.FormattedCells = annotation.TableFormat.Format(table);
+
+            var dimensions = annotation.GetTableDisplayDimensions();
 
             var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
 
@@ -293,11 +330,8 @@ namespace AnalysisManager.Models
             else if (cellsCount == 1 && selection.Start == selection.End)
             {
                 Log("Cursor is in a single table cell, selecting table");
-                var wordTable = selection.Tables[1];
-                wordTable.Select();
-                cells = GetCells(selection);
+                cells = SelectExistingTableRange(cells.OfType<Cell>().First(), selection.Tables[1], dimensions);
                 cellsCount = cells.Count;
-                Marshal.ReleaseComObject(wordTable);
             }
 
             if (table.FormattedCells == null || table.FormattedCells.Length == 0)
