@@ -482,8 +482,8 @@ namespace AnalysisManager.Models
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
         {
             Log("CreateAnnotationField - Started");
-            var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
-                MacroButtonName, displayValue, annotationIdentifier));
+            var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
+                MacroButtonName, displayValue, annotationIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
             Log(string.Format("Inserted field with identifier {0} and display value {1}", annotationIdentifier, displayValue));
 
             var dataField = fields[0];
@@ -621,6 +621,11 @@ namespace AnalysisManager.Models
                 // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
+                    if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                    {
+                        dialog.Annotation.UpdateFormattedTableData();
+                    }
+
                     Log("Updating fields after annotation value format changed");
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }

@@ -169,5 +169,16 @@ namespace AnalysisManager.Core.Models
         {
             return Type != null && Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
         }
+
+        public void UpdateFormattedTableData()
+        {
+            if (CachedResult == null || CachedResult.Count == 0 || CachedResult[0].TableResult == null)
+            {
+                return;
+            }
+
+            var table = CachedResult[0].TableResult;
+            table.FormattedCells = TableFormat.Format(table);
+        }
     }
 }
