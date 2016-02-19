@@ -222,12 +222,13 @@
             // lblWarning
             // 
             this.lblWarning.AutoSize = true;
-            this.lblWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWarning.Location = new System.Drawing.Point(287, 104);
+            this.lblWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWarning.ForeColor = System.Drawing.Color.Red;
+            this.lblWarning.Location = new System.Drawing.Point(251, 103);
             this.lblWarning.Name = "lblWarning";
-            this.lblWarning.Size = new System.Drawing.Size(447, 17);
+            this.lblWarning.Size = new System.Drawing.Size(483, 17);
             this.lblWarning.TabIndex = 23;
-            this.lblWarning.Text = "WARNING: The region of code you have selected does not produce any output.";
+            this.lblWarning.Text = "WARNING: The selected region of code does not output to Analysis Manager.";
             this.lblWarning.Visible = false;
             // 
             // codeCheckWorker
