@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -16,17 +17,18 @@ namespace AnalysisManager
         public readonly Font SelectedButtonFont = DefaultFont;
         public readonly Font UnselectedButtonFont = DefaultFont;
 
-        public List<CodeFile> Files { get; set; }
+        public DocumentManager Manager { get; set; }
         public Annotation Annotation { get; set; }
 
         private string AnnotationType { get; set; }
+        private bool ReprocessCodeReview { get; set; }
 
-        public EditAnnotation(List<CodeFile> files = null)
+        public EditAnnotation(DocumentManager manager = null)
         {
             InitializeComponent();
             SelectedButtonFont = Font;
             UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
-            Files = files;
+            Manager = manager;
         }
 
         private void cmdValue_Click(object sender, EventArgs e)
@@ -102,9 +104,9 @@ namespace AnalysisManager
 
             cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
-            if (Files != null)
+            if (Manager != null && Manager.Files != null)
             {
-                cboCodeFiles.Items.AddRange(Files.Select(x => x as object).ToArray());
+                cboCodeFiles.Items.AddRange(Manager.Files.Select(x => x as object).ToArray());
             }
 
             if (Annotation != null)
@@ -147,7 +149,7 @@ namespace AnalysisManager
             else
             {
                 // If there is only one file available, select it by default
-                if (Files != null && Files.Count == 1)
+                if (Manager != null && Manager.Files != null && Manager.Files.Count == 1)
                 {
                     cboCodeFiles.SelectedIndex = 0;
                 }
@@ -241,6 +243,72 @@ namespace AnalysisManager
                 X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
                 Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
             };
+        }
+
+        private void EditAnnotation_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.DialogResult == DialogResult.OK)
+            {
+                var result = Utility.CheckForDuplicateLabels(Annotation, Manager.Files);
+                if (result != null && result.Count > 0)
+                {
+                    if (DialogResult.Yes != MessageBox.Show(
+                        string.Format(
+                            "The output label you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
+                            Annotation.OutputLabel, result.Count, "file".Pluralize(result.Count)),
+                        UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
+                    {
+                        this.DialogResult = DialogResult.None;
+                        e.Cancel = true;
+                    }
+                }
+            }
+        }
+
+        private void lstCode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (codeCheckWorker.IsBusy)
+            {
+                ReprocessCodeReview = true;
+                return;
+            }
+
+            if (lstCode.SelectedItems.Count == 0)
+            {
+                lblWarning.Visible = false;
+            }
+            else
+            {
+                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
+                codeCheckWorker.RunWorkerAsync(selectedText);
+            }
+        }
+
+        private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            var automation = new Stata.Automation();
+            var commands = e.Argument as string[];
+            if (commands.Any(command => automation.IsReturnable(command)))
+            {
+                e.Result = false;
+                return;
+            }
+
+            e.Result = true;
+        }
+
+        private void codeCheckWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (ReprocessCodeReview)
+            {
+                ReprocessCodeReview = false;
+                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
+                codeCheckWorker.RunWorkerAsync(selectedText);
+            }
+            else
+            {
+                lblWarning.Visible = (bool)e.Result;
+            }
         }
     }
 }

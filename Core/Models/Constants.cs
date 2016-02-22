@@ -1,4 +1,6 @@
-﻿namespace AnalysisManager.Core.Models
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace AnalysisManager.Core.Models
 {
     public static class Constants
     {
@@ -92,6 +94,7 @@
         /// </summary>
         public static class AnnotationParameters
         {
+            public const string Id = "Id";
             public const string Label = "Label";
             public const string Frequency = "Frequency";
         }
@@ -103,6 +106,7 @@
             public const string UseThousands = "Thousands";
             public const string DateFormat = "DateFormat";
             public const string TimeFormat = "TimeFormat";
+            public const string AllowInvalidTypes = "AllowInvalid";
         }
 
         public static class TableParameters
@@ -115,6 +119,11 @@
         {
             public const bool ColumnNames = false;
             public const bool RowNames = false;
+        }
+
+        public static class ValueParameterDefaults
+        {
+            public const bool AllowInvalidTypes = false;
         }
 
         public static class CodeFileComment
@@ -156,6 +165,12 @@
         {
             public const string HHMM = "HH:mm";
             public const string HHMMSS = "HH:mm:ss";
+        }
+
+        public static class DimensionIndex
+        {
+            public const int Rows = 0;
+            public const int Columns = 1;
         }
     }
 }

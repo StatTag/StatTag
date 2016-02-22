@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -71,8 +72,12 @@ namespace AnalysisManager
             return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Revision);
         }
 
-        public static void WarningMessageBox(string text)
+        public static void WarningMessageBox(string text, LogManager logger)
         {
+            if (logger != null)
+            {
+                logger.WriteMessage(text);
+            }
             MessageBox.Show(text, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
@@ -104,6 +109,26 @@ namespace AnalysisManager
             {
                 annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
             }
+        }
+
+        public static string Pluralize(this string singularForm, int howMany)
+        {
+            return singularForm.Pluralize(howMany, singularForm + "s");
+        }
+
+        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
+        {
+            return howMany == 1 ? singularForm : pluralForm;
+        }
+
+        public static void ReportException(Exception exc, string userMessage, LogManager logger)
+        {
+            if (logger != null)
+            {
+                logger.WriteException(exc);
+            }
+
+            MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

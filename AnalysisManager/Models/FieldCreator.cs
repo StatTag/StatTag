@@ -19,6 +19,9 @@ namespace AnalysisManager.Models
     /// </summary>
     public class FieldCreator
     {
+        public const string FieldOpen = "<";
+        public const string FieldClose = ">";
+
         /// <summary>
         /// Adds one or more new <see cref="Word.Field"/> to the specified <see cref="Word.Range"/>.
         /// <para>
@@ -41,9 +44,9 @@ namespace AnalysisManager.Models
         /// </remarks>
         public Word.Field[] InsertField(
             Word.Range range,
-            string theString = "{{}}",
-            string fieldOpen = "{{",
-            string fieldClose = "}}")
+            string theString = FieldOpen + FieldClose,
+            string fieldOpen = FieldOpen,
+            string fieldClose = FieldClose)
         {
             if (null == range)
             {

@@ -46,7 +46,10 @@ namespace AnalysisManager.Controls
             {
                 FormatType = Constants.ValueFormatType.Numeric,
                 UseThousands = numericValueProperties.UseThousands,
-                DecimalPlaces = numericValueProperties.DecimalPlaces
+                DecimalPlaces = numericValueProperties.DecimalPlaces,
+                // Tables will have rows and columns, and so we will allow non-numeric types to flow
+                // through when inserting results into the document.
+                AllowInvalidTypes = true
             };
         }
     }

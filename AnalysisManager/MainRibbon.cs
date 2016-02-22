@@ -38,19 +38,37 @@ namespace AnalysisManager
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new LoadAnalysisCode(Manager, Manager.Files);
-            if (DialogResult.OK == dialog.ShowDialog())
+            try
             {
-                Manager.Files = dialog.Files;
+                var dialog = new LoadAnalysisCode(Manager, Manager.Files);
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    Manager.Files = dialog.Files;
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to manage your code files.",
+                    LogManager);
             }
         }
 
         private void cmdManageAnnotations_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new ManageAnnotations(Manager);
-            if (DialogResult.OK == dialog.ShowDialog())
+            try
             {
-                Manager.SaveAllCodeFiles();
+                var dialog = new ManageAnnotations(Manager);
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    Manager.SaveAllCodeFiles();
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to manage your annotations.",
+                    LogManager);
             }
         }
 
@@ -69,7 +87,8 @@ namespace AnalysisManager
                     {
                         if (!refreshedFiles.Contains(annotation.CodeFile))
                         {
-                            var result = ExecuteStatPackage(annotation.CodeFile, Constants.ParserFilterMode.AnnotationList, annotations);
+                            var result = ExecuteStatPackage(annotation.CodeFile,
+                                Constants.ParserFilterMode.AnnotationList, annotations);
                             if (!result.Success)
                             {
                                 break;
@@ -90,6 +109,12 @@ namespace AnalysisManager
                     {
                         Manager.UpdateFields(new UpdatePair<Annotation>(updatedAnnotation, updatedAnnotation));
                     }
+                }
+                catch (Exception exc)
+                {
+                    UIUtility.ReportException(exc,
+                        "There was an unexpected error when trying to insert a value into the document.",
+                        LogManager);
                 }
                 finally
                 {
@@ -152,7 +177,7 @@ namespace AnalysisManager
                         continue;
                     }
 
-                    var annotation = Manager.FindAnnotation(step.Annotation.OutputLabel, step.Annotation.Type);
+                    var annotation = Manager.FindAnnotation(step.Annotation.Id);
                     if (annotation != null)
                     {
                         var resultList = new List<CommandResult>(results);
@@ -190,12 +215,21 @@ namespace AnalysisManager
 
         private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new Settings(PropertiesManager.Properties);
-            if (DialogResult.OK == dialog.ShowDialog())
+            try
             {
-                PropertiesManager.Properties = dialog.Properties;
-                PropertiesManager.Save();
-                LogManager.UpdateSettings(dialog.Properties);
+                var dialog = new Settings(PropertiesManager.Properties);
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    PropertiesManager.Properties = dialog.Properties;
+                    PropertiesManager.Save();
+                    LogManager.UpdateSettings(dialog.Properties);
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to manage your settings",
+                    LogManager);
             }
         }
 
@@ -232,6 +266,12 @@ namespace AnalysisManager
                 // have more fields than annotations, we are going to use the approach of looping
                 // through all fields and updating them (via the DocumentManager).
                 Manager.UpdateFields();
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when tring to update values in your document.",
+                    LogManager);
             }
             finally
             {

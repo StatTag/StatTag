@@ -121,8 +121,10 @@ namespace AnalysisManager.Models
         /// <param name="annotation"></param>
         public void InsertImage(Annotation annotation)
         {
+            Log("InsertImage - Started");
             if (annotation == null)
             {
+                Log("The annotation is null, no action will be taken");
                 return;
             }
 
@@ -131,6 +133,7 @@ namespace AnalysisManager.Models
             string fileName = annotation.CachedResult[0].FigureResult;
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
+                Log(string.Format("Inserting a PDF image - {0}", fileName));
                 object fileNameObject = fileName;
                 object classType = "AcroExch.Document.DC";
                 object oFalse = false;
@@ -143,18 +146,113 @@ namespace AnalysisManager.Models
             }
             else
             {
+                Log(string.Format("Inserting a non-PDF image - {0}", fileName));
                 application.Selection.InlineShapes.AddPicture(fileName);
             }
+
+            Log("InsertImage - Finished");
         }
 
         /// <summary>
-        /// Finds the first annotation that matches a given label.
+        /// Determine if an updated annotation pair resulted in a table having different dimensions.  This purely
+        /// looks at structure of the table with headers - it does not (currently) factor in data changes.
         /// </summary>
-        /// <param name="annotationLabel"></param>
+        /// <param name="annotationUpdatePair"></param>
         /// <returns></returns>
-        public Annotation FindAnnotation(string annotationLabel)
+        private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
         {
-            return Files.Select(codeFile => codeFile.Annotations.Find(x => x.OutputLabel.Equals(annotationLabel))).FirstOrDefault();
+            if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
+            {
+                return false;
+            }
+
+            if (!annotationUpdatePair.Old.IsTableAnnotation() || !annotationUpdatePair.New.IsTableAnnotation())
+            {
+                return false;
+            }
+
+            // Are we changing the display of headers?
+            if (annotationUpdatePair.Old.TableFormat.IncludeColumnNames != annotationUpdatePair.New.TableFormat.IncludeColumnNames
+                || annotationUpdatePair.Old.TableFormat.IncludeRowNames != annotationUpdatePair.New.TableFormat.IncludeRowNames)
+            {
+                Log("Table dimensions have changed based on header settings");
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// For a given Word document, remove all of the field annotations for a single table.  This
+        /// is in preparation to then re-insert the table in response to a dimension change.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <param name="document"></param>
+        private bool RefreshTableAnnotationFields(Annotation annotation, Document document)
+        {
+            Log("RefreshTableAnnotationFields - Started");
+            var fields = document.Fields;
+            int fieldsCount = fields.Count;
+            bool tableRefreshed = false;
+
+            // Fields is a 1-based index
+            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            for (int index = fieldsCount; index >= 1; index--)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(string.Format("Null field detected at index", index));
+                    continue;
+                }
+
+                if (!IsAnalysisManagerField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing Analysis Manager field");
+                var fieldAnnotation = GetFieldAnnotation(field);
+                if (fieldAnnotation == null)
+                {
+                    Log("The field annotation is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                if (annotation.Equals(fieldAnnotation))
+                {
+                    bool isFirstCell = (fieldAnnotation.TableCellIndex.HasValue &&
+                                        fieldAnnotation.TableCellIndex.Value == 0);
+                    int firstFieldLocation = -1;
+                    if (isFirstCell)
+                    {
+                        field.Select();
+                        var selection = document.Application.Selection;
+                        firstFieldLocation = selection.Range.Start;
+                        Marshal.ReleaseComObject(selection);
+
+                        Log(string.Format("First table cell found at position {0}", firstFieldLocation));
+                    }
+                    
+                    field.Delete();
+
+                    if (isFirstCell)
+                    {
+                        document.Application.Selection.Start = firstFieldLocation;
+                        document.Application.Selection.End = firstFieldLocation;
+                        Log("Set position, attempting to insert table");
+                        InsertField(annotation);
+                        tableRefreshed = true;
+                    }
+                }
+
+                Marshal.ReleaseComObject(field);
+            }
+
+            Log(string.Format("RefreshTableAnnotationFields - Finished, Returning {0}", tableRefreshed));
+            return tableRefreshed;
         }
 
         /// <summary>
@@ -168,18 +266,34 @@ namespace AnalysisManager.Models
         /// </summary>
         public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
         {
+            Log("UpdateFields - Started");
+
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
 
             try
             {
+                var tableDimensionChange = IsTableAnnotationChangingDimensions(annotationUpdatePair);
+                if (tableDimensionChange)
+                {
+                    Log(string.Format("Attempting to refresh table with annotation label: {0}", annotationUpdatePair.New.OutputLabel));
+                    if (RefreshTableAnnotationFields(annotationUpdatePair.New, document))
+                    {
+                        Log("Completed refreshing table - leaving UpdateFields");
+                        return;
+                    }
+                }
+
                 var fields = document.Fields;
+                int fieldsCount = fields.Count;
                 // Fields is a 1-based index
-                for (int index = 1; index <= fields.Count; index++)
+                Log(string.Format("Preparing to process {0} fields", fieldsCount));
+                for (int index = 1; index <= fieldsCount; index++)
                 {
                     var field = fields[index];
                     if (field == null)
                     {
+                        Log(string.Format("Null field detected at index", index));
                         continue;
                     }
 
@@ -189,9 +303,11 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
+                    Log("Processing Analysis Manager field");
                     var annotation = GetFieldAnnotation(field);
                     if (annotation == null)
                     {
+                        Log("The field annotation is null or could not be found");
                         Marshal.ReleaseComObject(field);
                         continue;
                     }
@@ -205,10 +321,12 @@ namespace AnalysisManager.Models
                             continue;
                         }
 
+                        Log(string.Format("Processing only a specific annotation with label: {0}", annotationUpdatePair.New.OutputLabel));
                         annotation = new FieldAnnotation(annotationUpdatePair.New, annotation.TableCellIndex);
                         UpdateAnnotationFieldData(field, annotation);
                     }
 
+                    Log(string.Format("Inserting field for annotation: {0}", annotation.OutputLabel));
                     field.Select();
                     InsertField(annotation);
 
@@ -220,6 +338,8 @@ namespace AnalysisManager.Models
             {
                 Marshal.ReleaseComObject(document);
             }
+
+            Log("UpdateFields - Finished");
         }
 
         /// <summary>
@@ -241,6 +361,41 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Utility method that assumes the cursor is in a single cell of an existing table.  It then finds the maximum number
+        /// of cells that it can fill in that fit within the dimensions of that table, and that use the available data for
+        /// the resulting table.
+        /// </summary>
+        /// <param name="selectedCell"></param>
+        /// <param name="table"></param>
+        /// <param name="dimensions"></param>
+        /// <returns></returns>
+        private Cells SelectExistingTableRange(Cell selectedCell, Microsoft.Office.Interop.Word.Table table, int[] dimensions)
+        {
+            var columns = table.Columns;
+            var rows = table.Rows;
+            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns] - 1);
+            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows] - 1);
+
+            Log(string.Format("Selecting in existing to row {0}, column {1}", endRow, endColumn));
+            Log(string.Format("Selected table has {0} rows and {1} columns", rows.Count, columns.Count));
+            Log(string.Format("Table to insert has dimensions {0} by {1}", dimensions[0], dimensions[1]));
+
+            var endCell = table.Cell(endRow, endColumn);
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            document.Range(selectedCell.Range.Start, endCell.Range.End).Select();
+
+            var cells = GetCells(application.Selection);
+
+            Marshal.ReleaseComObject(endCell);
+            Marshal.ReleaseComObject(columns);
+            Marshal.ReleaseComObject(rows);
+            Marshal.ReleaseComObject(document);
+            return cells;
+        }
+
+        /// <summary>
         /// Insert a table annotation into the current selection.
         /// </summary>
         /// <remarks>This assumes that the annotation is known to be a table result.</remarks>
@@ -248,21 +403,53 @@ namespace AnalysisManager.Models
         /// <param name="annotation"></param>
         public void InsertTable(Selection selection, Annotation annotation)
         {
-            var cells = GetCells(selection);
-            var table = annotation.CachedResult[0].TableResult;
-            table.FormattedCells = annotation.TableFormat.Format(table);
+            Log("InsertTable - Started");
 
-            // TODO: Insert a new table if there is none selected.
+            if (annotation == null)
+            {
+                Log("Unable to insert the table because the annotation is null");
+                return;
+            }
+
+            if (!annotation.HasTableData())
+            {
+                var selectionRange = selection.Range;
+                CreateAnnotationField(selectionRange, annotation.Id, Constants.Placeholders.EmptyField, annotation);
+                Log("Unable to insert the table because there are no cached results for the annotation");
+                return;
+            }
+
+            var cells = GetCells(selection);
+            annotation.UpdateFormattedTableData();
+            var table = annotation.CachedResult[0].TableResult;
+
+            var dimensions = annotation.GetTableDisplayDimensions();
+
             var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
+
+            // Insert a new table if there is none selected.
             if (cellsCount == 0)
             {
-                UIUtility.WarningMessageBox("Please select the cells in an existing table that you would like to fill in, and then insert the result again.");
-                return;
+                Log("No cells selected, creating a new table");
+                CreateWordTableForTableResult(selection, table, annotation.TableFormat);
+                // The table will be the size we need.  Update these tracking variables with the cells and
+                // total size so that we can begin inserting data.
+                cells = GetCells(selection);
+                cellsCount = table.FormattedCells.Length;
+            }
+            // Our heuristic is that a single cell selected with the selection being the same position most
+            // likely means the user has their cursor in a table.  We are going to assume they want us to
+            // fill in that table.
+            else if (cellsCount == 1 && selection.Start == selection.End)
+            {
+                Log("Cursor is in a single table cell, selecting table");
+                cells = SelectExistingTableRange(cells.OfType<Cell>().First(), selection.Tables[1], dimensions);
+                cellsCount = cells.Count;
             }
 
             if (table.FormattedCells == null || table.FormattedCells.Length == 0)
             {
-                UIUtility.WarningMessageBox("There are no table results to insert.");
+                UIUtility.WarningMessageBox("There are no table results to insert.", Logger);
                 return;
             }
 
@@ -276,6 +463,7 @@ namespace AnalysisManager.Models
             {
                 if (index >= table.FormattedCells.Length)
                 {
+                    Log(string.Format("Index {0} is beyond result cell length of {1}", index, table.FormattedCells.Length));
                     break;
                 }
 
@@ -289,7 +477,6 @@ namespace AnalysisManager.Models
                 CreateAnnotationField(range,
                     string.Format("{0}{1}{2}", annotation.OutputLabel, Constants.ReservedCharacters.AnnotationTableCellDelimiter, index),
                     innerAnnotation.FormattedResult, innerAnnotation);
-                    //data[index], innerAnnotation);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -297,6 +484,44 @@ namespace AnalysisManager.Models
             WarnOnMismatchedCellCount(cellsCount, table.FormattedCells.Length);
 
             Marshal.ReleaseComObject(cells);
+
+            Log("InsertTable - Finished");
+        }
+
+        /// <summary>
+        /// Create a new table in the Word document at the current selection point.  This assumes we have a
+        /// statistical result containing a table that needs to be inserted.
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="table"></param>
+        /// <param name="format"></param>
+        public void CreateWordTableForTableResult(Selection selection, Core.Models.Table table, TableFormat format)
+        {
+            Log("CreateWordTableForTableResult - Started");
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            try
+            {
+                int rowCount = (format.IncludeColumnNames) ? (table.RowSize + 1) : (table.RowSize);
+                int columnCount = (format.IncludeRowNames) ? (table.ColumnSize + 1) : (table.ColumnSize);
+
+                Log(string.Format("Table dimensions r={0}, c={1}", rowCount, columnCount));
+
+                var wordTable = document.Tables.Add(selection.Range, rowCount, columnCount);
+                wordTable.Select();
+                var borders = wordTable.Borders;
+                borders.InsideLineStyle = WdLineStyle.wdLineStyleSingle;
+                borders.OutsideLineStyle = WdLineStyle.wdLineStyleSingle;
+                Marshal.ReleaseComObject(borders);
+                Marshal.ReleaseComObject(wordTable);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
+
+            Log("CreateWordTableForTableResult - Finished");
         }
 
         /// <summary>
@@ -311,18 +536,26 @@ namespace AnalysisManager.Models
             {
                 UIUtility.WarningMessageBox(
                     string.Format("The number of cells you have selected ({0}) is larger than the number of cells in your results ({1}).\r\n\r\nOnly the first {1} cells have been filled in with results.",
-                    selectedCellCount, dataLength));
+                    selectedCellCount, dataLength), Logger);
             }
             else if (selectedCellCount < dataLength)
             {
                 UIUtility.WarningMessageBox(
                     string.Format("The number of cells you have selected ({0}) is smaller than the number of cells in your results ({1}).\r\n\r\nOnly the first {0} cells from your results have been used.",
-                    selectedCellCount, dataLength));
+                    selectedCellCount, dataLength), Logger);
             }
         }
 
+        /// <summary>
+        /// Given an annotation, insert the result into the document at the current cursor position.
+        /// <remarks>This method assumes the annotation result is already refreshed.  It does not
+        /// attempt to refresh or recalculate it.</remarks>
+        /// </summary>
+        /// <param name="annotation"></param>
+
         public void InsertField(Annotation annotation)
         {
+            Log("InsertField for Annotation");
             InsertField(new FieldAnnotation(annotation));
         }
 
@@ -334,13 +567,17 @@ namespace AnalysisManager.Models
         /// <param name="annotation"></param>
         public void InsertField(FieldAnnotation annotation)
         {
+            Log("InsertField - Started");
+
             if (annotation == null)
             {
+                Log("The annotation is null");
                 return;
             }
 
             if (annotation.Type == Constants.AnnotationType.Figure)
             {
+                Log("Detected a Figure annotation");
                 InsertImage(annotation);
                 return;
             }
@@ -352,6 +589,7 @@ namespace AnalysisManager.Models
                 var selection = application.Selection;
                 if (selection == null)
                 {
+                    Log("There is no active selection");
                     return;
                 }
 
@@ -359,10 +597,12 @@ namespace AnalysisManager.Models
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
                 if (annotation.IsTableAnnotation() && !annotation.TableCellIndex.HasValue)
                 {
+                    Log("Inserting a new table annotation");
                     InsertTable(selection, annotation);
                 }
                 else
                 {
+                    Log("Inserting a single annotation field");
                     var range = selection.Range;
                     CreateAnnotationField(range, annotation.OutputLabel, annotation.FormattedResult, annotation);
                     Marshal.ReleaseComObject(range);
@@ -382,14 +622,20 @@ namespace AnalysisManager.Models
             {
                 Marshal.ReleaseComObject(document);
             }
+
+            Log("InsertField - Finished");
         }
 
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
         {
-            var fields = FieldManager.InsertField(range, string.Format("{{{{MacroButton {0} {1}{{{{ADDIN {2}}}}}}}}}",
-                MacroButtonName, displayValue, annotationIdentifier));
+            Log("CreateAnnotationField - Started");
+            var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
+                MacroButtonName, displayValue, annotationIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
+            Log(string.Format("Inserted field with identifier {0} and display value {1}", annotationIdentifier, displayValue));
+
             var dataField = fields[0];
             dataField.Data = annotation.Serialize();
+            Log("CreateAnnotationField - Finished");
         }
 
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
@@ -405,35 +651,24 @@ namespace AnalysisManager.Models
         /// <returns></returns>
         public Annotation FindAnnotation(Annotation annotation)
         {
-            return FindAnnotation(annotation.OutputLabel, annotation.Type);
+            return FindAnnotation(annotation.Id);
         }
 
         /// <summary>
         /// Find the master reference of an annotation, which is contained in the code files
         /// associated with the current document
         /// </summary>
-        /// <param name="name">The annotation name to search for</param>
-        /// <param name="type">The annotation type to search for</param>
+        /// <param name="id">The annotation identifier to search for</param>
         /// <returns></returns>
-        public Annotation FindAnnotation(string name, string type)
+        public Annotation FindAnnotation(string id)
         {
             if (Files == null)
             {
+                Log("Unable to find an annotation because the Files collection is null");
                 return null;
             }
 
-            foreach (var file in Files)
-            {
-                foreach (var annotation in file.Annotations)
-                {
-                    if (annotation.OutputLabel.Equals(name) && annotation.Type.Equals(type))
-                    {
-                        return annotation;
-                    }
-                }
-            }
-
-            return null;
+            return Files.SelectMany(file => file.Annotations).FirstOrDefault(annotation => annotation.Id.Equals(id));
         }
 
         /// <summary>
@@ -446,46 +681,6 @@ namespace AnalysisManager.Models
             var annotations = new List<Annotation>();
             Files.ForEach(file => annotations.AddRange(file.Annotations));
             return annotations;
-        }
-
-        /// <summary>
-        /// Given an old and a new annotation, update all of the Fields in the document to refer
-        /// to the new annotation's name (label).
-        /// </summary>
-        /// <param name="annotations">The pair of old and new annotations</param>
-        public void UpdateAnnotationLabel(UpdatePair<Annotation> annotations)
-        {
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
-
-            try
-            {
-                var fields = document.Fields;
-                // Fields is a 1-based index
-                for (int index = 1; index <= fields.Count; index++)
-                {
-                    var field = fields[index];
-                    if (field == null)
-                    {
-                        continue;
-                    }
-
-                    if (IsAnalysisManagerField(field))
-                    {
-                        var annotation = GetFieldAnnotation(field);
-                        if (annotation != null && annotation.Equals(annotations.Old))
-                        {
-                            UpdateAnnotationFieldData(field, new FieldAnnotation(annotations.New));
-                        }
-                    }
-                    Marshal.ReleaseComObject(field);
-                }
-                Marshal.ReleaseComObject(fields);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(document);
-            }
         }
 
         /// <summary>
@@ -518,12 +713,11 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
-        /// associated with it.
+        /// Deserialize a field to extract the FieldAnnotation data
         /// </summary>
-        /// <param name="field">The Word field object to investigate</param>
+        /// <param name="field"></param>
         /// <returns></returns>
-        public FieldAnnotation GetFieldAnnotation(Field field)
+        public FieldAnnotation DeserializeFieldAnnotation(Field field)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
@@ -531,6 +725,18 @@ namespace AnalysisManager.Models
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
 
+            return fieldAnnotation;
+        }
+
+        /// <summary>
+        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
+        /// associated with it.
+        /// </summary>
+        /// <param name="field">The Word field object to investigate</param>
+        /// <returns></returns>
+        public FieldAnnotation GetFieldAnnotation(Field field)
+        {
+            var fieldAnnotation = DeserializeFieldAnnotation(field);
             var annotation = FindAnnotation(fieldAnnotation);
 
             // The result of FindAnnotation is going to be a document-level annotation, not a
@@ -549,7 +755,9 @@ namespace AnalysisManager.Models
         /// <returns></returns>
         public bool EditAnnotation(Annotation annotation)
         {
-            var dialog = new EditAnnotation(Files);
+            Log("EditAnnotation - Started");
+
+            var dialog = new EditAnnotation(this);
             IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
 
             dialog.Annotation = new Annotation(annotation);
@@ -560,21 +768,27 @@ namespace AnalysisManager.Models
                 // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
+                    Log("Updating fields after annotation value format changed");
+                    if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                    {
+                        Log("Updating formatted table data");
+                        dialog.Annotation.UpdateFormattedTableData();
+                    }
+                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                }
+                else if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                {
+                    Log("Updating fields after annotation table format changed");
+                    dialog.Annotation.UpdateFormattedTableData();
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }
 
-                // Perform label changes AFTER any other updates.  This way we don't have to worry about
-                // managing name changes.
-                bool labelChanged = !annotation.OutputLabel.Equals(dialog.Annotation.OutputLabel);
-                if (labelChanged)
-                {
-                    UpdateAnnotationLabel(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
-
                 SaveEditedAnnotation(dialog, annotation);
+                Log("EditAnnotation - Finished (action)");
                 return true;
             }
 
+            Log("EditAnnotation - Finished (no action)");
             return false;
         }
 

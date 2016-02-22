@@ -14,6 +14,7 @@ namespace AnalysisManager.Core.Models
     {
         [JsonIgnore]
         public CodeFile CodeFile { get; set; }
+        public string Id { get; set; }
         public string Type { get; set; }
         public string OutputLabel { get; set; }
         public string RunFrequency { get; set; }
@@ -46,30 +47,11 @@ namespace AnalysisManager.Core.Models
                     formattedValue = ValueFormat.Format(lastValue.ToString());
                 }
 
-                return string.IsNullOrWhiteSpace(formattedValue) ? Constants.Placeholders.EmptyField : formattedValue;
+                // Table annotations should never return the placeholder.  We assume that there could reasonably
+                // be empty cells at some point, so we will not correct those like we do for individual values.
+                return (!IsTableAnnotation() && string.IsNullOrWhiteSpace(formattedValue)) ? Constants.Placeholders.EmptyField : formattedValue;
             }
         }
-
-        //public string FormattedCell(int index)
-        //{
-        //    if (CachedResult == null || CachedResult.Count == 0)
-        //    {
-        //        return Constants.Placeholders.EmptyField;
-        //    }
-
-        //    // When formatting a value, it is possible the user has selected multiple 
-        //    // display commands.  We will only return the last cached result, and format
-        //    // that if our formatter is available.
-        //    var lastValue = CachedResult.Last();
-        //    if (IsTableAnnotation() && TableFormat != null
-        //        && lastValue != null && lastValue.TableResult != null)
-        //    {
-        //        var formattedValue = TableFormat.FormatCell(lastValue.TableResult, index);
-        //        return formattedValue;
-        //    }
-
-        //    return Constants.Placeholders.EmptyField;
-        //}
 
         /// <summary>
         /// The starting line is the 0-based line index where the opening
@@ -83,11 +65,20 @@ namespace AnalysisManager.Core.Models
         /// </summary>
         public int? LineEnd { get; set; }
 
-        public Annotation() { }
+        public Annotation()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
 
         public Annotation(Annotation annotation)
         {
+            if (annotation == null)
+            {
+                return;
+            }
+
             CodeFile = annotation.CodeFile;
+            Id = annotation.Id;
             Type = annotation.Type;
             OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
             RunFrequency = annotation.RunFrequency;
@@ -129,12 +120,14 @@ namespace AnalysisManager.Core.Models
                 return false;
             }
 
-            return string.Equals(OutputLabel, annotation.OutputLabel) && string.Equals(Type, annotation.Type);
+            return Id.Equals(annotation.Id);
+            //return string.Equals(OutputLabel, annotation.OutputLabel) && string.Equals(Type, annotation.Type);
         }
 
         public override int GetHashCode()
         {
-            return ((OutputLabel != null && Type != null) ? (string.Format("{0}--{1}", OutputLabel, Type)).GetHashCode() : 0);
+            return Id.GetHashCode();
+            //return ((OutputLabel != null && Type != null) ? (string.Format("{0}--{1}", OutputLabel, Type)).GetHashCode() : 0);
         }
 
         public override string ToString()
@@ -168,9 +161,66 @@ namespace AnalysisManager.Core.Models
             return label.Replace(Constants.ReservedCharacters.AnnotationTableCellDelimiter, ' ').Trim();
         }
 
+        /// <summary>
+        /// Determine if this annotation is to represent a table
+        /// </summary>
+        /// <returns></returns>
         public bool IsTableAnnotation()
         {
-            return Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
+            return Type != null && Type.Equals(Constants.AnnotationType.Table, StringComparison.CurrentCulture);
+        }
+
+        /// <summary>
+        /// Determine if there is any table data saved and available for this annotation.  It will perform this check
+        /// regardless of the annotation type (although it's not expected to be called for non-table annotations).
+        /// If the table was set but has 0 dimension, this will still return true.  It asserts that a table result
+        /// was initialized.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasTableData()
+        {
+            return !(CachedResult == null || CachedResult.Count == 0 || CachedResult[0].TableResult == null);
+        }
+
+        /// <summary>
+        /// Update the underlying table data associated with this annotation.
+        /// </summary>
+        public void UpdateFormattedTableData()
+        {
+            if (!IsTableAnnotation() || !HasTableData())
+            {
+                return;
+            }
+
+            var table = CachedResult[0].TableResult;
+            table.FormattedCells = TableFormat.Format(table);
+        }
+
+        /// <summary>
+        /// Get the dimensions for the displayable table.  This factors in not only the data, but if column and
+        /// row labels are included.
+        /// </summary>
+        /// <returns></returns>
+        public int[] GetTableDisplayDimensions()
+        {
+            if (!IsTableAnnotation() || TableFormat == null || !HasTableData())
+            {
+                return null;
+            }
+
+            var tableData = CachedResult[0].TableResult;
+            var dimensions = new[] { tableData.RowSize, tableData.ColumnSize };
+            if (TableFormat.IncludeColumnNames && tableData.ColumnNames != null)
+            {
+                dimensions[Constants.DimensionIndex.Rows]++;
+            }
+
+            if (TableFormat.IncludeRowNames && tableData.RowNames != null)
+            {
+                dimensions[Constants.DimensionIndex.Columns]++;
+            }
+
+            return dimensions;
         }
     }
 }

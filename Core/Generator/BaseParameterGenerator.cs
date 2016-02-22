@@ -9,6 +9,11 @@ namespace AnalysisManager.Core.Generator
 {
     public class BaseParameterGenerator
     {
+        public string GetIdParameter(Annotation annotation)
+        {
+            return string.Format("{0}=\"{1}\", ", Constants.AnnotationParameters.Id, annotation.Id.ToString());
+        }
+
         public string GetLabelParameter(Annotation annotation)
         {
             if (!string.IsNullOrWhiteSpace(annotation.OutputLabel))

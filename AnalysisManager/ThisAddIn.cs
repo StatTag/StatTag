@@ -17,6 +17,8 @@ namespace AnalysisManager
 {
     public partial class ThisAddIn
     {
+        public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
+
         public LogManager LogManager = new LogManager();
         public DocumentManager Manager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
@@ -29,21 +31,38 @@ namespace AnalysisManager
             LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
             LogManager.WriteMessage("Startup completed");
             Manager.Logger = LogManager;
+            AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
-            // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
-            // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
-            var document = Application.ActiveDocument;
-            if (document == null)
+            try
             {
-                LogManager.WriteMessage("Active document not accessible");
+                // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
+                // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
+                var document = Application.ActiveDocument;
+                if (document == null)
+                {
+                    LogManager.WriteMessage("Active document not accessible");
+                }
+                else
+                {
+                    LogManager.WriteMessage("Active document is " + document.Name);
+                    Application_DocumentOpen(document);
+                }
+
+                if (Stata.Automation.IsAppRunning())
+                {
+                    LogManager.WriteMessage("Stata appears to be running");
+                    MessageBox.Show(
+                        string.Format("It appears that a copy of Stata is currently running.  Analysis Manager is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use Analysis Manager."),
+                        UIUtility.GetAddInName(),
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
-            else
+            catch (Exception exc)
             {
-                LogManager.WriteMessage("Active document is " + document.Name);
-                Application_DocumentOpen(document);
+                UIUtility.ReportException(exc, "There was an unexpected error when trying ti initialize Analysis Manager.  Not all functionality may be available.", LogManager);
             }
         }
-
+        
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
             LogManager.WriteMessage("Shutdown completed");
@@ -52,7 +71,16 @@ namespace AnalysisManager
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
             LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
-            Manager.SaveFilesToDocument(doc);
+
+            try
+            {
+                Manager.SaveFilesToDocument(doc);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your Analysis Manager data may not be saved.", LogManager);
+            }
+
             LogManager.WriteMessage("DocumentBeforeSave - code files saved");
         }
 
@@ -88,12 +116,22 @@ namespace AnalysisManager
             LogManager.WriteMessage("DocumentOpen - Completed");
         }
 
+        private void OnAfterDoubleClickErrorCallback(object sender, EventArgs eventArgs)
+        {
+            var exception = sender as Exception;
+            if (exception != null)
+            {
+                UIUtility.ReportException(exception,
+                    "There was an error attempting to load the details of this annotation.  If this problem persists, you may want to remove and insert the annotation again.",
+                    LogManager);
+            }
+        }
+
         void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)
         {
             // Workaround for Word add-in API - there is no AfterDoubleClick event, so we will set a new
             // thread with a timer in it to process the double-click after the message is fully processed.
-            var thread = new System.Threading.Thread(Application_AfterDoubleClick);
-            thread.IsBackground = true;
+            var thread = new System.Threading.Thread(Application_AfterDoubleClick) {IsBackground = true};
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }
@@ -106,25 +144,41 @@ namespace AnalysisManager
 
             var selection = Application.Selection;
             var fields = selection.Fields;
-            // We require more than one field, since our AM fields show up as 2 fields.
-            if (fields.Count > 1)
+
+            try
             {
-                // If there are multiple items selected, we will grab the first field in the selection.
-                var field = selection.Fields[1];
-                if (field != null)
+                // We require more than one field, since our AM fields show up as 2 fields.
+                if (fields.Count > 1)
                 {
-                    if (Manager.IsAnalysisManagerField(field))
+                    // If there are multiple items selected, we will grab the first field in the selection.
+                    var field = selection.Fields[1];
+                    if (field != null)
                     {
-                        var fieldAnnotation = Manager.GetFieldAnnotation(field);
-                        var annotation = Manager.FindAnnotation(fieldAnnotation);
-                        Manager.EditAnnotation(annotation);
+                        if (Manager.IsAnalysisManagerField(field))
+                        {
+                            var fieldAnnotation = Manager.GetFieldAnnotation(field);
+                            var annotation = Manager.FindAnnotation(fieldAnnotation);
+                            Manager.EditAnnotation(annotation);
+                        }
+                        Marshal.ReleaseComObject(field);
                     }
-                    Marshal.ReleaseComObject(field);
                 }
             }
-
-            Marshal.ReleaseComObject(fields);
-            Marshal.ReleaseComObject(selection);
+            catch (Exception exc)
+            {
+                // This may also seem kludgy to use a callback, but we want to display the dialog in
+                // the main UI thread.  So we use the callback to transition control back over there
+                // when an error is detected.
+                if (AfterDoubleClickErrorCallback != null)
+                {
+                    AfterDoubleClickErrorCallback(exc, EventArgs.Empty);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(fields);
+                Marshal.ReleaseComObject(selection);
+            }
         }
 
         #region VSTO generated code

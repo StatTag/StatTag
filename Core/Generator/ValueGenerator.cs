@@ -12,7 +12,7 @@ namespace AnalysisManager.Core.Generator
         public string CreateParameters(Annotation annotation)
         {
             var builder = new StringBuilder();
-
+            builder.Append(GetIdParameter(annotation));
             builder.Append(GetLabelParameter(annotation));
             builder.Append(GetRunFrequencyParameter(annotation));
             builder.Append(CreateValueParameters(annotation));
@@ -32,15 +32,15 @@ namespace AnalysisManager.Core.Generator
                 switch (annotation.ValueFormat.FormatType)
                 {
                     case Constants.ValueFormatType.Numeric:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
                         builder.Append(CreateNumericParameters(annotation.ValueFormat));
                         break;
                     case Constants.ValueFormatType.DateTime:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
                         builder.Append(CreateDateTimeParameters(annotation.ValueFormat));
                         break;
                     case Constants.ValueFormatType.Percentage:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType));
+                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
                         builder.Append(CreatePercentageParameters(annotation.ValueFormat));
                         break;
                     default:
@@ -84,9 +84,14 @@ namespace AnalysisManager.Core.Generator
         /// Establishes the default
         /// </summary>
         /// <returns></returns>
-        public string CreateDefaultParameters(string type = Constants.ValueFormatType.Default)
+        public string CreateDefaultParameters(string type = Constants.ValueFormatType.Default, bool invalidTypes = false)
         {
-            return string.Format("{0}=\"{1}\", ", Constants.ValueParameters.Type, type);
+            var builder = new StringBuilder(string.Format("{0}=\"{1}\", ", Constants.ValueParameters.Type, type));
+            if (invalidTypes != Constants.ValueParameterDefaults.AllowInvalidTypes)
+            {
+                builder.Append(string.Format("{0}={1}, ", Constants.ValueParameters.AllowInvalidTypes, invalidTypes));
+            }
+            return builder.ToString();
         }
     }
 }

@@ -4358,7 +4358,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{01503F12-2DB6-4081-8529-CC95F25100B8}</td><td/></row>
 		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.5.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.6.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4373,7 +4373,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>SecureCustomProperties</td><td>ISFOUNDNEWERPRODUCTVERSION;USERNAME;COMPANYNAME;ISX_SERIALNUM;SUPPORTDIR;DOTNETVERSION45FULL</td><td/></row>
 		<row><td>SelectedSetupType</td><td>##IDS__DisplayName_Typical##</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{CA8AC9EB-749E-4F49-9EA2-2827D49EADBA}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{DA60A143-DFC4-4205-A5F0-D8BF6425685C}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

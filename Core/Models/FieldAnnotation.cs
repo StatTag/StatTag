@@ -80,7 +80,12 @@ namespace AnalysisManager.Core.Models
                 var table = CachedResult.Last().TableResult;
                 if (table != null && table.FormattedCells != null)
                 {
-                    CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[TableCellIndex.Value] } };
+                    CachedResult = new List<CommandResult>() {
+                        new CommandResult()
+                        {
+                            ValueResult = (TableCellIndex.Value < table.FormattedCells.Length) ? table.FormattedCells[TableCellIndex.Value] : string.Empty
+                        } 
+                    };
                 }
             }
         }

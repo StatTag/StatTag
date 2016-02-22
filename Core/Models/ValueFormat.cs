@@ -10,6 +10,7 @@ namespace AnalysisManager.Core.Models
         public bool UseThousands { get; set; }
         public string DateFormat { get; set; }
         public string TimeFormat { get; set; }
+        public bool AllowInvalidTypes { get; set; }
 
         /// <summary>
         /// Formats a result given the current configuration
@@ -46,10 +47,10 @@ namespace AnalysisManager.Core.Models
             double numericValue = 0;
             if (!double.TryParse(value, out numericValue))
             {
-                return string.Empty;
+                return (AllowInvalidTypes ? value: string.Empty);
             }
 
-            string formatPrefix = UseThousands ? "#,#" : "#";
+            string formatPrefix = UseThousands ? "#,0" : "0";
             double roundedValue = Math.Round(numericValue, DecimalPlaces);
             if (DecimalPlaces <= 0)
             {
@@ -69,7 +70,7 @@ namespace AnalysisManager.Core.Models
             double numericValue = 0;
             if (!double.TryParse(value, out numericValue))
             {
-                return string.Empty;
+                return (AllowInvalidTypes ? value : string.Empty);
             }
 
 
@@ -86,7 +87,7 @@ namespace AnalysisManager.Core.Models
             var dateTime = new DateTime();
             if (!DateTime.TryParse(value, out dateTime))
             {
-                return string.Empty;
+                return (AllowInvalidTypes ? value : string.Empty);
             }
 
             string format = string.Empty;
@@ -133,7 +134,8 @@ namespace AnalysisManager.Core.Models
                    && DecimalPlaces == other.DecimalPlaces
                    && UseThousands.Equals(other.UseThousands)
                    && string.Equals(DateFormat, other.DateFormat)
-                   && string.Equals(TimeFormat, other.TimeFormat);
+                   && string.Equals(TimeFormat, other.TimeFormat)
+                   && AllowInvalidTypes == other.AllowInvalidTypes;
         }
 
         public override bool Equals(object obj)
@@ -162,6 +164,7 @@ namespace AnalysisManager.Core.Models
                 hashCode = (hashCode*397) ^ UseThousands.GetHashCode();
                 hashCode = (hashCode*397) ^ (DateFormat != null ? DateFormat.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (TimeFormat != null ? TimeFormat.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (AllowInvalidTypes ? 1 : 0);
                 return hashCode;
             }
         }

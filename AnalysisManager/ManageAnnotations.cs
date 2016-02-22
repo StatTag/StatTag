@@ -37,7 +37,7 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new EditAnnotation(Manager.Files);
+            var dialog = new EditAnnotation(Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.SaveEditedAnnotation(dialog);
