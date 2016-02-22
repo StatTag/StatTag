@@ -154,6 +154,108 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Determine if an updated annotation pair resulted in a table having different dimensions.  This purely
+        /// looks at structure of the table with headers - it does not (currently) factor in data changes.
+        /// </summary>
+        /// <param name="annotationUpdatePair"></param>
+        /// <returns></returns>
+        private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
+        {
+            if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
+            {
+                return false;
+            }
+
+            if (!annotationUpdatePair.Old.IsTableAnnotation() || !annotationUpdatePair.New.IsTableAnnotation())
+            {
+                return false;
+            }
+
+            // Are we changing the display of headers?
+            if (annotationUpdatePair.Old.TableFormat.IncludeColumnNames != annotationUpdatePair.New.TableFormat.IncludeColumnNames
+                || annotationUpdatePair.Old.TableFormat.IncludeRowNames != annotationUpdatePair.New.TableFormat.IncludeRowNames)
+            {
+                Log("Table dimensions have changed based on header settings");
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// For a given Word document, remove all of the field annotations for a single table.  This
+        /// is in preparation to then re-insert the table in response to a dimension change.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <param name="document"></param>
+        private bool RefreshTableAnnotationFields(Annotation annotation, Document document)
+        {
+            Log("RefreshTableAnnotationFields - Started");
+            var fields = document.Fields;
+            int fieldsCount = fields.Count;
+            bool tableRefreshed = false;
+
+            // Fields is a 1-based index
+            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            for (int index = fieldsCount; index >= 1; index--)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(string.Format("Null field detected at index", index));
+                    continue;
+                }
+
+                if (!IsAnalysisManagerField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing Analysis Manager field");
+                var fieldAnnotation = GetFieldAnnotation(field);
+                if (fieldAnnotation == null)
+                {
+                    Log("The field annotation is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                if (annotation.Equals(fieldAnnotation))
+                {
+                    bool isFirstCell = (fieldAnnotation.TableCellIndex.HasValue &&
+                                        fieldAnnotation.TableCellIndex.Value == 0);
+                    int firstFieldLocation = -1;
+                    if (isFirstCell)
+                    {
+                        field.Select();
+                        var selection = document.Application.Selection;
+                        firstFieldLocation = selection.Range.Start;
+                        Marshal.ReleaseComObject(selection);
+
+                        Log(string.Format("First table cell found at position {0}", firstFieldLocation));
+                    }
+                    
+                    field.Delete();
+
+                    if (isFirstCell)
+                    {
+                        document.Application.Selection.Start = firstFieldLocation;
+                        document.Application.Selection.End = firstFieldLocation;
+                        Log("Set position, attempting to insert table");
+                        InsertField(annotation);
+                        tableRefreshed = true;
+                    }
+                }
+
+                Marshal.ReleaseComObject(field);
+            }
+
+            Log(string.Format("RefreshTableAnnotationFields - Finished, Returning {0}", tableRefreshed));
+            return tableRefreshed;
+        }
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -171,6 +273,17 @@ namespace AnalysisManager.Models
 
             try
             {
+                var tableDimensionChange = IsTableAnnotationChangingDimensions(annotationUpdatePair);
+                if (tableDimensionChange)
+                {
+                    Log(string.Format("Attempting to refresh table with annotation label: {0}", annotationUpdatePair.New.OutputLabel));
+                    if (RefreshTableAnnotationFields(annotationUpdatePair.New, document))
+                    {
+                        Log("Completed refreshing table - leaving UpdateFields");
+                        return;
+                    }
+                }
+
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
                 // Fields is a 1-based index
@@ -260,8 +373,8 @@ namespace AnalysisManager.Models
         {
             var columns = table.Columns;
             var rows = table.Rows;
-            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns]);
-            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows]);
+            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns] - 1);
+            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows] - 1);
 
             Log(string.Format("Selecting in existing to row {0}, column {1}", endRow, endColumn));
             Log(string.Format("Selected table has {0} rows and {1} columns", rows.Count, columns.Count));
@@ -655,12 +768,18 @@ namespace AnalysisManager.Models
                 // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
                 if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
                 {
+                    Log("Updating fields after annotation value format changed");
                     if (dialog.Annotation.TableFormat != annotation.TableFormat)
                     {
+                        Log("Updating formatted table data");
                         dialog.Annotation.UpdateFormattedTableData();
                     }
-
-                    Log("Updating fields after annotation value format changed");
+                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                }
+                else if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                {
+                    Log("Updating fields after annotation table format changed");
+                    dialog.Annotation.UpdateFormattedTableData();
                     UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
                 }
 
