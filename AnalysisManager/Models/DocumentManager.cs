@@ -153,9 +153,15 @@ namespace AnalysisManager.Models
             Log("InsertImage - Finished");
         }
 
+        /// <summary>
+        /// Determine if an updated annotation pair resulted in a table having different dimensions.  This purely
+        /// looks at structure of the table with headers - it does not (currently) factor in data changes.
+        /// </summary>
+        /// <param name="annotationUpdatePair"></param>
+        /// <returns></returns>
         private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
         {
-            if (annotationUpdatePair == null)
+            if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
             {
                 return false;
             }
@@ -182,11 +188,13 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="annotation"></param>
         /// <param name="document"></param>
-        private void RemoveTableAnnotationFields(Annotation annotation, Document document)
+        private bool RefreshTableAnnotationFields(Annotation annotation, Document document)
         {
+            Log("RefreshTableAnnotationFields - Started");
             var fields = document.Fields;
             int fieldsCount = fields.Count;
-            Range firstFieldLocation = null;
+            bool tableRefreshed = false;
+
             // Fields is a 1-based index
             Log(string.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
@@ -217,33 +225,34 @@ namespace AnalysisManager.Models
                 {
                     bool isFirstCell = (fieldAnnotation.TableCellIndex.HasValue &&
                                         fieldAnnotation.TableCellIndex.Value == 0);
-
+                    int firstFieldLocation = -1;
                     if (isFirstCell)
                     {
                         field.Select();
                         var selection = document.Application.Selection;
-                        firstFieldLocation = selection.Range;
+                        firstFieldLocation = selection.Range.Start;
                         Marshal.ReleaseComObject(selection);
+
+                        Log(string.Format("First table cell found at position {0}", firstFieldLocation));
                     }
                     
                     field.Delete();
 
                     if (isFirstCell)
                     {
-                        document.Application.Selection.Start = firstFieldLocation.Start;
-                        document.Application.Selection.End = firstFieldLocation.Start;
+                        document.Application.Selection.Start = firstFieldLocation;
+                        document.Application.Selection.End = firstFieldLocation;
+                        Log("Set position, attempting to insert table");
                         InsertField(annotation);
+                        tableRefreshed = true;
                     }
                 }
 
                 Marshal.ReleaseComObject(field);
             }
 
-            if (firstFieldLocation != null)
-            {
-                //document.Application.Selection.Start = firstFieldLocation.Start;
-                //document.Application.Selection.End = firstFieldLocation.Start;
-            }
+            Log(string.Format("RefreshTableAnnotationFields - Finished, Returning {0}", tableRefreshed));
+            return tableRefreshed;
         }
 
         /// <summary>
@@ -267,8 +276,12 @@ namespace AnalysisManager.Models
                 var tableDimensionChange = IsTableAnnotationChangingDimensions(annotationUpdatePair);
                 if (tableDimensionChange)
                 {
-                    RemoveTableAnnotationFields(annotationUpdatePair.New, document);
-                    //InsertField(annotationUpdatePair.New);
+                    Log(string.Format("Attempting to refresh table with annotation label: {0}", annotationUpdatePair.New.OutputLabel));
+                    if (RefreshTableAnnotationFields(annotationUpdatePair.New, document))
+                    {
+                        Log("Completed refreshing table - leaving UpdateFields");
+                        return;
+                    }
                 }
 
                 var fields = document.Fields;
@@ -360,8 +373,8 @@ namespace AnalysisManager.Models
         {
             var columns = table.Columns;
             var rows = table.Rows;
-            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns]);
-            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows]);
+            int endColumn = Math.Min(columns.Count, selectedCell.ColumnIndex + dimensions[Constants.DimensionIndex.Columns] - 1);
+            int endRow = Math.Min(rows.Count, selectedCell.RowIndex + dimensions[Constants.DimensionIndex.Rows] - 1);
 
             Log(string.Format("Selecting in existing to row {0}, column {1}", endRow, endColumn));
             Log(string.Format("Selected table has {0} rows and {1} columns", rows.Count, columns.Count));
