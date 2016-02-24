@@ -245,7 +245,6 @@
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\PropertiesManager.cs" />
-    <Compile Include="Models\StateCapture.cs" />
     <Compile Include="Models\WindowWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
