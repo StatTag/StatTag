@@ -7,9 +7,8 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager.Models
@@ -68,7 +67,6 @@ namespace AnalysisManager.Models
                 throw new ArgumentException("theString");
             }
 
-
             var fields = new List<Word.Field>();
             // Special case. If we do not check this, the algorithm breaks.
             if (theString == fieldOpen + fieldClose)
@@ -78,69 +76,68 @@ namespace AnalysisManager.Models
             }
 
             // TODO Implement additional error handling.
+            Word.Field result = null;
+            var fieldStack = new Stack<Word.Range>();
 
-            // TODO Possible to remove the dependency to state capture?
-            using (new StateCapture(range.Application.ActiveDocument))
+            range.Text = theString;
+            fieldStack.Push(range);
+
+            Word.Range searchRange = range.Duplicate;
+            Word.Range fieldRange = null;
+
+            while (searchRange.Start != searchRange.End)
             {
-                Word.Field result = null;
-                Stack fieldStack = new Stack();
+                Word.Range nextOpen = this.FindNextOpen(searchRange.Duplicate, fieldOpen);
+                Word.Range nextClose = this.FindNextClose(searchRange.Duplicate, fieldClose);
 
-                range.Text = theString;
-                fieldStack.Push(range);
-
-                Word.Range searchRange = range.Duplicate;
-                Word.Range nextOpen = null;
-                Word.Range nextClose = null;
-                Word.Range fieldRange = null;
-
-                while (searchRange.Start != searchRange.End)
+                if (null == nextClose)
                 {
-                    nextOpen = this.FindNextOpen(searchRange.Duplicate, fieldOpen);
-                    nextClose = this.FindNextClose(searchRange.Duplicate, fieldClose);
-
-                    if (null == nextClose)
-                    {
-                        break;
-                    }
-
-                    // See which marker comes first.
-                    if (nextOpen.Start < nextClose.Start)
-                    {
-                        nextOpen.Text = string.Empty;
-                        searchRange.Start = nextOpen.End;
-
-                        // Field open, so push a new range to the stack.
-                        fieldStack.Push(nextOpen.Duplicate);
-                    }
-                    else
-                    {
-                        nextClose.Text = string.Empty;
-
-                        // Move start of main search region onwards past the end marker.
-                        searchRange.Start = nextClose.End;
-
-                        // Field close, so pop the last range from the stack and insert the field.
-                        fieldRange = (Word.Range)fieldStack.Pop();
-                        fieldRange.End = nextClose.End;
-                        result = InsertEmpty(fieldRange);
-                        fields.Add(result);
-                    }
+                    break;
                 }
 
-                // Move the current selection after all inserted fields.
-                // TODO Improvement possible, e.g. by using another range object?
-                int newPos = fieldRange.End + fieldRange.Fields.Count + 1;
-                fieldRange.SetRange(newPos, newPos);
-                fieldRange.Select();
-
-                // Update the result of the outer field object.
-                if (result != null)
+                // See which marker comes first.
+                if (nextOpen.Start < nextClose.Start)
                 {
-                    result.Update();
-                }
+                    nextOpen.Text = string.Empty;
+                    searchRange.Start = nextOpen.End;
 
-                return fields.ToArray();
+                    // Field open, so push a new range to the stack.
+                    fieldStack.Push(nextOpen.Duplicate);
+                }
+                else
+                {
+                    nextClose.Text = string.Empty;
+
+                    // Move start of main search region onwards past the end marker.
+                    searchRange.Start = nextClose.End;
+
+                    // Field close, so pop the last range from the stack and insert the field.
+                    fieldRange = fieldStack.Pop();
+                    fieldRange.End = nextClose.End;
+                    result = InsertEmpty(fieldRange);
+                    fields.Add(result);
+                }
             }
+
+            // To avoid having a blank space at the end of the field, we need to explicitly trim
+            // out a blank space that exists between the nested field delimiters.
+            var spaceRange = fieldRange.Duplicate;
+            spaceRange.Start = spaceRange.End;
+            spaceRange.End = spaceRange.Start;
+            spaceRange.Delete(Word.WdUnits.wdCharacter, 1);
+
+            // Move the current selection after all inserted fields.
+            int newPos = fieldRange.End + fieldRange.Fields.Count + 1;
+            fieldRange.SetRange(newPos, newPos);
+            fieldRange.Select();
+
+            // Update the result of the outer field object.
+            if (result != null)
+            {
+                result.Update();
+            }
+
+            return fields.ToArray();
         }
 
         /// <summary>
@@ -154,10 +151,6 @@ namespace AnalysisManager.Models
         public Word.Field InsertEmpty(Word.Range range, bool preserveFormatting = false)
         {
             Word.Field result = this.AddFieldToRange(range, Word.WdFieldType.wdFieldEmpty, preserveFormatting);
-
-            // Show the field codes of an empty field, because otherwise we can't be sure that it is visible.
-            //result.ShowCodes = true;
-
             return result;
         }
 
