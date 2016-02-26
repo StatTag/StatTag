@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AnalysisManager.Core.Models;
+﻿using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
+using System;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace AnalysisManager
 {
@@ -42,6 +36,7 @@ namespace AnalysisManager
             {
                 Manager.SaveEditedAnnotation(dialog);
                 AddRow(dialog.Annotation);
+                ReloadAnnotations();
             }
         }
 
@@ -92,12 +87,6 @@ namespace AnalysisManager
                     // Since we are reloading from a file, at this point if we had any cached results for
                     // an annotation we want to associate that back with the annotation.
                     UIUtility.SetCachedAnnotation(existingAnnotations, annotation);
-                    //var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
-                    //if (existingAnnotation != null && existingAnnotation.CachedResult != null)
-                    //{
-                    //    annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
-                    //}
-
                     AddRow(annotation);
                 }
             }
