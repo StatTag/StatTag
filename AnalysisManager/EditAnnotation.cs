@@ -25,6 +25,7 @@ namespace AnalysisManager
 
         public DocumentManager Manager { get; set; }
         public Annotation Annotation { get; set; }
+        public string CodeText { get; set; }
 
         private string AnnotationType { get; set; }
         private bool ReprocessCodeReview { get; set; }
@@ -185,6 +186,7 @@ namespace AnalysisManager
                 Annotation = new Annotation();
             }
 
+            CodeText = scintilla1.Text;
             Annotation.Type = AnnotationType;
             Annotation.OutputLabel = Annotation.NormalizeOutputLabel(txtOutputLabel.Text);
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;

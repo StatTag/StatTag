@@ -9,5 +9,6 @@ namespace AnalysisManager.Core.Interfaces
         bool Exists(string filePath);
         void Copy(string sourceFile, string destinationFile);
         void WriteAllLines(string filePath, IEnumerable<string> content);
+        void WriteAllText(string filePath, string contents);
     }
 }

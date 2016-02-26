@@ -803,7 +803,8 @@ namespace AnalysisManager.Models
             if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
             {
                 var codeFile = dialog.Annotation.CodeFile;
-                dialog.Annotation.CodeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.UpdateContent(dialog.CodeText);
+                codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
                 codeFile.Save();
             }
         }
