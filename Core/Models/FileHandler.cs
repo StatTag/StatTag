@@ -29,5 +29,10 @@ namespace AnalysisManager.Core.Models
         {
             File.WriteAllLines(filePath, content);
         }
+
+        public void WriteAllText(string filePath, string contents)
+        {
+            File.WriteAllText(filePath, contents);
+        }
     }
 }
