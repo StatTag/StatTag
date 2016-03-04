@@ -196,9 +196,9 @@
             this.chkEnableLogging.AutoSize = true;
             this.chkEnableLogging.Location = new System.Drawing.Point(9, 23);
             this.chkEnableLogging.Name = "chkEnableLogging";
-            this.chkEnableLogging.Size = new System.Drawing.Size(156, 21);
+            this.chkEnableLogging.Size = new System.Drawing.Size(179, 21);
             this.chkEnableLogging.TabIndex = 15;
-            this.chkEnableLogging.Text = "Enable the debug log:";
+            this.chkEnableLogging.Text = "Enable the debug text file:";
             this.chkEnableLogging.UseVisualStyleBackColor = true;
             this.chkEnableLogging.CheckedChanged += new System.EventHandler(this.chkEnableLogging_CheckedChanged);
             // 
