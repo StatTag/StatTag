@@ -40,6 +40,7 @@
             this.radDefault.AutoSize = true;
             this.radDefault.Checked = true;
             this.radDefault.Location = new System.Drawing.Point(4, 4);
+            this.radDefault.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.radDefault.Name = "radDefault";
             this.radDefault.Size = new System.Drawing.Size(293, 21);
             this.radDefault.TabIndex = 0;
@@ -51,7 +52,8 @@
             // radNumeric
             // 
             this.radNumeric.AutoSize = true;
-            this.radNumeric.Location = new System.Drawing.Point(4, 32);
+            this.radNumeric.Location = new System.Drawing.Point(4, 28);
+            this.radNumeric.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.radNumeric.Name = "radNumeric";
             this.radNumeric.Size = new System.Drawing.Size(75, 21);
             this.radNumeric.TabIndex = 1;
@@ -62,7 +64,8 @@
             // radDateTime
             // 
             this.radDateTime.AutoSize = true;
-            this.radDateTime.Location = new System.Drawing.Point(4, 60);
+            this.radDateTime.Location = new System.Drawing.Point(4, 52);
+            this.radDateTime.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.radDateTime.Name = "radDateTime";
             this.radDateTime.Size = new System.Drawing.Size(86, 21);
             this.radDateTime.TabIndex = 2;
@@ -73,7 +76,8 @@
             // radPercentage
             // 
             this.radPercentage.AutoSize = true;
-            this.radPercentage.Location = new System.Drawing.Point(4, 88);
+            this.radPercentage.Location = new System.Drawing.Point(4, 76);
+            this.radPercentage.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.radPercentage.Name = "radPercentage";
             this.radPercentage.Size = new System.Drawing.Size(91, 21);
             this.radPercentage.TabIndex = 3;
@@ -88,7 +92,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlDetails.Location = new System.Drawing.Point(111, 32);
             this.pnlDetails.Name = "pnlDetails";
-            this.pnlDetails.Size = new System.Drawing.Size(231, 91);
+            this.pnlDetails.Size = new System.Drawing.Size(231, 70);
             this.pnlDetails.TabIndex = 4;
             // 
             // ValueProperties
@@ -103,7 +107,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "ValueProperties";
-            this.Size = new System.Drawing.Size(342, 123);
+            this.Size = new System.Drawing.Size(342, 102);
             this.Load += new System.EventHandler(this.ValueProperties_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

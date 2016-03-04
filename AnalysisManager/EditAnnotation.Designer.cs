@@ -140,7 +140,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 538);
+            this.label5.Location = new System.Drawing.Point(16, 549);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(355, 17);
             this.label5.TabIndex = 16;
@@ -155,10 +155,10 @@
             this.pnlType.Controls.Add(this.tableProperties);
             this.pnlType.Controls.Add(this.figureProperties);
             this.pnlType.Controls.Add(this.valueProperties);
-            this.pnlType.Location = new System.Drawing.Point(95, 559);
+            this.pnlType.Location = new System.Drawing.Point(98, 570);
             this.pnlType.Name = "pnlType";
             this.pnlType.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.pnlType.Size = new System.Drawing.Size(669, 125);
+            this.pnlType.Size = new System.Drawing.Size(669, 110);
             this.pnlType.TabIndex = 17;
             // 
             // tableProperties
@@ -168,7 +168,7 @@
             this.tableProperties.Location = new System.Drawing.Point(5, 0);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(662, 123);
+            this.tableProperties.Size = new System.Drawing.Size(662, 108);
             this.tableProperties.TabIndex = 2;
             // 
             // figureProperties
@@ -177,7 +177,7 @@
             this.figureProperties.Location = new System.Drawing.Point(5, 0);
             this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(662, 123);
+            this.figureProperties.Size = new System.Drawing.Size(662, 108);
             this.figureProperties.TabIndex = 1;
             // 
             // valueProperties
@@ -187,7 +187,7 @@
             this.valueProperties.Location = new System.Drawing.Point(5, 0);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(662, 123);
+            this.valueProperties.Size = new System.Drawing.Size(662, 108);
             this.valueProperties.TabIndex = 0;
             // 
             // cmdValue
@@ -195,7 +195,7 @@
             this.cmdValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdValue.BackColor = System.Drawing.Color.White;
             this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdValue.Location = new System.Drawing.Point(13, 559);
+            this.cmdValue.Location = new System.Drawing.Point(16, 570);
             this.cmdValue.Name = "cmdValue";
             this.cmdValue.Size = new System.Drawing.Size(83, 30);
             this.cmdValue.TabIndex = 18;
@@ -207,7 +207,7 @@
             // 
             this.cmdFigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdFigure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdFigure.Location = new System.Drawing.Point(21, 588);
+            this.cmdFigure.Location = new System.Drawing.Point(24, 599);
             this.cmdFigure.Name = "cmdFigure";
             this.cmdFigure.Size = new System.Drawing.Size(75, 30);
             this.cmdFigure.TabIndex = 19;
@@ -219,7 +219,7 @@
             // 
             this.cmdTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdTable.Location = new System.Drawing.Point(21, 617);
+            this.cmdTable.Location = new System.Drawing.Point(24, 628);
             this.cmdTable.Name = "cmdTable";
             this.cmdTable.Size = new System.Drawing.Size(75, 30);
             this.cmdTable.TabIndex = 20;
@@ -266,9 +266,8 @@
             this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
             this.scintilla1.Location = new System.Drawing.Point(16, 125);
             this.scintilla1.Name = "scintilla1";
-            this.scintilla1.Size = new System.Drawing.Size(751, 400);
+            this.scintilla1.Size = new System.Drawing.Size(751, 408);
             this.scintilla1.TabIndex = 24;
-            this.scintilla1.Text = "scintilla1";
             this.scintilla1.UseTabs = false;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
             // 
