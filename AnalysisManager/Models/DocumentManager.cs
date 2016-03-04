@@ -802,10 +802,18 @@ namespace AnalysisManager.Models
         {
             if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
             {
+                // After this code block, don't use existingAnnotation anymore because its indexes can
+                // be wrong.
                 var codeFile = dialog.Annotation.CodeFile;
                 codeFile.UpdateContent(dialog.CodeText);
-                codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
-                codeFile.Save();
+
+                // The previous update will refresh the code file on disk.  At this point, if we have a
+                // new annotation that was added, we will want to add it into the code file.
+                if (existingAnnotation == null)
+                {
+                    codeFile.AddAnnotation(dialog.Annotation);
+                    codeFile.Save();   
+                }
             }
         }
 
