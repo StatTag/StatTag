@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -146,6 +147,36 @@ namespace AnalysisManager
             if (!string.IsNullOrWhiteSpace(logPath))
             {
                 txtLogLocation.Text = logPath;
+            }
+        }
+
+        private void txtLogLocation_TextChanged(object sender, EventArgs e)
+        {
+            if (!logPathTimer.Enabled)
+            {
+                logPathTimer.Start();
+            }
+        }
+
+        private void logPathTimer_Tick(object sender, EventArgs e)
+        {
+            logPathTimer.Stop();
+            string logFilePath = txtLogLocation.Text;
+            if (!LogManager.IsValidLogPath(logFilePath))
+            {
+                if (string.IsNullOrWhiteSpace(logFilePath))
+                {
+                    lblLogWarning.Text = "Please select or enter a file path";
+                }
+                else
+                {
+                    lblLogWarning.Text = "The specified path is not accessible";
+                }
+                lblLogWarning.Visible = true;
+            }
+            else
+            {
+                lblLogWarning.Visible = false;
             }
         }
     }

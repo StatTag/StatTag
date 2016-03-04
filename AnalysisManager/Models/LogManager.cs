@@ -17,18 +17,21 @@ namespace AnalysisManager.Models
             UpdateSettings(properties.EnableLogging, properties.LogLocation);
         }
 
-        public void UpdateSettings(bool enabled, string filePath)
+        public static bool IsValidLogPath(string logFilePath)
         {
-            LogFilePath = filePath;
-            Enabled = (enabled && !string.IsNullOrWhiteSpace(LogFilePath));
+            if (string.IsNullOrWhiteSpace(logFilePath))
+            {
+                return false;
+            }
+
             FileStream stream = null;
             try
             {
-                stream = File.OpenWrite(LogFilePath);
+                stream = File.OpenWrite(logFilePath);
             }
             catch (Exception exc)
             {
-                Enabled = false;
+                return false;
             }
             finally
             {
@@ -38,6 +41,14 @@ namespace AnalysisManager.Models
                 }
                 stream = null;
             }
+
+            return true;
+        }
+
+        public void UpdateSettings(bool enabled, string filePath)
+        {
+            LogFilePath = filePath;
+            Enabled = (enabled && IsValidLogPath(LogFilePath));
         }
 
         public void WriteMessage(string text)
