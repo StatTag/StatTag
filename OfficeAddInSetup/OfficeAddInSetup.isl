@@ -2631,7 +2631,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1579408523</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>967099786</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION40CLIENT</td><td>1033</td><td>Microsoft .NET Framework 4.0 Client Package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042496553</td></row>
@@ -3735,8 +3735,8 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.northwestern.edu</td><td>0</td><td/><td>1579386315</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>1579408523</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.NorthwesternUniversity.com</td><td>0</td><td/><td>967099786</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>967099786</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>1042514665</td></row>
 	</table>
 
@@ -4358,7 +4358,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{01503F12-2DB6-4081-8529-CC95F25100B8}</td><td/></row>
 		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.7.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
