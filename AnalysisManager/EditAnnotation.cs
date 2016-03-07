@@ -7,11 +7,17 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using AnalysisManager.Models;
+using ScintillaNET;
+using Annotation = AnalysisManager.Core.Models.Annotation;
 
 namespace AnalysisManager
 {
     public sealed partial class EditAnnotation : Form
     {
+        private const int AnnotationMargin = 1;
+        private const int AnnotationMarker = 1;
+        private const uint AnnotationMask = (1 << AnnotationMarker);
+
         public const int SelectedButtonWidth = 83;
         public const int UnselectedButtonWidth = 70;
         public readonly Font SelectedButtonFont = DefaultFont;
@@ -19,6 +25,7 @@ namespace AnalysisManager
 
         public DocumentManager Manager { get; set; }
         public Annotation Annotation { get; set; }
+        public string CodeText { get; set; }
 
         private string AnnotationType { get; set; }
         private bool ReprocessCodeReview { get; set; }
@@ -99,6 +106,7 @@ namespace AnalysisManager
         private void ManageAnnotation_Load(object sender, EventArgs e)
         {
             OverrideCenterToScreen();
+            MinimumSize = Size;
 
             UpdateForTypeClick(cmdValue);
 
@@ -109,9 +117,21 @@ namespace AnalysisManager
                 cboCodeFiles.Items.AddRange(Manager.Files.Select(x => x as object).ToArray());
             }
 
+            scintilla1.Margins[0].Width = 40;
+            var margin = scintilla1.Margins[AnnotationMargin];
+            margin.Width = 20;
+            margin.Sensitive = true;
+            margin.Type = MarginType.Symbol;
+            margin.Mask = Marker.MaskAll;
+            margin.Cursor = MarginCursor.Arrow;
+            var marker = scintilla1.Markers[AnnotationMarker];
+            marker.SetBackColor(Color.DarkSeaGreen);
+            marker.Symbol = MarkerSymbol.Background;
+
             if (Annotation != null)
             {
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
+                ScintillaManager.ConfigureEditor(scintilla1, Annotation.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
                 cboRunFrequency.SelectedItem = Annotation.RunFrequency;
                 txtOutputLabel.Text = Annotation.OutputLabel;
@@ -119,14 +139,15 @@ namespace AnalysisManager
                 LoadCodeFile(Annotation.CodeFile);
                 if (Annotation.LineStart.HasValue && Annotation.LineEnd.HasValue)
                 {
-                    int maxIndex = lstCode.Items.Count - 1;
+                    int maxIndex = scintilla1.Lines.Count - 1;
                     int startIndex = Math.Max(0, Annotation.LineStart.Value);
                     startIndex = Math.Min(startIndex, maxIndex);
                     int endIndex = Math.Min(Annotation.LineEnd.Value, maxIndex);
                     for (int index = startIndex; index <= endIndex; index++)
                     {
-                        lstCode.SelectedIndices.Add(index);
+                        SetLineMarker(scintilla1.Lines[index], true);
                     }
+                    scintilla1.LineScroll(startIndex, 0);
                 }
 
                 switch (AnnotationType)
@@ -166,11 +187,12 @@ namespace AnalysisManager
                 Annotation = new Annotation();
             }
 
+            CodeText = scintilla1.Text;
             Annotation.Type = AnnotationType;
             Annotation.OutputLabel = Annotation.NormalizeOutputLabel(txtOutputLabel.Text);
             Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
             Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
-            var selectedIndices = lstCode.SelectedIndices.OfType<int>().ToArray();
+            var selectedIndices = GetSelectedIndices();
             if (!selectedIndices.Any())
             {
                 Annotation.LineStart = null;
@@ -211,10 +233,12 @@ namespace AnalysisManager
 
         private void LoadCodeFile(CodeFile file)
         {
-            lstCode.Items.Clear();
+            scintilla1.Text = string.Empty;
+            scintilla1.EmptyUndoBuffer();
             if (file != null)
             {
-                lstCode.Items.AddRange(Utility.StringArrayToObjectArray(file.Content.ToArray()));
+                scintilla1.Text = string.Join("\r\n", file.Content);
+                ScintillaManager.ConfigureEditor(scintilla1, file);
             }
         }
 
@@ -265,25 +289,6 @@ namespace AnalysisManager
             }
         }
 
-        private void lstCode_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (codeCheckWorker.IsBusy)
-            {
-                ReprocessCodeReview = true;
-                return;
-            }
-
-            if (lstCode.SelectedItems.Count == 0)
-            {
-                lblWarning.Visible = false;
-            }
-            else
-            {
-                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
-                codeCheckWorker.RunWorkerAsync(selectedText);
-            }
-        }
-
         private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var automation = new Stata.Automation();
@@ -302,12 +307,130 @@ namespace AnalysisManager
             if (ReprocessCodeReview)
             {
                 ReprocessCodeReview = false;
-                var selectedText = lstCode.SelectedItems.Cast<string>().ToArray();
+                var selectedText = GetSelectedText();
                 codeCheckWorker.RunWorkerAsync(selectedText);
             }
             else
             {
-                lblWarning.Visible = (bool)e.Result;
+                lblNoOutputWarning.Visible = (bool)e.Result;
+            }
+        }
+
+        private void scintilla1_MarginClick(object sender, MarginClickEventArgs e)
+        {
+            if (e.Margin == AnnotationMargin)
+            {
+                var lineIndex = scintilla1.LineFromPosition(e.Position);
+                var line = scintilla1.Lines[lineIndex];
+
+                // Check to see if there are any existing selections.  If so, we need to determine if the newly selected
+                // row is a neighbor to the existing selection since we only allow continuous ranges.
+                var previousLineIndex = scintilla1.Lines[lineIndex - 1].MarkerPrevious(1 << AnnotationMarker);
+                if (previousLineIndex != -1)
+                {
+                    if (Math.Abs(lineIndex - previousLineIndex) > 1)
+                    {
+                        if ((e.Modifiers & Keys.Shift) == Keys.Shift)
+                        {
+                            for (int index = previousLineIndex; index < lineIndex; index++)
+                            {
+                                SetLineMarker(scintilla1.Lines[index], true);
+                            }
+                        }
+                        else
+                        {
+                            // Deselect everything
+                            while (previousLineIndex > -1)
+                            {
+                                SetLineMarker(scintilla1.Lines[previousLineIndex], false);
+                                previousLineIndex =
+                                    scintilla1.Lines[previousLineIndex].MarkerPrevious(1 << AnnotationMarker);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var nextLineIndex = scintilla1.Lines[lineIndex + 1].MarkerNext(1 << AnnotationMarker);
+                    if (Math.Abs(lineIndex - nextLineIndex) > 1)
+                    {
+                        if ((e.Modifiers & Keys.Shift) == Keys.Shift)
+                        {
+                            for (int index = nextLineIndex; index > lineIndex; index--)
+                            {
+                                SetLineMarker(scintilla1.Lines[index], true);
+                            }
+                        }
+                        else
+                        {
+                            // Deselect everything
+                            while (nextLineIndex > -1)
+                            {
+                                SetLineMarker(scintilla1.Lines[nextLineIndex], false);
+                                nextLineIndex =
+                                    scintilla1.Lines[nextLineIndex].MarkerNext(1 << AnnotationMarker);
+                            }
+                        }
+                    }
+                }
+
+                // Toggle based on the line's current marker status.
+                SetLineMarker(line, (line.MarkerGet() & AnnotationMask) <= 0);
+
+                if (codeCheckWorker.IsBusy)
+                {
+                    ReprocessCodeReview = true;
+                    return;
+                }
+
+                var selectedText = GetSelectedText();
+                if (selectedText.Length == 0)
+                {
+                    lblNoOutputWarning.Visible = false;
+                }
+                else
+                {
+                    codeCheckWorker.RunWorkerAsync(selectedText);
+                }
+            }
+        }
+
+        private string[] GetSelectedText()
+        {
+            return GetSelectedLines().Select(x => x.Text).ToArray();
+        }
+
+        private int[] GetSelectedIndices()
+        {
+            return GetSelectedLines().Select(x => x.Index).ToArray();
+        }
+
+        private Line[] GetSelectedLines()
+        {
+            var lines = new List<Line>();
+            var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << AnnotationMarker);
+            while (nextLineIndex > -1 && nextLineIndex < scintilla1.Lines.Count)
+            {
+                lines.Add(scintilla1.Lines[nextLineIndex]);
+                if (nextLineIndex == 0 || nextLineIndex == scintilla1.Lines.Count - 1)
+                {
+                    break;
+                }
+                nextLineIndex =
+                    scintilla1.Lines[nextLineIndex + 1].MarkerNext(1 << AnnotationMarker);
+            }
+            return lines.ToArray();
+        }
+
+        private void SetLineMarker(Line line, bool mark)
+        {
+            if (mark)
+            {
+                line.MarkerAdd(AnnotationMarker);
+            }
+            else
+            {
+                line.MarkerDelete(AnnotationMarker);
             }
         }
     }

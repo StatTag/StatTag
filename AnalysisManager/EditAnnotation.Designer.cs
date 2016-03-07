@@ -42,9 +42,10 @@
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
-            this.lstCode = new System.Windows.Forms.ListBox();
-            this.lblWarning = new System.Windows.Forms.Label();
+            this.lblNoOutputWarning = new System.Windows.Forms.Label();
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
+            this.scintilla1 = new ScintillaNET.Scintilla();
+            this.lblInstructions = new System.Windows.Forms.Label();
             this.tableProperties = new AnalysisManager.Controls.TableProperties();
             this.figureProperties = new AnalysisManager.Controls.FigureProperties();
             this.valueProperties = new AnalysisManager.Controls.ValueProperties();
@@ -56,7 +57,7 @@
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(453, 696);
+            this.cmdCancel.Location = new System.Drawing.Point(469, 696);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 25);
@@ -69,7 +70,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(219, 696);
+            this.cmdOK.Location = new System.Drawing.Point(235, 696);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(75, 25);
@@ -98,21 +99,23 @@
             // 
             // cboRunFrequency
             // 
+            this.cboRunFrequency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cboRunFrequency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboRunFrequency.FormattingEnabled = true;
             this.cboRunFrequency.Location = new System.Drawing.Point(203, 39);
             this.cboRunFrequency.Name = "cboRunFrequency";
-            this.cboRunFrequency.Size = new System.Drawing.Size(209, 25);
+            this.cboRunFrequency.Size = new System.Drawing.Size(242, 25);
             this.cboRunFrequency.TabIndex = 11;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 105);
+            this.label3.Location = new System.Drawing.Point(10, 105);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(182, 17);
+            this.label3.Size = new System.Drawing.Size(246, 17);
             this.label3.TabIndex = 12;
-            this.label3.Text = "Select the code region to use:";
+            this.label3.Text = "Click in the margin to define annotations:";
             // 
             // label4
             // 
@@ -125,9 +128,11 @@
             // 
             // txtOutputLabel
             // 
+            this.txtOutputLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtOutputLabel.Location = new System.Drawing.Point(203, 73);
             this.txtOutputLabel.Name = "txtOutputLabel";
-            this.txtOutputLabel.Size = new System.Drawing.Size(379, 25);
+            this.txtOutputLabel.Size = new System.Drawing.Size(412, 25);
             this.txtOutputLabel.TabIndex = 15;
             this.txtOutputLabel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOutputLabel_KeyPress);
             // 
@@ -135,7 +140,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 538);
+            this.label5.Location = new System.Drawing.Point(16, 549);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(355, 17);
             this.label5.TabIndex = 16;
@@ -150,10 +155,10 @@
             this.pnlType.Controls.Add(this.tableProperties);
             this.pnlType.Controls.Add(this.figureProperties);
             this.pnlType.Controls.Add(this.valueProperties);
-            this.pnlType.Location = new System.Drawing.Point(95, 559);
+            this.pnlType.Location = new System.Drawing.Point(98, 570);
             this.pnlType.Name = "pnlType";
             this.pnlType.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.pnlType.Size = new System.Drawing.Size(636, 125);
+            this.pnlType.Size = new System.Drawing.Size(669, 110);
             this.pnlType.TabIndex = 17;
             // 
             // cmdValue
@@ -161,7 +166,7 @@
             this.cmdValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdValue.BackColor = System.Drawing.Color.White;
             this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdValue.Location = new System.Drawing.Point(13, 559);
+            this.cmdValue.Location = new System.Drawing.Point(16, 570);
             this.cmdValue.Name = "cmdValue";
             this.cmdValue.Size = new System.Drawing.Size(83, 30);
             this.cmdValue.TabIndex = 18;
@@ -173,7 +178,7 @@
             // 
             this.cmdFigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdFigure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdFigure.Location = new System.Drawing.Point(21, 588);
+            this.cmdFigure.Location = new System.Drawing.Point(24, 599);
             this.cmdFigure.Name = "cmdFigure";
             this.cmdFigure.Size = new System.Drawing.Size(75, 30);
             this.cmdFigure.TabIndex = 19;
@@ -185,7 +190,7 @@
             // 
             this.cmdTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdTable.Location = new System.Drawing.Point(21, 617);
+            this.cmdTable.Location = new System.Drawing.Point(24, 628);
             this.cmdTable.Name = "cmdTable";
             this.cmdTable.Size = new System.Drawing.Size(75, 30);
             this.cmdTable.TabIndex = 20;
@@ -195,46 +200,56 @@
             // 
             // cboCodeFiles
             // 
+            this.cboCodeFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cboCodeFiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCodeFiles.FormattingEnabled = true;
             this.cboCodeFiles.Location = new System.Drawing.Point(203, 8);
             this.cboCodeFiles.Name = "cboCodeFiles";
-            this.cboCodeFiles.Size = new System.Drawing.Size(379, 25);
+            this.cboCodeFiles.Size = new System.Drawing.Size(412, 25);
             this.cboCodeFiles.TabIndex = 21;
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
             // 
-            // lstCode
+            // lblNoOutputWarning
             // 
-            this.lstCode.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstCode.CausesValidation = false;
-            this.lstCode.FormattingEnabled = true;
-            this.lstCode.HorizontalScrollbar = true;
-            this.lstCode.ItemHeight = 17;
-            this.lstCode.Location = new System.Drawing.Point(16, 126);
-            this.lstCode.Name = "lstCode";
-            this.lstCode.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstCode.Size = new System.Drawing.Size(718, 395);
-            this.lstCode.TabIndex = 22;
-            this.lstCode.SelectedIndexChanged += new System.EventHandler(this.lstCode_SelectedIndexChanged);
-            // 
-            // lblWarning
-            // 
-            this.lblWarning.AutoSize = true;
-            this.lblWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWarning.ForeColor = System.Drawing.Color.Red;
-            this.lblWarning.Location = new System.Drawing.Point(251, 103);
-            this.lblWarning.Name = "lblWarning";
-            this.lblWarning.Size = new System.Drawing.Size(483, 17);
-            this.lblWarning.TabIndex = 23;
-            this.lblWarning.Text = "WARNING: The selected region of code does not output to Analysis Manager.";
-            this.lblWarning.Visible = false;
+            this.lblNoOutputWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNoOutputWarning.AutoSize = true;
+            this.lblNoOutputWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNoOutputWarning.ForeColor = System.Drawing.Color.Red;
+            this.lblNoOutputWarning.Location = new System.Drawing.Point(284, 102);
+            this.lblNoOutputWarning.Name = "lblNoOutputWarning";
+            this.lblNoOutputWarning.Size = new System.Drawing.Size(483, 17);
+            this.lblNoOutputWarning.TabIndex = 23;
+            this.lblNoOutputWarning.Text = "WARNING: The selected region of code does not output to Analysis Manager.";
+            this.lblNoOutputWarning.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.lblNoOutputWarning.Visible = false;
             // 
             // codeCheckWorker
             // 
             this.codeCheckWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.codeCheckWorker_DoWork);
             this.codeCheckWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.codeCheckWorker_RunWorkerCompleted);
+            // 
+            // scintilla1
+            // 
+            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
+            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
+            this.scintilla1.Location = new System.Drawing.Point(16, 125);
+            this.scintilla1.Name = "scintilla1";
+            this.scintilla1.Size = new System.Drawing.Size(751, 408);
+            this.scintilla1.TabIndex = 24;
+            this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
+            // 
+            // lblInstructions
+            // 
+            this.lblInstructions.AutoSize = true;
+            this.lblInstructions.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblInstructions.Location = new System.Drawing.Point(251, 103);
+            this.lblInstructions.Name = "lblInstructions";
+            this.lblInstructions.Size = new System.Drawing.Size(0, 17);
+            this.lblInstructions.TabIndex = 25;
             // 
             // tableProperties
             // 
@@ -243,7 +258,7 @@
             this.tableProperties.Location = new System.Drawing.Point(5, 0);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(629, 123);
+            this.tableProperties.Size = new System.Drawing.Size(662, 108);
             this.tableProperties.TabIndex = 2;
             // 
             // figureProperties
@@ -252,7 +267,7 @@
             this.figureProperties.Location = new System.Drawing.Point(5, 0);
             this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(629, 123);
+            this.figureProperties.Size = new System.Drawing.Size(662, 108);
             this.figureProperties.TabIndex = 1;
             // 
             // valueProperties
@@ -262,7 +277,7 @@
             this.valueProperties.Location = new System.Drawing.Point(5, 0);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(629, 123);
+            this.valueProperties.Size = new System.Drawing.Size(662, 108);
             this.valueProperties.TabIndex = 0;
             // 
             // EditAnnotation
@@ -271,9 +286,10 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(746, 734);
-            this.Controls.Add(this.lblWarning);
-            this.Controls.Add(this.lstCode);
+            this.ClientSize = new System.Drawing.Size(779, 734);
+            this.Controls.Add(this.lblInstructions);
+            this.Controls.Add(this.scintilla1);
+            this.Controls.Add(this.lblNoOutputWarning);
             this.Controls.Add(this.pnlType);
             this.Controls.Add(this.cboCodeFiles);
             this.Controls.Add(this.cmdTable);
@@ -319,10 +335,11 @@
         private System.Windows.Forms.Button cmdTable;
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private Controls.ValueProperties valueProperties;
-        private System.Windows.Forms.ListBox lstCode;
         private Controls.FigureProperties figureProperties;
         private Controls.TableProperties tableProperties;
-        private System.Windows.Forms.Label lblWarning;
+        private System.Windows.Forms.Label lblNoOutputWarning;
         private System.ComponentModel.BackgroundWorker codeCheckWorker;
+        private ScintillaNET.Scintilla scintilla1;
+        private System.Windows.Forms.Label lblInstructions;
     }
 }

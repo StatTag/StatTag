@@ -292,5 +292,17 @@ namespace AnalysisManager.Core.Models
             Annotations.Add(updatedAnnotation);
             return updatedAnnotation;
         }
+
+        /// <summary>
+        /// Given the content passed as a parameter, this method updates the file on disk with the new
+        /// content and refreshes the internal cache.
+        /// </summary>
+        /// <param name="text"></param>
+        public void UpdateContent(string text)
+        {
+            FileHandler.WriteAllText(FilePath, text);
+            LoadAnnotationsFromContent();
+            //RefreshContent();
+        }
     }
 }

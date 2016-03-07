@@ -457,5 +457,25 @@ namespace Core.Tests.Models
             Assert.AreEqual(2, codeFile.Annotations.Count);
             Assert.AreEqual(9, codeFile.Content.Count);
         }
+
+        [TestMethod]
+        public void UpdateContent()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.WriteAllText(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+                "first line",
+                "second line",
+                "**<<<"
+            });
+
+            var codeFile = new CodeFile(mock.Object);
+            codeFile.StatisticalPackage = Constants.StatisticalPackages.Stata;
+            codeFile.UpdateContent("test content");
+            mock.Verify();
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+        }
     }
 }

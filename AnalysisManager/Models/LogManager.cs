@@ -12,19 +12,43 @@ namespace AnalysisManager.Models
         public bool Enabled { get; set; }
         public string LogFilePath { get; set; }
 
-        public LogManager()
-        {
-        }
-
         public void UpdateSettings(Properties properties)
         {
             UpdateSettings(properties.EnableLogging, properties.LogLocation);
         }
 
+        public static bool IsValidLogPath(string logFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(logFilePath))
+            {
+                return false;
+            }
+
+            FileStream stream = null;
+            try
+            {
+                stream = File.OpenWrite(logFilePath);
+            }
+            catch (Exception exc)
+            {
+                return false;
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    stream.Close();
+                }
+                stream = null;
+            }
+
+            return true;
+        }
+
         public void UpdateSettings(bool enabled, string filePath)
         {
-            Enabled = enabled;
             LogFilePath = filePath;
+            Enabled = (enabled && IsValidLogPath(LogFilePath));
         }
 
         public void WriteMessage(string text)

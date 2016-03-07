@@ -245,7 +245,7 @@
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\PropertiesManager.cs" />
-    <Compile Include="Models\StateCapture.cs" />
+    <Compile Include="Models\ScintillaManager.cs" />
     <Compile Include="Models\WindowWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -344,6 +344,10 @@
     <None Include="Resources\DeleteTablefromDatabase_270.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
+      <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>
+      <Name>ScintillaNET</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
