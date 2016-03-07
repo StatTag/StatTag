@@ -131,6 +131,7 @@ namespace AnalysisManager
             if (Annotation != null)
             {
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
+                ScintillaManager.ConfigureEditor(scintilla1, Annotation.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
                 cboRunFrequency.SelectedItem = Annotation.RunFrequency;
                 txtOutputLabel.Text = Annotation.OutputLabel;
@@ -233,10 +234,11 @@ namespace AnalysisManager
         private void LoadCodeFile(CodeFile file)
         {
             scintilla1.Text = string.Empty;
+            scintilla1.EmptyUndoBuffer();
             if (file != null)
             {
                 scintilla1.Text = string.Join("\r\n", file.Content);
-                
+                ScintillaManager.ConfigureEditor(scintilla1, file);
             }
         }
 

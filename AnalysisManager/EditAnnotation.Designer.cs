@@ -38,9 +38,6 @@
             this.txtOutputLabel = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.pnlType = new System.Windows.Forms.Panel();
-            this.tableProperties = new AnalysisManager.Controls.TableProperties();
-            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
-            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.cmdValue = new System.Windows.Forms.Button();
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdTable = new System.Windows.Forms.Button();
@@ -49,6 +46,9 @@
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.lblInstructions = new System.Windows.Forms.Label();
+            this.tableProperties = new AnalysisManager.Controls.TableProperties();
+            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
+            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -161,35 +161,6 @@
             this.pnlType.Size = new System.Drawing.Size(669, 110);
             this.pnlType.TabIndex = 17;
             // 
-            // tableProperties
-            // 
-            this.tableProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tableProperties.Location = new System.Drawing.Point(5, 0);
-            this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(662, 108);
-            this.tableProperties.TabIndex = 2;
-            // 
-            // figureProperties
-            // 
-            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.figureProperties.Location = new System.Drawing.Point(5, 0);
-            this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(662, 108);
-            this.figureProperties.TabIndex = 1;
-            // 
-            // valueProperties
-            // 
-            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(5, 0);
-            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(662, 108);
-            this.valueProperties.TabIndex = 0;
-            // 
             // cmdValue
             // 
             this.cmdValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -264,11 +235,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
+            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
             this.scintilla1.Location = new System.Drawing.Point(16, 125);
             this.scintilla1.Name = "scintilla1";
             this.scintilla1.Size = new System.Drawing.Size(751, 408);
             this.scintilla1.TabIndex = 24;
-            this.scintilla1.UseTabs = false;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
             // 
             // lblInstructions
@@ -279,6 +250,35 @@
             this.lblInstructions.Name = "lblInstructions";
             this.lblInstructions.Size = new System.Drawing.Size(0, 17);
             this.lblInstructions.TabIndex = 25;
+            // 
+            // tableProperties
+            // 
+            this.tableProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableProperties.Location = new System.Drawing.Point(5, 0);
+            this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.tableProperties.Name = "tableProperties";
+            this.tableProperties.Size = new System.Drawing.Size(662, 108);
+            this.tableProperties.TabIndex = 2;
+            // 
+            // figureProperties
+            // 
+            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.figureProperties.Location = new System.Drawing.Point(5, 0);
+            this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.figureProperties.Name = "figureProperties";
+            this.figureProperties.Size = new System.Drawing.Size(662, 108);
+            this.figureProperties.TabIndex = 1;
+            // 
+            // valueProperties
+            // 
+            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.valueProperties.Location = new System.Drawing.Point(5, 0);
+            this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.valueProperties.Name = "valueProperties";
+            this.valueProperties.Size = new System.Drawing.Size(662, 108);
+            this.valueProperties.TabIndex = 0;
             // 
             // EditAnnotation
             // 
