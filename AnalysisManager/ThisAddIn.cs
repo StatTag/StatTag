@@ -23,6 +23,20 @@ namespace AnalysisManager
         public DocumentManager Manager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
 
+        private Word.Document SafeGetActiveDocument()
+        {
+            try
+            {
+                return Application.ActiveDocument;
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteMessage("Getting ActiveDocument threw an exception");
+            }
+
+            return null;
+        }
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
@@ -37,7 +51,7 @@ namespace AnalysisManager
             {
                 // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
                 // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
-                var document = Application.ActiveDocument;
+                var document = SafeGetActiveDocument();
                 if (document == null)
                 {
                     LogManager.WriteMessage("Active document not accessible");
