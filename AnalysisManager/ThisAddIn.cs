@@ -59,7 +59,7 @@ namespace AnalysisManager
             }
             catch (Exception exc)
             {
-                UIUtility.ReportException(exc, "There was an unexpected error when trying ti initialize Analysis Manager.  Not all functionality may be available.", LogManager);
+                UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize Analysis Manager.  Not all functionality may be available.", LogManager);
             }
         }
         
