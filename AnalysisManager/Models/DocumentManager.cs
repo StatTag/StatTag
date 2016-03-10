@@ -757,35 +757,47 @@ namespace AnalysisManager.Models
         {
             Log("EditAnnotation - Started");
 
-            var dialog = new EditAnnotation(this);
-            IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
-
-            dialog.Annotation = new Annotation(annotation);
-            if (DialogResult.OK == dialog.ShowDialog(new WindowWrapper(hwnd)))
+            try
             {
-                // If the value format has changed, refresh the values in the document with the
-                // new formatting of the results.
-                // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
-                if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
-                {
-                    Log("Updating fields after annotation value format changed");
-                    if (dialog.Annotation.TableFormat != annotation.TableFormat)
-                    {
-                        Log("Updating formatted table data");
-                        dialog.Annotation.UpdateFormattedTableData();
-                    }
-                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
-                else if (dialog.Annotation.TableFormat != annotation.TableFormat)
-                {
-                    Log("Updating fields after annotation table format changed");
-                    dialog.Annotation.UpdateFormattedTableData();
-                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
+                var dialog = new EditAnnotation(this);
 
-                SaveEditedAnnotation(dialog, annotation);
-                Log("EditAnnotation - Finished (action)");
-                return true;
+                IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
+                Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
+
+                dialog.Annotation = new Annotation(annotation);
+                var wrapper = new WindowWrapper(hwnd);
+                Log(string.Format("WindowWrapper established as: {0}", (wrapper == null ? "null" : wrapper.ToString())));
+                if (DialogResult.OK == dialog.ShowDialog(wrapper))
+                {
+                    // If the value format has changed, refresh the values in the document with the
+                    // new formatting of the results.
+                    // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
+                    if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
+                    {
+                        Log("Updating fields after annotation value format changed");
+                        if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                        {
+                            Log("Updating formatted table data");
+                            dialog.Annotation.UpdateFormattedTableData();
+                        }
+                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                    }
+                    else if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                    {
+                        Log("Updating fields after annotation table format changed");
+                        dialog.Annotation.UpdateFormattedTableData();
+                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                    }
+
+                    SaveEditedAnnotation(dialog, annotation);
+                    Log("EditAnnotation - Finished (action)");
+                    return true;
+                }
+            }
+            catch (Exception exc)
+            {
+                Log("An exception was caught while trying to edit an annotation");
+                LogException(exc);
             }
 
             Log("EditAnnotation - Finished (no action)");
@@ -839,6 +851,19 @@ namespace AnalysisManager.Models
             if (Logger != null)
             {
                 Logger.WriteMessage(text);
+            }
+        }
+
+        /// <summary>
+        /// Wrapper around a LogManager instance.  Since logging is not always enabled/available for this object
+        /// the wrapper only writes if a logger is accessible.
+        /// </summary>
+        /// <param name="exc"></param>
+        protected void LogException(Exception exc)
+        {
+            if (Logger != null)
+            {
+                Logger.WriteException(exc);
             }
         }
     }
