@@ -82,13 +82,7 @@ namespace AnalysisManager
             foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
-                foreach (var annotation in file.Annotations)
-                {
-                    // Since we are reloading from a file, at this point if we had any cached results for
-                    // an annotation we want to associate that back with the annotation.
-                    UIUtility.SetCachedAnnotation(existingAnnotations, annotation);
-                    AddRow(annotation);
-                }
+                file.Annotations.ForEach(x => AddRow(x));
             }
         }
 

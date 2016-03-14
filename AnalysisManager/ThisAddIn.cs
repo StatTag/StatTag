@@ -114,7 +114,7 @@ namespace AnalysisManager
                 }
                 else
                 {
-                    file.LoadAnnotationsFromContent();
+                    file.LoadAnnotationsFromContent(false);  // Skip saving the cache, since this is the first load
                     LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
                 }
             }

@@ -73,6 +73,38 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void LoadAnnotationsFromContent_RestoreCache()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+                {
+                    "**>>>AM:Value(Id=\"1\", Type=\"Default\")",
+                    "some code here",
+                    "**<<<"
+                });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+            codeFile.Annotations[0].CachedResult = new List<CommandResult>(new[]
+            {
+                new CommandResult() { ValueResult = "Test result 1" },
+            });
+
+            // Now restore and preserve the cahced value result
+            codeFile.LoadAnnotationsFromContent();
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(Constants.AnnotationType.Value, codeFile.Annotations[0].Type);
+            var cachedResult = codeFile.Annotations[0].CachedResult[0];
+            Assert.AreEqual("Test result 1", cachedResult.ValueResult);
+
+            // Restore again but do not preserve the cahced value result
+            codeFile.LoadAnnotationsFromContent(false);
+            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(Constants.AnnotationType.Value, codeFile.Annotations[0].Type);
+            Assert.IsNull(codeFile.Annotations[0].CachedResult);
+        }
+
+        [TestMethod]
         public void SaveBackup_AlreadyExists()
         {
             var mock = new Mock<IFileHandler>();

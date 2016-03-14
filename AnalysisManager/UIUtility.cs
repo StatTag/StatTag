@@ -102,15 +102,6 @@ namespace AnalysisManager
             return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
         }
 
-        public static void SetCachedAnnotation(List<Annotation> existingAnnotations, Annotation annotation)
-        {
-            var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
-            if (existingAnnotation != null && existingAnnotation.CachedResult != null)
-            {
-                annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
-            }
-        }
-
         public static string Pluralize(this string singularForm, int howMany)
         {
             return singularForm.Pluralize(howMany, singularForm + "s");

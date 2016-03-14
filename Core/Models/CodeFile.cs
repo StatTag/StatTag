@@ -87,9 +87,18 @@ namespace AnalysisManager.Core.Models
         /// Using the contents of this file, parse the instrutions and build the list
         /// of annotations that are present and cache them for later use.
         /// </summary>
-        public void LoadAnnotationsFromContent()
+        public void LoadAnnotationsFromContent(bool preserveCache = true)
         {
-            Annotations = new List<Annotation>(); // Any time we try to load, reset the list of annotations that may exist
+            Annotation[] savedAnnotations = null;
+            if (preserveCache)
+            {
+                savedAnnotations = new Annotation[Annotations.Count];
+                Annotations.CopyTo(savedAnnotations);
+            }
+
+            // Any time we try to load, reset the list of annotations that may exist
+            Annotations = new List<Annotation>();
+
             var content = LoadFileContent();
             if (content == null || !content.Any())
             {
@@ -104,6 +113,33 @@ namespace AnalysisManager.Core.Models
 
             Annotations = new List<Annotation>(parser.Parse(content).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
             Annotations.ForEach(x => x.CodeFile = this);
+
+            if (preserveCache)
+            {
+                // Since we are reloading from a file, at this point if we had any cached results for
+                // an annotation we want to associate that back with the annotation.
+                foreach (var annotation in Annotations)
+                {
+                    SetCachedAnnotation(savedAnnotations, annotation);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Given a set of existing annotations (which are assumed to have cached results already set), update
+        /// the cached results in another annotation.
+        /// <remarks>This is used primarily when a code file is reloaded, which resets its collection
+        /// of annotations.  Those annotations will be valid, but will have their cached results reset.</remarks>
+        /// </summary>
+        /// <param name="existingAnnotations">The annotations that have cached results</param>
+        /// <param name="annotation">The annotation that needs to receive results</param>
+        protected void SetCachedAnnotation(IEnumerable<Annotation> existingAnnotations, Annotation annotation)
+        {
+            var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
+            if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+            {
+                annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
+            }
         }
 
         /// <summary>
@@ -201,6 +237,10 @@ namespace AnalysisManager.Core.Models
             return string.Empty;
         }
 
+        /// <summary>
+        /// Removes an annotation from the file, and from the internal cache.
+        /// </summary>
+        /// <param name="annotation"></param>
         public void RemoveAnnotation(Annotation annotation)
         {
             if (annotation == null)
@@ -234,53 +274,67 @@ namespace AnalysisManager.Core.Models
             }
         }
 
-        public Annotation AddAnnotation(Annotation annotation, Annotation oldAnnotation = null)
+        /// <summary>
+        /// Updates or inserts an annotation in the file.  An update takes place only if oldAnnotation
+        /// is defined, and it is able to match that old annotation.
+        /// </summary>
+        /// <param name="newAnnotation"></param>
+        /// <param name="oldAnnotation"></param>
+        /// <returns></returns>
+        public Annotation AddAnnotation(Annotation newAnnotation, Annotation oldAnnotation = null)
         {
             // Do some sanity checking before modifying anything
-            if (annotation == null || !annotation.LineStart.HasValue || !annotation.LineEnd.HasValue)
+            if (newAnnotation == null || !newAnnotation.LineStart.HasValue || !newAnnotation.LineEnd.HasValue)
             {
                 return null;
             }
 
-            if (annotation.LineStart > annotation.LineEnd)
+            if (newAnnotation.LineStart > newAnnotation.LineEnd)
             {
                 throw new InvalidDataException("The new annotation start index is after the end index, which is not allowed.");
             }
 
-            var updatedAnnotation = new Annotation(annotation);
+            var updatedAnnotation = new Annotation(newAnnotation);
             var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
             if (oldAnnotation != null)
             {
-                if (oldAnnotation.LineStart > oldAnnotation.LineEnd)
+                var refreshedOldAnnotation = Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation));
+
+                if (refreshedOldAnnotation == null)
+                {
+                    throw new InvalidDataException("Unable to find the existing annotation to update.");
+                }
+
+                if (refreshedOldAnnotation.LineStart > refreshedOldAnnotation.LineEnd)
                 {
                     throw new InvalidDataException("The existing annotation start index is after the end index, which is not allowed.");
                 }
 
                 // Remove the starting annotation and then adjust indices as appropriate
-                ContentCache.RemoveAt(oldAnnotation.LineStart.Value);
-                if (updatedAnnotation.LineStart > oldAnnotation.LineStart)
+                ContentCache.RemoveAt(refreshedOldAnnotation.LineStart.Value);
+                if (updatedAnnotation.LineStart > refreshedOldAnnotation.LineStart)
                 {
                     updatedAnnotation.LineStart -= 1;
                     updatedAnnotation.LineEnd -= 1;  // We know line end >= line start
                 }
-                else if (updatedAnnotation.LineEnd > oldAnnotation.LineStart)
+                else if (updatedAnnotation.LineEnd > refreshedOldAnnotation.LineStart)
                 {
                     updatedAnnotation.LineEnd -= 1;
                 }
 
-                oldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
-                ContentCache.RemoveAt(oldAnnotation.LineEnd.Value);
-                if (updatedAnnotation.LineStart > oldAnnotation.LineEnd)
+                refreshedOldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
+                ContentCache.RemoveAt(refreshedOldAnnotation.LineEnd.Value);
+                if (updatedAnnotation.LineStart > refreshedOldAnnotation.LineEnd)
                 {
                     updatedAnnotation.LineStart -= 1;
                     updatedAnnotation.LineEnd -= 1;
                 }
-                else if (updatedAnnotation.LineEnd >= oldAnnotation.LineEnd)
+                else if (updatedAnnotation.LineEnd >= refreshedOldAnnotation.LineEnd)
                 {
                     updatedAnnotation.LineEnd -= 1;
                 }
 
-                Annotations.Remove(oldAnnotation);
+                Annotations.Remove(refreshedOldAnnotation);
             }
 
             var generator = Factories.GetGenerator(this);
@@ -293,6 +347,72 @@ namespace AnalysisManager.Core.Models
             return updatedAnnotation;
         }
 
+        ///// <summary>
+        ///// Adds an annotation to the code file.  If the annotation already exists, the annotation
+        ///// is updated within the file.
+        ///// </summary>
+        ///// <param name="annotation"></param>
+        ///// <param name="oldAnnotation"></param>
+        ///// <returns></returns>
+        //public Annotation AddAnnotation(Annotation annotation, Annotation oldAnnotation = null)
+        //{
+        //    // Do some sanity checking before modifying anything
+        //    if (annotation == null || !annotation.LineStart.HasValue || !annotation.LineEnd.HasValue)
+        //    {
+        //        return null;
+        //    }
+
+        //    if (annotation.LineStart > annotation.LineEnd)
+        //    {
+        //        throw new InvalidDataException("The new annotation start index is after the end index, which is not allowed.");
+        //    }
+
+        //    var updatedAnnotation = new Annotation(annotation);
+        //    var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
+        //    if (oldAnnotation != null)
+        //    {
+        //        if (oldAnnotation.LineStart > oldAnnotation.LineEnd)
+        //        {
+        //            throw new InvalidDataException("The existing annotation start index is after the end index, which is not allowed.");
+        //        }
+
+        //        // Remove the starting annotation and then adjust indices as appropriate
+        //        ContentCache.RemoveAt(oldAnnotation.LineStart.Value);
+        //        if (updatedAnnotation.LineStart > oldAnnotation.LineStart)
+        //        {
+        //            updatedAnnotation.LineStart -= 1;
+        //            updatedAnnotation.LineEnd -= 1;  // We know line end >= line start
+        //        }
+        //        else if (updatedAnnotation.LineEnd > oldAnnotation.LineStart)
+        //        {
+        //            updatedAnnotation.LineEnd -= 1;
+        //        }
+
+        //        oldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
+        //        ContentCache.RemoveAt(oldAnnotation.LineEnd.Value);
+        //        if (updatedAnnotation.LineStart > oldAnnotation.LineEnd)
+        //        {
+        //            updatedAnnotation.LineStart -= 1;
+        //            updatedAnnotation.LineEnd -= 1;
+        //        }
+        //        else if (updatedAnnotation.LineEnd >= oldAnnotation.LineEnd)
+        //        {
+        //            updatedAnnotation.LineEnd -= 1;
+        //        }
+
+        //        Annotations.Remove(oldAnnotation);
+        //    }
+
+        //    var generator = Factories.GetGenerator(this);
+        //    ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
+        //    updatedAnnotation.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
+        //    ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
+
+        //    // Add to our collection of annotations
+        //    Annotations.Add(updatedAnnotation);
+        //    return updatedAnnotation;
+        //}
+
         /// <summary>
         /// Given the content passed as a parameter, this method updates the file on disk with the new
         /// content and refreshes the internal cache.
@@ -302,7 +422,6 @@ namespace AnalysisManager.Core.Models
         {
             FileHandler.WriteAllText(FilePath, text);
             LoadAnnotationsFromContent();
-            //RefreshContent();
         }
     }
 }

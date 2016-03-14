@@ -73,12 +73,6 @@ namespace AnalysisManager
                     StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
                 };
                 file.LoadAnnotationsFromContent();
-                foreach (var annotation in file.Annotations)
-                {
-                    // Since we are reloading from a file, at this point if we had any cached results for
-                    // an annotation we want to associate that back with the annotation.
-                    UIUtility.SetCachedAnnotation(existingAnnotations, annotation);
-                }
                 files.Add(file);
                 file.SaveBackup();
             }

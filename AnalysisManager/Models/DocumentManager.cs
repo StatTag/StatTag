@@ -128,6 +128,12 @@ namespace AnalysisManager.Models
                 return;
             }
 
+            if (annotation.CachedResult == null || annotation.CachedResult.Count == 0)
+            {
+                Log("The annotation has no cached results - unable to insert image");
+                return;
+            }
+
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
             string fileName = annotation.CachedResult[0].FigureResult;
@@ -766,7 +772,7 @@ namespace AnalysisManager.Models
 
                 dialog.Annotation = new Annotation(annotation);
                 var wrapper = new WindowWrapper(hwnd);
-                Log(string.Format("WindowWrapper established as: {0}", (wrapper == null ? "null" : wrapper.ToString())));
+                Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
                 if (DialogResult.OK == dialog.ShowDialog(wrapper))
                 {
                     // If the value format has changed, refresh the values in the document with the
@@ -814,18 +820,17 @@ namespace AnalysisManager.Models
         {
             if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
             {
-                // After this code block, don't use existingAnnotation anymore because its indexes can
-                // be wrong.
+                // Update the code file with whatever was in the editor window.  While the code doesn't
+                // always change, we will go ahead with the update each time instead of checking.  Note
+                // that after this update is done, the indices for the annotation objects passed in can 
+                // no longer be trusted until we update them.
                 var codeFile = dialog.Annotation.CodeFile;
                 codeFile.UpdateContent(dialog.CodeText);
 
-                // The previous update will refresh the code file on disk.  At this point, if we have a
-                // new annotation that was added, we will want to add it into the code file.
-                if (existingAnnotation == null)
-                {
-                    codeFile.AddAnnotation(dialog.Annotation);
-                    codeFile.Save();   
-                }
+                // Now that the code file has been updated, we need to add the annotation.  This may
+                // be a new annotation, or an updated one.
+                codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.Save();   
             }
         }
 
