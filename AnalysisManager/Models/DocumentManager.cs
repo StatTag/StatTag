@@ -303,6 +303,14 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
+                    if (IsLinkedField(field))
+                    {
+                        Log("Updating a linked field");
+                        field.Update();
+                        Marshal.ReleaseComObject(field);
+                        continue;
+                    }
+
                     if (!IsAnalysisManagerField(field))
                     {
                         Marshal.ReleaseComObject(field);
@@ -716,6 +724,18 @@ namespace AnalysisManager.Models
                 && field.Type == WdFieldType.wdFieldMacroButton
                 && field.Code != null && field.Code.Text.Contains(MacroButtonName)
                 && field.Code.Fields.Count > 0);
+        }
+
+        /// <summary>
+        /// Determine if a field is a linked field.  While linked fields can take on various forms, we
+        /// use them in Analysis Manager to represent images.
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool IsLinkedField(Field field)
+        {
+            return (field != null
+                    && field.Type == WdFieldType.wdFieldLink);
         }
 
         /// <summary>
