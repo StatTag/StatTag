@@ -153,7 +153,9 @@ namespace AnalysisManager.Models
             else
             {
                 Log(string.Format("Inserting a non-PDF image - {0}", fileName));
-                application.Selection.InlineShapes.AddPicture(fileName);
+                object linkToFile = true;
+                object saveWithDocument = true;
+                application.Selection.InlineShapes.AddPicture(fileName, linkToFile, saveWithDocument);
             }
 
             Log("InsertImage - Finished");
@@ -262,6 +264,39 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Processes all inline shapes within the document, which will include our inserted figures.
+        /// If the shape can be updated, we will process the update.
+        /// </summary>
+        /// <param name="document"></param>
+        private void UpdateInlineShapes(Document document)
+        {
+            var shapes = document.InlineShapes;
+            if (shapes == null)
+            {
+                return;
+            }
+
+            int shapesCount = shapes.Count;
+            for (int shapeIndex = 1; shapeIndex <= shapesCount; shapeIndex++)
+            {
+                var shape = shapes[shapeIndex];
+                if (shape != null)
+                {
+                    var linkFormat = shape.LinkFormat;
+                    if (linkFormat != null)
+                    {
+                        linkFormat.Update();
+                        Marshal.ReleaseComObject(linkFormat);
+                    }
+
+                    Marshal.ReleaseComObject(shape);
+                }
+            }
+
+            Marshal.ReleaseComObject(shapes);
+        }
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -290,6 +325,8 @@ namespace AnalysisManager.Models
                     }
                 }
 
+                UpdateInlineShapes(document);
+                
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
                 // Fields is a 1-based index
@@ -300,14 +337,6 @@ namespace AnalysisManager.Models
                     if (field == null)
                     {
                         Log(string.Format("Null field detected at index", index));
-                        continue;
-                    }
-
-                    if (IsLinkedField(field))
-                    {
-                        Log("Updating a linked field");
-                        field.Update();
-                        Marshal.ReleaseComObject(field);
                         continue;
                     }
 
