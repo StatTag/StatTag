@@ -128,6 +128,12 @@ namespace AnalysisManager.Models
                 return;
             }
 
+            if (annotation.CachedResult == null || annotation.CachedResult.Count == 0)
+            {
+                Log("The annotation has no cached results - unable to insert image");
+                return;
+            }
+
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
             string fileName = annotation.CachedResult[0].FigureResult;
@@ -147,7 +153,9 @@ namespace AnalysisManager.Models
             else
             {
                 Log(string.Format("Inserting a non-PDF image - {0}", fileName));
-                application.Selection.InlineShapes.AddPicture(fileName);
+                object linkToFile = true;
+                object saveWithDocument = true;
+                application.Selection.InlineShapes.AddPicture(fileName, linkToFile, saveWithDocument);
             }
 
             Log("InsertImage - Finished");
@@ -256,6 +264,39 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Processes all inline shapes within the document, which will include our inserted figures.
+        /// If the shape can be updated, we will process the update.
+        /// </summary>
+        /// <param name="document"></param>
+        private void UpdateInlineShapes(Document document)
+        {
+            var shapes = document.InlineShapes;
+            if (shapes == null)
+            {
+                return;
+            }
+
+            int shapesCount = shapes.Count;
+            for (int shapeIndex = 1; shapeIndex <= shapesCount; shapeIndex++)
+            {
+                var shape = shapes[shapeIndex];
+                if (shape != null)
+                {
+                    var linkFormat = shape.LinkFormat;
+                    if (linkFormat != null)
+                    {
+                        linkFormat.Update();
+                        Marshal.ReleaseComObject(linkFormat);
+                    }
+
+                    Marshal.ReleaseComObject(shape);
+                }
+            }
+
+            Marshal.ReleaseComObject(shapes);
+        }
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -284,6 +325,8 @@ namespace AnalysisManager.Models
                     }
                 }
 
+                UpdateInlineShapes(document);
+                
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
                 // Fields is a 1-based index
@@ -485,7 +528,18 @@ namespace AnalysisManager.Models
 
             Marshal.ReleaseComObject(cells);
 
+            InsertNewLineAndMoveDown(selection);
+
             Log("InsertTable - Finished");
+        }
+
+        protected void InsertNewLineAndMoveDown(Selection selection)
+        {
+            selection.Collapse(WdCollapseDirection.wdCollapseEnd);
+            var range = selection.Range;
+            range.InsertParagraphAfter();
+            selection.MoveDown(WdUnits.wdLine, 1);
+            Marshal.ReleaseComObject(range);
         }
 
         /// <summary>
@@ -713,6 +767,18 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
+        /// Determine if a field is a linked field.  While linked fields can take on various forms, we
+        /// use them in Analysis Manager to represent images.
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool IsLinkedField(Field field)
+        {
+            return (field != null
+                    && field.Type == WdFieldType.wdFieldLink);
+        }
+
+        /// <summary>
         /// Deserialize a field to extract the FieldAnnotation data
         /// </summary>
         /// <param name="field"></param>
@@ -757,35 +823,47 @@ namespace AnalysisManager.Models
         {
             Log("EditAnnotation - Started");
 
-            var dialog = new EditAnnotation(this);
-            IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
-
-            dialog.Annotation = new Annotation(annotation);
-            if (DialogResult.OK == dialog.ShowDialog(new WindowWrapper(hwnd)))
+            try
             {
-                // If the value format has changed, refresh the values in the document with the
-                // new formatting of the results.
-                // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
-                if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
-                {
-                    Log("Updating fields after annotation value format changed");
-                    if (dialog.Annotation.TableFormat != annotation.TableFormat)
-                    {
-                        Log("Updating formatted table data");
-                        dialog.Annotation.UpdateFormattedTableData();
-                    }
-                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
-                else if (dialog.Annotation.TableFormat != annotation.TableFormat)
-                {
-                    Log("Updating fields after annotation table format changed");
-                    dialog.Annotation.UpdateFormattedTableData();
-                    UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
-                }
+                var dialog = new EditAnnotation(this);
 
-                SaveEditedAnnotation(dialog, annotation);
-                Log("EditAnnotation - Finished (action)");
-                return true;
+                IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
+                Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
+
+                dialog.Annotation = new Annotation(annotation);
+                var wrapper = new WindowWrapper(hwnd);
+                Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
+                if (DialogResult.OK == dialog.ShowDialog(wrapper))
+                {
+                    // If the value format has changed, refresh the values in the document with the
+                    // new formatting of the results.
+                    // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
+                    if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
+                    {
+                        Log("Updating fields after annotation value format changed");
+                        if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                        {
+                            Log("Updating formatted table data");
+                            dialog.Annotation.UpdateFormattedTableData();
+                        }
+                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                    }
+                    else if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                    {
+                        Log("Updating fields after annotation table format changed");
+                        dialog.Annotation.UpdateFormattedTableData();
+                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                    }
+
+                    SaveEditedAnnotation(dialog, annotation);
+                    Log("EditAnnotation - Finished (action)");
+                    return true;
+                }
+            }
+            catch (Exception exc)
+            {
+                Log("An exception was caught while trying to edit an annotation");
+                LogException(exc);
             }
 
             Log("EditAnnotation - Finished (no action)");
@@ -802,18 +880,17 @@ namespace AnalysisManager.Models
         {
             if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
             {
-                // After this code block, don't use existingAnnotation anymore because its indexes can
-                // be wrong.
+                // Update the code file with whatever was in the editor window.  While the code doesn't
+                // always change, we will go ahead with the update each time instead of checking.  Note
+                // that after this update is done, the indices for the annotation objects passed in can 
+                // no longer be trusted until we update them.
                 var codeFile = dialog.Annotation.CodeFile;
                 codeFile.UpdateContent(dialog.CodeText);
 
-                // The previous update will refresh the code file on disk.  At this point, if we have a
-                // new annotation that was added, we will want to add it into the code file.
-                if (existingAnnotation == null)
-                {
-                    codeFile.AddAnnotation(dialog.Annotation);
-                    codeFile.Save();   
-                }
+                // Now that the code file has been updated, we need to add the annotation.  This may
+                // be a new annotation, or an updated one.
+                codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                codeFile.Save();   
             }
         }
 
@@ -839,6 +916,19 @@ namespace AnalysisManager.Models
             if (Logger != null)
             {
                 Logger.WriteMessage(text);
+            }
+        }
+
+        /// <summary>
+        /// Wrapper around a LogManager instance.  Since logging is not always enabled/available for this object
+        /// the wrapper only writes if a logger is accessible.
+        /// </summary>
+        /// <param name="exc"></param>
+        protected void LogException(Exception exc)
+        {
+            if (Logger != null)
+            {
+                Logger.WriteException(exc);
             }
         }
     }

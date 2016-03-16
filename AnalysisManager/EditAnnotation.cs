@@ -32,10 +32,43 @@ namespace AnalysisManager
 
         public EditAnnotation(DocumentManager manager = null)
         {
-            InitializeComponent();
-            SelectedButtonFont = Font;
-            UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
-            Manager = manager;
+            try
+            {
+                Manager = manager;
+
+                InitializeComponent();
+                SelectedButtonFont = Font;
+                UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
+            }
+            catch (Exception exc)
+            {
+                const string CannotLoadDialogMessage =
+                    "There was an error trying to load the Annotation dialog.";
+                if (Manager != null && Manager.Logger != null)
+                {
+                    Manager.Logger.WriteMessage(
+                        "An exception was caught while trying to construct the EditAnnotation dialog.  Will set the auto-close event");
+                    UIUtility.ReportException(exc, CannotLoadDialogMessage, Manager.Logger);
+                }
+                else
+                {
+                    MessageBox.Show(CannotLoadDialogMessage, UIUtility.GetAddInName(), MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+
+                this.Shown += new EventHandler(EditAnnotation_CloseOnStart);
+            }
+        }
+
+        /// <summary>
+        /// This is a special-purpose event handler to be used when the form should automatically close, such as
+        /// when there is an error trying to construct the dialog because of missing dependencies (e.g. Scintilla).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditAnnotation_CloseOnStart(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void cmdValue_Click(object sender, EventArgs e)

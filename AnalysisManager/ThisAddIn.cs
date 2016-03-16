@@ -22,9 +22,31 @@ namespace AnalysisManager
         public LogManager LogManager = new LogManager();
         public DocumentManager Manager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
+        public StatsManager StatsManager = null;
+
+        /// <summary>
+        /// Perform a safe get of the active document.  There is no other way to safely
+        /// check for the active document, since if it is not set it throws an exception.
+        /// </summary>
+        /// <returns></returns>
+        private Word.Document SafeGetActiveDocument()
+        {
+            try
+            {
+                return Application.ActiveDocument;
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteMessage("Getting ActiveDocument threw an exception");
+            }
+
+            return null;
+        }
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            StatsManager = new StatsManager(Manager);
+
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
@@ -35,9 +57,21 @@ namespace AnalysisManager
 
             try
             {
+                // We need to perform this check before proceeding with opening a document.  This is because opening
+                // a document will in turn run the statistical code (if there is some associated), which opens the 
+                // executing stat package.  In other words, if this is below, it will always show an alert.
+                if (Stata.Automation.IsAppRunning())
+                {
+                    LogManager.WriteMessage("Stata appears to be running");
+                    MessageBox.Show(
+                        string.Format("It appears that a copy of Stata is currently running.  Analysis Manager is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use Analysis Manager."),
+                        UIUtility.GetAddInName(),
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+
                 // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
                 // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
-                var document = Application.ActiveDocument;
+                var document = SafeGetActiveDocument();
                 if (document == null)
                 {
                     LogManager.WriteMessage("Active document not accessible");
@@ -47,19 +81,10 @@ namespace AnalysisManager
                     LogManager.WriteMessage("Active document is " + document.Name);
                     Application_DocumentOpen(document);
                 }
-
-                if (Stata.Automation.IsAppRunning())
-                {
-                    LogManager.WriteMessage("Stata appears to be running");
-                    MessageBox.Show(
-                        string.Format("It appears that a copy of Stata is currently running.  Analysis Manager is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use Analysis Manager."),
-                        UIUtility.GetAddInName(),
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
             }
             catch (Exception exc)
             {
-                UIUtility.ReportException(exc, "There was an unexpected error when trying ti initialize Analysis Manager.  Not all functionality may be available.", LogManager);
+                UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize Analysis Manager.  Not all functionality may be available.", LogManager);
             }
         }
         
@@ -100,8 +125,10 @@ namespace AnalysisManager
                 }
                 else
                 {
-                    file.LoadAnnotationsFromContent();
+                    file.LoadAnnotationsFromContent(false);  // Skip saving the cache, since this is the first load
                     LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
+                    var results = StatsManager.ExecuteStatPackage(file);
+                    LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
                 }
             }
 

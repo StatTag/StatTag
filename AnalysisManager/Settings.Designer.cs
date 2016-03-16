@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -41,11 +40,10 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblCopyright = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lblLogWarning = new System.Windows.Forms.Label();
             this.chkEnableLogging = new System.Windows.Forms.CheckBox();
             this.cmdLogLocation = new System.Windows.Forms.Button();
             this.txtLogLocation = new System.Windows.Forms.TextBox();
-            this.lblLogWarning = new System.Windows.Forms.Label();
-            this.logPathTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -191,6 +189,19 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "General";
             // 
+            // lblLogWarning
+            // 
+            this.lblLogWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblLogWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLogWarning.ForeColor = System.Drawing.Color.Red;
+            this.lblLogWarning.Location = new System.Drawing.Point(185, 24);
+            this.lblLogWarning.Name = "lblLogWarning";
+            this.lblLogWarning.Size = new System.Drawing.Size(249, 19);
+            this.lblLogWarning.TabIndex = 16;
+            this.lblLogWarning.Text = "Please enter a file path";
+            this.lblLogWarning.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblLogWarning.Visible = false;
+            // 
             // chkEnableLogging
             // 
             this.chkEnableLogging.AutoSize = true;
@@ -224,23 +235,6 @@
             this.txtLogLocation.Size = new System.Drawing.Size(377, 25);
             this.txtLogLocation.TabIndex = 13;
             this.txtLogLocation.TextChanged += new System.EventHandler(this.txtLogLocation_TextChanged);
-            // 
-            // lblLogWarning
-            // 
-            this.lblLogWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblLogWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLogWarning.ForeColor = System.Drawing.Color.Red;
-            this.lblLogWarning.Location = new System.Drawing.Point(185, 24);
-            this.lblLogWarning.Name = "lblLogWarning";
-            this.lblLogWarning.Size = new System.Drawing.Size(249, 19);
-            this.lblLogWarning.TabIndex = 16;
-            this.lblLogWarning.Text = "Please enter a file path";
-            this.lblLogWarning.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblLogWarning.Visible = false;
-            // 
-            // logPathTimer
-            // 
-            this.logPathTimer.Tick += new System.EventHandler(this.logPathTimer_Tick);
             // 
             // Settings
             // 
@@ -289,6 +283,5 @@
         private System.Windows.Forms.Button cmdLogLocation;
         private System.Windows.Forms.TextBox txtLogLocation;
         private System.Windows.Forms.Label lblLogWarning;
-        private System.Windows.Forms.Timer logPathTimer;
     }
 }
