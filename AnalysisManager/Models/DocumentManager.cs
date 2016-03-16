@@ -528,7 +528,18 @@ namespace AnalysisManager.Models
 
             Marshal.ReleaseComObject(cells);
 
+            InsertNewLineAndMoveDown(selection);
+
             Log("InsertTable - Finished");
+        }
+
+        protected void InsertNewLineAndMoveDown(Selection selection)
+        {
+            selection.Collapse(WdCollapseDirection.wdCollapseEnd);
+            var range = selection.Range;
+            range.InsertParagraphAfter();
+            selection.MoveDown(WdUnits.wdLine, 1);
+            Marshal.ReleaseComObject(range);
         }
 
         /// <summary>
