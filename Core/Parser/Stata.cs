@@ -17,7 +17,8 @@ namespace AnalysisManager.Core.Parser
         private static readonly char[] MacroDelimiters = {'`', '\''};
         private static string ValueCommand = "di(?:splay)?";
         private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
-        private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
+        //private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
+        private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", ValueCommand));
         private static string GraphCommand = "gr(?:aph)? export";
         private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
         private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
@@ -86,7 +87,7 @@ namespace AnalysisManager.Core.Parser
         /// <returns></returns>
         public override string GetValueName(string command)
         {
-            return MatchRegexReturnGroup(command, ValueRegex, 1);
+            return MatchRegexReturnGroup(command, ValueRegex, 4);
         }
 
         /// <summary>
