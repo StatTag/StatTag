@@ -15,6 +15,7 @@ namespace AnalysisManager.Core.Parser
     public sealed class Stata : BaseParser
     {
         private static readonly char[] MacroDelimiters = {'`', '\''};
+        private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         private static string ValueCommand = "di(?:splay)?";
         private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
         //private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
@@ -110,6 +111,11 @@ namespace AnalysisManager.Core.Parser
         public override string GetTableName(string command)
         {
             return MatchRegexReturnGroup(command, TableRegex, 1);
+        }
+
+        public bool IsCalculatedDisplayValue(string command)
+        {
+            return GetValueName(command).IndexOfAny(CalculationOperators) != -1;
         }
 
         private string MatchRegexReturnGroup(string text, Regex regex, int groupNum)

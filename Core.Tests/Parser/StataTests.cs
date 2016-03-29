@@ -86,6 +86,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual(string.Empty, parser.GetValueName("adisplay test"));
             Assert.AreEqual("test", parser.GetValueName("display (test)"));
             Assert.AreEqual("test", parser.GetValueName("display(test)"));
+            Assert.AreEqual("r(n)", parser.GetValueName("display r(n)"));
             Assert.AreEqual("5*2", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
             Assert.AreEqual("5*2+(7*8)", parser.GetValueName("display(5*2+(7*8))")); // Handle calculations with nested parentheses
             Assert.AreEqual("(5*2", parser.GetValueName("display (5*2")); // Mismatched parentheses.  We want to grab it, even though it'll be an error in Stata
@@ -93,6 +94,18 @@ namespace Core.Tests.Parser
             // Stata does not appear to support multiple commands on one line, even in a do file, so this shouldn't work.  We are just asserting that we don't
             // support this functionality.
             Assert.AreNotEqual("test", parser.GetValueName("display test; display test"));
+        }
+
+        [TestMethod]
+        public void IsCalculatedDisplayValue()
+        {
+            var parser = new Stata();
+            Assert.IsFalse(parser.IsCalculatedDisplayValue(""));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("2*3"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display (5*2)"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display(5*2+(7*8))"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5*2"));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("display r[n]"));
         }
 
         [TestMethod]
