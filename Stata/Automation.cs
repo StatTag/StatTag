@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Models;
 using AnalysisManager.Core.Parser;
@@ -168,10 +169,15 @@ namespace Stata
                 return new CommandResult() { TableResult = GetTableResult(command) };
             }
 
-            int returnCode = Application.DoCommand(command);
+            int returnCode = Application.DoCommandAsync(command);
             if (returnCode != 0)
             {
                 throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
+            }
+
+            while (Application.UtilIsStataFree() == 0)
+            {
+                Thread.Sleep(100);
             }
 
             if (Parser.IsImageExport(command))

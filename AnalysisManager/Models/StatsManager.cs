@@ -66,11 +66,18 @@ namespace AnalysisManager.Models
                 var steps = parser.GetExecutionSteps(file.LoadFileContent(), filterMode, annotationsToRun);
                 foreach (var step in steps)
                 {
-                    var results = automation.RunCommands(step.Code.ToArray());
+                    // If there is no annotation, we will join all of the command code together.  This allows us to have
+                    // multi-line statements, such as a for loop.  Because we don't check for return results, we just
+                    // process the command and continue.
                     if (step.Annotation == null)
                     {
+                        string combinedCommand = string.Join("\r\n", step.Code.ToArray());
+                        automation.RunCommands(new [] { combinedCommand });
                         continue;
                     }
+
+
+                    var results = automation.RunCommands(step.Code.ToArray());
 
                     var annotation = Manager.FindAnnotation(step.Annotation.Id);
                     if (annotation != null)
