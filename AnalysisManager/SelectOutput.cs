@@ -23,7 +23,7 @@ namespace AnalysisManager
 
         public List<Annotation> GetSelectedAnnotations()
         {
-            return clbOutput.CheckedItems.Cast<Annotation>().ToList();
+            return UIUtility.GetCheckedAnnotationsFromListView(lvwOutput).ToList();
         }
 
         private void SelectOutput_Load(object sender, EventArgs e)
@@ -32,7 +32,9 @@ namespace AnalysisManager
             {
                 foreach (var annotation in file.Annotations)
                 {
-                    clbOutput.Items.Add(annotation);
+                    var item = lvwOutput.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new [] { file.FilePath });
+                    item.Tag = annotation;
                 }
             }
         }

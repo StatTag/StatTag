@@ -121,5 +121,13 @@ namespace AnalysisManager
 
             MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
+        public static IEnumerable<Annotation> GetCheckedAnnotationsFromListView(ListView listView)
+        {
+            return
+                listView.CheckedItems.Cast<ListViewItem>()
+                    .Where(x => x.Tag is Annotation)
+                    .Select(x => x.Tag as Annotation);
+        }
     }
 }
