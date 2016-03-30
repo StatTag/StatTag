@@ -28,6 +28,11 @@ namespace AnalysisManager.Models
             public List<Annotation> UpdatedAnnotations { get; set; }
         }
 
+        /// <summary>
+        /// The number of steps after which we will allow the UI to update
+        /// </summary>
+        private const int RefreshStepInterval = 5;
+
         public DocumentManager Manager { get; set; }
 
         public StatsManager(DocumentManager manager)
@@ -64,8 +69,20 @@ namespace AnalysisManager.Models
             {
                 // Get all of the commands in the code file that should be executed given the current filter
                 var steps = parser.GetExecutionSteps(file.LoadFileContent(), filterMode, annotationsToRun);
-                foreach (var step in steps)
+                //foreach (var step in steps)
+                for (int index = 0; index < steps.Count; index++)
                 {
+                    var step = steps[index];
+
+                    // Every few steps, we will allow the screen to update, otherwise the UI looks like it's
+                    // completely hung up.
+                    if (index % RefreshStepInterval == 0)
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        Globals.ThisAddIn.Application.ScreenRefresh();
+                        Globals.ThisAddIn.Application.ScreenUpdating = false;
+                    }
+
                     // If there is no annotation, we will join all of the command code together.  This allows us to have
                     // multi-line statements, such as a for loop.  Because we don't check for return results, we just
                     // process the command and continue.

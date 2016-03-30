@@ -83,6 +83,7 @@ namespace AnalysisManager
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Cursor.Current = Cursors.WaitCursor;
+                Globals.ThisAddIn.Application.ScreenUpdating = false;
                 try
                 {
                     var updatedAnnotations = new List<Annotation>();
@@ -123,6 +124,7 @@ namespace AnalysisManager
                 }
                 finally
                 {
+                    Globals.ThisAddIn.Application.ScreenUpdating = true;
                     Cursor.Current = Cursors.Default;   
                 }
             }
@@ -158,6 +160,7 @@ namespace AnalysisManager
 
             var annotations = dialog.SelectedAnnotations;
             Cursor.Current = Cursors.WaitCursor;
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
                 // First, go through and update all of the code files to ensure we have all
@@ -190,6 +193,7 @@ namespace AnalysisManager
             }
             finally
             {
+                Globals.ThisAddIn.Application.ScreenUpdating = true;
                 Cursor.Current = Cursors.Default;
             }
         }
