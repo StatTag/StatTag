@@ -20,6 +20,7 @@ namespace AnalysisManager
         public ManageAnnotations(DocumentManager manager)
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             MinimumSize = Size;
             Manager = manager;
         }

@@ -10,13 +10,14 @@ using System.Windows.Forms;
 
 namespace AnalysisManager.Controls
 {
-    public partial class PercentageValueProperties : UserControl
+    public sealed partial class PercentageValueProperties : UserControl
     {
         public int DecimalPlaces { get; set; }
 
         public PercentageValueProperties()
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void nudDecimalPlaces_ValueChanged(object sender, EventArgs e)

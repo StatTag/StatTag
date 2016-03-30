@@ -11,11 +11,12 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Controls
 {
-    public partial class TableProperties : UserControl
+    public sealed partial class TableProperties : UserControl
     {
         public TableProperties()
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public void SetTableFormat(TableFormat tableFormat)

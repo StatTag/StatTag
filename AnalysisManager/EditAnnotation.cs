@@ -37,6 +37,7 @@ namespace AnalysisManager
                 Manager = manager;
 
                 InitializeComponent();
+                Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
                 SelectedButtonFont = Font;
                 UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
             }

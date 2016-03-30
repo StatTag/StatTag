@@ -30,22 +30,25 @@
         {
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
-            this.clbDefault = new System.Windows.Forms.CheckedListBox();
-            this.clbOnDemand = new System.Windows.Forms.CheckedListBox();
             this.cmdDefaultSelectAll = new System.Windows.Forms.Button();
             this.cmdDefaultSelectNone = new System.Windows.Forms.Button();
             this.cmdOnDemandSelectAll = new System.Windows.Forms.Button();
             this.cmdOnDemandSelectNone = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.lvwOnDemand = new System.Windows.Forms.ListView();
+            this.colAnnotationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.lvwDefault = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdCancel.Location = new System.Drawing.Point(290, 436);
+            this.cmdCancel.Location = new System.Drawing.Point(360, 436);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
@@ -57,32 +60,13 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdOK.Location = new System.Drawing.Point(115, 436);
+            this.cmdOK.Location = new System.Drawing.Point(185, 436);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
             this.cmdOK.TabIndex = 8;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
-            // 
-            // clbDefault
-            // 
-            this.clbDefault.CheckOnClick = true;
-            this.clbDefault.FormattingEnabled = true;
-            this.clbDefault.Location = new System.Drawing.Point(12, 219);
-            this.clbDefault.Name = "clbDefault";
-            this.clbDefault.Size = new System.Drawing.Size(469, 144);
-            this.clbDefault.TabIndex = 10;
-            // 
-            // clbOnDemand
-            // 
-            this.clbOnDemand.CheckOnClick = true;
-            this.clbOnDemand.FormattingEnabled = true;
-            this.clbOnDemand.Location = new System.Drawing.Point(12, 29);
-            this.clbOnDemand.Name = "clbOnDemand";
-            this.clbOnDemand.Size = new System.Drawing.Size(469, 104);
-            this.clbOnDemand.TabIndex = 11;
             // 
             // cmdDefaultSelectAll
             // 
@@ -142,21 +126,81 @@
             this.label2.TabIndex = 17;
             this.label2.Text = "Default annotations to update:";
             // 
+            // lvwOnDemand
+            // 
+            this.lvwOnDemand.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvwOnDemand.CheckBoxes = true;
+            this.lvwOnDemand.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colAnnotationName,
+            this.colFileName});
+            this.lvwOnDemand.FullRowSelect = true;
+            this.lvwOnDemand.GridLines = true;
+            this.lvwOnDemand.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lvwOnDemand.Location = new System.Drawing.Point(12, 27);
+            this.lvwOnDemand.Name = "lvwOnDemand";
+            this.lvwOnDemand.ShowGroups = false;
+            this.lvwOnDemand.Size = new System.Drawing.Size(609, 106);
+            this.lvwOnDemand.TabIndex = 18;
+            this.lvwOnDemand.UseCompatibleStateImageBehavior = false;
+            this.lvwOnDemand.View = System.Windows.Forms.View.Details;
+            // 
+            // colAnnotationName
+            // 
+            this.colAnnotationName.Text = "Output";
+            this.colAnnotationName.Width = 250;
+            // 
+            // colFileName
+            // 
+            this.colFileName.Text = "Code File";
+            this.colFileName.Width = 300;
+            // 
+            // lvwDefault
+            // 
+            this.lvwDefault.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvwDefault.CheckBoxes = true;
+            this.lvwDefault.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.lvwDefault.FullRowSelect = true;
+            this.lvwDefault.GridLines = true;
+            this.lvwDefault.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lvwDefault.Location = new System.Drawing.Point(12, 219);
+            this.lvwDefault.Name = "lvwDefault";
+            this.lvwDefault.ShowGroups = false;
+            this.lvwDefault.Size = new System.Drawing.Size(609, 144);
+            this.lvwDefault.TabIndex = 19;
+            this.lvwDefault.UseCompatibleStateImageBehavior = false;
+            this.lvwDefault.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Output";
+            this.columnHeader1.Width = 250;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Code File";
+            this.columnHeader2.Width = 300;
+            // 
             // UpdateOutput
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(493, 475);
+            this.ClientSize = new System.Drawing.Size(633, 475);
+            this.Controls.Add(this.lvwDefault);
+            this.Controls.Add(this.lvwOnDemand);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmdOnDemandSelectNone);
             this.Controls.Add(this.cmdOnDemandSelectAll);
             this.Controls.Add(this.cmdDefaultSelectNone);
             this.Controls.Add(this.cmdDefaultSelectAll);
-            this.Controls.Add(this.clbOnDemand);
-            this.Controls.Add(this.clbDefault);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.cmdOK);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -175,13 +219,17 @@
 
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdOK;
-        private System.Windows.Forms.CheckedListBox clbDefault;
-        private System.Windows.Forms.CheckedListBox clbOnDemand;
         private System.Windows.Forms.Button cmdDefaultSelectAll;
         private System.Windows.Forms.Button cmdDefaultSelectNone;
         private System.Windows.Forms.Button cmdOnDemandSelectAll;
         private System.Windows.Forms.Button cmdOnDemandSelectNone;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ListView lvwOnDemand;
+        private System.Windows.Forms.ColumnHeader colAnnotationName;
+        private System.Windows.Forms.ColumnHeader colFileName;
+        private System.Windows.Forms.ListView lvwDefault;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
     }
 }

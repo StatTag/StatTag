@@ -89,7 +89,7 @@
             // DateTimeValueProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.cboTime);
             this.Controls.Add(this.cboDate);
             this.Controls.Add(this.chkShowTime);

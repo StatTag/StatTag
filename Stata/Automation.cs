@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Models;
 using AnalysisManager.Core.Parser;
@@ -13,6 +14,11 @@ namespace Stata
     public class Automation : IDisposable
     {
         public const string LocalMacroPrefix = "_";
+
+        /// <summary>
+        /// This is a special local macro name that is being used within Analysis Manager.
+        /// </summary>
+        public const string AnalysisManagerTempMacroName = "__am_tmp_display_value";
 
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
@@ -24,7 +30,7 @@ namespace Stata
         /// <summary>
         /// The collection of all possible Stata process names.  These are converted to
         /// lower case here because the comparison we do later depends on conversion to
-        /// lower case.s
+        /// lower case.
         /// </summary>
         private static readonly List<string> StataProcessNames = new List<string>(new []
         {
@@ -106,6 +112,20 @@ namespace Stata
         public string GetDisplayResult(string command)
         {
             string name;
+
+            // Display values with calculations in them require special handling.  The API does not
+            // process them directly, so our workaround is to introduce a local macro to process the
+            // calculcation, and then use the downstream macro result handler to pull out the result.
+            // This will work even if the same local macro is defined multiple times in the same
+            // execution.
+            if (Parser.IsCalculatedDisplayValue(command))
+            {
+                name = Parser.GetValueName(command);
+                command = string.Format("local {0} = {1}", AnalysisManagerTempMacroName, name);
+                RunCommand(command);
+                command = string.Format("display `{0}'", AnalysisManagerTempMacroName);
+            }
+
             if (Parser.IsMacroDisplayValue(command))
             {
                 name = Parser.GetMacroValueName(command);
@@ -168,10 +188,15 @@ namespace Stata
                 return new CommandResult() { TableResult = GetTableResult(command) };
             }
 
-            int returnCode = Application.DoCommand(command);
+            int returnCode = Application.DoCommandAsync(command);
             if (returnCode != 0)
             {
                 throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
+            }
+
+            while (Application.UtilIsStataFree() == 0)
+            {
+                Thread.Sleep(100);
             }
 
             if (Parser.IsImageExport(command))

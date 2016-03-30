@@ -11,19 +11,20 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
-    public partial class SelectOutput : Form
+    public sealed partial class SelectOutput : Form
     {
         protected List<CodeFile> Files = new List<CodeFile>(); 
 
         public SelectOutput(List<CodeFile> files = null)
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             Files = files;
         }
 
         public List<Annotation> GetSelectedAnnotations()
         {
-            return clbOutput.CheckedItems.Cast<Annotation>().ToList();
+            return UIUtility.GetCheckedAnnotationsFromListView(lvwOutput).ToList();
         }
 
         private void SelectOutput_Load(object sender, EventArgs e)
@@ -32,7 +33,9 @@ namespace AnalysisManager
             {
                 foreach (var annotation in file.Annotations)
                 {
-                    clbOutput.Items.Add(annotation);
+                    var item = lvwOutput.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new [] { file.FilePath });
+                    item.Tag = annotation;
                 }
             }
         }

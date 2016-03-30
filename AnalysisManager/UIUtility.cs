@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
+using Font = Microsoft.Office.Interop.Word.Font;
 
 namespace AnalysisManager
 {
@@ -120,6 +123,22 @@ namespace AnalysisManager
             }
 
             MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        public static IEnumerable<Annotation> GetCheckedAnnotationsFromListView(ListView listView)
+        {
+            return
+                listView.CheckedItems.Cast<ListViewItem>()
+                    .Where(x => x.Tag is Annotation)
+                    .Select(x => x.Tag as Annotation);
+        }
+
+        public static System.Drawing.Font CreateScaledFont(System.Drawing.Font font, Graphics graphics)
+        {
+            //var dpiScale = Math.Min(graphics.DpiX, 120f);
+            const float dpiScale = 96f;
+            var scaledFont = new System.Drawing.Font(font.Name, 9.75f * dpiScale / graphics.DpiX, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
+            return scaledFont;
         }
     }
 }

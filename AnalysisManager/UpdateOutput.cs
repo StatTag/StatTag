@@ -12,7 +12,7 @@ using Microsoft.Office.Tools.Word;
 
 namespace AnalysisManager
 {
-    public partial class UpdateOutput : Form
+    public sealed partial class UpdateOutput : Form
     {
         public List<Annotation> Annotations { get; set; }
 
@@ -21,8 +21,8 @@ namespace AnalysisManager
             get
             {
                 var annotations = new List<Annotation>();
-                annotations.AddRange(clbDefault.CheckedItems.Cast<Annotation>());
-                annotations.AddRange(clbOnDemand.CheckedItems.Cast<Annotation>());
+                annotations.AddRange(UIUtility.GetCheckedAnnotationsFromListView(lvwDefault));
+                annotations.AddRange(UIUtility.GetCheckedAnnotationsFromListView(lvwOnDemand));
                 return annotations;
             }
         }
@@ -31,34 +31,35 @@ namespace AnalysisManager
         {
             Annotations = annotations;
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
-        private void ToggleList(CheckedListBox box, bool value)
+        private void ToggleList(ListView box, bool value)
         {
             for (int index = 0; index < box.Items.Count; index++)
             {
-                box.SetItemChecked(index, value);
+                box.Items[index].Checked = value;
             }
         }
 
         private void cmdOnDemandSelectAll_Click(object sender, EventArgs e)
         {
-            ToggleList(clbOnDemand, true);
+            ToggleList(lvwOnDemand, true);
         }
 
         private void cmdOnDemandSelectNone_Click(object sender, EventArgs e)
         {
-            ToggleList(clbOnDemand, false);
+            ToggleList(lvwOnDemand, false);
         }
 
         private void cmdDefaultSelectAll_Click(object sender, EventArgs e)
         {
-            ToggleList(clbDefault, true);
+            ToggleList(lvwDefault, true);
         }
 
         private void cmdDefaultSelectNone_Click(object sender, EventArgs e)
         {
-            ToggleList(clbDefault, false);
+            ToggleList(lvwDefault, false);
         }
 
         private void UpdateOutput_Load(object sender, EventArgs e)
@@ -72,11 +73,16 @@ namespace AnalysisManager
             {
                 if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
-                    clbDefault.Items.Add(annotation, true);
+                    var item = lvwDefault.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    item.Tag = annotation;
+                    item.Checked = true;
                 }
                 else
                 {
-                    clbOnDemand.Items.Add(annotation, false);
+                    var item = lvwOnDemand.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    item.Tag = annotation;
                 }
             }
         }

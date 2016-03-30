@@ -23,6 +23,7 @@ namespace AnalysisManager
             Properties = properties;
             MinimumSize = Size;
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
