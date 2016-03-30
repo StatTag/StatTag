@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
 using System;
@@ -22,6 +23,7 @@ namespace AnalysisManager
         public LoadAnalysisCode(DocumentManager manager, List<CodeFile> files = null)
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             Manager = manager;
             Files = files;
             MinimumSize = Size;

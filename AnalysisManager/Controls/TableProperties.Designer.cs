@@ -58,7 +58,6 @@
             // numericValueProperties
             // 
             this.numericValueProperties.DecimalPlaces = 0;
-            this.numericValueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.numericValueProperties.Location = new System.Drawing.Point(183, 5);
             this.numericValueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericValueProperties.Name = "numericValueProperties";
@@ -69,7 +68,7 @@
             // TableProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.numericValueProperties);
             this.Controls.Add(this.chkIncludeRowNames);
             this.Controls.Add(this.chkIncludeColumnNames);

@@ -98,7 +98,7 @@
             // ValueProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.pnlDetails);
             this.Controls.Add(this.radPercentage);
             this.Controls.Add(this.radDateTime);

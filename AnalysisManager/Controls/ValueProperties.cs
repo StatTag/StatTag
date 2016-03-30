@@ -12,11 +12,12 @@ using Microsoft.SqlServer.Server;
 
 namespace AnalysisManager.Controls
 {
-    public partial class ValueProperties : UserControl
+    public sealed partial class ValueProperties : UserControl
     {
         public ValueProperties()
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void CheckChanged(object sender, EventArgs e)

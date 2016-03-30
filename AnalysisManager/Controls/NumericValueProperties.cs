@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace AnalysisManager.Controls
 {
-    public partial class NumericValueProperties : UserControl
+    public sealed partial class NumericValueProperties : UserControl
     {
         public int DecimalPlaces { get; set; }
         public bool UseThousands { get; set; }
@@ -18,6 +18,7 @@ namespace AnalysisManager.Controls
         public NumericValueProperties()
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void NumericValueProperties_Load(object sender, EventArgs e)

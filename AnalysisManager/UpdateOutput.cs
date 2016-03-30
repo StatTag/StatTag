@@ -12,7 +12,7 @@ using Microsoft.Office.Tools.Word;
 
 namespace AnalysisManager
 {
-    public partial class UpdateOutput : Form
+    public sealed partial class UpdateOutput : Form
     {
         public List<Annotation> Annotations { get; set; }
 
@@ -31,6 +31,7 @@ namespace AnalysisManager
         {
             Annotations = annotations;
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void ToggleList(ListView box, bool value)

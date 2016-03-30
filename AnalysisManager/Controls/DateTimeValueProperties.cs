@@ -11,11 +11,12 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Controls
 {
-    public partial class DateTimeValueProperties : UserControl
+    public sealed partial class DateTimeValueProperties : UserControl
     {
         public DateTimeValueProperties()
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public string DateFormat { get; set; }

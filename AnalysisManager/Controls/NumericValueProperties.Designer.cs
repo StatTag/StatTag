@@ -71,7 +71,7 @@
             // NumericValueProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.chkThousandSeparator);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nudDecimalPlaces);

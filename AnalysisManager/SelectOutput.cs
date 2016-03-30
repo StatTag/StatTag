@@ -11,13 +11,14 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager
 {
-    public partial class SelectOutput : Form
+    public sealed partial class SelectOutput : Form
     {
         protected List<CodeFile> Files = new List<CodeFile>(); 
 
         public SelectOutput(List<CodeFile> files = null)
         {
             InitializeComponent();
+            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             Files = files;
         }
 
