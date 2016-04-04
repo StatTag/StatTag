@@ -73,6 +73,9 @@
     <Compile Include="Parser\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
+    <Compile Include="ValueFormatter\BaseValueFormatter.cs" />
+    <Compile Include="ValueFormatter\IValueFormatter.cs" />
+    <Compile Include="ValueFormatter\Stata.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

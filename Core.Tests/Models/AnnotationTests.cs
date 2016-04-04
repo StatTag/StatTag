@@ -185,7 +185,7 @@ namespace Core.Tests.Models
             // Actual data
             var format = new TableFormat() { IncludeColumnNames = false, IncludeRowNames = false };
             var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2" }, 2, 2,
-                new double[4] { 0.0, 1.0, 2.0, 3.0 });
+                new double?[] { 0.0, 1.0, 2.0, 3.0 });
             annotation = new Annotation()
             {
                 Type = Constants.AnnotationType.Table,
@@ -227,7 +227,7 @@ namespace Core.Tests.Models
 
             // Actual data
             var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2", "Col3" }, 2, 3,
-                new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 });
+                new double?[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 });
             annotation = new Annotation()
             {
                 Type = Constants.AnnotationType.Table,

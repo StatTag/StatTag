@@ -113,7 +113,7 @@ namespace AnalysisManager.Models
                             if (annotation.IsTableAnnotation())
                             {
                                 annotation.CachedResult.FindAll(x => x.TableResult != null).ForEach(
-                                    x => x.TableResult.FormattedCells = annotation.TableFormat.Format(x.TableResult));
+                                    x => x.TableResult.FormattedCells = annotation.TableFormat.Format(x.TableResult, Factories.GetValueFormatter(annotation.CodeFile)));
                             }
 
                             result.UpdatedAnnotations.Add(annotation);

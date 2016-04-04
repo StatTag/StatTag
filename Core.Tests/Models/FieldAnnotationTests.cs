@@ -65,7 +65,7 @@ namespace Core.Tests.Models
                             RowNames = new List<string>() { "r1", "r2" },
                             ColumnSize = 2,
                             RowSize = 2,
-                            Data = new []{ 1.0, 2.0, 3.0, 4.0 },
+                            Data = new double?[]{ 1.0, 2.0, 3.0, 4.0 },
                             FormattedCells = new []{ "1.0", "2.0", "3.0", "4.0" }
                         }
                     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using AnalysisManager.Core.ValueFormatter;
 
 namespace AnalysisManager.Core.Models
 {
@@ -16,9 +17,12 @@ namespace AnalysisManager.Core.Models
         /// Formats a result given the current configuration
         /// </summary>
         /// <param name="value">The string value to be formatted</param>
+        /// <param name="valueFormatter"></param>
         /// <returns></returns>
-        public string Format(string value)
+        public string Format(string value, IValueFormatter valueFormatter = null)
         {
+            valueFormatter = valueFormatter ?? new BaseValueFormatter();
+
             if (string.IsNullOrWhiteSpace(value))
             {
                 return string.Empty;
@@ -27,14 +31,17 @@ namespace AnalysisManager.Core.Models
             switch (FormatType)
             {
                 case Constants.ValueFormatType.Numeric:
-                    return FormatNumeric(value);
+                    value = FormatNumeric(value);
+                    break;
                 case Constants.ValueFormatType.Percentage:
-                    return FormatPercentage(value);
+                    value = FormatPercentage(value);
+                    break;
                 case Constants.ValueFormatType.DateTime:
-                    return FormatDateTime(value);
+                    value = FormatDateTime(value);
+                    break;
             }
 
-            return value;
+            return valueFormatter.Finalize(value);
         }
 
         /// <summary>
