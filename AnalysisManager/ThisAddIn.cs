@@ -126,9 +126,18 @@ namespace AnalysisManager
                 else
                 {
                     file.LoadAnnotationsFromContent(false);  // Skip saving the cache, since this is the first load
-                    LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
-                    var results = StatsManager.ExecuteStatPackage(file);
-                    LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
+
+                    try
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = false;
+                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
+                        var results = StatsManager.ExecuteStatPackage(file);
+                        LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
+                    }
+                    finally
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                    }
                 }
             }
 
