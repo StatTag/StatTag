@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AnalysisManager.Core.Generator;
 using AnalysisManager.Core.Models;
 using AnalysisManager.Core.Parser;
+using AnalysisManager.Core.ValueFormatter;
 
 namespace AnalysisManager.Core
 {
@@ -13,10 +14,13 @@ namespace AnalysisManager.Core
     {
         public static IParser GetParser(CodeFile file)
         {
-            switch (file.StatisticalPackage)
+            if (file != null)
             {
-                case Constants.StatisticalPackages.Stata:
-                    return new AnalysisManager.Core.Parser.Stata();
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        return new AnalysisManager.Core.Parser.Stata();
+                }
             }
 
             return null;
@@ -24,13 +28,30 @@ namespace AnalysisManager.Core
 
         public static IGenerator GetGenerator(CodeFile file)
         {
-            switch (file.StatisticalPackage)
+            if (file != null)
             {
-                case Constants.StatisticalPackages.Stata:
-                    return new AnalysisManager.Core.Generator.Stata();
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        return new AnalysisManager.Core.Generator.Stata();
+                }
             }
 
             return null;
+        }
+
+        public static IValueFormatter GetValueFormatter(CodeFile file)
+        {
+            if (file != null)
+            {
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        return new AnalysisManager.Core.ValueFormatter.Stata();
+                }
+            }
+
+            return new BaseValueFormatter();
         }
     }
 }

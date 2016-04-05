@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -165,10 +166,30 @@ namespace Stata
                 Application.MatrixColNames(matrixName),
                 Application.MatrixRowDim(matrixName),
                 Application.MatrixColDim(matrixName),
-                Application.MatrixData(matrixName)
+                ProcessForMissingValues(Application.MatrixData(matrixName))
             );
 
             return table;
+        }
+
+        /// <summary>
+        /// Identify missing values from the Stata API and explicitly set them to a null result.
+        /// </summary>
+        /// <remarks>Stata represents missing values as very large integers.  If we don't account for
+        /// those results, we will display large integers as a result.  To clean up the results, we
+        /// will detect missing values and set them to null.</remarks>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private double?[] ProcessForMissingValues(double[] data)
+        {
+            var cleanedData = new double?[data.Length];
+            var missingValue = Application.UtilGetStMissingValue();
+            for (int index = 0; index < data.Length; index++)
+            {
+                cleanedData[index] = (data[index] >= missingValue) ? (double?) null : data[index];
+            }
+
+            return cleanedData;
         }
 
         /// <summary>

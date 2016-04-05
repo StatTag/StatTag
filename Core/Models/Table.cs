@@ -18,7 +18,7 @@ namespace AnalysisManager.Core.Models
         public List<string> ColumnNames { get; set; }
         public int RowSize { get; set; }
         public int ColumnSize { get; set; }
-        public double[] Data { get; set; }
+        public double?[] Data { get; set; }
         public string[] FormattedCells { get; set; }
 
         public Table()
@@ -27,7 +27,7 @@ namespace AnalysisManager.Core.Models
             ColumnNames = new List<string>();
         }
 
-        public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, double[] data)
+        public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, double?[] data)
         {
             RowNames = (rowNames == null) ? null : new List<string>(rowNames);
             ColumnNames = (columnNames == null) ? null : new List<string>(columnNames);
@@ -36,6 +36,11 @@ namespace AnalysisManager.Core.Models
             Data = data;
         }
 
+        /// <summary>
+        /// Determines if this table is empty - meaning it has no data, or does not have a
+        /// column or row dimension specified.
+        /// </summary>
+        /// <returns>true if empty, false otherwise</returns>
         public bool IsEmpty()
         {
             return Data == null || Data.Length == 0 || RowSize == 0 || ColumnSize == 0;

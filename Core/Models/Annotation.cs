@@ -44,12 +44,13 @@ namespace AnalysisManager.Core.Models
                 string formattedValue = lastValue.ToString();
                 if (!string.IsNullOrWhiteSpace(Type) && ValueFormat != null)
                 {
-                    formattedValue = ValueFormat.Format(lastValue.ToString());
+                    formattedValue = ValueFormat.Format(lastValue.ToString(), Factories.GetValueFormatter(CodeFile));
                 }
 
                 // Table annotations should never return the placeholder.  We assume that there could reasonably
                 // be empty cells at some point, so we will not correct those like we do for individual values.
-                return (!IsTableAnnotation() && string.IsNullOrWhiteSpace(formattedValue)) ? Constants.Placeholders.EmptyField : formattedValue;
+                return (!IsTableAnnotation() && string.IsNullOrWhiteSpace(formattedValue)) ? 
+                    Constants.Placeholders.EmptyField : formattedValue;
             }
         }
 
@@ -193,7 +194,7 @@ namespace AnalysisManager.Core.Models
             }
 
             var table = CachedResult[0].TableResult;
-            table.FormattedCells = TableFormat.Format(table);
+            table.FormattedCells = TableFormat.Format(table, Factories.GetValueFormatter(CodeFile));
         }
 
         /// <summary>

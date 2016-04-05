@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using AnalysisManager.Core;
 using AnalysisManager.Core.Models;
 using Microsoft.Office.Interop.Word;
 
