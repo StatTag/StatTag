@@ -467,5 +467,26 @@ namespace AnalysisManager
                 line.MarkerDelete(AnnotationMarker);
             }
         }
+
+        private void cboCodeFiles_DropDown(object sender, System.EventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+            {
+                return;
+            }
+
+            int width = comboBox.DropDownWidth;
+            using (Graphics graphics = comboBox.CreateGraphics())
+            {
+                Font font = comboBox.Font;
+                int vertScrollBarWidth = (comboBox.Items.Count > comboBox.MaxDropDownItems) ? SystemInformation.VerticalScrollBarWidth : 0;
+                foreach (CodeFile file in comboBox.Items)
+                {
+                    width = Math.Max(width, (int)graphics.MeasureString(file.FilePath, font).Width + vertScrollBarWidth);
+                }
+                comboBox.DropDownWidth = width;
+            }
+        }
     }
 }
