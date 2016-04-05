@@ -130,7 +130,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtOutputLabel.Location = new System.Drawing.Point(203, 73);
             this.txtOutputLabel.Name = "txtOutputLabel";
-            this.txtOutputLabel.Size = new System.Drawing.Size(412, 25);
+            this.txtOutputLabel.Size = new System.Drawing.Size(563, 25);
             this.txtOutputLabel.TabIndex = 15;
             this.txtOutputLabel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOutputLabel_KeyPress);
             // 
@@ -204,8 +204,9 @@
             this.cboCodeFiles.FormattingEnabled = true;
             this.cboCodeFiles.Location = new System.Drawing.Point(203, 8);
             this.cboCodeFiles.Name = "cboCodeFiles";
-            this.cboCodeFiles.Size = new System.Drawing.Size(412, 25);
+            this.cboCodeFiles.Size = new System.Drawing.Size(563, 25);
             this.cboCodeFiles.TabIndex = 21;
+            this.cboCodeFiles.DropDown += new System.EventHandler(this.cboCodeFiles_DropDown);
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
             // 
             // lblNoOutputWarning
@@ -228,8 +229,8 @@
             // 
             // scintilla1
             // 
-            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
             this.scintilla1.Lexer = ScintillaNET.Lexer.R;
@@ -277,7 +278,6 @@
             // EditAnnotation
             // 
             this.AcceptButton = this.cmdOK;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(779, 734);
