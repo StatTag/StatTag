@@ -75,8 +75,9 @@ namespace AnalysisManager.Models
                     var step = steps[index];
 
                     // Every few steps, we will allow the screen to update, otherwise the UI looks like it's
-                    // completely hung up.
-                    if (index % RefreshStepInterval == 0)
+                    // completely hung up.  Note that we will only do this if screen updating is disabled when
+                    // we invoke this method.  Otherwise we run the risk of not re-enabling screen updates.
+                    if (!Globals.ThisAddIn.Application.ScreenUpdating && (index % RefreshStepInterval == 0))
                     {
                         Globals.ThisAddIn.Application.ScreenUpdating = true;
                         Globals.ThisAddIn.Application.ScreenRefresh();
