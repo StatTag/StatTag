@@ -1,0 +1,31 @@
+RELEASE CHECKLIST
+------------------
+
+The following steps should be taken to release a new version of the software.
+1) Increment versions in the following projects:
+  a) AnalysisManager
+  b) Core
+  c) Stata
+2) Open the OfficeAddInSetup project
+3) Under Organize Your Setup > General Information
+  a) Update the Product Version
+  b) Regenerate the Product Code
+4) Change the build configuration to "Release"
+5) Clean and then rebuild the entire solution
+6) Copy the setup file to the shared releases folder
+
+
+
+
+
+
+Additional information
+--------------------------
+Setting up InstallShield to allow upgrades was found at: http://stackoverflow.com/a/13874942/5670646
+Original setup instructions were:
+"In your InstallShield setup project, you should do the following:
+* select branch: Organize your setup -> Upgrade Paths
+* add new upgrade path and than press the cancel button
+* the default properties of the new upgrade path should not be changed if you do not plan to change the Product version from the following branch: Organize your setup -> General Information. If you plan to change the Product version, than you should play with the following upgrade path properties: Min Version/_Include Min Version_, Max Version/_Include Max Version_.
+* every time you need to create a new setup, change the Product code from the following branch: Organize your setup -> General Information.
+* please be aware that the Upgrade Code should NEVER be changed."
