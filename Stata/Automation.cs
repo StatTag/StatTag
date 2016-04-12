@@ -70,12 +70,29 @@ namespace Stata
             return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName.ToLower()));
         }
 
+        public void Show()
+        {
+            if (Application != null)
+            {
+                Application.UtilShowStata(ShowStata);
+            }
+        }
+
+        public void Hide()
+        {
+            if (Application != null)
+            {
+                Application.UtilShowStata(StataHidden);
+            }
+        }
+
         public bool Initialize()
         {
             try
             {
                 Application = new stata.StataOLEApp();
-                Application.UtilShowStata(StataHidden);
+                Application.DoCommand(DisablePagingCommand);
+                Show();
             }
             catch (COMException comExc)
             {
@@ -102,11 +119,8 @@ namespace Stata
         /// <returns></returns>
         public CommandResult[] RunCommands(string[] commands)
         {
-            Application.UtilShowStata(MinimizeStata);
-            Application.DoCommand(DisablePagingCommand);
             var results = commands.Select(command => RunCommand(command)).Where(
                 result => result != null && !result.IsEmpty()).ToArray();
-            Application.UtilShowStata(StataHidden);
             return results;
         }
 
@@ -236,6 +250,7 @@ namespace Stata
 
         public void Dispose()
         {
+            Hide();
             Application = null;
         }
 
