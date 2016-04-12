@@ -29,6 +29,7 @@ namespace Stata
 
         protected stata.StataOLEApp Application { get; set; }
         protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
+        protected List<string> OpenLogs { get; set; } 
 
         /// <summary>
         /// The collection of all possible Stata process names.  These are converted to
@@ -82,7 +83,7 @@ namespace Stata
         {
             if (Application != null)
             {
-                Application.UtilShowStata(StataHidden);
+                //Application.UtilShowStata(StataHidden);
             }
         }
 
@@ -90,6 +91,7 @@ namespace Stata
         {
             try
             {
+                OpenLogs = new List<string>();
                 Application = new stata.StataOLEApp();
                 Application.DoCommand(DisablePagingCommand);
                 Show();
@@ -112,6 +114,12 @@ namespace Stata
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
+        public CommandResult[] CombineAndRunCommands(string[] commands)
+        {
+            string combinedCommand = string.Join("\r\n", commands);
+            return RunCommands(new[] { combinedCommand });
+        }
+
         /// <summary>
         /// Run a collection of commands and provide all applicable results.
         /// </summary>
@@ -119,9 +127,40 @@ namespace Stata
         /// <returns></returns>
         public CommandResult[] RunCommands(string[] commands)
         {
-            var results = commands.Select(command => RunCommand(command)).Where(
-                result => result != null && !result.IsEmpty()).ToArray();
-            return results;
+            try
+            {
+                var commandResults = new List<CommandResult>();
+                foreach (var command in commands)
+                {
+                    if (Parser.IsStartingLog(command))
+                    {
+                        OpenLogs.AddRange(Parser.GetLogType(command));
+                    }
+
+                    var result = RunCommand(command);
+                    if (result != null && !result.IsEmpty())
+                    {
+                        commandResults.Add(result);
+                    }
+                }
+
+                return commandResults.ToArray();
+            }
+            catch (Exception exc)
+            {
+                // If we catch an exception, the script is going to stop operating.  So we will check to see
+                // if any log files are open, and close them for the user.  Otherwise the log will remain
+                // open.
+                foreach (var openLog in OpenLogs)
+                {
+                    RunCommand(string.Format("{0} close", openLog));
+                }
+
+                // Since we have closed all logs, clear the list we were tracking.
+                OpenLogs.Clear();
+
+                throw exc;
+            }
         }
 
         /// <summary>

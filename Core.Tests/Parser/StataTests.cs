@@ -63,6 +63,42 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void IsStartingLog()
+        {
+            var parser = new Stata();
+            Assert.IsFalse(parser.IsStartingLog("*log using tmp.txt"));
+            Assert.IsFalse(parser.IsStartingLog("*cmdlog using tmp.txt"));
+            Assert.IsFalse(parser.IsStartingLog("  *  log using tmp.txt  "));
+            Assert.IsFalse(parser.IsStartingLog("  *  cmdlog using tmp.txt  "));
+            Assert.IsFalse(parser.IsStartingLog("l og using tmp.txt  "));
+            Assert.IsFalse(parser.IsStartingLog("logs using tmp.txt  "));
+            Assert.IsFalse(parser.IsStartingLog("cmdlogs using tmp.txt  "));
+            Assert.IsFalse(parser.IsStartingLog("cmd log using tmp.txt  "));
+            Assert.IsTrue(parser.IsStartingLog("log using tmp.txt"));
+            Assert.IsTrue(parser.IsStartingLog(" log   using   tmp.txt   "));
+            Assert.IsTrue(parser.IsStartingLog("cmdlog using tmp.txt"));
+            Assert.IsTrue(parser.IsStartingLog(" cmdlog   using   tmp.txt   "));
+        }
+
+        [TestMethod]
+        public void GetLogType()
+        {
+            var parser = new Stata();
+            Assert.AreEqual(string.Empty, parser.GetLogType("*log using tmp.txt"));
+            Assert.AreEqual(string.Empty, parser.GetLogType("*cmdlog using tmp.txt"));
+            Assert.AreEqual(string.Empty, parser.GetLogType("  *  log using tmp.txt  "));
+            Assert.AreEqual(string.Empty, parser.GetLogType("  *  cmdlog using tmp.txt  "));
+            Assert.AreEqual(string.Empty, parser.GetLogType("l og using tmp.txt  "));
+            Assert.AreEqual(string.Empty, parser.GetLogType("logs using tmp.txt  "));
+            Assert.AreEqual(string.Empty, parser.GetLogType("cmdlogs using tmp.txt  "));
+            Assert.AreEqual(string.Empty, parser.GetLogType("cmd log using tmp.txt  "));
+            Assert.AreEqual("log", parser.GetLogType("log using tmp.txt"));
+            Assert.AreEqual("log", parser.GetLogType(" log   using   tmp.txt   "));
+            Assert.AreEqual("cmdlog", parser.GetLogType("cmdlog using tmp.txt"));
+            Assert.AreEqual("cmdlog", parser.GetLogType(" cmdlog   using   tmp.txt   "));
+        }
+
+        [TestMethod]
         public void GetImageSaveLocation()
         {
             var parser = new Stata();
