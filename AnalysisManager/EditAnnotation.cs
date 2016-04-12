@@ -325,15 +325,17 @@ namespace AnalysisManager
 
         private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            var automation = new Stata.Automation();
-            var commands = e.Argument as string[];
-            if (commands.Any(command => automation.IsReturnable(command)))
+            using (var automation = new Stata.Automation())
             {
-                e.Result = false;
-                return;
-            }
+                var commands = e.Argument as string[];
+                if (commands.Any(command => automation.IsReturnable(command)))
+                {
+                    e.Result = false;
+                    return;
+                }
 
-            e.Result = true;
+                e.Result = true;
+            }
         }
 
         private void codeCheckWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)

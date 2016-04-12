@@ -21,6 +21,8 @@ namespace Stata
         /// </summary>
         public const string AnalysisManagerTempMacroName = "__am_tmp_display_value";
 
+        public const string DisablePagingCommand = "set more off";
+
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
@@ -100,8 +102,12 @@ namespace Stata
         /// <returns></returns>
         public CommandResult[] RunCommands(string[] commands)
         {
-            return commands.Select(command => RunCommand(command)).Where(
+            Application.UtilShowStata(MinimizeStata);
+            Application.DoCommand(DisablePagingCommand);
+            var results = commands.Select(command => RunCommand(command)).Where(
                 result => result != null && !result.IsEmpty()).ToArray();
+            Application.UtilShowStata(StataHidden);
+            return results;
         }
 
         /// <summary>
