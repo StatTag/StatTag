@@ -26,6 +26,7 @@ namespace AnalysisManager.Core.Parser
         private static string TableCommand = "mat(?:rix)? l(?:ist)?";
         private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,\\s]*)\\b", TableCommand.Replace(" ", "\\s+")));
+        private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -49,6 +50,11 @@ namespace AnalysisManager.Core.Parser
             return GraphKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Determine if a command is for displaying a result
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override bool IsValueDisplay(string command)
         {
             return ValueKeywordRegex.IsMatch(command);
@@ -64,6 +70,28 @@ namespace AnalysisManager.Core.Parser
         {
             string value = GetValueName(command);
             return MacroValueRegex.IsMatch(value);
+        }
+
+        /// <summary>
+        /// Determine if a command is starting a log in the Stata session
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>true if it is starting a log, false otherwise</returns>
+        public bool IsStartingLog(string command)
+        {
+            return LogKeywordRegex.IsMatch(command);
+        }
+
+        /// <summary>
+        /// Determine if a command is for displaying a result
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>A string describing the type of log (log or cmdlog), or a blank string if this is not a logging command</returns>
+        //public string GetLogType(string command)
+        public string[] GetLogType(string command)
+        {
+            //return MatchRegexReturnGroup(command, LogKeywordRegex, 1);
+            return GlobalMatchRegexReturnGroup(command, LogKeywordRegex, 1);
         }
 
         /// <summary>
@@ -127,6 +155,18 @@ namespace AnalysisManager.Core.Parser
             }
 
             return string.Empty;
+        }
+
+        private string[] GlobalMatchRegexReturnGroup(string text, Regex regex, int groupNum)
+        {
+            var matches = regex.Matches(text);
+            if (matches.Count == 0)
+            {
+                return null;
+            }
+
+            var results = matches.OfType<Match>().Select(match => match.Groups[groupNum].Value.Trim()).ToList();
+            return results.ToArray();
         }
     }
 }

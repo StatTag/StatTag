@@ -21,12 +21,15 @@ namespace Stata
         /// </summary>
         public const string AnalysisManagerTempMacroName = "__am_tmp_display_value";
 
+        public const string DisablePagingCommand = "set more off";
+
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
 
         protected stata.StataOLEApp Application { get; set; }
         protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
+        protected List<string> OpenLogs { get; set; } 
 
         /// <summary>
         /// The collection of all possible Stata process names.  These are converted to
@@ -68,12 +71,30 @@ namespace Stata
             return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName.ToLower()));
         }
 
+        public void Show()
+        {
+            if (Application != null)
+            {
+                Application.UtilShowStata(ShowStata);
+            }
+        }
+
+        public void Hide()
+        {
+            if (Application != null)
+            {
+                Application.UtilShowStata(StataHidden);
+            }
+        }
+
         public bool Initialize()
         {
             try
             {
+                OpenLogs = new List<string>();
                 Application = new stata.StataOLEApp();
-                Application.UtilShowStata(StataHidden);
+                Application.DoCommand(DisablePagingCommand);
+                Show();
             }
             catch (COMException comExc)
             {
@@ -93,6 +114,12 @@ namespace Stata
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
+        public CommandResult[] CombineAndRunCommands(string[] commands)
+        {
+            string combinedCommand = string.Join("\r\n", commands);
+            return RunCommands(new[] { combinedCommand });
+        }
+
         /// <summary>
         /// Run a collection of commands and provide all applicable results.
         /// </summary>
@@ -100,8 +127,40 @@ namespace Stata
         /// <returns></returns>
         public CommandResult[] RunCommands(string[] commands)
         {
-            return commands.Select(command => RunCommand(command)).Where(
-                result => result != null && !result.IsEmpty()).ToArray();
+            try
+            {
+                var commandResults = new List<CommandResult>();
+                foreach (var command in commands)
+                {
+                    if (Parser.IsStartingLog(command))
+                    {
+                        OpenLogs.AddRange(Parser.GetLogType(command));
+                    }
+
+                    var result = RunCommand(command);
+                    if (result != null && !result.IsEmpty())
+                    {
+                        commandResults.Add(result);
+                    }
+                }
+
+                return commandResults.ToArray();
+            }
+            catch (Exception exc)
+            {
+                // If we catch an exception, the script is going to stop operating.  So we will check to see
+                // if any log files are open, and close them for the user.  Otherwise the log will remain
+                // open.
+                foreach (var openLog in OpenLogs)
+                {
+                    RunCommand(string.Format("{0} close", openLog));
+                }
+
+                // Since we have closed all logs, clear the list we were tracking.
+                OpenLogs.Clear();
+
+                throw exc;
+            }
         }
 
         /// <summary>
@@ -230,6 +289,7 @@ namespace Stata
 
         public void Dispose()
         {
+            Hide();
             Application = null;
         }
 
