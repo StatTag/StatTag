@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AnalysisManager.Core.Parser;
 
@@ -78,24 +79,39 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsStartingLog(" log   using   tmp.txt   "));
             Assert.IsTrue(parser.IsStartingLog("cmdlog using tmp.txt"));
             Assert.IsTrue(parser.IsStartingLog(" cmdlog   using   tmp.txt   "));
+            Assert.IsTrue(parser.IsStartingLog("*comment line followed by command\r\ncmdlog   using   tmp.txt   "));
+        }
+
+        protected void ValidateFoundLogs(string[] expected, string[] received)
+        {
+            Assert.AreEqual(expected.Length, received.Length);
+            foreach (var log in expected)
+            {
+                Assert.IsTrue(received.Contains(log));
+            }
         }
 
         [TestMethod]
         public void GetLogType()
         {
             var parser = new Stata();
-            Assert.AreEqual(string.Empty, parser.GetLogType("*log using tmp.txt"));
-            Assert.AreEqual(string.Empty, parser.GetLogType("*cmdlog using tmp.txt"));
-            Assert.AreEqual(string.Empty, parser.GetLogType("  *  log using tmp.txt  "));
-            Assert.AreEqual(string.Empty, parser.GetLogType("  *  cmdlog using tmp.txt  "));
-            Assert.AreEqual(string.Empty, parser.GetLogType("l og using tmp.txt  "));
-            Assert.AreEqual(string.Empty, parser.GetLogType("logs using tmp.txt  "));
-            Assert.AreEqual(string.Empty, parser.GetLogType("cmdlogs using tmp.txt  "));
-            Assert.AreEqual(string.Empty, parser.GetLogType("cmd log using tmp.txt  "));
-            Assert.AreEqual("log", parser.GetLogType("log using tmp.txt"));
-            Assert.AreEqual("log", parser.GetLogType(" log   using   tmp.txt   "));
-            Assert.AreEqual("cmdlog", parser.GetLogType("cmdlog using tmp.txt"));
-            Assert.AreEqual("cmdlog", parser.GetLogType(" cmdlog   using   tmp.txt   "));
+            Assert.IsNull(parser.GetLogType("*log using tmp.txt"));
+            Assert.IsNull(parser.GetLogType("*cmdlog using tmp.txt"));
+            Assert.IsNull(parser.GetLogType("  *  log using tmp.txt  "));
+            Assert.IsNull(parser.GetLogType("  *  cmdlog using tmp.txt  "));
+            Assert.IsNull(parser.GetLogType("l og using tmp.txt  "));
+            Assert.IsNull(parser.GetLogType("logs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogType("cmdlogs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogType("cmd log using tmp.txt  "));
+            ValidateFoundLogs(new []{"log"}, parser.GetLogType("log using tmp.txt"));
+            ValidateFoundLogs(new []{"log"}, parser.GetLogType(" log   using   tmp.txt   "));
+            ValidateFoundLogs(new []{"cmdlog"}, parser.GetLogType("cmdlog using tmp.txt"));
+            ValidateFoundLogs(new[] { "cmdlog" }, parser.GetLogType(" cmdlog   using   tmp.txt   "));
+            ValidateFoundLogs(new[] { "log" }, parser.GetLogType("log   using   log using 2.txt   "));
+            ValidateFoundLogs(new[] { "log", "cmdlog" }, parser.GetLogType("log using log.txt\r\ncmdlog using cmdlog.txt"));
+            ValidateFoundLogs(new[] { "log", "cmdlog" }, parser.GetLogType("cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log" }, parser.GetLogType("*cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log", "log" }, parser.GetLogType("log using log.txt\r\nlog using log2.txt"));
         }
 
         [TestMethod]

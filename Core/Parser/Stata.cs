@@ -26,7 +26,7 @@ namespace AnalysisManager.Core.Parser
         private static string TableCommand = "mat(?:rix)? l(?:ist)?";
         private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,\\s]*)\\b", TableCommand.Replace(" ", "\\s+")));
-        private static Regex LogKeywordRegex = new Regex("\\s*((?:cmd)?log)\\s*using\\b");
+        private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
 
         /// <summary>
         /// This is used to test/extract a macro display value.

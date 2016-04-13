@@ -83,7 +83,7 @@ namespace Stata
         {
             if (Application != null)
             {
-                //Application.UtilShowStata(StataHidden);
+                Application.UtilShowStata(StataHidden);
             }
         }
 
