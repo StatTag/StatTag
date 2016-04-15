@@ -10,6 +10,9 @@ using Stata;
 
 namespace AnalysisManager.Models
 {
+    /// <summary>
+    /// Manages the execution of code files in the correct statistical package.
+    /// </summary>
     public class StatsManager
     {
         /// <summary>

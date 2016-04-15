@@ -8,6 +8,9 @@ using Microsoft.Win32;
 
 namespace AnalysisManager.Models
 {
+    /// <summary>
+    /// Manages loading and saving user settings and preferences.
+    /// </summary>
     public class PropertiesManager
     {
         private const string ApplicationKey = "Software\\Northwestern University\\AnalysisManager";
@@ -22,14 +25,25 @@ namespace AnalysisManager.Models
             Properties = new Properties();
         }
 
+        /// <summary>
+        /// Save the properties to the user's registry.
+        /// </summary>
         public void Save()
         {
             var key = Registry.CurrentUser.CreateSubKey(ApplicationKey);
+            if (key == null)
+            {
+                return;
+            }
+
             key.SetValue(StataLocationKey, Properties.StataLocation, RegistryValueKind.String);
             key.SetValue(LogLocationKey, Properties.LogLocation, RegistryValueKind.String);
             key.SetValue(LogEnabledKey, Properties.EnableLogging, RegistryValueKind.DWord);
         }
 
+        /// <summary>
+        /// Load the properties from the user's registry.
+        /// </summary>
         public void Load()
         {
             var key = Registry.CurrentUser.OpenSubKey(ApplicationKey);

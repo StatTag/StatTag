@@ -33,14 +33,13 @@ namespace AnalysisManager.Models
         /// <summary>
         /// Provider a wrapper to check if a variable exists in the document.
         /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        /// <remarks>Needed because Word interop doesn't provide a nice check mechanism, and uses exceptions instead.</remarks>
+        /// <param name="variable">The variable to check</param>
+        /// <returns>True if a variable exists and has a value, false otherwise</returns>
         protected bool DocumentVariableExists(Variable variable)
         {
-            // The Word interop doesn't provide a nice check mechanism, and uses exceptions instead.
             try
             {
-
                 var value = variable.Value;
                 return true;
             }
@@ -534,6 +533,12 @@ namespace AnalysisManager.Models
             Log("InsertTable - Finished");
         }
 
+        /// <summary>
+        /// Helper method to insert a new line in the document at the current selection,
+        /// and then move the cursor down.  This gives us a way to insert extra space
+        /// after a table is inserted.
+        /// </summary>
+        /// <param name="selection">The selection to insert the new line after.</param>
         protected void InsertNewLineAndMoveDown(Selection selection)
         {
             selection.Collapse(WdCollapseDirection.wdCollapseEnd);
@@ -681,6 +686,13 @@ namespace AnalysisManager.Models
             Log("InsertField - Finished");
         }
 
+        /// <summary>
+        /// Insert an Analysis Manager field at the currently specified document range.
+        /// </summary>
+        /// <param name="range">The range to insert the field at</param>
+        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="displayValue">The value that should display when the field is shown.</param>
+        /// <param name="annotation">The annotation to be inserted</param>
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
         {
             Log("CreateAnnotationField - Started");
@@ -693,6 +705,13 @@ namespace AnalysisManager.Models
             Log("CreateAnnotationField - Finished");
         }
 
+        /// <summary>
+        /// Insert an Analysis Manager field at the currently specified document range.
+        /// </summary>
+        /// <param name="range">The range to insert the field at</param>
+        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="displayValue">The value that should display when the field is shown.</param>
+        /// <param name="annotation">The annotation to be inserted</param>
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
         {
             CreateAnnotationField(range, annotationIdentifier, displayValue, new FieldAnnotation(annotation));

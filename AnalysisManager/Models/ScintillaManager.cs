@@ -9,8 +9,17 @@ using ScintillaNET;
 
 namespace AnalysisManager.Models
 {
+    /// <summary>
+    /// Manages the configuration of the Scintilla editor control to use the correct lexer and
+    /// syntax highlighting style.
+    /// </summary>
     public static class ScintillaManager
     {
+        /// <summary>
+        /// Configure the editor for the specified code file.
+        /// </summary>
+        /// <param name="scintilla">The editor control to be configured</param>
+        /// <param name="codeFile">The code file that will be loaded.</param>
         public static void ConfigureEditor(Scintilla scintilla, CodeFile codeFile)
         {
             //Reset the styles
@@ -35,11 +44,16 @@ namespace AnalysisManager.Models
             }
         }
 
+        /// <summary>
+        /// Internal method to do the specific configurations for Stata do files.
+        /// </summary>
+        /// <param name="scintilla">The Scintilla control to configure.</param>
         private static void ConfigureStataEditor(Scintilla scintilla)
         {
             // Set the lexer
             scintilla.Lexer = Lexer.Stata;
 
+            // Disable code block folding.
             scintilla.SetProperty("fold", "0");
 
             // Set the styles
@@ -66,11 +80,16 @@ namespace AnalysisManager.Models
             scintilla.SetKeywords(1, keywords);
         }
 
+        /// <summary>
+        /// Internal method to do the specific configurations for R code files.
+        /// </summary>
+        /// <param name="scintilla">The Scintilla control to configure.</param>
         private static void ConfigureREditor(Scintilla scintilla)
         {
             // Set the lexer
             scintilla.Lexer = Lexer.R;
 
+            // Disable code block folding.
             scintilla.SetProperty("fold", "0");
 
             // Set the styles
