@@ -16,8 +16,8 @@ namespace AnalysisManager
     {
         public List<Annotation> Annotations { get; set; }
 
-        private Dictionary<string, Annotation> DefaultAnnotations = new Dictionary<string, Annotation>();
-        private Dictionary<string, Annotation> OnDemandAnnotations = new Dictionary<string, Annotation>();
+        private readonly Dictionary<string, Annotation> DefaultAnnotations = new Dictionary<string, Annotation>();
+        private readonly Dictionary<string, Annotation> OnDemandAnnotations = new Dictionary<string, Annotation>();
 
         public List<Annotation> SelectedAnnotations
         {
@@ -77,17 +77,10 @@ namespace AnalysisManager
                 if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
                     DefaultAnnotations.Add(annotation.OutputLabel, annotation);
-                    //var item = lvwDefault.Items.Add(annotation.OutputLabel);
-                    //item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    //item.Tag = annotation;
-                    //item.Checked = true;
                 }
                 else
                 {
                     OnDemandAnnotations.Add(annotation.OutputLabel, annotation);
-                    //var item = lvwOnDemand.Items.Add(annotation.OutputLabel);
-                    //item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    //item.Tag = annotation;
                 }
             }
 

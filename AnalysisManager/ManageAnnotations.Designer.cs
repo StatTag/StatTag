@@ -44,15 +44,16 @@
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.cmdRemove = new System.Windows.Forms.Button();
             this.cmdAdd = new System.Windows.Forms.Button();
+            this.txtFilter = new AnalysisManager.Controls.PlaceholderTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(561, 28);
+            this.label1.Size = new System.Drawing.Size(375, 17);
             this.label1.TabIndex = 0;
             this.label1.Text = "Manage the list of annotations accessible within this document:";
             // 
@@ -74,11 +75,11 @@
             this.colOutputLabel,
             this.colRunFrequency,
             this.colEdit});
-            this.dgvItems.Location = new System.Drawing.Point(15, 29);
+            this.dgvItems.Location = new System.Drawing.Point(15, 39);
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvItems.Size = new System.Drawing.Size(589, 201);
+            this.dgvItems.Size = new System.Drawing.Size(589, 255);
             this.dgvItems.TabIndex = 1;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
             this.dgvItems.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentDoubleClick);
@@ -97,14 +98,14 @@
             this.colStatPackage.MinimumWidth = 70;
             this.colStatPackage.Name = "colStatPackage";
             this.colStatPackage.ReadOnly = true;
-            this.colStatPackage.Width = 103;
+            this.colStatPackage.Width = 70;
             // 
             // colType
             // 
             this.colType.HeaderText = "Type";
             this.colType.Name = "colType";
             this.colType.ReadOnly = true;
-            this.colType.Width = 90;
+            this.colType.Width = 61;
             // 
             // colOutputLabel
             // 
@@ -119,7 +120,7 @@
             this.colRunFrequency.HeaderText = "When to Run";
             this.colRunFrequency.MinimumWidth = 100;
             this.colRunFrequency.Name = "colRunFrequency";
-            this.colRunFrequency.Width = 162;
+            this.colRunFrequency.Width = 108;
             // 
             // colEdit
             // 
@@ -141,7 +142,7 @@
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(365, 293);
+            this.cmdCancel.Location = new System.Drawing.Point(365, 347);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
             this.cmdCancel.TabIndex = 5;
@@ -152,7 +153,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(164, 293);
+            this.cmdOK.Location = new System.Drawing.Point(164, 347);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
             this.cmdOK.TabIndex = 4;
@@ -183,7 +184,7 @@
             // 
             this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdRemove.Location = new System.Drawing.Point(311, 237);
+            this.cmdRemove.Location = new System.Drawing.Point(311, 301);
             this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(168, 25);
@@ -196,7 +197,7 @@
             // 
             this.cmdAdd.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAdd.Location = new System.Drawing.Point(137, 237);
+            this.cmdAdd.Location = new System.Drawing.Point(137, 301);
             this.cmdAdd.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(168, 25);
@@ -205,12 +206,24 @@
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
+            // txtFilter
+            // 
+            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFilter.Location = new System.Drawing.Point(403, 9);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.PlaceholderText = "Search";
+            this.txtFilter.Size = new System.Drawing.Size(201, 25);
+            this.txtFilter.TabIndex = 9;
+            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
+            // 
             // ManageAnnotations
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(616, 330);
+            this.ClientSize = new System.Drawing.Size(616, 384);
+            this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.cmdRemove);
             this.Controls.Add(this.cmdAdd);
             this.Controls.Add(this.cmdCancel);
@@ -245,5 +258,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colOutputLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn colRunFrequency;
         private System.Windows.Forms.DataGridViewButtonColumn colEdit;
+        private Controls.PlaceholderTextBox txtFilter;
     }
 }
