@@ -13,7 +13,8 @@ namespace AnalysisManager
 {
     public sealed partial class SelectOutput : Form
     {
-        protected List<CodeFile> Files = new List<CodeFile>(); 
+        protected List<CodeFile> Files = new List<CodeFile>();
+        protected Dictionary<string, Annotation> Annotations = new Dictionary<string, Annotation>(); 
 
         public SelectOutput(List<CodeFile> files = null)
         {
@@ -33,11 +34,37 @@ namespace AnalysisManager
             {
                 foreach (var annotation in file.Annotations)
                 {
-                    var item = lvwOutput.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new [] { file.FilePath });
-                    item.Tag = annotation;
+                    Annotations.Add(annotation.OutputLabel, annotation);
                 }
             }
+
+            LoadList();
+        }
+
+        private void LoadList(string filter = "")
+        {
+            Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                lvwOutput.Items.Clear();
+
+                foreach (var annotation in Annotations.Where(x => x.Key.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                {
+                    var item = lvwOutput.Items.Add(annotation.Key);
+                    item.SubItems.AddRange(new[] {annotation.Value.CodeFile.FilePath});
+                    item.Tag = annotation.Value;
+                }
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void txtFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadList(txtFilter.Text);
         }
     }
 }

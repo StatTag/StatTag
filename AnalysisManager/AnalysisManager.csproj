@@ -204,6 +204,12 @@
     <Compile Include="Controls\PercentageValueProperties.Designer.cs">
       <DependentUpon>PercentageValueProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PlaceholderTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PlaceholderTextBox.Designer.cs">
+      <DependentUpon>PlaceholderTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TableProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -278,6 +284,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PercentageValueProperties.resx">
       <DependentUpon>PercentageValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PlaceholderTextBox.resx">
+      <DependentUpon>PlaceholderTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TableProperties.resx">
       <DependentUpon>TableProperties.cs</DependentUpon>

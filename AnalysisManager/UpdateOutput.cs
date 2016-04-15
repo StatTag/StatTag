@@ -16,6 +16,9 @@ namespace AnalysisManager
     {
         public List<Annotation> Annotations { get; set; }
 
+        private Dictionary<string, Annotation> DefaultAnnotations = new Dictionary<string, Annotation>();
+        private Dictionary<string, Annotation> OnDemandAnnotations = new Dictionary<string, Annotation>();
+
         public List<Annotation> SelectedAnnotations
         {
             get
@@ -73,18 +76,65 @@ namespace AnalysisManager
             {
                 if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
-                    var item = lvwDefault.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    item.Tag = annotation;
-                    item.Checked = true;
+                    DefaultAnnotations.Add(annotation.OutputLabel, annotation);
+                    //var item = lvwDefault.Items.Add(annotation.OutputLabel);
+                    //item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    //item.Tag = annotation;
+                    //item.Checked = true;
                 }
                 else
                 {
-                    var item = lvwOnDemand.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    item.Tag = annotation;
+                    OnDemandAnnotations.Add(annotation.OutputLabel, annotation);
+                    //var item = lvwOnDemand.Items.Add(annotation.OutputLabel);
+                    //item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    //item.Tag = annotation;
                 }
             }
+
+            LoadOnDemandList();
+            LoadDefaultList();
+        }
+
+        private void LoadOnDemandList(string filter = "")
+        {
+            LoadList(OnDemandAnnotations, lvwOnDemand, false, filter);
+        }
+
+        private void LoadDefaultList(string filter = "")
+        {
+            LoadList(DefaultAnnotations, lvwDefault, true, filter);
+        }
+
+        private void LoadList(Dictionary<string, Annotation> annotations, ListView listView, bool checkItem, string filter = "")
+        {
+            Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                listView.Items.Clear();
+
+                foreach (var annotation in annotations.Where(x => x.Key.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                {
+                    var item = listView.Items.Add(annotation.Key);
+                    item.SubItems.AddRange(new[] { annotation.Value.CodeFile.FilePath });
+                    item.Tag = annotation.Value;
+                    item.Checked = checkItem;
+                }
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void txtOnDemandFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadOnDemandList(txtOnDemandFilter.Text);
+        }
+
+        private void txtDefaultFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadDefaultList(txtDefaultFilter.Text);
         }
     }
 }
