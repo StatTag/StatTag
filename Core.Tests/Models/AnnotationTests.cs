@@ -42,31 +42,77 @@ namespace Core.Tests.Models
         [TestMethod]
         public void Equals_Match()
         {
+            var file1 = new CodeFile() { FilePath = "File1.txt" };
             var annotation1 = new Annotation()
             {
-                Id = "id",
                 OutputLabel= "Test",
                 Type = Constants.AnnotationType.Value,
                 LineStart = 1,
-                LineEnd = 2
+                LineEnd = 2,
+                CodeFile = file1
             };
 
             var annotation2 = new Annotation()
             {
-                Id = "id",
                 OutputLabel = "Test",
                 Type = Constants.AnnotationType.Value,
                 LineStart = 3,
-                LineEnd = 4
+                LineEnd = 4,
+                CodeFile = file1
             };
 
             Assert.IsTrue(annotation1.Equals(annotation2));
             Assert.IsTrue(annotation2.Equals(annotation1));
 
-            // Should still be the same even though the label has changed
-            annotation1.OutputLabel = "updated";
+            // Even if the file object changes, if the file is the same (based on the path) the
+            // annotations should remain as equal
+            var file2 = new CodeFile() { FilePath = "File1.txt" };
+            annotation2.CodeFile = file2;
             Assert.IsTrue(annotation1.Equals(annotation2));
             Assert.IsTrue(annotation2.Equals(annotation1));
+        }
+
+        [TestMethod]
+        public void Equals_NoMatch()
+        {
+            var file1 = new CodeFile() { FilePath = "File1.txt" };
+            var file2 = new CodeFile() { FilePath = "File2.txt" };
+
+            var annotation1 = new Annotation()
+            {
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                LineStart = 1,
+                LineEnd = 2,
+                CodeFile = file1
+            };
+
+            // Same file as annotation 1, but in a different file
+            var annotation2 = new Annotation()
+            {
+                OutputLabel = "Test2",
+                Type = Constants.AnnotationType.Value,
+                LineStart = 1,
+                LineEnd = 2,
+                CodeFile = file1
+            };
+
+            // Same label as annotation1, but in a different file.
+            var annotation3 = new Annotation()
+            {
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                LineStart = 3,
+                LineEnd = 4,
+                CodeFile = file2
+            };
+
+            Assert.IsFalse(annotation1.Equals(annotation2));
+            Assert.IsFalse(annotation2.Equals(annotation1));
+            Assert.IsFalse(annotation1.Equals(annotation3));
+            Assert.IsFalse(annotation3.Equals(annotation1));
+            Assert.IsFalse(annotation2.Equals(annotation3));
+            Assert.IsFalse(annotation3.Equals(annotation2));
         }
 
         [TestMethod]

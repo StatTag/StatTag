@@ -10,15 +10,15 @@ namespace Core.Tests
     [TestClass]
     public class UtilityTests
     {
-        private List<CodeFile> DistinctAnnotations = new List<CodeFile>(new CodeFile[]
+        private readonly List<CodeFile> DistinctAnnotations = new List<CodeFile>(new CodeFile[]
         {
             new CodeFile()
             {
                 FilePath = "Test1",
                 Annotations = new List<Annotation>(new Annotation[]
                 {
-                    new Annotation() {Id = "1", OutputLabel = "Test1"},
-                    new Annotation() {Id = "2", OutputLabel = "Test2"},
+                    new Annotation() {OutputLabel = "Test1"},
+                    new Annotation() {OutputLabel = "Test2"},
                 })
             },
             new CodeFile()
@@ -26,22 +26,22 @@ namespace Core.Tests
                 FilePath = "Test2",
                 Annotations = new List<Annotation>(new Annotation[]
                 {
-                    new Annotation() {Id = "3", OutputLabel = "Test3"},
-                    new Annotation() {Id = "4", OutputLabel = "Test4"},
+                    new Annotation() {OutputLabel = "Test3"},
+                    new Annotation() {OutputLabel = "Test4"},
                 })
             },
         });
 
-        private List<CodeFile> DuplicateAnnotations = new List<CodeFile>(new CodeFile[]
+        private readonly List<CodeFile> DuplicateAnnotations = new List<CodeFile>(new CodeFile[]
         {
             new CodeFile()
             {
                 FilePath = "Test1",
                 Annotations = new List<Annotation>(new Annotation[]
                 {
-                    new Annotation() {Id = "1", OutputLabel = "Test1"},
-                    new Annotation() {Id = "2", OutputLabel = "Test2"},
-                    new Annotation() {Id = "3", OutputLabel = "test1"},
+                    new Annotation() {OutputLabel = "Test1"},
+                    new Annotation() {OutputLabel = "Test2"},
+                    new Annotation() {OutputLabel = "test1"},
                 })
             },
             new CodeFile()
@@ -49,9 +49,9 @@ namespace Core.Tests
                 FilePath = "Test2",
                 Annotations = new List<Annotation>(new Annotation[]
                 {
-                    new Annotation() {Id = "4", OutputLabel = "test1"},
-                    new Annotation() {Id = "5", OutputLabel = "test2"},
-                    new Annotation() {Id = "6", OutputLabel = "Test1"},
+                    new Annotation() {OutputLabel = "test1"},
+                    new Annotation() {OutputLabel = "test2"},
+                    new Annotation() {OutputLabel = "Test1"},
                 })
             },
         });
@@ -103,7 +103,7 @@ namespace Core.Tests
         {
             Assert.IsNull(Utility.CheckForDuplicateLabels(null, null));
             Assert.IsNull(Utility.CheckForDuplicateLabels(null, new List<CodeFile>()));
-            var annotation = new Annotation() {Id = "1", OutputLabel = "test"};
+            var annotation = new Annotation() {OutputLabel = "test"};
             Assert.IsNull(Utility.CheckForDuplicateLabels(annotation, new List<CodeFile>()));
             Assert.IsNull(Utility.CheckForDuplicateLabels(annotation, null));
         }
@@ -111,13 +111,18 @@ namespace Core.Tests
         [TestMethod]
         public void CheckForDuplicateLabels_SingleResults()
         {
-            // Start with an exact match that shares the same ID (which gets ignored)
-            var annotation = new Annotation() { Id = "1", OutputLabel = "Test1", CodeFile = DistinctAnnotations.First() };
+            // Start with an exact match (which gets ignored)
+            var annotation = DistinctAnnotations.First().Annotations.First();
             var results = Utility.CheckForDuplicateLabels(annotation, DistinctAnnotations);
             Assert.AreEqual(0, results.Count);
 
-            // Next find one with an exactly matching label
-            annotation = new Annotation() { Id = "11", OutputLabel = "Test1", CodeFile = DistinctAnnotations.First() };
+            // Next find one with an exactly matching label in the same file
+            annotation = new Annotation() { OutputLabel = "Test1", CodeFile = DistinctAnnotations.First() };
+            results = Utility.CheckForDuplicateLabels(annotation, DistinctAnnotations);
+            Assert.AreEqual(1, results.Count);
+
+            // Next find one with an exactly matching label in a different file
+            annotation = new Annotation() { OutputLabel = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = Utility.CheckForDuplicateLabels(annotation, DistinctAnnotations);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Test1", results.First().Key.FilePath);
@@ -125,7 +130,7 @@ namespace Core.Tests
             Assert.AreEqual(0, results.First().Value[1]);
 
             // Finally, look for the same label but case insensitive
-            annotation = new Annotation() { Id = "11", OutputLabel = "test1", CodeFile = DistinctAnnotations.First() };
+            annotation = new Annotation() { OutputLabel = "test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = Utility.CheckForDuplicateLabels(annotation, DistinctAnnotations);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Test1", results.First().Key.FilePath);
@@ -136,20 +141,32 @@ namespace Core.Tests
         [TestMethod]
         public void CheckForDuplicateLabels_MultipleResults()
         {
-            // Start with an exact match that shares one ID (which gets ignored), but the others match
-            var annotation = new Annotation() { Id = "1", OutputLabel = "Test1", CodeFile = DuplicateAnnotations.First() };
+            // Here we simulate creating a new annotation object in an existing file, which is going to have
+            // the same name as an existing annotation.  We will also identify those annotations that have
+            // case-insensitive name matches.  All of these should be identified by the check.
+            var annotation = new Annotation() { OutputLabel = "Test1", CodeFile = DuplicateAnnotations.First() };
             var results = Utility.CheckForDuplicateLabels(annotation, DuplicateAnnotations);
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(0, results.ElementAt(0).Value[0]);
+            Assert.AreEqual(1, results.ElementAt(0).Value[0]);
             Assert.AreEqual(1, results.ElementAt(0).Value[1]);
             Assert.AreEqual(1, results.ElementAt(1).Value[0]);
             Assert.AreEqual(1, results.ElementAt(1).Value[1]);
 
-            // Next find those with matching labels (both exact and non-exact)
-            annotation = new Annotation() { Id = "11", OutputLabel = "Test1", CodeFile = DuplicateAnnotations.First() };
+            // Next find those with matching labels (both exact and non-exact) even if we're in another file
+            annotation = new Annotation() { OutputLabel = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = Utility.CheckForDuplicateLabels(annotation, DuplicateAnnotations);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(1, results.ElementAt(0).Value[0]);
+            Assert.AreEqual(1, results.ElementAt(0).Value[1]);
+            Assert.AreEqual(1, results.ElementAt(1).Value[0]);
+            Assert.AreEqual(1, results.ElementAt(1).Value[1]);
+
+            // Search with the first annotation which is the same object as an existing one.  We should know that
+            // they are the same and not count it.
+            annotation = DuplicateAnnotations.First().Annotations.First();
+            results = Utility.CheckForDuplicateLabels(annotation, DuplicateAnnotations);
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual(0, results.ElementAt(0).Value[0]);
             Assert.AreEqual(1, results.ElementAt(0).Value[1]);
             Assert.AreEqual(1, results.ElementAt(1).Value[0]);
             Assert.AreEqual(1, results.ElementAt(1).Value[1]);

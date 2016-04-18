@@ -61,7 +61,9 @@ namespace AnalysisManager.Core.Models
                 return false;
             }
 
-            return item.FilePath.Equals(FilePath, StringComparison.CurrentCultureIgnoreCase);
+            return (string.Compare(item.FilePath, FilePath, StringComparison.CurrentCultureIgnoreCase) == 0);
+
+            //return item.FilePath.Equals(FilePath, StringComparison.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -250,8 +252,8 @@ namespace AnalysisManager.Core.Models
 
             if (!Annotations.Remove(annotation))
             {
-                // If the exact object doesn't match, then search by name
-                var foundAnnotation = Annotations.Find(x => x.Id.Equals(annotation.Id));
+                // If the exact object doesn't match, then search by equality
+                var foundAnnotation = Annotations.Find(x => x.Equals(annotation));
                 if (foundAnnotation == null)
                 {
                     return;

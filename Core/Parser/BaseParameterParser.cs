@@ -17,7 +17,6 @@ namespace AnalysisManager.Core.Parser
 
         public static void Parse(string annotationText, Annotation annotation)
         {
-            annotation.Id = GetStringParameter(Constants.AnnotationParameters.Id, annotationText, Guid.NewGuid().ToString());
             annotation.OutputLabel = Annotation.NormalizeOutputLabel(GetStringParameter(Constants.AnnotationParameters.Label, annotationText));
             annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
         }

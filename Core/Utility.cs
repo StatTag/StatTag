@@ -55,7 +55,7 @@ namespace AnalysisManager.Core
             foreach (var otherAnnotation in annotations)
             {
                 // If the annotation is the exact some object, skip it.
-                if (otherAnnotation.Equals(annotation))
+                if (object.ReferenceEquals(otherAnnotation, annotation))
                 {
                     continue;
                 }
