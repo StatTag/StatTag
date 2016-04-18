@@ -61,6 +61,7 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsTableResult("a matrix list"));
             Assert.IsTrue(parser.IsTableResult("matrix list value"));
             Assert.IsTrue(parser.IsTableResult("mat l value"));  // Handle abbreviated command
+            Assert.IsTrue(parser.IsTableResult("matrix list r(coefs)"));
         }
 
         [TestMethod]
@@ -174,10 +175,12 @@ namespace Core.Tests.Parser
             var parser = new Stata();
             Assert.AreEqual("test_matrix", parser.GetTableName("matrix list test_matrix"));
             Assert.AreEqual("test_matrix", parser.GetTableName("   matrix   list    test_matrix  "));
-            Assert.AreEqual("test", parser.GetTableName("   matrix   list    test  value  "));
+            Assert.AreEqual("test  value", parser.GetTableName("   matrix   list    test  value  "));  // Not sure if this is valid for Stata, but it's what we should pull out
             Assert.AreEqual(string.Empty, parser.GetTableName("amatrix list test"));
             Assert.AreEqual("test", parser.GetTableName("mat list test"));
             Assert.AreEqual("test", parser.GetTableName("mat l test"));
+            Assert.AreEqual("r(coefs)", parser.GetTableName("mat l r(coefs)"));
+            Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
         }
     }
 }
