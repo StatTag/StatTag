@@ -105,16 +105,6 @@ namespace AnalysisManager
             return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
         }
 
-        public static string Pluralize(this string singularForm, int howMany)
-        {
-            return singularForm.Pluralize(howMany, singularForm + "s");
-        }
-
-        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
-        {
-            return howMany == 1 ? singularForm : pluralForm;
-        }
-
         public static void ReportException(Exception exc, string userMessage, LogManager logger)
         {
             if (logger != null)
@@ -123,6 +113,17 @@ namespace AnalysisManager
             }
 
             MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+
+        public static string Pluralize(this string singularForm, int howMany)
+        {
+            return singularForm.Pluralize(howMany, singularForm + "s");
+        }
+
+        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
+        {
+            return howMany == 1 ? singularForm : pluralForm;
         }
 
         public static IEnumerable<Annotation> GetCheckedAnnotationsFromListView(ListView listView)

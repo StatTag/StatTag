@@ -100,10 +100,10 @@ namespace Core.Tests.Models
         [TestMethod]
         public void Serialize_Deserialize()
         {
-            var annotation = new FieldAnnotation() { Type = Constants.AnnotationType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10};
+            var codeFile = new CodeFile() {FilePath = "Test.do"};
+            var annotation = new FieldAnnotation() { Type = Constants.AnnotationType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = codeFile};
             var serialized = annotation.Serialize();
             var recreatedAnnotation = FieldAnnotation.Deserialize(serialized);
-            Assert.AreEqual(annotation.CodeFile, recreatedAnnotation.CodeFile);
             Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
             Assert.AreEqual(annotation.FormattedResult, recreatedAnnotation.FormattedResult);
             Assert.AreEqual(annotation.LineEnd, recreatedAnnotation.LineEnd);
@@ -115,6 +115,56 @@ namespace Core.Tests.Models
             Assert.AreEqual(annotation.FigureFormat, recreatedAnnotation.FigureFormat);
             Assert.AreEqual(annotation.TableFormat, recreatedAnnotation.TableFormat);
             Assert.AreEqual(annotation.TableCellIndex, recreatedAnnotation.TableCellIndex);
+            // The recreated annotation doesn't truly recreate the code file object.  We attempt to restore it the best we can with the file path.
+            Assert.AreEqual(annotation.CodeFilePath, recreatedAnnotation.CodeFile.FilePath);
+            Assert.AreEqual(annotation.CodeFilePath, recreatedAnnotation.CodeFilePath);
+        }
+
+        [TestMethod]
+        public void LinkToCodeFile_Found()
+        {
+            var annotation = new FieldAnnotation() { Type = Constants.AnnotationType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = new CodeFile() { FilePath = "Test.do" } };
+
+            var files = new[]
+            {
+                new CodeFile() {FilePath = "Test.do"},
+                new CodeFile() {FilePath = "Test2.do"},
+            };
+            FieldAnnotation.LinkToCodeFile(annotation, files);
+            Assert.AreEqual(files[0], annotation.CodeFile);
+
+            // Should match with case differences
+            files[0].FilePath = files[0].FilePath.ToUpper();
+            FieldAnnotation.LinkToCodeFile(annotation, files);
+            Assert.AreEqual(files[0], annotation.CodeFile);
+        }
+
+        [TestMethod]
+        public void LinkToCodeFile_NotFound()
+        {
+            // Shouldn't crash, but shouldn't do anything that we can test.
+            FieldAnnotation.LinkToCodeFile(null, null);
+
+            var annotation = new FieldAnnotation() { Type = Constants.AnnotationType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = null };
+            var files = new[]
+            {
+                new CodeFile() {FilePath = "Test.do"},
+                new CodeFile() {FilePath = "Test2.do"},
+            };
+
+            // Check against a null list.
+            FieldAnnotation.LinkToCodeFile(annotation, null);
+            Assert.IsNull(annotation.CodeFile);
+
+            // Check against the real list.
+            FieldAnnotation.LinkToCodeFile(annotation, files);
+            Assert.IsNull(annotation.CodeFile);
+
+            // Should match with case differences
+            annotation.CodeFile = new CodeFile() { FilePath = "Test3.do" };
+            FieldAnnotation.LinkToCodeFile(annotation, files);
+            Assert.AreNotEqual(files[0], annotation.CodeFile);
+            Assert.AreNotEqual(files[1], annotation.CodeFile);
         }
     }
 }

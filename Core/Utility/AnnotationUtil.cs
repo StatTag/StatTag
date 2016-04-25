@@ -5,16 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using AnalysisManager.Core.Models;
 
-namespace AnalysisManager.Core
+namespace AnalysisManager.Core.Utility
 {
-    public static class Utility
+    public class AnnotationUtil
     {
-        public static object[] StringArrayToObjectArray(string[] data)
-        {
-            // Convert to object[] to avoid potential issues (per ReSharper)
-            return data.Select(x => x as object).ToArray();
-        }
-
         /// <summary>
         /// Find all annotations with a matching output label (regardless of case).
         /// </summary>
@@ -29,6 +23,27 @@ namespace AnalysisManager.Core
 
             return files.SelectMany(file => file.Annotations).Where(
                 annotation => annotation.OutputLabel.Equals(outputLabel, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        }
+
+        /// <summary>
+        /// Determine if we need to perform a check for possible conflicting output label names.
+        /// </summary>
+        /// <param name="oldAnnotation"></param>
+        /// <param name="newAnnotation"></param>
+        /// <returns></returns>
+        public static bool ShouldCheckForDuplicateLabel(Annotation oldAnnotation, Annotation newAnnotation)
+        {
+            if (oldAnnotation == null && newAnnotation != null)
+            {
+                return true;
+            }
+
+            if (newAnnotation == null)
+            {
+                return false;
+            }
+
+            return !oldAnnotation.OutputLabel.Equals(newAnnotation.OutputLabel);
         }
 
         /// <summary>
@@ -78,6 +93,38 @@ namespace AnalysisManager.Core
             }
 
             return duplicateCount;
+        }
+
+        /// <summary>
+        /// This is expected to be paired with the results of CheckForDuplicateLabels to determine if the annotation
+        /// has duplicates that appear in the results.  It assumes we have asserted a duplicate may exist.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool IsDuplicateLabelInSameFile(Annotation annotation, Dictionary<CodeFile, int[]> result)
+        {
+            // If the annotation itself is null, or it has no code file reference, we will assume this isn't in the same file (or that no
+            // file exists for it to be the "same" in).  Likewise, if our result structure is null, we have nothing to check so we are done.
+            if (annotation == null || result == null || annotation.CodeFile == null)
+            {
+                return false;
+            }
+
+            // Look in the list of code files that had matching results of some degree to see if this annotation's code file is represented.
+            var codeFileResult = result.Where(x => x.Key.Equals(annotation.CodeFile)).Select(x => (KeyValuePair<CodeFile, int[]>?)x).FirstOrDefault();
+
+            // This really shouldn't happen, but as a guard we'll look to see if the code file exists.  If not, we will assume that there
+            // is no duplicate label in this file.
+            if (codeFileResult == null)
+            {
+                return false;
+            }
+
+            // The last check is if the code file has any duplicate entries that are found.  We consider matches - even not with exact
+            // case - as duplicates.
+            var codeFileEntry = codeFileResult.Value;
+            return (codeFileEntry.Value[0] > 0 || codeFileEntry.Value[1] > 0);
         }
     }
 }

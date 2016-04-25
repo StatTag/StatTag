@@ -37,7 +37,17 @@ namespace AnalysisManager.Core.Models
         /// </summary>
         protected IFileHandler FileHandler { get; set; }
 
+        public CodeFile()
+        {
+            Initialize(null);
+        }
+
         public CodeFile(IFileHandler handler = null)
+        {
+            Initialize(handler);
+        }
+
+        protected void Initialize(IFileHandler handler)
         {
             Annotations = new List<Annotation>();
             FileHandler = handler ?? new FileHandler();
@@ -70,7 +80,7 @@ namespace AnalysisManager.Core.Models
         /// Return the contents of the CodeFile
         /// </summary>
         /// <returns></returns>
-        public List<string> LoadFileContent()
+        public virtual List<string> LoadFileContent()
         {
             RefreshContent();
             return ContentCache;
@@ -113,7 +123,7 @@ namespace AnalysisManager.Core.Models
                 return;
             }
 
-            Annotations = new List<Annotation>(parser.Parse(content).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
+            Annotations = new List<Annotation>(parser.Parse(this).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
             Annotations.ForEach(x => x.CodeFile = this);
 
             if (preserveCache)

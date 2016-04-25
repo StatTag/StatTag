@@ -7,11 +7,11 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
 {
-    public class FigureParser : BaseParameterParser
+    public class TableParameterParser : BaseParameterParser
     {
         public static void Parse(string annotationText, Annotation annotation)
         {
-            annotation.FigureFormat = new FigureFormat();
+            annotation.TableFormat = new TableFormat();
             int paramIndex = annotationText.IndexOf(Constants.AnnotationTags.ParamStart, StringComparison.CurrentCulture);
             // If no parameters are set, fill in default values
             if (paramIndex == -1)
@@ -21,6 +21,8 @@ namespace AnalysisManager.Core.Parser
             }
 
             BaseParameterParser.Parse(annotationText, annotation);
+            annotation.TableFormat.IncludeColumnNames = GetBoolParameter(Constants.TableParameters.ColumnNames, annotationText, Constants.TableParameterDefaults.ColumnNames).Value;
+            annotation.TableFormat.IncludeRowNames = GetBoolParameter(Constants.TableParameters.RowNames, annotationText, Constants.TableParameterDefaults.RowNames).Value;
         }
     }
 }

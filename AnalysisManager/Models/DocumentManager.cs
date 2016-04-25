@@ -167,6 +167,7 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="annotationUpdatePair"></param>
         /// <returns></returns>
+        /// TODO: Move to utility class and write tests
         private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
         {
             if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
@@ -807,10 +808,9 @@ namespace AnalysisManager.Models
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
-            var fieldAnnotation = FieldAnnotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
+            var fieldAnnotation = FieldAnnotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture), Files);
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
-
             return fieldAnnotation;
         }
 

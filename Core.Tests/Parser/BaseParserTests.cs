@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using AnalysisManager.Core.Interfaces;
 using AnalysisManager.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AnalysisManager.Core.Parser;
+using Moq;
+using Match = System.Text.RegularExpressions.Match;
 
 namespace Core.Tests.Parser
 {
@@ -66,7 +68,9 @@ namespace Core.Tests.Parser
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Length);
 
-            result = parser.Parse(new string[]{});
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new string[]{}));
+            result = parser.Parse(mock.Object);
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Length);
         }
@@ -81,7 +85,9 @@ namespace Core.Tests.Parser
                 "declare value",
                 "**<<<AM:Test"
             });
-            var result = parser.Parse(lines.ToArray());
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.Parse(mock.Object);
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual(0, result[0].LineStart);
             Assert.AreEqual(2, result[0].LineEnd);
@@ -96,7 +102,9 @@ namespace Core.Tests.Parser
                 "**>>>AM:Test",
                 "declare value"
             });
-            var result = parser.Parse(lines.ToArray());
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.Parse(mock.Object);
             Assert.AreEqual(0, result.Length);
         }
 
@@ -112,7 +120,9 @@ namespace Core.Tests.Parser
                 "declare value",
                 "**<<<AM:Test"
             });
-            var result = parser.Parse(lines.ToArray());
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.Parse(mock.Object);
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual(2, result[0].LineStart);
             Assert.AreEqual(4, result[0].LineEnd);
@@ -132,11 +142,13 @@ namespace Core.Tests.Parser
                 "declare value2",
                 "**<<<"
             });
-            var results = parser.Parse(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var results = parser.Parse(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(1, results.Length);
             Assert.AreEqual(Constants.RunFrequency.Default, results[0].RunFrequency);
 
-            results = parser.Parse(lines);
+            results = parser.Parse(mock.Object);
             Assert.AreEqual(2, results.Length);
             Assert.AreEqual(Constants.RunFrequency.OnDemand, results[0].RunFrequency);
             Assert.AreEqual(Constants.RunFrequency.Default, results[1].RunFrequency);
@@ -156,12 +168,16 @@ namespace Core.Tests.Parser
                 "declare value2",
                 "**<<<"
             });
-            var results = parser.Parse(lines, Constants.ParserFilterMode.AnnotationList);
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            var results = parser.Parse(mock.Object, Constants.ParserFilterMode.AnnotationList);
             Assert.AreEqual(2, results.Length);
 
-            results = parser.Parse(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            results = parser.Parse(mock.Object, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
             {
-                new Annotation() { OutputLabel = "Test2", Type = Constants.AnnotationType.Value }
+                new Annotation() { OutputLabel = "Test2", Type = Constants.AnnotationType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(1, results.Length);
             Assert.AreEqual("Test2", results[0].OutputLabel);
@@ -187,15 +203,16 @@ namespace Core.Tests.Parser
         public void GetExecutionSteps()
         {
             var parser = new StubParser();
-            var lines = new List<string>(new string[]
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new []
             {
                 "declare value1",
                 "**>>>AM:Value",
                 "declare value2",
                 "**<<<",
                 "declare value3",
-            });
-            var results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            }));
+            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Annotation);
@@ -205,14 +222,14 @@ namespace Core.Tests.Parser
             Assert.IsNull(results[2].Annotation);
 
             // Annotation at the beginning
-            lines = new List<string>(new string[]
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "**>>>AM:Value",
                 "declare value2",
                 "**<<<",
                 "declare value3",
-            });
-            results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            }));
+            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[0].Type);
             Assert.IsNotNull(results[0].Annotation);
@@ -220,15 +237,14 @@ namespace Core.Tests.Parser
             Assert.IsNull(results[1].Annotation);
 
             // Annotation at the end
-            lines = new List<string>(new string[]
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
-                
                 "declare value2",
                 "**>>>AM:Value",
                 "declare value3",
                 "**<<<",
-            });
-            results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            }));
+            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Annotation);
@@ -236,7 +252,7 @@ namespace Core.Tests.Parser
             Assert.IsNotNull(results[1].Annotation);
 
             // Back to back annotations
-            lines = new List<string>(new string[]
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "**>>>AM:Value",
                 "declare value1",
@@ -247,8 +263,8 @@ namespace Core.Tests.Parser
                 "**>>>AM:Value",
                 "declare value3",
                 "**<<<",
-            });
-            results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            }));
+            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[0].Type);
             Assert.IsNotNull(results[0].Annotation);
@@ -262,7 +278,8 @@ namespace Core.Tests.Parser
         public void GetExecutionSteps_OnDemandFilter()
         {
             var parser = new StubParser();
-            var lines = new List<string>(new string[]
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value",
                 "**>>>AM:Value(Frequency=\"On Demand\")",
@@ -271,15 +288,15 @@ namespace Core.Tests.Parser
                 "**>>>AM:Value",
                 "declare value2",
                 "**<<<"
-            });
-            var results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.ExcludeOnDemand);
+            }));
+            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Annotation);
             Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
             Assert.IsNotNull(results[1].Annotation);
 
-            results = parser.GetExecutionSteps(lines);
+            results = parser.GetExecutionSteps(mock.Object);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Annotation);
@@ -293,7 +310,8 @@ namespace Core.Tests.Parser
         public void GetExecutionSteps_AnnotationList()
         {
             var parser = new StubParser();
-            var lines = new List<string>(new string[]
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value",
                 "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
@@ -302,13 +320,15 @@ namespace Core.Tests.Parser
                 "**>>>AM:Value(Label=\"Test2\")",
                 "declare value2",
                 "**<<<"
-            });
-            var results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.AnnotationList);
+            }));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.AnnotationList);
             Assert.AreEqual(3, results.Count);
 
-            results = parser.GetExecutionSteps(lines, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
             {
-                new Annotation() { OutputLabel = "Test1", Type = Constants.AnnotationType.Value }
+                new Annotation() { OutputLabel = "Test1", Type = Constants.AnnotationType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);

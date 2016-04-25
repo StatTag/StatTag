@@ -5,6 +5,7 @@ using AnalysisManager.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using AnalysisManager.Core.Utility;
 using AnalysisManager.Models;
 
 namespace AnalysisManager
@@ -31,7 +32,7 @@ namespace AnalysisManager
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
         {
-            colStatPackage.Items.AddRange(Utility.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
+            colStatPackage.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
             if (Files != null)
             {
                 foreach (var file in Files)
