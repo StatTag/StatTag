@@ -63,6 +63,14 @@ namespace AnalysisManager.Core.Models
             SetCachedValue();
         }
 
+        public FieldAnnotation(Annotation annotation, FieldAnnotation fieldAnnotation)
+            : base(annotation)
+        {
+            TableCellIndex = fieldAnnotation.TableCellIndex;
+            CodeFilePath = fieldAnnotation.CodeFilePath;
+            SetCachedValue();
+        }
+
         public FieldAnnotation(FieldAnnotation annotation)
             : base(annotation)
         {

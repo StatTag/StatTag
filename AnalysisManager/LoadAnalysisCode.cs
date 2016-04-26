@@ -80,7 +80,8 @@ namespace AnalysisManager
                 file.SaveBackup();
             }
             Files = files;
-
+            Manager.Files = Files;
+            
             Close();
         }
 

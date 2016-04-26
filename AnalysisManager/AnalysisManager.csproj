@@ -228,6 +228,12 @@
     <Compile Include="EditAnnotation.Designer.cs">
       <DependentUpon>EditAnnotation.cs</DependentUpon>
     </Compile>
+    <Compile Include="LinkCodeFiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LinkCodeFiles.Designer.cs">
+      <DependentUpon>LinkCodeFiles.cs</DependentUpon>
+    </Compile>
     <Compile Include="LoadAnalysisCode.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -296,6 +302,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditAnnotation.resx">
       <DependentUpon>EditAnnotation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LinkCodeFiles.resx">
+      <DependentUpon>LinkCodeFiles.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadAnalysisCode.resx">
       <DependentUpon>LoadAnalysisCode.cs</DependentUpon>

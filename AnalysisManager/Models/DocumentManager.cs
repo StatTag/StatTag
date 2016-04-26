@@ -366,7 +366,7 @@ namespace AnalysisManager.Models
                         }
 
                         Log(string.Format("Processing only a specific annotation with label: {0}", annotationUpdatePair.New.OutputLabel));
-                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation.TableCellIndex);
+                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation);
                         UpdateAnnotationFieldData(field, annotation);
                     }
 
@@ -828,7 +828,7 @@ namespace AnalysisManager.Models
             // The result of FindAnnotation is going to be a document-level annotation, not a
             // cell specific one that exists as a field.  We need to re-set the cell index
             // from the annotation we found, to ensure it's available for later use.
-            return new FieldAnnotation(annotation, fieldAnnotation.TableCellIndex);
+            return new FieldAnnotation(annotation, fieldAnnotation);
         }
 
         /// <summary>
@@ -949,6 +949,145 @@ namespace AnalysisManager.Models
             if (Logger != null)
             {
                 Logger.WriteException(exc);
+            }
+        }
+
+        public Dictionary<string, int> FindAllUnlinkedAnnotations()
+        {
+            Log("FindAllUnlinkedAnnotations - Started");
+            var results = new Dictionary<string, int>();
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            var fields = document.Fields;
+            int fieldsCount = fields.Count;
+
+            // Fields is a 1-based index
+            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            for (int index = fieldsCount; index >= 1; index--)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(string.Format("Null field detected at index", index));
+                    continue;
+                }
+
+                if (!IsAnalysisManagerField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing Analysis Manager field");
+                var annotation = GetFieldAnnotation(field);
+                if (annotation == null)
+                {
+                    Log("The field annotation is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                if (!Files.Any(x => x.FilePath.Equals(annotation.CodeFilePath)))
+                {
+                    if (!results.ContainsKey(annotation.CodeFilePath))
+                    {
+                        results.Add(annotation.CodeFilePath, 0);
+                    }
+
+                    results[annotation.CodeFilePath]++;
+                }
+                Marshal.ReleaseComObject(field);
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            Log("FindAllUnlinkedAnnotations - Finished");
+            return results;
+        }
+
+        /// <summary>
+        /// A generic method that will iterate over the fields in the active document, and apply a function to
+        /// each Analysis Manager field.
+        /// </summary>
+        /// <param name="function">The function to apply to each relevant field</param>
+        /// <param name="configuration">A set of configuration information specific to the function</param>
+        public void ProcessAnalysisManagerFields(Action<Field, FieldAnnotation, object> function, object configuration)
+        {
+            Log("ProcessAnalysisManagerFields - Started");
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            var fields = document.Fields;
+            int fieldsCount = fields.Count;
+
+            // Fields is a 1-based index
+            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            for (int index = fieldsCount; index >= 1; index--)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(string.Format("Null field detected at index", index));
+                    continue;
+                }
+
+                if (!IsAnalysisManagerField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing Analysis Manager field");
+                var annotation = GetFieldAnnotation(field);
+                if (annotation == null)
+                {
+                    Log("The field annotation is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                function(field, annotation, configuration);
+
+                Marshal.ReleaseComObject(field);
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            Log("ProcessAnalysisManagerFields - Finished");
+        }
+
+        public void UpdateUnlinkedAnnotations(Field field, FieldAnnotation annotation, object configuration)
+        {
+            var actions = configuration as Dictionary<string, CodeFileAction>;
+            if (actions == null)
+            {
+                Log("The list of actions to perform is null or of the wrong type");
+                return;
+            }
+
+            // What do we do with this field?
+            if (!actions.ContainsKey(annotation.CodeFilePath))
+            {
+                Log(string.Format("No action is needed for annotation in file {0}", annotation.CodeFilePath));
+                return;
+            }
+
+            var action = actions[annotation.CodeFilePath];
+            var codeFile = action.Parameter as CodeFile;
+            switch (action.Action)
+            {
+                case CodeFileAction.Task.ChangeFile:
+                    annotation.CodeFile = codeFile;
+                    UpdateAnnotationFieldData(field, annotation);
+                    break;
+                case CodeFileAction.Task.RemoveAnnotations:
+                    break;
+                default:
+                    Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    break;
             }
         }
     }

@@ -54,6 +54,7 @@
     <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Models\Annotation.cs" />
     <Compile Include="Models\CodeFile.cs" />
+    <Compile Include="Models\CodeFileAction.cs" />
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\ExecutionStep.cs" />

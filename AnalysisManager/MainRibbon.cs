@@ -45,10 +45,20 @@ namespace AnalysisManager
         {
             try
             {
-                var dialog = new LoadAnalysisCode(Manager, Manager.Files);
-                if (DialogResult.OK == dialog.ShowDialog())
+                var loadDialog = new LoadAnalysisCode(Manager, Manager.Files);
+                if (DialogResult.OK == loadDialog.ShowDialog())
                 {
-                    Manager.Files = dialog.Files;
+                    Manager.Files = loadDialog.Files;
+
+                    var unlinkedResults = Manager.FindAllUnlinkedAnnotations();
+                    if (unlinkedResults != null && unlinkedResults.Count > 0)
+                    {
+                        var linkDialog = new LinkCodeFiles(unlinkedResults, Manager.Files);
+                        if (DialogResult.OK == linkDialog.ShowDialog())
+                        {
+                            Manager.ProcessAnalysisManagerFields(Manager.UpdateUnlinkedAnnotations, linkDialog.CodeFileUpdates);
+                        }
+                    }
                 }
             }
             catch (Exception exc)
