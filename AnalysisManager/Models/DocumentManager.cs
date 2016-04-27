@@ -1080,10 +1080,17 @@ namespace AnalysisManager.Models
             switch (action.Action)
             {
                 case CodeFileAction.Task.ChangeFile:
+                    Log(string.Format("Changing annotation {0} from {1} to {2}",
+                        annotation.OutputLabel, annotation.CodeFilePath, codeFile.FilePath));
                     annotation.CodeFile = codeFile;
                     UpdateAnnotationFieldData(field, annotation);
                     break;
                 case CodeFileAction.Task.RemoveAnnotations:
+                    Log(string.Format("Removing {0}", annotation.OutputLabel));
+                    field.Select();
+                    var application = Globals.ThisAddIn.Application;
+                    application.Selection.Text = Constants.Placeholders.RemovedField;
+                    application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 default:
                     Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));

@@ -64,7 +64,7 @@ namespace AnalysisManager.Core.Models
         }
 
         public FieldAnnotation(Annotation annotation, FieldAnnotation fieldAnnotation)
-            : base(annotation)
+            : base(annotation ?? fieldAnnotation)
         {
             TableCellIndex = fieldAnnotation.TableCellIndex;
             CodeFilePath = fieldAnnotation.CodeFilePath;

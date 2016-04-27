@@ -66,6 +66,24 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Constructor_NullAnnotationWithFieldAnnotation()
+        {
+            var fieldAnnotation = new FieldAnnotation()
+            {
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Table,
+                CodeFilePath = "Test.do",
+                TableCellIndex = 10
+            };
+
+            var newFieldAnnotation = new FieldAnnotation(null, fieldAnnotation);
+            Assert.AreEqual(fieldAnnotation.OutputLabel, newFieldAnnotation.OutputLabel);
+            Assert.AreEqual(fieldAnnotation.Type, newFieldAnnotation.Type);
+            Assert.AreEqual(fieldAnnotation.TableCellIndex, newFieldAnnotation.TableCellIndex);
+            Assert.AreEqual(fieldAnnotation.CodeFilePath, newFieldAnnotation.CodeFilePath);
+        }
+
+        [TestMethod]
         public void Constructor_AnnotationWithIndex_TableCell()
         {
             var annotation = new Annotation()

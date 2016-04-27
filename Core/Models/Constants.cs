@@ -81,6 +81,7 @@ namespace AnalysisManager.Core.Models
         public static class Placeholders
         {
             public const string EmptyField = "[NO RESULT]";
+            public const string RemovedField = "[REMOVED]";
         }
 
         public static class ReservedCharacters
