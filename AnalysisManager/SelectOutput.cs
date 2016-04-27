@@ -14,7 +14,7 @@ namespace AnalysisManager
     public sealed partial class SelectOutput : Form
     {
         protected List<CodeFile> Files = new List<CodeFile>();
-        protected Dictionary<string, Annotation> Annotations = new Dictionary<string, Annotation>(); 
+        protected List<Annotation> Annotations = new List<Annotation>();
 
         public SelectOutput(List<CodeFile> files = null)
         {
@@ -34,7 +34,7 @@ namespace AnalysisManager
             {
                 foreach (var annotation in file.Annotations)
                 {
-                    Annotations.Add(annotation.OutputLabel, annotation);
+                    Annotations.Add(annotation);
                 }
             }
 
@@ -49,11 +49,11 @@ namespace AnalysisManager
             {
                 lvwOutput.Items.Clear();
 
-                foreach (var annotation in Annotations.Where(x => x.Key.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var annotation in Annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = lvwOutput.Items.Add(annotation.Key);
-                    item.SubItems.AddRange(new[] {annotation.Value.CodeFile.FilePath});
-                    item.Tag = annotation.Value;
+                    var item = lvwOutput.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new[] {annotation.CodeFile.FilePath});
+                    item.Tag = annotation;
                 }
             }
             finally

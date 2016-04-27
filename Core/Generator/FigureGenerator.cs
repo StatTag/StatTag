@@ -13,7 +13,6 @@ namespace AnalysisManager.Core.Generator
         {
             // Putting in StringBuilder, assumin more params will be added
             var builder = new StringBuilder();
-            builder.Append(GetIdParameter(annotation));
             builder.Append(GetLabelParameter(annotation));
             builder.Append(GetRunFrequencyParameter(annotation));
             return CleanResult(builder.ToString());

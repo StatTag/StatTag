@@ -19,7 +19,7 @@ namespace AnalysisManager
 
         public DocumentManager Manager { get; set; }
 
-        private Dictionary<string, Annotation> Annotations = new Dictionary<string, Annotation>();
+        private readonly List<Annotation> Annotations = new List<Annotation>();
 
         public ManageAnnotations(DocumentManager manager)
         {
@@ -77,9 +77,9 @@ namespace AnalysisManager
         private void LoadList(string filter = "")
         {
             dgvItems.Rows.Clear();
-            foreach (var annotation in Annotations.Where(x => x.Key.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+            foreach (var annotation in Annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
             {
-                AddRow(annotation.Value);
+                AddRow(annotation);
             }
         }
 
@@ -92,7 +92,7 @@ namespace AnalysisManager
             foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
-                file.Annotations.ForEach(x => Annotations.Add(x.OutputLabel, x));
+                file.Annotations.ForEach(x => Annotations.Add(x));
             }
             LoadList(txtFilter.Text);
         }

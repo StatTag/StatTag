@@ -16,8 +16,8 @@ namespace AnalysisManager
     {
         public List<Annotation> Annotations { get; set; }
 
-        private readonly Dictionary<string, Annotation> DefaultAnnotations = new Dictionary<string, Annotation>();
-        private readonly Dictionary<string, Annotation> OnDemandAnnotations = new Dictionary<string, Annotation>();
+        private readonly List<Annotation> DefaultAnnotations = new List<Annotation>();
+        private readonly List<Annotation> OnDemandAnnotations = new List<Annotation>();
 
         public List<Annotation> SelectedAnnotations
         {
@@ -76,11 +76,11 @@ namespace AnalysisManager
             {
                 if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
-                    DefaultAnnotations.Add(annotation.OutputLabel, annotation);
+                    DefaultAnnotations.Add(annotation);
                 }
                 else
                 {
-                    OnDemandAnnotations.Add(annotation.OutputLabel, annotation);
+                    OnDemandAnnotations.Add(annotation);
                 }
             }
 
@@ -98,7 +98,7 @@ namespace AnalysisManager
             LoadList(DefaultAnnotations, lvwDefault, true, filter);
         }
 
-        private void LoadList(Dictionary<string, Annotation> annotations, ListView listView, bool checkItem, string filter = "")
+        private void LoadList(List<Annotation> annotations, ListView listView, bool checkItem, string filter = "")
         {
             Cursor = Cursors.WaitCursor;
 
@@ -106,11 +106,11 @@ namespace AnalysisManager
             {
                 listView.Items.Clear();
 
-                foreach (var annotation in annotations.Where(x => x.Key.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var annotation in annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = listView.Items.Add(annotation.Key);
-                    item.SubItems.AddRange(new[] { annotation.Value.CodeFile.FilePath });
-                    item.Tag = annotation.Value;
+                    var item = listView.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    item.Tag = annotation;
                     item.Checked = checkItem;
                 }
             }

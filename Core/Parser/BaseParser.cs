@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Interfaces;
 using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
@@ -51,13 +52,19 @@ namespace AnalysisManager.Core.Parser
             }
         }
 
-        public Annotation[] Parse(IList<string> lines,
+        public Annotation[] Parse(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
             List<Annotation> annotationsToRun = null)
         {
             SetupRegEx();
 
             var annotations = new List<Annotation>();
+            if (file == null)
+            {
+                return annotations.ToArray();
+            }
+
+            var lines = file.LoadFileContent();
             if (lines == null)
             {
                 return annotations.ToArray();
@@ -73,7 +80,8 @@ namespace AnalysisManager.Core.Parser
                 {
                     annotation = new Annotation()
                     {
-                        LineStart = index
+                        LineStart = index,
+                        CodeFile = file
                     };
                     startIndex = index;
                     ProcessAnnotation(match.Groups[1].Value, annotation);
@@ -103,11 +111,12 @@ namespace AnalysisManager.Core.Parser
             return annotations.ToArray();
         }
 
-        public List<ExecutionStep> GetExecutionSteps(IList<string> lines,
+        public List<ExecutionStep> GetExecutionSteps(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
             List<Annotation> annotationsToRun = null)
         {
             var executionSteps = new List<ExecutionStep>();
+            var lines = file.LoadFileContent();
             if (lines == null || lines.Count == 0)
             {
                 return executionSteps;
@@ -135,7 +144,7 @@ namespace AnalysisManager.Core.Parser
                         step = new ExecutionStep();
                     }
 
-                    var annotation = new Annotation();
+                    var annotation = new Annotation() { CodeFile = file };
                     startIndex = index;
                     ProcessAnnotation(match.Groups[1].Value, annotation);
                     if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
@@ -195,18 +204,18 @@ namespace AnalysisManager.Core.Parser
             if (annotationText.StartsWith(Constants.AnnotationType.Value))
             {
                 annotation.Type = Constants.AnnotationType.Value;
-                ValueParser.Parse(annotationText, annotation);
+                ValueParameterParser.Parse(annotationText, annotation);
             }
             else if (annotationText.StartsWith(Constants.AnnotationType.Figure))
             {
                 annotation.Type = Constants.AnnotationType.Figure;
-                FigureParser.Parse(annotationText, annotation);
+                FigureParameterParser.Parse(annotationText, annotation);
             }
             else if (annotationText.StartsWith(Constants.AnnotationType.Table))
             {
                 annotation.Type = Constants.AnnotationType.Table;
-                TableParser.Parse(annotationText, annotation);
-                ValueParser.Parse(annotationText, annotation);
+                TableParameterParser.Parse(annotationText, annotation);
+                ValueParameterParser.Parse(annotationText, annotation);
             }
             else
             {
