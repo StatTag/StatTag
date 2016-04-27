@@ -1059,6 +1059,12 @@ namespace AnalysisManager.Models
             Log("ProcessAnalysisManagerFields - Finished");
         }
 
+        /// <summary>
+        /// Given a field and its annotation, update it to link to a new code file
+        /// </summary>
+        /// <param name="field">The document Field that contains the annotation</param>
+        /// <param name="annotation">The annotation that will be updated</param>
+        /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
         public void UpdateUnlinkedAnnotations(Field field, FieldAnnotation annotation, object configuration)
         {
             var actions = configuration as Dictionary<string, CodeFileAction>;
@@ -1068,18 +1074,24 @@ namespace AnalysisManager.Models
                 return;
             }
 
-            // What do we do with this field?
+            // If there is no action specified for this field, we will exit.  This should happen when we have fields that
+            // are still linked in a document.
             if (!actions.ContainsKey(annotation.CodeFilePath))
             {
                 Log(string.Format("No action is needed for annotation in file {0}", annotation.CodeFilePath));
                 return;
             }
 
+            // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
+            // with doing anything.
             var action = actions[annotation.CodeFilePath];
             if (action == null)
             {
-                var tmp = "";
+                Log("No action was specified - exiting");
+                return;
             }
+
+            // Apply the appropriate action to this field, based on what the user specified.
             var codeFile = action.Parameter as CodeFile;
             switch (action.Action)
             {
