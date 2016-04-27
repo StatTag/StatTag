@@ -49,31 +49,43 @@ namespace AnalysisManager
             }
 
             var actions = new List<GridDataItem>();
+            actions.Add(CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null));
             foreach (var file in Files)
             {
-                actions.Add(new GridDataItem() {
-                    Display = string.Format("Use file {0}", file.FilePath),
-                    Data = new CodeFileAction()
-                    {
-                        Label = string.Format("Use file {0}", file.FilePath),
-                        Action = CodeFileAction.Task.ChangeFile,
-                        Parameter = file
-                    }
-                });
+                actions.Add(CreateActionItem(string.Format("Use file {0}", file.FilePath), 
+                    Constants.CodeFileActionTask.ChangeFile, file));
             }
-            actions.Add(new GridDataItem() {
-                Display = "Remove all annotations in document",
-                Data = new CodeFileAction()
-                {
-                    Label = "Remove all annotations in document",
-                    Action = CodeFileAction.Task.RemoveAnnotations
-                }
-            });
+            actions.Add(CreateActionItem("Remove related annotations from document", 
+                Constants.CodeFileActionTask.RemoveAnnotations, null));
 
             var column = dgvCodeFiles.Columns[ColActionToTake] as DataGridViewComboBoxColumn;
             column.DataSource = actions;
             column.DisplayMember = "Display";
             column.ValueMember = "Data";
+        }
+
+        /// <summary>
+        /// Utility method to create an action item for our combo box column
+        /// </summary>
+        /// <remarks>We're wrapping this up to facilitate the DataGridView and how it works.  The GridDataItem lets us
+        /// have a display and value property, and the value (the CodeFileAction) can then be picked up and shared when
+        /// it is selected.</remarks>
+        /// <param name="display">What to display in the combo box</param>
+        /// <param name="action">The resulting action to perform</param>
+        /// <param name="parameter">Optional - parameter to use with the specified action.</param>
+        /// <returns>The created GridDataItem that wraps and contains a CodeFileAction</returns>
+        private GridDataItem CreateActionItem(string display, int action, object parameter)
+        {
+            return new GridDataItem()
+            {
+                Display = display,
+                Data = new CodeFileAction()
+                {
+                    Label = display,
+                    Action = action,
+                    Parameter = parameter
+                }
+            };
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -92,6 +104,11 @@ namespace AnalysisManager
 
                 CodeFileUpdates.Add(fileCell.Value.ToString(), actionCell.Value as CodeFileAction);
             }
+        }
+
+        private void dgvCodeFiles_Leave(object sender, EventArgs e)
+        {
+            dgvCodeFiles.EndEdit();
         }
     }
 }

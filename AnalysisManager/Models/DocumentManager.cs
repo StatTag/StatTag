@@ -1076,16 +1076,20 @@ namespace AnalysisManager.Models
             }
 
             var action = actions[annotation.CodeFilePath];
+            if (action == null)
+            {
+                var tmp = "";
+            }
             var codeFile = action.Parameter as CodeFile;
             switch (action.Action)
             {
-                case CodeFileAction.Task.ChangeFile:
+                case Constants.CodeFileActionTask.ChangeFile:
                     Log(string.Format("Changing annotation {0} from {1} to {2}",
                         annotation.OutputLabel, annotation.CodeFilePath, codeFile.FilePath));
                     annotation.CodeFile = codeFile;
                     UpdateAnnotationFieldData(field, annotation);
                     break;
-                case CodeFileAction.Task.RemoveAnnotations:
+                case Constants.CodeFileActionTask.RemoveAnnotations:
                     Log(string.Format("Removing {0}", annotation.OutputLabel));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;

@@ -173,5 +173,12 @@ namespace AnalysisManager.Core.Models
             public const int Rows = 0;
             public const int Columns = 1;
         }
+
+        public static class CodeFileActionTask
+        {
+            public const int NoAction = 0;
+            public const int ChangeFile = 1;
+            public const int RemoveAnnotations = 2;
+        }
     }
 }
