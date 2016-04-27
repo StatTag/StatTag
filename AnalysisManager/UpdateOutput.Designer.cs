@@ -140,7 +140,6 @@
             this.colFileName});
             this.lvwOnDemand.FullRowSelect = true;
             this.lvwOnDemand.GridLines = true;
-            this.lvwOnDemand.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvwOnDemand.Location = new System.Drawing.Point(12, 31);
             this.lvwOnDemand.Name = "lvwOnDemand";
             this.lvwOnDemand.ShowGroups = false;
@@ -148,6 +147,7 @@
             this.lvwOnDemand.TabIndex = 18;
             this.lvwOnDemand.UseCompatibleStateImageBehavior = false;
             this.lvwOnDemand.View = System.Windows.Forms.View.Details;
+            this.lvwOnDemand.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwOnDemand_ColumnClick);
             // 
             // colAnnotationName
             // 
@@ -170,7 +170,6 @@
             this.columnHeader2});
             this.lvwDefault.FullRowSelect = true;
             this.lvwDefault.GridLines = true;
-            this.lvwDefault.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvwDefault.Location = new System.Drawing.Point(12, 223);
             this.lvwDefault.Name = "lvwDefault";
             this.lvwDefault.ShowGroups = false;
@@ -178,6 +177,7 @@
             this.lvwDefault.TabIndex = 19;
             this.lvwDefault.UseCompatibleStateImageBehavior = false;
             this.lvwDefault.View = System.Windows.Forms.View.Details;
+            this.lvwDefault.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwDefault_ColumnClick);
             // 
             // columnHeader1
             // 

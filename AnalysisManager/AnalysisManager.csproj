@@ -252,6 +252,7 @@
     <Compile Include="ManageAnnotations.Designer.cs">
       <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AnnotationListViewColumnSorter.cs" />
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldCreator.cs" />
     <Compile Include="Models\LogManager.cs" />

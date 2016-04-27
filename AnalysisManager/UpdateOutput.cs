@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 using Microsoft.Office.Tools.Word;
 
 namespace AnalysisManager
@@ -18,6 +19,9 @@ namespace AnalysisManager
 
         private readonly List<Annotation> DefaultAnnotations = new List<Annotation>();
         private readonly List<Annotation> OnDemandAnnotations = new List<Annotation>();
+
+        private AnnotationListViewColumnSorter DefaultListSorter = new AnnotationListViewColumnSorter(); 
+        private AnnotationListViewColumnSorter OnDemandListSorter = new AnnotationListViewColumnSorter();
 
         public List<Annotation> SelectedAnnotations
         {
@@ -84,6 +88,9 @@ namespace AnalysisManager
                 }
             }
 
+            lvwDefault.ListViewItemSorter = DefaultListSorter;
+            lvwOnDemand.ListViewItemSorter = OnDemandListSorter;
+
             LoadOnDemandList();
             LoadDefaultList();
         }
@@ -128,6 +135,16 @@ namespace AnalysisManager
         private void txtDefaultFilter_FilterChanged(object sender, EventArgs e)
         {
             LoadDefaultList(txtDefaultFilter.Text);
+        }
+
+        private void lvwOnDemand_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            OnDemandListSorter.HandleSort(e.Column, lvwOnDemand);
+        }
+
+        private void lvwDefault_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            DefaultListSorter.HandleSort(e.Column, lvwDefault);
         }
     }
 }

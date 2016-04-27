@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 
 namespace AnalysisManager
 {
@@ -15,6 +16,7 @@ namespace AnalysisManager
     {
         protected List<CodeFile> Files = new List<CodeFile>();
         protected List<Annotation> Annotations = new List<Annotation>();
+        private AnnotationListViewColumnSorter ListViewSorter = new AnnotationListViewColumnSorter();
 
         public SelectOutput(List<CodeFile> files = null)
         {
@@ -38,6 +40,7 @@ namespace AnalysisManager
                 }
             }
 
+            lvwOutput.ListViewItemSorter = ListViewSorter;
             LoadList();
         }
 
@@ -65,6 +68,11 @@ namespace AnalysisManager
         private void txtFilter_FilterChanged(object sender, EventArgs e)
         {
             LoadList(txtFilter.Text);
+        }
+
+        private void lvwOutput_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            ListViewSorter.HandleSort(e.Column, lvwOutput);
         }
     }
 }

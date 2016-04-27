@@ -81,7 +81,6 @@
             this.colFileName});
             this.lvwOutput.FullRowSelect = true;
             this.lvwOutput.GridLines = true;
-            this.lvwOutput.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvwOutput.Location = new System.Drawing.Point(12, 34);
             this.lvwOutput.Name = "lvwOutput";
             this.lvwOutput.ShowGroups = false;
@@ -89,6 +88,7 @@
             this.lvwOutput.TabIndex = 9;
             this.lvwOutput.UseCompatibleStateImageBehavior = false;
             this.lvwOutput.View = System.Windows.Forms.View.Details;
+            this.lvwOutput.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwOutput_ColumnClick);
             // 
             // colAnnotationName
             // 
