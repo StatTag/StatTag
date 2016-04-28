@@ -317,10 +317,10 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="field">The document Field that contains the annotation</param>
         /// <param name="annotation">The annotation that will be updated</param>
-        /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;Annotation, CodeFileAction&gt;)</param>
+        /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
         public void UpdateUnlinkedAnnotationsByAnnotation(Field field, FieldAnnotation annotation, object configuration)
         {
-            var actions = configuration as Dictionary<Annotation, CodeFileAction>;
+            var actions = configuration as Dictionary<string, CodeFileAction>;
             if (actions == null)
             {
                 Log("The list of actions to perform is null or of the wrong type");
@@ -329,7 +329,7 @@ namespace AnalysisManager.Models
 
             // If there is no action specified for this field, we will exit.  This should happen when we have fields that
             // are still linked in a document.
-            if (!actions.ContainsKey(annotation))
+            if (!actions.ContainsKey(annotation.Id))
             {
                 Log(string.Format("No action is needed for annotation {0}", annotation.Id));
                 return;
@@ -337,7 +337,7 @@ namespace AnalysisManager.Models
 
             // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
             // with doing anything.
-            var action = actions[annotation];
+            var action = actions[annotation.Id];
             if (action == null)
             {
                 Log("No action was specified - exiting");

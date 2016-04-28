@@ -16,7 +16,7 @@ namespace AnalysisManager
         /// <summary>
         /// The collection of actions that the user has indicated they wish to proceed with.
         /// </summary>
-        public Dictionary<Annotation, CodeFileAction> AnnotationUpdates { get; set; }
+        public Dictionary<string, CodeFileAction> AnnotationUpdates { get; set; }
 
         /// <summary>
         /// Used as input, this is the list of annotations that are not fully linked to the
@@ -38,17 +38,26 @@ namespace AnalysisManager
             MinimumSize = Size;
             UnlinkedAnnotations = unlinkedAnnotations;
             Files = files;
-            AnnotationUpdates = new Dictionary<Annotation, CodeFileAction>();
+            AnnotationUpdates = new Dictionary<string, CodeFileAction>();
         }
 
         private void CheckDocument_Load(object sender, EventArgs e)
         {
+            // Track the annotations as we add them to the list, so we only display each unique
+            // annotation one time.  The reason we have duplicates is that this list comes from
+            // the fields in a document, where multiple instances of the same annotation could
+            // exist.
+            HashSet<string> addedAnnotations = new HashSet<string>();
             foreach (var item in UnlinkedAnnotations)
             {
                 foreach (var annotation in item.Value)
                 {
-                    int row = dgvUnlinkedAnnotations.Rows.Add(new object[] { item.Key, annotation.OutputLabel });
-                    dgvUnlinkedAnnotations.Rows[row].Tag = annotation;
+                    if (!addedAnnotations.Contains(annotation.Id))
+                    {
+                        int row = dgvUnlinkedAnnotations.Rows.Add(new object[] { item.Key, annotation.OutputLabel });
+                        dgvUnlinkedAnnotations.Rows[row].Tag = annotation;
+                        addedAnnotations.Add(annotation.Id);
+                    }
                 }
             }
 
@@ -69,7 +78,11 @@ namespace AnalysisManager
                     continue;
                 }
 
-                AnnotationUpdates.Add(row.Tag as Annotation, actionCell.Value as CodeFileAction);
+                var annotation = row.Tag as Annotation;
+                if (annotation != null && !AnnotationUpdates.ContainsKey(annotation.Id))
+                {
+                    AnnotationUpdates.Add(annotation.Id, actionCell.Value as CodeFileAction);
+                }
             }
         }
     }

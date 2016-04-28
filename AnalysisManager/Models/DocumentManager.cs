@@ -860,17 +860,41 @@ namespace AnalysisManager.Models
         }
         #endregion
 
-
+        /// <summary>
+        /// If code files become unlinked in the document, this method is used to resolve those annotations/fields
+        /// already in the document that refer to the unlinked code file.  It applies a set of actions to ALL of
+        /// the annotations in the document for a code file.
+        /// </summary>
+        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByAnnotation">UpdateUnlinkedAnnotationsByAnnotation</see>
+        /// if you want to perform actions on individual annotations.
+        /// </remarks>
+        /// <param name="actions"></param>
         public void UpdateUnlinkedAnnotationsByCodeFile(Dictionary<string, CodeFileAction> actions)
         {
             AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByCodeFile, actions);
         }
 
-        public void UpdateUnlinkedAnnotationsByAnnotation(Dictionary<Annotation, CodeFileAction> actions)
+        /// <summary>
+        /// When reviewing all of the annotations/fields in a document for those that have unlinked code files, duplicate
+        /// names, etc., this method is used to resolve the errors in those annotations/fields.  It applies individual actions
+        /// to each annotation in the document.
+        /// </summary>
+        /// <remarks>Some of the actions may in fact affect multiple annotations.  For example, re-linking the code file
+        /// to the document for a single annotation has the effect of re-linking it for all related annotations.</remarks>
+        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByCodeFile">UpdateUnlinkedAnnotationsByCodeFile</see>
+        /// if you want to process all annotations in a code file with a single action.
+        /// </remarks>
+        /// <param name="actions"></param>
+        public void UpdateUnlinkedAnnotationsByAnnotation(Dictionary<string, CodeFileAction> actions)
         {
             AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByAnnotation, actions);
         }
 
+        /// <summary>
+        /// Add a code file reference to our master list of files in the document.  This should be used when
+        /// discovering code files to link to the document.
+        /// </summary>
+        /// <param name="fileName"></param>
         public void AddCodeFile(string fileName)
         {
             if (Files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
