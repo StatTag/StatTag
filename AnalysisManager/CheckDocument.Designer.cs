@@ -63,8 +63,8 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(716, 38);
             this.label2.TabIndex = 3;
-            this.label2.Text = "These annotations are used in your document, but the associated code file is not " +
-    "referenced or the annotation does not exist in the code file:";
+            this.label2.Text = "These annotations have been inserted into your document text, but the code file a" +
+    "ssociated with them is not currently linked to the document:";
             // 
             // dgvUnlinkedAnnotations
             // 
@@ -174,7 +174,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "CheckDocument";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Check Current Document";
+            this.Text = "Analysis Manager - Check Annotations";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.CheckDocument_Load);
             this.tabUnlinked.ResumeLayout(false);

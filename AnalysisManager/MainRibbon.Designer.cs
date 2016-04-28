@@ -108,7 +108,7 @@
             // cmdValidateDocument
             // 
             this.cmdValidateDocument.Image = ((System.Drawing.Image)(resources.GetObject("cmdValidateDocument.Image")));
-            this.cmdValidateDocument.Label = "Check Document";
+            this.cmdValidateDocument.Label = "Check Annotations";
             this.cmdValidateDocument.Name = "cmdValidateDocument";
             this.cmdValidateDocument.ScreenTip = "Perform a set of validations on the current document to ensure it is properly con" +
     "figured for use with Analysis Manager.";
