@@ -89,6 +89,11 @@ namespace AnalysisManager.Core.Models
             public const char AnnotationTableCellDelimiter = '|';
         }
 
+        public static class FieldDetails
+        {
+            public const string MacroButtonName = "AnalysisManager";
+        }
+
         /// <summary>
         /// A list of parameter names that are available across all types of
         /// annotations.
@@ -179,6 +184,7 @@ namespace AnalysisManager.Core.Models
             public const int NoAction = 0;
             public const int ChangeFile = 1;
             public const int RemoveAnnotations = 2;
+            public const int ReAddFile = 3;
         }
     }
 }

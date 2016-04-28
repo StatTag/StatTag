@@ -144,9 +144,16 @@ namespace AnalysisManager
             if (filesNotFound.Any())
             {
                 MessageBox.Show(
-                    string.Format("The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}", string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
+                    string.Format(
+                        "The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}",
+                        string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
                     UIUtility.GetAddInName(),
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);   
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                LogManager.WriteMessage("Performing the document validation check");
+                Manager.PerformDocumentCheck(true);
             }
 
             LogManager.WriteMessage("DocumentOpen - Completed");
@@ -190,12 +197,7 @@ namespace AnalysisManager
                     var field = selection.Fields[1];
                     if (field != null)
                     {
-                        if (Manager.IsAnalysisManagerField(field))
-                        {
-                            var fieldAnnotation = Manager.GetFieldAnnotation(field);
-                            var annotation = Manager.FindAnnotation(fieldAnnotation);
-                            Manager.EditAnnotation(annotation);
-                        }
+                        Manager.EditAnnotationField(field);
                         Marshal.ReleaseComObject(field);
                     }
                 }

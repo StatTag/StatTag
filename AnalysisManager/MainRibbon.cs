@@ -56,7 +56,7 @@ namespace AnalysisManager
                         var linkDialog = new LinkCodeFiles(unlinkedResults, Manager.Files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
-                            Manager.ProcessAnalysisManagerFields(Manager.UpdateUnlinkedAnnotations, linkDialog.CodeFileUpdates);
+                            Manager.UpdateUnlinkedAnnotationsByCodeFile(linkDialog.CodeFileUpdates);
                         }
                     }
                 }
@@ -204,6 +204,25 @@ namespace AnalysisManager
             finally
             {
                 Globals.ThisAddIn.Application.ScreenUpdating = true;
+                Cursor.Current = Cursors.Default;
+            }
+        }
+
+        private void cmdValidateDocument_Click(object sender, RibbonControlEventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                Manager.PerformDocumentCheck();
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when performing a validity check on this document.",
+                    LogManager);
+            }
+            finally
+            {
                 Cursor.Current = Cursors.Default;
             }
         }

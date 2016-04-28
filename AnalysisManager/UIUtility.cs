@@ -141,5 +141,25 @@ namespace AnalysisManager
             var scaledFont = new System.Drawing.Font(font.Name, 9.75f * dpiScale / graphics.DpiX, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
             return scaledFont;
         }
+
+        public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleAnnotation)
+        {
+            var actions = new List<GridDataItem>();
+            actions.Add(GridDataItem.CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null));
+            foreach (var file in files)
+            {
+                actions.Add(GridDataItem.CreateActionItem(string.Format("Use file {0}", file.FilePath),
+                    Constants.CodeFileActionTask.ChangeFile, file));
+            }
+            actions.Add(GridDataItem.CreateActionItem(string.Format("Remove {0} from document", (forSingleAnnotation ? "this annotation" : "all annotations in this code file")),
+                Constants.CodeFileActionTask.RemoveAnnotations, null));
+            actions.Add(GridDataItem.CreateActionItem("Link the missing code file to this document",
+                Constants.CodeFileActionTask.ReAddFile, null));
+
+            var column = gridView.Columns[columnIndex] as DataGridViewComboBoxColumn;
+            column.DataSource = actions;
+            column.DisplayMember = "Display";
+            column.ValueMember = "Data";
+        }
     }
 }

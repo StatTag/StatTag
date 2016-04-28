@@ -41,6 +41,7 @@
             this.cmdManageAnnotations = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
+            this.cmdValidateDocument = this.Factory.CreateRibbonButton();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.button1 = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
@@ -59,6 +60,7 @@
             this.codeGroup.Items.Add(this.cmdManageAnnotations);
             this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Items.Add(this.cmdUpdateOutput);
+            this.codeGroup.Items.Add(this.cmdValidateDocument);
             this.codeGroup.Items.Add(this.cmdSettings);
             this.codeGroup.Items.Add(this.button1);
             this.codeGroup.Label = "Analysis Manager";
@@ -103,6 +105,16 @@
             this.cmdUpdateOutput.ShowImage = true;
             this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
             // 
+            // cmdValidateDocument
+            // 
+            this.cmdValidateDocument.Image = ((System.Drawing.Image)(resources.GetObject("cmdValidateDocument.Image")));
+            this.cmdValidateDocument.Label = "Check Document";
+            this.cmdValidateDocument.Name = "cmdValidateDocument";
+            this.cmdValidateDocument.ScreenTip = "Perform a set of validations on the current document to ensure it is properly con" +
+    "figured for use with Analysis Manager.";
+            this.cmdValidateDocument.ShowImage = true;
+            this.cmdValidateDocument.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdValidateDocument_Click);
+            // 
             // cmdSettings
             // 
             this.cmdSettings.Image = ((System.Drawing.Image)(resources.GetObject("cmdSettings.Image")));
@@ -139,6 +151,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdSettings;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdUpdateOutput;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdValidateDocument;
     }
 
     partial class ThisRibbonCollection

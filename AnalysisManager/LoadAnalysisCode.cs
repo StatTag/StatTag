@@ -64,7 +64,7 @@ namespace AnalysisManager
             dgvItems.CurrentCell = null;
 
             // Save off the values that may already be cached for an annotation.
-            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
+            //var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
 
             var files = new List<CodeFile>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)

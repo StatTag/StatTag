@@ -31,10 +31,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LinkCodeFiles));
             this.label1 = new System.Windows.Forms.Label();
             this.dgvCodeFiles = new System.Windows.Forms.DataGridView();
-            this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
             this.colMissingCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.cmdCancel = new System.Windows.Forms.Button();
+            this.cmdOK = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).BeginInit();
             this.SuspendLayout();
             // 
@@ -72,6 +72,21 @@
             this.dgvCodeFiles.Size = new System.Drawing.Size(748, 229);
             this.dgvCodeFiles.TabIndex = 1;
             // 
+            // colMissingCodeFile
+            // 
+            this.colMissingCodeFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colMissingCodeFile.FillWeight = 40F;
+            this.colMissingCodeFile.HeaderText = "Missing Code File";
+            this.colMissingCodeFile.Name = "colMissingCodeFile";
+            this.colMissingCodeFile.ReadOnly = true;
+            // 
+            // colActionToTake
+            // 
+            this.colActionToTake.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colActionToTake.FillWeight = 60F;
+            this.colActionToTake.HeaderText = "Action to Take";
+            this.colActionToTake.Name = "colActionToTake";
+            // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -95,21 +110,6 @@
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
-            // colMissingCodeFile
-            // 
-            this.colMissingCodeFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colMissingCodeFile.FillWeight = 40F;
-            this.colMissingCodeFile.HeaderText = "Missing Code File";
-            this.colMissingCodeFile.Name = "colMissingCodeFile";
-            this.colMissingCodeFile.ReadOnly = true;
-            // 
-            // colActionToTake
-            // 
-            this.colActionToTake.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colActionToTake.FillWeight = 60F;
-            this.colActionToTake.HeaderText = "Action to Take";
-            this.colActionToTake.Name = "colActionToTake";
-            // 
             // LinkCodeFiles
             // 
             this.AcceptButton = this.cmdOK;
@@ -125,7 +125,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "LinkCodeFiles";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Link Code Files";
+            this.Text = "Analysis Manager - Link Code Files";
             this.Load += new System.EventHandler(this.LinkCodeFiles_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).EndInit();
             this.ResumeLayout(false);

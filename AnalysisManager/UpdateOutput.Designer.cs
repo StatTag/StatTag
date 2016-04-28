@@ -238,7 +238,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "UpdateOutput";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Update Statistical Output";
+            this.Text = "Analysis Manager - Update Statistical Output";
             this.Load += new System.EventHandler(this.UpdateOutput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

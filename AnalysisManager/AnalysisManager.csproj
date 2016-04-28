@@ -180,6 +180,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="CheckDocument.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CheckDocument.Designer.cs">
+      <DependentUpon>CheckDocument.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DateTimeValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -253,8 +259,11 @@
       <DependentUpon>ManageAnnotations.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AnnotationListViewColumnSorter.cs" />
+    <Compile Include="Models\AnnotationManager.cs" />
+    <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\GridDataItem.cs" />
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\PropertiesManager.cs" />
@@ -283,6 +292,9 @@
     <Compile Include="UpdateOutput.Designer.cs">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="CheckDocument.resx">
+      <DependentUpon>CheckDocument.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </EmbeddedResource>
