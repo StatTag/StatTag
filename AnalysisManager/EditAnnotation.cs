@@ -166,7 +166,7 @@ namespace AnalysisManager
 
             if (Annotation != null)
             {
-                OriginalAnnotation = Annotation;
+                OriginalAnnotation = new Annotation(Annotation);
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
                 ScintillaManager.ConfigureEditor(scintilla1, Annotation.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
