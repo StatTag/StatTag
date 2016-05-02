@@ -415,6 +415,82 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidDataException))]
+        public void AddAnnotation_ExactLineMatch_NotFound()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line"
+            });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+
+            // Try to add a new annotation that does not have matching line numbers
+            var oldAnnotation = new Annotation(codeFile.Annotations[0])
+            {
+                LineStart = 4,
+                LineEnd = 5
+            };
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 0,
+                LineEnd = 2,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
+        }
+
+        [TestMethod]
+        public void AddAnnotation_ExactLineMatch()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line"
+            });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+
+            // Match the second one - this should bypass the first one which matches on name but not on line number.
+            var oldAnnotation = codeFile.Annotations[1];
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 4,
+                LineEnd = 6,
+                OutputLabel = "Test 2",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
+            Assert.AreEqual(2, codeFile.Annotations.Count);
+            Assert.AreEqual(8, codeFile.Content.Count);
+            // Make sure it didn't modify the first annotation - only the second one should be a match.
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                            codeFile.Content[1]);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                codeFile.Content[4]);
+        }
+
+        [TestMethod]
         public void Save()
         {
             var mock = new Mock<IFileHandler>();
@@ -500,6 +576,57 @@ namespace Core.Tests.Models
             codeFile.UpdateContent("test content");
             mock.Verify();
             Assert.AreEqual(1, codeFile.Annotations.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_EmptyAnnotations()
+        {
+            // This is when we have code files with null or otherwise empty collections of annotations, to ensure we are
+            // handling this boundary scenarios appropriately.
+            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = null };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+
+            codeFile = new CodeFile() { FilePath = "Test.do" };
+            result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+
+            codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>() };
+            result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_NoDuplicates()
+        {
+            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>(new []
+            {
+                new Annotation() { OutputLabel = "Test"}, 
+                new Annotation() { OutputLabel = "Test2"},
+            }) };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_Duplicates()
+        {
+            var codeFile = new CodeFile()
+            {
+                FilePath = "Test.do",
+                Annotations = new List<Annotation>(new[]
+            {
+                new Annotation() { OutputLabel = "Test"}, 
+                new Annotation() { OutputLabel = "Test2"},
+                new Annotation() { OutputLabel = "test"},
+                new Annotation() { OutputLabel = "test2"},
+                new Annotation() { OutputLabel = "Test"},
+            })
+            };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[codeFile.Annotations[0]].Count);
+            Assert.AreEqual(1, result[codeFile.Annotations[1]].Count);
         }
     }
 }

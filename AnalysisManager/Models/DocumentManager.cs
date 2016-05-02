@@ -305,8 +305,10 @@ namespace AnalysisManager.Models
         /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.
         /// The reaason this is an Annotation and not a FieldAnnotation is that the function is only called after a change to the main annotation reference.
         /// If not specified, all annotation fields will be updated</param>
+        /// <param name="matchOnPosition">If set to true, an annotation will only be matched if its line numbers (in the code file) are a match.  This is used when updating
+        /// after disambiguating two annotations with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
+        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null, bool matchOnPosition = false)
         {
             Log("UpdateFields - Started");
 
@@ -360,7 +362,9 @@ namespace AnalysisManager.Models
                     // annotation specifically.  Otherwise, we will process all annotation fields.
                     if (annotationUpdatePair != null)
                     {
-                        if (!annotation.Equals(annotationUpdatePair.Old))
+                        // Determine if this is a match, factoring in if we should be doing a more exact match on the annotation.
+                        if ((!matchOnPosition && !annotation.Equals(annotationUpdatePair.Old))
+                            || matchOnPosition && !annotation.EqualsWithPosition(annotationUpdatePair.Old))
                         {
                             continue;
                         }
@@ -797,7 +801,7 @@ namespace AnalysisManager.Models
                 // Now that the code file has been updated, we need to add the annotation.  This may
                 // be a new annotation, or an updated one.
                 codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
-                codeFile.Save();   
+                codeFile.Save();
             }
         }
 
@@ -830,16 +834,20 @@ namespace AnalysisManager.Models
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
         public void PerformDocumentCheck(bool onlyShowDialogIfResultsFound = false)
         {
-            var results = AnnotationManager.FindAllUnlinkedAnnotations();
-            if (onlyShowDialogIfResultsFound && (results == null || results.Count == 0))
+            var unlinkedResults = AnnotationManager.FindAllUnlinkedAnnotations();
+            var duplicateResults = AnnotationManager.FindAllDuplicateAnnotations();
+            if (onlyShowDialogIfResultsFound 
+                && (unlinkedResults == null || unlinkedResults.Count == 0)
+                && (duplicateResults == null || duplicateResults.Count == 0))
             {
                 return;
             }
 
-            var dialog = new CheckDocument(results, Files);
+            var dialog = new CheckDocument(unlinkedResults, duplicateResults, Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                UpdateUnlinkedAnnotationsByAnnotation(dialog.AnnotationUpdates);
+                UpdateUnlinkedAnnotationsByAnnotation(dialog.UnlinkedAnnotationUpdates);
+                UpdateRenamedAnnotations(dialog.DuplicateAnnotationUpdates);
             }
         }
 
@@ -909,6 +917,32 @@ namespace AnalysisManager.Models
             file.SaveBackup();
             Files.Add(file);
             Log(string.Format("Added code file {0}", fileName));
+        }
+
+        private void UpdateRenamedAnnotations(List<UpdatePair<Annotation>> updates)
+        {
+            var affectedCodeFiles = new List<CodeFile>();
+            foreach (var update in updates)
+            {
+                // We assume that updates never affect the code file - we don't give users a way to specify
+                // in the UI to change a code file - so we just take the old code file reference to use.
+                var codeFile = update.Old.CodeFile;
+
+                if (!affectedCodeFiles.Contains(update.Old.CodeFile))
+                {
+                    affectedCodeFiles.Add(update.Old.CodeFile);
+                }
+                UpdateFields(update, true);
+
+                // Add the annotation to the code file - replacing the old one.  Note that we require the
+                // exact line match, so we don't accidentally replace the wrong duplicate named annotation.
+                codeFile.AddAnnotation(update.New, update.Old, true);
+            }
+
+            foreach (var codeFile in affectedCodeFiles)
+            {
+                codeFile.Save();
+            }
         }
     }
 }

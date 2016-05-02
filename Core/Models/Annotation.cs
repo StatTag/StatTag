@@ -165,6 +165,24 @@ namespace AnalysisManager.Core.Models
             return base.ToString();
         }
 
+        public bool Equals(Annotation other, bool usePosition)
+        {
+            return (usePosition) ? this.EqualsWithPosition(other) : this.Equals(other);
+        }
+
+        /// <summary>
+        /// A more specialized version of Equals that takes into account line numbers.  This is used when trying
+        /// to disambiguate annotations that have the same label in the same code file.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <returns></returns>
+        public bool EqualsWithPosition(Annotation annotation)
+        {
+            return (this.Equals(annotation) &&
+                    this.LineStart == annotation.LineStart &&
+                    this.LineEnd == annotation.LineEnd);
+        }
+
         /// <summary>
         /// Ensure that all reserved characters that appear in an output label are removed
         /// and replaced with a space.
@@ -241,6 +259,26 @@ namespace AnalysisManager.Core.Models
             }
 
             return dimensions;
+        }
+
+        /// <summary>
+        /// Provide a string representation of the range of lines that this Annotation spans in
+        /// its code file.  If there is only one line, just that line number is returned.
+        /// </summary>
+        /// <returns></returns>
+        public string FormatLineNumberRange()
+        {
+            if (LineStart == 0 || LineEnd == 0)
+            {
+                return string.Empty;
+            }
+
+            if (LineStart == LineEnd)
+            {
+                return LineStart.ToString();
+            }
+
+            return string.Format("{0} - {1}", LineStart, LineEnd);
         }
     }
 }

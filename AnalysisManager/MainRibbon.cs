@@ -97,7 +97,7 @@ namespace AnalysisManager
                 try
                 {
                     var updatedAnnotations = new List<Annotation>();
-                    var refreshedFiles = new HashSet<CodeFile>();
+                    var refreshedFiles = new List<CodeFile>();
                     var annotations = dialog.GetSelectedAnnotations();
                     foreach (var annotation in annotations)
                     {
@@ -175,7 +175,7 @@ namespace AnalysisManager
             {
                 // First, go through and update all of the code files to ensure we have all
                 // refreshed annotations.
-                var refreshedFiles = new HashSet<CodeFile>();
+                var refreshedFiles = new List<CodeFile>();
                 foreach (var codeFile in Manager.Files)
                 {
                     if (!refreshedFiles.Contains(codeFile))
