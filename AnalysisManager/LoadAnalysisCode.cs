@@ -5,6 +5,7 @@ using AnalysisManager.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using AnalysisManager.Core.Utility;
 using AnalysisManager.Models;
 
 namespace AnalysisManager
@@ -31,7 +32,7 @@ namespace AnalysisManager
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
         {
-            colStatPackage.Items.AddRange(Utility.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
+            colStatPackage.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
             if (Files != null)
             {
                 foreach (var file in Files)
@@ -63,7 +64,7 @@ namespace AnalysisManager
             dgvItems.CurrentCell = null;
 
             // Save off the values that may already be cached for an annotation.
-            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
+            //var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
 
             var files = new List<CodeFile>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)
@@ -79,7 +80,8 @@ namespace AnalysisManager
                 file.SaveBackup();
             }
             Files = files;
-
+            Manager.Files = Files;
+            
             Close();
         }
 

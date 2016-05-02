@@ -1,8 +1,10 @@
-﻿using AnalysisManager.Core.Models;
+﻿using System.Collections.Generic;
+using AnalysisManager.Core.Models;
 using AnalysisManager.Models;
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Word;
 
 namespace AnalysisManager
 {
@@ -16,6 +18,8 @@ namespace AnalysisManager
         private const int EditColumn = 5;
 
         public DocumentManager Manager { get; set; }
+
+        private readonly List<Annotation> Annotations = new List<Annotation>();
 
         public ManageAnnotations(DocumentManager manager)
         {
@@ -70,21 +74,27 @@ namespace AnalysisManager
             ReloadAnnotations();
         }
 
+        private void LoadList(string filter = "")
+        {
+            dgvItems.Rows.Clear();
+            foreach (var annotation in Annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+            {
+                AddRow(annotation);
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         private void ReloadAnnotations()
         {
-            dgvItems.Rows.Clear();
-
-            // Save off the values that may already be cached for an annotation.
-            var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
-
+            Annotations.Clear();
             foreach (var file in Manager.Files)
             {
                 file.LoadAnnotationsFromContent();
-                file.Annotations.ForEach(x => AddRow(x));
+                file.Annotations.ForEach(x => Annotations.Add(x));
             }
+            LoadList(txtFilter.Text);
         }
 
         private void EditAnnotation(int rowIndex)
@@ -107,6 +117,11 @@ namespace AnalysisManager
         private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             EditAnnotation(e.RowIndex);
+        }
+
+        private void txtFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadList(txtFilter.Text);
         }
     }
 }

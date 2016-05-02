@@ -78,7 +78,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
                 {
-                    "**>>>AM:Value(Id=\"1\", Type=\"Default\")",
+                    "**>>>AM:Value(Type=\"Default\")",
                     "some code here",
                     "**<<<"
                 });
@@ -226,7 +226,6 @@ namespace Core.Tests.Models
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             var annotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 1,
                 LineEnd = 2,
                 OutputLabel = "Test",
@@ -238,7 +237,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(1, updatedAnnotation.LineStart);
             Assert.AreEqual(4, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
             // Existing annotation should not be modified (we don't check start because that happens to always be the same)
             Assert.AreNotEqual(updatedAnnotation.LineEnd, annotation.LineEnd);
@@ -247,7 +246,6 @@ namespace Core.Tests.Models
             // Insert after an existing annotation
             annotation = new Annotation()
             {
-                Id = "id2",
                 LineStart = 5,
                 LineEnd = 6,
                 OutputLabel = "Test2",
@@ -259,13 +257,12 @@ namespace Core.Tests.Models
             Assert.AreEqual(5, updatedAnnotation.LineStart);
             Assert.AreEqual(8, updatedAnnotation.LineEnd);
             Assert.AreEqual(9, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Id=\"id2\", Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
 
             // Insert before existing annotations
             annotation = new Annotation()
             {
-                Id = "id3",
                 LineStart = 0,
                 LineEnd = 0,
                 OutputLabel = "Test3",
@@ -277,11 +274,11 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedAnnotation.LineStart);
             Assert.AreEqual(2, updatedAnnotation.LineEnd);
             Assert.AreEqual(11, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Id=\"id3\", Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
 
             // Final check that the file content is exactly as we expect:
-            Assert.AreEqual("**>>>AM:Value(Id=\"id3\", Label=\"Test3\", Type=\"Default\"), first line, **<<<, **>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\"), second line, third line, **<<<, **>>>AM:Value(Id=\"id2\", Label=\"Test2\", Type=\"Default\"), fourth line, fifth line, **<<<", string.Join(", ", codeFile.Content));
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\"), first line, **<<<, **>>>AM:Value(Label=\"Test\", Type=\"Default\"), second line, third line, **<<<, **>>>AM:Value(Label=\"Test2\", Type=\"Default\"), fourth line, fifth line, **<<<", string.Join(", ", codeFile.Content));
         }
 
         [TestMethod]
@@ -290,7 +287,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
-                "**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 "first line",
                 "second line",
                 "**<<<",
@@ -306,7 +303,6 @@ namespace Core.Tests.Models
             var oldAnnotation = codeFile.Annotations[0];
             var newAnnotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 0,
                 LineEnd = 3,
                 OutputLabel = "Test",
@@ -318,7 +314,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedAnnotation.LineStart);
             Assert.AreEqual(3, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
         }
@@ -330,7 +326,7 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "third line",
                 "**<<<",
@@ -345,7 +341,6 @@ namespace Core.Tests.Models
             var oldAnnotation = codeFile.Annotations[0];
             var newAnnotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 0,
                 LineEnd = 2,
                 OutputLabel = "Test",
@@ -357,7 +352,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedAnnotation.LineStart);
             Assert.AreEqual(3, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
 
@@ -365,7 +360,6 @@ namespace Core.Tests.Models
             oldAnnotation = codeFile.Annotations[0];
             newAnnotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 5,
                 LineEnd = 6,
                 OutputLabel = "Test",
@@ -377,7 +371,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(3, updatedAnnotation.LineStart);
             Assert.AreEqual(6, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
 
@@ -385,7 +379,6 @@ namespace Core.Tests.Models
             oldAnnotation = codeFile.Annotations[0];
             newAnnotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 1,
                 LineEnd = 2,
                 OutputLabel = "Test",
@@ -397,7 +390,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(1, updatedAnnotation.LineStart);
             Assert.AreEqual(4, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
 
@@ -405,7 +398,6 @@ namespace Core.Tests.Models
             oldAnnotation = codeFile.Annotations[0];
             newAnnotation = new Annotation()
             {
-                Id = "id",
                 LineStart = 5,
                 LineEnd = 6,
                 OutputLabel = "Test",
@@ -417,9 +409,85 @@ namespace Core.Tests.Models
             Assert.AreEqual(3, updatedAnnotation.LineStart);
             Assert.AreEqual(6, updatedAnnotation.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedAnnotation.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidDataException))]
+        public void AddAnnotation_ExactLineMatch_NotFound()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line"
+            });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+
+            // Try to add a new annotation that does not have matching line numbers
+            var oldAnnotation = new Annotation(codeFile.Annotations[0])
+            {
+                LineStart = 4,
+                LineEnd = 5
+            };
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 0,
+                LineEnd = 2,
+                OutputLabel = "Test",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
+        }
+
+        [TestMethod]
+        public void AddAnnotation_ExactLineMatch()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "first line",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "second line",
+                "**<<<",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "third line",
+                "**<<<",
+                "fourth line"
+            });
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            codeFile.LoadAnnotationsFromContent();
+
+            // Match the second one - this should bypass the first one which matches on name but not on line number.
+            var oldAnnotation = codeFile.Annotations[1];
+            var newAnnotation = new Annotation()
+            {
+                LineStart = 4,
+                LineEnd = 6,
+                OutputLabel = "Test 2",
+                Type = Constants.AnnotationType.Value,
+                ValueFormat = new ValueFormat()
+            };
+            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
+            Assert.AreEqual(2, codeFile.Annotations.Count);
+            Assert.AreEqual(8, codeFile.Content.Count);
+            // Make sure it didn't modify the first annotation - only the second one should be a match.
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                            codeFile.Content[1]);
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                codeFile.Content[4]);
         }
 
         [TestMethod]
@@ -497,7 +565,7 @@ namespace Core.Tests.Models
             mock.Setup(file => file.WriteAllText(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
-                "**>>>AM:Value(Id=\"id\", Label=\"Test\", Type=\"Default\")",
+                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                 "first line",
                 "second line",
                 "**<<<"
@@ -508,6 +576,57 @@ namespace Core.Tests.Models
             codeFile.UpdateContent("test content");
             mock.Verify();
             Assert.AreEqual(1, codeFile.Annotations.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_EmptyAnnotations()
+        {
+            // This is when we have code files with null or otherwise empty collections of annotations, to ensure we are
+            // handling this boundary scenarios appropriately.
+            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = null };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+
+            codeFile = new CodeFile() { FilePath = "Test.do" };
+            result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+
+            codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>() };
+            result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_NoDuplicates()
+        {
+            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>(new []
+            {
+                new Annotation() { OutputLabel = "Test"}, 
+                new Annotation() { OutputLabel = "Test2"},
+            }) };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void FindDuplicateAnnotations_Duplicates()
+        {
+            var codeFile = new CodeFile()
+            {
+                FilePath = "Test.do",
+                Annotations = new List<Annotation>(new[]
+            {
+                new Annotation() { OutputLabel = "Test"}, 
+                new Annotation() { OutputLabel = "Test2"},
+                new Annotation() { OutputLabel = "test"},
+                new Annotation() { OutputLabel = "test2"},
+                new Annotation() { OutputLabel = "Test"},
+            })
+            };
+            var result = codeFile.FindDuplicateAnnotations();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[codeFile.Annotations[0]].Count);
+            Assert.AreEqual(1, result[codeFile.Annotations[1]].Count);
         }
     }
 }

@@ -34,13 +34,14 @@
             this.lvwOutput = new System.Windows.Forms.ListView();
             this.colAnnotationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.txtFilter = new AnalysisManager.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(351, 316);
+            this.cmdCancel.Location = new System.Drawing.Point(351, 370);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
@@ -52,7 +53,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(201, 316);
+            this.cmdOK.Location = new System.Drawing.Point(201, 370);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
@@ -63,7 +64,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 6);
+            this.label1.Location = new System.Drawing.Point(9, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(432, 17);
             this.label1.TabIndex = 8;
@@ -80,14 +81,14 @@
             this.colFileName});
             this.lvwOutput.FullRowSelect = true;
             this.lvwOutput.GridLines = true;
-            this.lvwOutput.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.lvwOutput.Location = new System.Drawing.Point(12, 26);
+            this.lvwOutput.Location = new System.Drawing.Point(12, 34);
             this.lvwOutput.Name = "lvwOutput";
             this.lvwOutput.ShowGroups = false;
-            this.lvwOutput.Size = new System.Drawing.Size(609, 266);
+            this.lvwOutput.Size = new System.Drawing.Size(609, 312);
             this.lvwOutput.TabIndex = 9;
             this.lvwOutput.UseCompatibleStateImageBehavior = false;
             this.lvwOutput.View = System.Windows.Forms.View.Details;
+            this.lvwOutput.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwOutput_ColumnClick);
             // 
             // colAnnotationName
             // 
@@ -99,13 +100,26 @@
             this.colFileName.Text = "Code File";
             this.colFileName.Width = 300;
             // 
+            // txtFilter
+            // 
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFilter.Location = new System.Drawing.Point(448, 6);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.PlaceholderText = "Search";
+            this.txtFilter.Size = new System.Drawing.Size(173, 25);
+            this.txtFilter.TabIndex = 10;
+            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
+            // 
             // SelectOutput
             // 
             this.AcceptButton = this.cmdOK;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(638, 354);
+            this.ClientSize = new System.Drawing.Size(638, 408);
+            this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.lvwOutput);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmdCancel);
@@ -115,7 +129,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "SelectOutput";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Select Output Value";
+            this.Text = "Analysis Manager - Select Output Value";
             this.Load += new System.EventHandler(this.SelectOutput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -130,5 +144,6 @@
         private System.Windows.Forms.ListView lvwOutput;
         private System.Windows.Forms.ColumnHeader colAnnotationName;
         private System.Windows.Forms.ColumnHeader colFileName;
+        private Controls.PlaceholderTextBox txtFilter;
     }
 }

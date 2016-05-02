@@ -16,9 +16,8 @@ namespace Core.Tests.Parser
         public void Parse_EmptyParams()
         {
             const string annotationText = "()";
-            var annotation = new Annotation() { Id = string.Empty };
+            var annotation = new Annotation();
             BaseParameterParser.Parse(annotationText, annotation);
-            Assert.AreNotEqual(string.Empty, annotation.Id);
             Assert.AreEqual(string.Empty, annotation.OutputLabel);
             Assert.AreEqual(Constants.RunFrequency.Default, annotation.RunFrequency);
         }
@@ -26,10 +25,9 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void Parse_Values()
         {
-            const string annotationText = "(Id=\"id1\", Label=\"test\", Frequency=\"On Demand\")";
-            var annotation = new Annotation() { Id = string.Empty };
+            const string annotationText = "(Label=\"test\", Frequency=\"On Demand\")";
+            var annotation = new Annotation();
             BaseParameterParser.Parse(annotationText, annotation);
-            Assert.AreEqual("id1", annotation.Id);
             Assert.AreEqual("test", annotation.OutputLabel);
             Assert.AreEqual(Constants.RunFrequency.OnDemand, annotation.RunFrequency);
         }

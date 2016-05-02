@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalysisManager.Core.Models;
+using AnalysisManager.Models;
 using Microsoft.Office.Tools.Word;
 
 namespace AnalysisManager
@@ -15,6 +16,12 @@ namespace AnalysisManager
     public sealed partial class UpdateOutput : Form
     {
         public List<Annotation> Annotations { get; set; }
+
+        private readonly List<Annotation> DefaultAnnotations = new List<Annotation>();
+        private readonly List<Annotation> OnDemandAnnotations = new List<Annotation>();
+
+        private AnnotationListViewColumnSorter DefaultListSorter = new AnnotationListViewColumnSorter(); 
+        private AnnotationListViewColumnSorter OnDemandListSorter = new AnnotationListViewColumnSorter();
 
         public List<Annotation> SelectedAnnotations
         {
@@ -73,18 +80,71 @@ namespace AnalysisManager
             {
                 if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
-                    var item = lvwDefault.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    item.Tag = annotation;
-                    item.Checked = true;
+                    DefaultAnnotations.Add(annotation);
                 }
                 else
                 {
-                    var item = lvwOnDemand.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    item.Tag = annotation;
+                    OnDemandAnnotations.Add(annotation);
                 }
             }
+
+            lvwDefault.ListViewItemSorter = DefaultListSorter;
+            lvwOnDemand.ListViewItemSorter = OnDemandListSorter;
+
+            LoadOnDemandList();
+            LoadDefaultList();
+        }
+
+        private void LoadOnDemandList(string filter = "")
+        {
+            LoadList(OnDemandAnnotations, lvwOnDemand, false, filter);
+        }
+
+        private void LoadDefaultList(string filter = "")
+        {
+            LoadList(DefaultAnnotations, lvwDefault, true, filter);
+        }
+
+        private void LoadList(List<Annotation> annotations, ListView listView, bool checkItem, string filter = "")
+        {
+            Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                listView.Items.Clear();
+
+                foreach (var annotation in annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                {
+                    var item = listView.Items.Add(annotation.OutputLabel);
+                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
+                    item.Tag = annotation;
+                    item.Checked = checkItem;
+                }
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void txtOnDemandFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadOnDemandList(txtOnDemandFilter.Text);
+        }
+
+        private void txtDefaultFilter_FilterChanged(object sender, EventArgs e)
+        {
+            LoadDefaultList(txtDefaultFilter.Text);
+        }
+
+        private void lvwOnDemand_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            OnDemandListSorter.HandleSort(e.Column, lvwOnDemand);
+        }
+
+        private void lvwDefault_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            DefaultListSorter.HandleSort(e.Column, lvwDefault);
         }
     }
 }

@@ -8,7 +8,7 @@ using AnalysisManager.Core.Models;
 
 namespace AnalysisManager.Core.Parser
 {
-    public class ValueParser : BaseParameterParser
+    public class ValueParameterParser : BaseParameterParser
     {
         public new static void Parse(string annotationText, Annotation annotation)
         {

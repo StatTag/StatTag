@@ -105,16 +105,6 @@ namespace AnalysisManager
             return attribute.ConstructorArguments.FirstOrDefault().Value.ToString();
         }
 
-        public static string Pluralize(this string singularForm, int howMany)
-        {
-            return singularForm.Pluralize(howMany, singularForm + "s");
-        }
-
-        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
-        {
-            return howMany == 1 ? singularForm : pluralForm;
-        }
-
         public static void ReportException(Exception exc, string userMessage, LogManager logger)
         {
             if (logger != null)
@@ -123,6 +113,17 @@ namespace AnalysisManager
             }
 
             MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+
+        public static string Pluralize(this string singularForm, int howMany)
+        {
+            return singularForm.Pluralize(howMany, singularForm + "s");
+        }
+
+        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
+        {
+            return howMany == 1 ? singularForm : pluralForm;
         }
 
         public static IEnumerable<Annotation> GetCheckedAnnotationsFromListView(ListView listView)
@@ -139,6 +140,26 @@ namespace AnalysisManager
             const float dpiScale = 96f;
             var scaledFont = new System.Drawing.Font(font.Name, 9.75f * dpiScale / graphics.DpiX, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
             return scaledFont;
+        }
+
+        public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleAnnotation)
+        {
+            var actions = new List<GridDataItem>();
+            actions.Add(GridDataItem.CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null));
+            foreach (var file in files)
+            {
+                actions.Add(GridDataItem.CreateActionItem(string.Format("Use file {0}", file.FilePath),
+                    Constants.CodeFileActionTask.ChangeFile, file));
+            }
+            actions.Add(GridDataItem.CreateActionItem(string.Format("Remove {0} from document", (forSingleAnnotation ? "this annotation" : "all annotations in this code file")),
+                Constants.CodeFileActionTask.RemoveAnnotations, null));
+            actions.Add(GridDataItem.CreateActionItem("Link the missing code file to this document",
+                Constants.CodeFileActionTask.ReAddFile, null));
+
+            var column = gridView.Columns[columnIndex] as DataGridViewComboBoxColumn;
+            column.DataSource = actions;
+            column.DisplayMember = "Display";
+            column.ValueMember = "Data";
         }
     }
 }

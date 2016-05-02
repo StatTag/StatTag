@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using AnalysisManager.Core.Utility;
 using AnalysisManager.Models;
 using ScintillaNET;
 using Annotation = AnalysisManager.Core.Models.Annotation;
@@ -24,6 +25,7 @@ namespace AnalysisManager
         public readonly Font UnselectedButtonFont = DefaultFont;
 
         public DocumentManager Manager { get; set; }
+        protected Annotation OriginalAnnotation { get; set; }
         public Annotation Annotation { get; set; }
         public string CodeText { get; set; }
 
@@ -144,7 +146,7 @@ namespace AnalysisManager
 
             UpdateForTypeClick(cmdValue);
 
-            cboRunFrequency.Items.AddRange(Utility.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
+            cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
             if (Manager != null && Manager.Files != null)
             {
@@ -164,6 +166,7 @@ namespace AnalysisManager
 
             if (Annotation != null)
             {
+                OriginalAnnotation = new Annotation(Annotation);
                 cboCodeFiles.SelectedItem = Annotation.CodeFile;
                 ScintillaManager.ConfigureEditor(scintilla1, Annotation.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
@@ -203,6 +206,8 @@ namespace AnalysisManager
             }
             else
             {
+                OriginalAnnotation = null;
+
                 // If there is only one file available, select it by default
                 if (Manager != null && Manager.Files != null && Manager.Files.Count == 1)
                 {
@@ -307,10 +312,23 @@ namespace AnalysisManager
         {
             if (this.DialogResult == DialogResult.OK)
             {
-                var result = Utility.CheckForDuplicateLabels(Annotation, Manager.Files);
+                if (!AnnotationUtil.ShouldCheckForDuplicateLabel(OriginalAnnotation, Annotation))
+                {
+                    return;
+                }
+
+                var result = AnnotationUtil.CheckForDuplicateLabels(Annotation, Manager.Files);
                 if (result != null && result.Count > 0)
                 {
-                    if (DialogResult.Yes != MessageBox.Show(
+                    if (AnnotationUtil.IsDuplicateLabelInSameFile(Annotation, result))
+                    {
+                        UIUtility.WarningMessageBox(
+                            string.Format("The output label you have entered ('{0}') already appears in this file.\r\nPlease give this annotation a unique name before proceeding.", Annotation.OutputLabel), 
+                            Manager.Logger);
+                        this.DialogResult = DialogResult.None;
+                        e.Cancel = true;
+                    }
+                    else if (DialogResult.Yes != MessageBox.Show(
                         string.Format(
                             "The output label you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
                             Annotation.OutputLabel, result.Count, "file".Pluralize(result.Count)),

@@ -81,11 +81,17 @@ namespace AnalysisManager.Core.Models
         public static class Placeholders
         {
             public const string EmptyField = "[NO RESULT]";
+            public const string RemovedField = "[REMOVED]";
         }
 
         public static class ReservedCharacters
         {
             public const char AnnotationTableCellDelimiter = '|';
+        }
+
+        public static class FieldDetails
+        {
+            public const string MacroButtonName = "AnalysisManager";
         }
 
         /// <summary>
@@ -171,6 +177,14 @@ namespace AnalysisManager.Core.Models
         {
             public const int Rows = 0;
             public const int Columns = 1;
+        }
+
+        public static class CodeFileActionTask
+        {
+            public const int NoAction = 0;
+            public const int ChangeFile = 1;
+            public const int RemoveAnnotations = 2;
+            public const int ReAddFile = 3;
         }
     }
 }

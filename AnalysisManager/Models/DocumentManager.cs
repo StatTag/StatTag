@@ -15,32 +15,31 @@ namespace AnalysisManager.Models
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and annotations.
     /// </summary>
-    public class DocumentManager
+    public class DocumentManager : BaseManager
     {
         public List<CodeFile> Files { get; set; }
         public FieldCreator FieldManager { get; set; }
-        public LogManager Logger { get; set; }
+        public AnnotationManager AnnotationManager { get; set; }
 
         public const string ConfigurationAttribute = "Analysis Manager Configuration";
-        public const string MacroButtonName = "AnalysisManager";
 
         public DocumentManager()
         {
             Files = new List<CodeFile>();
             FieldManager = new FieldCreator();
+            AnnotationManager = new AnnotationManager(this);
         }
 
         /// <summary>
         /// Provider a wrapper to check if a variable exists in the document.
         /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        /// <remarks>Needed because Word interop doesn't provide a nice check mechanism, and uses exceptions instead.</remarks>
+        /// <param name="variable">The variable to check</param>
+        /// <returns>True if a variable exists and has a value, false otherwise</returns>
         protected bool DocumentVariableExists(Variable variable)
         {
-            // The Word interop doesn't provide a nice check mechanism, and uses exceptions instead.
             try
             {
-
                 var value = variable.Value;
                 return true;
             }
@@ -168,6 +167,7 @@ namespace AnalysisManager.Models
         /// </summary>
         /// <param name="annotationUpdatePair"></param>
         /// <returns></returns>
+        /// TODO: Move to utility class and write tests
         private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
         {
             if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
@@ -215,14 +215,14 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!IsAnalysisManagerField(field))
+                if (!AnnotationManager.IsAnalysisManagerField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
                 Log("Processing Analysis Manager field");
-                var fieldAnnotation = GetFieldAnnotation(field);
+                var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
                 if (fieldAnnotation == null)
                 {
                     Log("The field annotation is null or could not be found");
@@ -305,8 +305,10 @@ namespace AnalysisManager.Models
         /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.
         /// The reaason this is an Annotation and not a FieldAnnotation is that the function is only called after a change to the main annotation reference.
         /// If not specified, all annotation fields will be updated</param>
+        /// <param name="matchOnPosition">If set to true, an annotation will only be matched if its line numbers (in the code file) are a match.  This is used when updating
+        /// after disambiguating two annotations with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null)
+        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null, bool matchOnPosition = false)
         {
             Log("UpdateFields - Started");
 
@@ -341,14 +343,14 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (!IsAnalysisManagerField(field))
+                    if (!AnnotationManager.IsAnalysisManagerField(field))
                     {
                         Marshal.ReleaseComObject(field);
                         continue;
                     }
 
                     Log("Processing Analysis Manager field");
-                    var annotation = GetFieldAnnotation(field);
+                    var annotation = AnnotationManager.GetFieldAnnotation(field);
                     if (annotation == null)
                     {
                         Log("The field annotation is null or could not be found");
@@ -360,14 +362,16 @@ namespace AnalysisManager.Models
                     // annotation specifically.  Otherwise, we will process all annotation fields.
                     if (annotationUpdatePair != null)
                     {
-                        if (!annotation.Equals(annotationUpdatePair.Old))
+                        // Determine if this is a match, factoring in if we should be doing a more exact match on the annotation.
+                        if ((!matchOnPosition && !annotation.Equals(annotationUpdatePair.Old))
+                            || matchOnPosition && !annotation.EqualsWithPosition(annotationUpdatePair.Old))
                         {
                             continue;
                         }
 
                         Log(string.Format("Processing only a specific annotation with label: {0}", annotationUpdatePair.New.OutputLabel));
-                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation.TableCellIndex);
-                        UpdateAnnotationFieldData(field, annotation);
+                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation);
+                        AnnotationManager.UpdateAnnotationFieldData(field, annotation);
                     }
 
                     Log(string.Format("Inserting field for annotation: {0}", annotation.OutputLabel));
@@ -534,6 +538,12 @@ namespace AnalysisManager.Models
             Log("InsertTable - Finished");
         }
 
+        /// <summary>
+        /// Helper method to insert a new line in the document at the current selection,
+        /// and then move the cursor down.  This gives us a way to insert extra space
+        /// after a table is inserted.
+        /// </summary>
+        /// <param name="selection">The selection to insert the new line after.</param>
         protected void InsertNewLineAndMoveDown(Selection selection)
         {
             selection.Collapse(WdCollapseDirection.wdCollapseEnd);
@@ -681,11 +691,18 @@ namespace AnalysisManager.Models
             Log("InsertField - Finished");
         }
 
+        /// <summary>
+        /// Insert an Analysis Manager field at the currently specified document range.
+        /// </summary>
+        /// <param name="range">The range to insert the field at</param>
+        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="displayValue">The value that should display when the field is shown.</param>
+        /// <param name="annotation">The annotation to be inserted</param>
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
         {
             Log("CreateAnnotationField - Started");
             var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
-                MacroButtonName, displayValue, annotationIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
+                Constants.FieldDetails.MacroButtonName, displayValue, annotationIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
             Log(string.Format("Inserted field with identifier {0} and display value {1}", annotationIdentifier, displayValue));
 
             var dataField = fields[0];
@@ -693,123 +710,16 @@ namespace AnalysisManager.Models
             Log("CreateAnnotationField - Finished");
         }
 
+        /// <summary>
+        /// Insert an Analysis Manager field at the currently specified document range.
+        /// </summary>
+        /// <param name="range">The range to insert the field at</param>
+        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="displayValue">The value that should display when the field is shown.</param>
+        /// <param name="annotation">The annotation to be inserted</param>
         protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
         {
             CreateAnnotationField(range, annotationIdentifier, displayValue, new FieldAnnotation(annotation));
-        }
-
-        /// <summary>
-        /// Find the master reference of an annotation, which is contained in the code files
-        /// associated with the current document
-        /// </summary>
-        /// <param name="annotation">The annotation to find</param>
-        /// <returns></returns>
-        public Annotation FindAnnotation(Annotation annotation)
-        {
-            return FindAnnotation(annotation.Id);
-        }
-
-        /// <summary>
-        /// Find the master reference of an annotation, which is contained in the code files
-        /// associated with the current document
-        /// </summary>
-        /// <param name="id">The annotation identifier to search for</param>
-        /// <returns></returns>
-        public Annotation FindAnnotation(string id)
-        {
-            if (Files == null)
-            {
-                Log("Unable to find an annotation because the Files collection is null");
-                return null;
-            }
-
-            return Files.SelectMany(file => file.Annotations).FirstOrDefault(annotation => annotation.Id.Equals(id));
-        }
-
-        /// <summary>
-        /// For all of the code files associated with the current document, get all of the
-        /// annotations as a single list.
-        /// </summary>
-        /// <returns></returns>
-        public List<Annotation> GetAnnotations()
-        {
-            var annotations = new List<Annotation>();
-            Files.ForEach(file => annotations.AddRange(file.Annotations));
-            return annotations;
-        }
-
-        /// <summary>
-        /// Update the annotation data in a field.
-        /// </summary>
-        /// <remarks>Assumes that the field parameter is known to be an annotation field</remarks>
-        /// <param name="field">The field to update.  This is the outermost layer of the annotation field.</param>
-        /// <param name="annotation">The annotation to be updated.</param>
-        private void UpdateAnnotationFieldData(Field field, FieldAnnotation annotation)
-        {
-            var code = field.Code;
-            var nestedField = code.Fields[1];
-            nestedField.Data = annotation.Serialize();
-            Marshal.ReleaseComObject(nestedField);
-            Marshal.ReleaseComObject(code);
-        }
-
-        /// <summary>
-        /// Given a Word field, determine if it is our specialized Analysis Manager field type given
-        /// its composition.
-        /// </summary>
-        /// <param name="field"></param>
-        /// <returns></returns>
-        public bool IsAnalysisManagerField(Field field)
-        {
-            return (field != null
-                && field.Type == WdFieldType.wdFieldMacroButton
-                && field.Code != null && field.Code.Text.Contains(MacroButtonName)
-                && field.Code.Fields.Count > 0);
-        }
-
-        /// <summary>
-        /// Determine if a field is a linked field.  While linked fields can take on various forms, we
-        /// use them in Analysis Manager to represent images.
-        /// </summary>
-        /// <param name="field"></param>
-        /// <returns></returns>
-        public bool IsLinkedField(Field field)
-        {
-            return (field != null
-                    && field.Type == WdFieldType.wdFieldLink);
-        }
-
-        /// <summary>
-        /// Deserialize a field to extract the FieldAnnotation data
-        /// </summary>
-        /// <param name="field"></param>
-        /// <returns></returns>
-        public FieldAnnotation DeserializeFieldAnnotation(Field field)
-        {
-            var code = field.Code;
-            var nestedField = code.Fields[1];
-            var fieldAnnotation = FieldAnnotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture));
-            Marshal.ReleaseComObject(nestedField);
-            Marshal.ReleaseComObject(code);
-
-            return fieldAnnotation;
-        }
-
-        /// <summary>
-        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
-        /// associated with it.
-        /// </summary>
-        /// <param name="field">The Word field object to investigate</param>
-        /// <returns></returns>
-        public FieldAnnotation GetFieldAnnotation(Field field)
-        {
-            var fieldAnnotation = DeserializeFieldAnnotation(field);
-            var annotation = FindAnnotation(fieldAnnotation);
-
-            // The result of FindAnnotation is going to be a document-level annotation, not a
-            // cell specific one that exists as a field.  We need to re-set the cell index
-            // from the annotation we found, to ensure it's available for later use.
-            return new FieldAnnotation(annotation, fieldAnnotation.TableCellIndex);
         }
 
         /// <summary>
@@ -891,7 +801,7 @@ namespace AnalysisManager.Models
                 // Now that the code file has been updated, we need to add the annotation.  This may
                 // be a new annotation, or an updated one.
                 codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
-                codeFile.Save();   
+                codeFile.Save();
             }
         }
 
@@ -907,29 +817,131 @@ namespace AnalysisManager.Models
             }
         }
 
-        /// <summary>
-        /// Wrapper around a LogManager instance.  Since logging is not always enabled/available for this object
-        /// the wrapper only writes if a logger is accessible.
-        /// </summary>
-        /// <param name="text"></param>
-        protected void Log(string text)
+        public void EditAnnotationField(Field field)
         {
-            if (Logger != null)
+            if (AnnotationManager.IsAnalysisManagerField(field))
             {
-                Logger.WriteMessage(text);
+                var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
+                var annotation = AnnotationManager.FindAnnotation(fieldAnnotation);
+                EditAnnotation(annotation);
             }
         }
 
         /// <summary>
-        /// Wrapper around a LogManager instance.  Since logging is not always enabled/available for this object
-        /// the wrapper only writes if a logger is accessible.
+        /// Conduct an assessment of the active document to see if there are any inserted
+        /// annotations that do not have an associated code file in the document.
         /// </summary>
-        /// <param name="exc"></param>
-        protected void LogException(Exception exc)
+        /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
+        public void PerformDocumentCheck(bool onlyShowDialogIfResultsFound = false)
         {
-            if (Logger != null)
+            var unlinkedResults = AnnotationManager.FindAllUnlinkedAnnotations();
+            var duplicateResults = AnnotationManager.FindAllDuplicateAnnotations();
+            if (onlyShowDialogIfResultsFound 
+                && (unlinkedResults == null || unlinkedResults.Count == 0)
+                && (duplicateResults == null || duplicateResults.Count == 0))
             {
-                Logger.WriteException(exc);
+                return;
+            }
+
+            var dialog = new CheckDocument(unlinkedResults, duplicateResults, Files);
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                UpdateUnlinkedAnnotationsByAnnotation(dialog.UnlinkedAnnotationUpdates);
+                UpdateRenamedAnnotations(dialog.DuplicateAnnotationUpdates);
+            }
+        }
+
+        #region Wrappers around AnnotationManager calls
+        public Dictionary<string, List<Annotation>> FindAllUnlinkedAnnotations()
+        {
+            return AnnotationManager.FindAllUnlinkedAnnotations();
+        }
+
+        public List<Annotation> GetAnnotations()
+        {
+            return AnnotationManager.GetAnnotations();
+        }
+
+        public Annotation FindAnnotation(string id)
+        {
+            return AnnotationManager.FindAnnotation(id);
+        }
+        #endregion
+
+        /// <summary>
+        /// If code files become unlinked in the document, this method is used to resolve those annotations/fields
+        /// already in the document that refer to the unlinked code file.  It applies a set of actions to ALL of
+        /// the annotations in the document for a code file.
+        /// </summary>
+        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByAnnotation">UpdateUnlinkedAnnotationsByAnnotation</see>
+        /// if you want to perform actions on individual annotations.
+        /// </remarks>
+        /// <param name="actions"></param>
+        public void UpdateUnlinkedAnnotationsByCodeFile(Dictionary<string, CodeFileAction> actions)
+        {
+            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByCodeFile, actions);
+        }
+
+        /// <summary>
+        /// When reviewing all of the annotations/fields in a document for those that have unlinked code files, duplicate
+        /// names, etc., this method is used to resolve the errors in those annotations/fields.  It applies individual actions
+        /// to each annotation in the document.
+        /// </summary>
+        /// <remarks>Some of the actions may in fact affect multiple annotations.  For example, re-linking the code file
+        /// to the document for a single annotation has the effect of re-linking it for all related annotations.</remarks>
+        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByCodeFile">UpdateUnlinkedAnnotationsByCodeFile</see>
+        /// if you want to process all annotations in a code file with a single action.
+        /// </remarks>
+        /// <param name="actions"></param>
+        public void UpdateUnlinkedAnnotationsByAnnotation(Dictionary<string, CodeFileAction> actions)
+        {
+            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByAnnotation, actions);
+        }
+
+        /// <summary>
+        /// Add a code file reference to our master list of files in the document.  This should be used when
+        /// discovering code files to link to the document.
+        /// </summary>
+        /// <param name="fileName"></param>
+        public void AddCodeFile(string fileName)
+        {
+            if (Files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                Log(string.Format("Code file {0} already exists and won't be added again", fileName));
+                return;
+            }
+
+            string package = CodeFile.GuessStatisticalPackage(fileName);
+            var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
+            file.LoadAnnotationsFromContent();
+            file.SaveBackup();
+            Files.Add(file);
+            Log(string.Format("Added code file {0}", fileName));
+        }
+
+        private void UpdateRenamedAnnotations(List<UpdatePair<Annotation>> updates)
+        {
+            var affectedCodeFiles = new List<CodeFile>();
+            foreach (var update in updates)
+            {
+                // We assume that updates never affect the code file - we don't give users a way to specify
+                // in the UI to change a code file - so we just take the old code file reference to use.
+                var codeFile = update.Old.CodeFile;
+
+                if (!affectedCodeFiles.Contains(update.Old.CodeFile))
+                {
+                    affectedCodeFiles.Add(update.Old.CodeFile);
+                }
+                UpdateFields(update, true);
+
+                // Add the annotation to the code file - replacing the old one.  Note that we require the
+                // exact line match, so we don't accidentally replace the wrong duplicate named annotation.
+                codeFile.AddAnnotation(update.New, update.Old, true);
+            }
+
+            foreach (var codeFile in affectedCodeFiles)
+            {
+                codeFile.Save();
             }
         }
     }

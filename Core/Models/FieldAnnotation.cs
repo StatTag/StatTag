@@ -20,6 +20,30 @@ namespace AnalysisManager.Core.Models
     {
         public int? TableCellIndex { get; set; }
 
+        /// <summary>
+        /// Shortcut to the file path of the CodeFile.  This is used for serialization.
+        /// </summary>
+        public string CodeFilePath
+        {
+            get
+            {
+                if (CodeFile != null)
+                {
+                    return CodeFile.FilePath;
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                if (CodeFile == null)
+                {
+                    CodeFile = new CodeFile() { FilePath = value };
+                }
+            }
+        }
+
         public FieldAnnotation()
             : base()
         {
@@ -36,6 +60,14 @@ namespace AnalysisManager.Core.Models
             : base(annotation)
         {
             TableCellIndex = tableCellIndex;
+            SetCachedValue();
+        }
+
+        public FieldAnnotation(Annotation annotation, FieldAnnotation fieldAnnotation)
+            : base(annotation ?? fieldAnnotation)
+        {
+            TableCellIndex = fieldAnnotation.TableCellIndex;
+            CodeFilePath = fieldAnnotation.CodeFilePath;
             SetCachedValue();
         }
 
@@ -59,12 +91,36 @@ namespace AnalysisManager.Core.Models
         /// Create a new Annotation object given a JSON string
         /// </summary>
         /// <param name="json"></param>
+        /// <param name="files"></param>
         /// <returns></returns>
-        public new static FieldAnnotation Deserialize(string json)
+        public new static FieldAnnotation Deserialize(string json, IEnumerable<CodeFile> files = null)
         {
             var annotation = JsonConvert.DeserializeObject<FieldAnnotation>(json);
             annotation.OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
+            LinkToCodeFile(annotation, files);
             return annotation;
+        }
+
+        /// <summary>
+        /// Provide a link to a FieldAnnotation from a list of CodeFile objects
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <param name="files"></param>
+        public static void LinkToCodeFile(FieldAnnotation annotation, IEnumerable<CodeFile> files)
+        {
+            if (annotation == null || files == null)
+            {
+                return;
+            }
+
+            foreach (var file in files)
+            {
+                if (annotation.CodeFilePath.Equals(file.FilePath))
+                {
+                    annotation.CodeFile = file;
+                    return;
+                }
+            }
         }
 
         /// <summary>

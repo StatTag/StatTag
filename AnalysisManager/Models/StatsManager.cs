@@ -10,6 +10,9 @@ using Stata;
 
 namespace AnalysisManager.Models
 {
+    /// <summary>
+    /// Manages the execution of code files in the correct statistical package.
+    /// </summary>
     public class StatsManager
     {
         /// <summary>
@@ -70,7 +73,7 @@ namespace AnalysisManager.Models
                 try
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
-                    var steps = parser.GetExecutionSteps(file.LoadFileContent(), filterMode, annotationsToRun);
+                    var steps = parser.GetExecutionSteps(file, filterMode, annotationsToRun);
                     //foreach (var step in steps)
                     for (int index = 0; index < steps.Count; index++)
                     {

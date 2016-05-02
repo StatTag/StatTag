@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AnalysisManager.Core.Interfaces;
 using Newtonsoft.Json;
 
 namespace AnalysisManager.Core.Models
@@ -14,7 +15,6 @@ namespace AnalysisManager.Core.Models
     {
         [JsonIgnore]
         public CodeFile CodeFile { get; set; }
-        public string Id { get; set; }
         public string Type { get; set; }
         public string OutputLabel { get; set; }
         public string RunFrequency { get; set; }
@@ -22,6 +22,14 @@ namespace AnalysisManager.Core.Models
         public FigureFormat FigureFormat { get; set; }
         public TableFormat TableFormat { get; set; }
         public List<CommandResult> CachedResult { get; set; }
+
+        public string Id
+        {
+            get
+            {
+                return string.Format("{0}--{1}", OutputLabel, (CodeFile == null ? string.Empty : CodeFile.FilePath));
+            }
+        }
 
         /// <summary>
         /// Format the results for the annotation.  This method assumes that the annotation has
@@ -68,7 +76,6 @@ namespace AnalysisManager.Core.Models
 
         public Annotation()
         {
-            Id = Guid.NewGuid().ToString();
         }
 
         public Annotation(Annotation annotation)
@@ -79,7 +86,6 @@ namespace AnalysisManager.Core.Models
             }
 
             CodeFile = annotation.CodeFile;
-            Id = annotation.Id;
             Type = annotation.Type;
             OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
             RunFrequency = annotation.RunFrequency;
@@ -121,14 +127,27 @@ namespace AnalysisManager.Core.Models
                 return false;
             }
 
-            return Id.Equals(annotation.Id);
-            //return string.Equals(OutputLabel, annotation.OutputLabel) && string.Equals(Type, annotation.Type);
+            if (!OutputLabel.Equals(annotation.OutputLabel))
+            {
+                return false;
+            }
+            
+            // Now check for equality, considering if CodeFile values are null
+            if (CodeFile == null && annotation.CodeFile == null)
+            {
+                return true;
+            }
+            else if (CodeFile == null || annotation.CodeFile == null)
+            {
+                return false;
+            }
+
+            return CodeFile.Equals(annotation.CodeFile);
         }
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
-            //return ((OutputLabel != null && Type != null) ? (string.Format("{0}--{1}", OutputLabel, Type)).GetHashCode() : 0);
+            return ((OutputLabel != null && CodeFile != null) ? (string.Format("{0}--{1}", OutputLabel, CodeFile.FilePath)).GetHashCode() : 0);
         }
 
         public override string ToString()
@@ -144,6 +163,24 @@ namespace AnalysisManager.Core.Models
             }
 
             return base.ToString();
+        }
+
+        public bool Equals(Annotation other, bool usePosition)
+        {
+            return (usePosition) ? this.EqualsWithPosition(other) : this.Equals(other);
+        }
+
+        /// <summary>
+        /// A more specialized version of Equals that takes into account line numbers.  This is used when trying
+        /// to disambiguate annotations that have the same label in the same code file.
+        /// </summary>
+        /// <param name="annotation"></param>
+        /// <returns></returns>
+        public bool EqualsWithPosition(Annotation annotation)
+        {
+            return (this.Equals(annotation) &&
+                    this.LineStart == annotation.LineStart &&
+                    this.LineEnd == annotation.LineEnd);
         }
 
         /// <summary>
@@ -222,6 +259,26 @@ namespace AnalysisManager.Core.Models
             }
 
             return dimensions;
+        }
+
+        /// <summary>
+        /// Provide a string representation of the range of lines that this Annotation spans in
+        /// its code file.  If there is only one line, just that line number is returned.
+        /// </summary>
+        /// <returns></returns>
+        public string FormatLineNumberRange()
+        {
+            if (LineStart == 0 || LineEnd == 0)
+            {
+                return string.Empty;
+            }
+
+            if (LineStart == LineEnd)
+            {
+                return LineStart.ToString();
+            }
+
+            return string.Format("{0} - {1}", LineStart, LineEnd);
         }
     }
 }

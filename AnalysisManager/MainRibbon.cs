@@ -45,10 +45,20 @@ namespace AnalysisManager
         {
             try
             {
-                var dialog = new LoadAnalysisCode(Manager, Manager.Files);
-                if (DialogResult.OK == dialog.ShowDialog())
+                var loadDialog = new LoadAnalysisCode(Manager, Manager.Files);
+                if (DialogResult.OK == loadDialog.ShowDialog())
                 {
-                    Manager.Files = dialog.Files;
+                    Manager.Files = loadDialog.Files;
+
+                    var unlinkedResults = Manager.FindAllUnlinkedAnnotations();
+                    if (unlinkedResults != null && unlinkedResults.Count > 0)
+                    {
+                        var linkDialog = new LinkCodeFiles(unlinkedResults, Manager.Files);
+                        if (DialogResult.OK == linkDialog.ShowDialog())
+                        {
+                            Manager.UpdateUnlinkedAnnotationsByCodeFile(linkDialog.CodeFileUpdates);
+                        }
+                    }
                 }
             }
             catch (Exception exc)
@@ -87,7 +97,7 @@ namespace AnalysisManager
                 try
                 {
                     var updatedAnnotations = new List<Annotation>();
-                    var refreshedFiles = new HashSet<CodeFile>();
+                    var refreshedFiles = new List<CodeFile>();
                     var annotations = dialog.GetSelectedAnnotations();
                     foreach (var annotation in annotations)
                     {
@@ -165,7 +175,7 @@ namespace AnalysisManager
             {
                 // First, go through and update all of the code files to ensure we have all
                 // refreshed annotations.
-                var refreshedFiles = new HashSet<CodeFile>();
+                var refreshedFiles = new List<CodeFile>();
                 foreach (var codeFile in Manager.Files)
                 {
                     if (!refreshedFiles.Contains(codeFile))
@@ -194,6 +204,25 @@ namespace AnalysisManager
             finally
             {
                 Globals.ThisAddIn.Application.ScreenUpdating = true;
+                Cursor.Current = Cursors.Default;
+            }
+        }
+
+        private void cmdValidateDocument_Click(object sender, RibbonControlEventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                Manager.PerformDocumentCheck();
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when performing a validity check on this document.",
+                    LogManager);
+            }
+            finally
+            {
                 Cursor.Current = Cursors.Default;
             }
         }
