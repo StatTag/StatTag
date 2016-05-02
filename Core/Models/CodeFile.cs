@@ -292,8 +292,11 @@ namespace AnalysisManager.Core.Models
         /// </summary>
         /// <param name="newAnnotation"></param>
         /// <param name="oldAnnotation"></param>
+        /// <param name="matchWithPosition">When looking to replace an existing annotation (which assumes that oldAnnotation is
+        /// specified), this parameter when set to true will only replace the annotation if the line numbers match.  This is to
+        /// be used when updating duplicate named annotations, but shouldn't be used otherwise.</param>
         /// <returns></returns>
-        public Annotation AddAnnotation(Annotation newAnnotation, Annotation oldAnnotation = null)
+        public Annotation AddAnnotation(Annotation newAnnotation, Annotation oldAnnotation = null, bool matchWithPosition = false)
         {
             // Do some sanity checking before modifying anything
             if (newAnnotation == null || !newAnnotation.LineStart.HasValue || !newAnnotation.LineEnd.HasValue)
@@ -310,8 +313,9 @@ namespace AnalysisManager.Core.Models
             var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
             if (oldAnnotation != null)
             {
-                var refreshedOldAnnotation = Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation));
-
+                //var refreshedOldAnnotation = (matchWithPosition ? Annotations.FirstOrDefault(annotation => oldAnnotation.EqualsWithPosition(annotation)) : Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation)));
+                var refreshedOldAnnotation =
+                    Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation, matchWithPosition));
                 if (refreshedOldAnnotation == null)
                 {
                     throw new InvalidDataException("Unable to find the existing annotation to update.");
@@ -346,7 +350,10 @@ namespace AnalysisManager.Core.Models
                     updatedAnnotation.LineEnd -= 1;
                 }
 
-                Annotations.Remove(refreshedOldAnnotation);
+                var index = Annotations.FindIndex(x => x.Equals(refreshedOldAnnotation, matchWithPosition));
+                Annotations.RemoveAt(index);
+                //var index = Annotations.FindIndex(x => (matchWithPosition) ? x.EqualsWithPosition(refreshedOldAnnotation) : x.Equals(refreshedOldAnnotation));
+                //Annotations.RemoveAt(index);
             }
 
             var generator = Factories.GetGenerator(this);
@@ -359,71 +366,41 @@ namespace AnalysisManager.Core.Models
             return updatedAnnotation;
         }
 
-        ///// <summary>
-        ///// Adds an annotation to the code file.  If the annotation already exists, the annotation
-        ///// is updated within the file.
-        ///// </summary>
-        ///// <param name="annotation"></param>
-        ///// <param name="oldAnnotation"></param>
-        ///// <returns></returns>
-        //public Annotation AddAnnotation(Annotation annotation, Annotation oldAnnotation = null)
-        //{
-        //    // Do some sanity checking before modifying anything
-        //    if (annotation == null || !annotation.LineStart.HasValue || !annotation.LineEnd.HasValue)
-        //    {
-        //        return null;
-        //    }
+        /// <summary>
+        /// Look at all of the annotations that are defined within this code file, and create a list
+        /// of any annotations that have duplicate names.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<Annotation, List<Annotation>> FindDuplicateAnnotations()
+        {
+            var duplicates = new Dictionary<Annotation, List<Annotation>>();
+            if (Annotations == null)
+            {
+                return duplicates;
+            }
 
-        //    if (annotation.LineStart > annotation.LineEnd)
-        //    {
-        //        throw new InvalidDataException("The new annotation start index is after the end index, which is not allowed.");
-        //    }
+            var distinct = new Dictionary<string, Annotation>();
+            foreach (var annotation in Annotations)
+            {
+                var searchLabel = annotation.OutputLabel.ToUpper();
 
-        //    var updatedAnnotation = new Annotation(annotation);
-        //    var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
-        //    if (oldAnnotation != null)
-        //    {
-        //        if (oldAnnotation.LineStart > oldAnnotation.LineEnd)
-        //        {
-        //            throw new InvalidDataException("The existing annotation start index is after the end index, which is not allowed.");
-        //        }
-
-        //        // Remove the starting annotation and then adjust indices as appropriate
-        //        ContentCache.RemoveAt(oldAnnotation.LineStart.Value);
-        //        if (updatedAnnotation.LineStart > oldAnnotation.LineStart)
-        //        {
-        //            updatedAnnotation.LineStart -= 1;
-        //            updatedAnnotation.LineEnd -= 1;  // We know line end >= line start
-        //        }
-        //        else if (updatedAnnotation.LineEnd > oldAnnotation.LineStart)
-        //        {
-        //            updatedAnnotation.LineEnd -= 1;
-        //        }
-
-        //        oldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
-        //        ContentCache.RemoveAt(oldAnnotation.LineEnd.Value);
-        //        if (updatedAnnotation.LineStart > oldAnnotation.LineEnd)
-        //        {
-        //            updatedAnnotation.LineStart -= 1;
-        //            updatedAnnotation.LineEnd -= 1;
-        //        }
-        //        else if (updatedAnnotation.LineEnd >= oldAnnotation.LineEnd)
-        //        {
-        //            updatedAnnotation.LineEnd -= 1;
-        //        }
-
-        //        Annotations.Remove(oldAnnotation);
-        //    }
-
-        //    var generator = Factories.GetGenerator(this);
-        //    ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
-        //    updatedAnnotation.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
-        //    ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
-
-        //    // Add to our collection of annotations
-        //    Annotations.Add(updatedAnnotation);
-        //    return updatedAnnotation;
-        //}
+                // See if we already have this in the distinct list of annotation names
+                if (distinct.ContainsKey(searchLabel))
+                {
+                    // If the duplicates collection hasn't been initialized, we will do that now.
+                    if (!duplicates.ContainsKey(distinct[searchLabel]))
+                    {
+                        duplicates.Add(distinct[searchLabel], new List<Annotation>());
+                    }
+                    duplicates[distinct[searchLabel]].Add(annotation);
+                }
+                else
+                {
+                    distinct.Add(annotation.OutputLabel.ToUpper(), annotation);
+                }
+            }
+            return duplicates;
+        }
 
         /// <summary>
         /// Given the content passed as a parameter, this method updates the file on disk with the new

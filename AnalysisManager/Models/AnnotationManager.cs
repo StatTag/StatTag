@@ -131,6 +131,26 @@ namespace AnalysisManager.Models
             return new FieldAnnotation(annotation, fieldAnnotation);
         }
 
+        public DuplicateAnnotationResults FindAllDuplicateAnnotations()
+        {
+            var duplicateAnnotations = new DuplicateAnnotationResults();
+            foreach (var file in DocumentManager.Files)
+            {
+                var result = file.FindDuplicateAnnotations();
+                if (result != null && result.Count > 0)
+                {
+                    duplicateAnnotations.Add(file, result);
+                }
+            }
+
+            return duplicateAnnotations;
+        }
+
+        /// <summary>
+        /// Search the active Word document and find all inserted annotations.  Determine if the annotation's
+        /// code file is linked to this document, and report those that are not.
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, List<Annotation>> FindAllUnlinkedAnnotations()
         {
             Log("FindAllUnlinkedAnnotations - Started");
