@@ -29,6 +29,15 @@ namespace AnalysisManager.Core.Parser
         public abstract bool IsTableResult(string command);
         public abstract string GetTableName(string command);
 
+        /// <summary>
+        /// Perform any necessary pre-processing on the original code file content in order
+        /// to allow it to be executed.  This may change the number of lines, so don't assume
+        /// that the output will have a 1:1 line mapping from the original.
+        /// </summary>
+        /// <param name="originalContent">The contents as read from the code file</param>
+        /// <returns>A list of strings representing the code that should be executed</returns>
+        public abstract List<string> PreProcessContent(List<string> originalContent);
+
         protected Match DetectAnnotation(Regex annotationRegex, string line)
         {
             if (line == null)
@@ -116,7 +125,7 @@ namespace AnalysisManager.Core.Parser
             List<Annotation> annotationsToRun = null)
         {
             var executionSteps = new List<ExecutionStep>();
-            var lines = file.LoadFileContent();
+            var lines = PreProcessContent(file.LoadFileContent());
             if (lines == null || lines.Count == 0)
             {
                 return executionSteps;
@@ -178,7 +187,7 @@ namespace AnalysisManager.Core.Parser
                         isSkipping = false;
                         startIndex = null;
 
-                        if (!isSkipping && step.Code.Count > 0)
+                        if (step.Code.Count > 0)
                         {
                             executionSteps.Add(step);
                         }

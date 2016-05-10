@@ -27,6 +27,7 @@ namespace AnalysisManager.Core.Parser
         private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
         private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
+        private static Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -167,6 +168,24 @@ namespace AnalysisManager.Core.Parser
 
             var results = matches.OfType<Match>().Select(match => match.Groups[groupNum].Value.Trim()).ToList();
             return results.ToArray();
+        }
+
+        /// <summary>
+        /// To prepare for use, we need to collapse down some of the text.  This includes:
+        ///  - Collapsing commands that span multiple lines into a single line
+        /// </summary>
+        /// <param name="originalContent"></param>
+        /// <returns></returns>
+        public override List<string> PreProcessContent(List<string> originalContent)
+        {
+            if (originalContent == null || originalContent.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            var originalText = string.Join("\r\n", originalContent);
+            var modifiedText = MultiLineIndicator.Replace(originalText, " ");
+            return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
         }
     }
 }

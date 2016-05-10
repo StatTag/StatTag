@@ -72,8 +72,6 @@ namespace AnalysisManager.Core.Models
             }
 
             return (string.Compare(item.FilePath, FilePath, StringComparison.CurrentCultureIgnoreCase) == 0);
-
-            //return item.FilePath.Equals(FilePath, StringComparison.CurrentCultureIgnoreCase);
         }
 
         /// <summary>

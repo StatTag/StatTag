@@ -58,6 +58,11 @@ namespace Core.Tests.Parser
             {
                 throw new NotImplementedException();
             }
+
+            public override List<string> PreProcessContent(List<string> originalContent)
+            {
+                return originalContent;
+            }
         }
 
         [TestMethod]

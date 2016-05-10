@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AnalysisManager.Core.Parser;
 
@@ -181,6 +183,46 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetTableName("mat l test"));
             Assert.AreEqual("r(coefs)", parser.GetTableName("mat l r(coefs)"));
             Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
+        }
+
+        [TestMethod]
+        public void PreProcessContent_Empty()
+        {
+            var parser = new Stata();
+            Assert.AreEqual(0, parser.PreProcessContent(null).Count);
+            var emptyList = new List<string>();
+            Assert.AreEqual(0, parser.PreProcessContent(emptyList).Count);
+        }
+
+        [TestMethod]
+        public void PreProcessContent()
+        {
+            var testList = new List<string>(new string[]
+            {
+                "First line",
+                "Second line",
+                "Third line"
+            });
+
+            var parser = new Stata();
+            Assert.AreEqual(3, parser.PreProcessContent(testList).Count);
+
+            testList = new List<string>(new string[]
+            {
+                "First line",
+                "Second line ///",
+                "Third line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+
+
+            testList = new List<string>(new string[]
+            {
+                "First line ///",
+                "Second line ///",
+                "Third line ///"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
         }
     }
 }
