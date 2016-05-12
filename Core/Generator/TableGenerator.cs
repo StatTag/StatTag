@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Generator
+namespace StatTag.Core.Generator
 {
     public class TableGenerator : BaseParameterGenerator
     {
-        public string CreateParameters(Annotation annotation)
+        public string CreateParameters(Tag tag)
         {
             var builder = new StringBuilder();
-            builder.Append(GetLabelParameter(annotation));
-            builder.Append(GetRunFrequencyParameter(annotation));
-            builder.Append(CreateTableParameters(annotation));
+            builder.Append(GetLabelParameter(tag));
+            builder.Append(GetRunFrequencyParameter(tag));
+            builder.Append(CreateTableParameters(tag));
 
             return CleanResult(builder.ToString());
         }
 
-        public string CreateTableParameters(Annotation annotation)
+        public string CreateTableParameters(Tag tag)
         {
             var builder = new StringBuilder();
-            if (annotation.TableFormat != null)
+            if (tag.TableFormat != null)
             {
                 builder.AppendFormat("{0}={1}, {2}={3}",
-                    Constants.TableParameters.ColumnNames, annotation.TableFormat.IncludeColumnNames,
-                    Constants.TableParameters.RowNames, annotation.TableFormat.IncludeRowNames);
+                    Constants.TableParameters.ColumnNames, tag.TableFormat.IncludeColumnNames,
+                    Constants.TableParameters.RowNames, tag.TableFormat.IncludeRowNames);
             }
 
             return CleanResult(builder.ToString());

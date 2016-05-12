@@ -7,8 +7,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Models;
+using StatTag.Core.Parser;
 
 namespace Stata
 {
@@ -17,9 +17,9 @@ namespace Stata
         public const string LocalMacroPrefix = "_";
 
         /// <summary>
-        /// This is a special local macro name that is being used within Analysis Manager.
+        /// This is a special local macro name that is being used within StatTag.
         /// </summary>
-        public const string AnalysisManagerTempMacroName = "__am_tmp_display_value";
+        public const string StatTagTempMacroName = "__am_tmp_display_value";
 
         public const string DisablePagingCommand = "set more off";
 
@@ -28,7 +28,7 @@ namespace Stata
         public const string UnregisterParameter = "/Unregister";
 
         protected stata.StataOLEApp Application { get; set; }
-        protected AnalysisManager.Core.Parser.Stata Parser { get; set; }
+        protected StatTag.Core.Parser.Stata Parser { get; set; }
         protected List<string> OpenLogs { get; set; } 
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Stata
 
         public Automation()
         {
-            Parser = new AnalysisManager.Core.Parser.Stata();
+            Parser = new StatTag.Core.Parser.Stata();
         }
 
         /// <summary>
@@ -181,9 +181,9 @@ namespace Stata
             if (Parser.IsCalculatedDisplayValue(command))
             {
                 name = Parser.GetValueName(command);
-                command = string.Format("local {0} = {1}", AnalysisManagerTempMacroName, name);
+                command = string.Format("local {0} = {1}", StatTagTempMacroName, name);
                 RunCommand(command);
-                command = string.Format("display `{0}'", AnalysisManagerTempMacroName);
+                command = string.Format("display `{0}'", StatTagTempMacroName);
             }
 
             if (Parser.IsMacroDisplayValue(command))

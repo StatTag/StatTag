@@ -1,12 +1,12 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
-using AnalysisManager.Core.Interfaces;
+using StatTag.Core.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// A sequence of instructions saved in a text file that can be executed
@@ -21,7 +21,7 @@ namespace AnalysisManager.Core.Models
         public string FilePath { get; set; }
         public DateTime? LastCached { get; set; }
         [JsonIgnore]
-        public List<Annotation> Annotations { get; set; }
+        public List<Tag> Tags { get; set; }
 
         [JsonIgnore]
         public List<string> Content
@@ -49,7 +49,7 @@ namespace AnalysisManager.Core.Models
 
         protected void Initialize(IFileHandler handler)
         {
-            Annotations = new List<Annotation>();
+            Tags = new List<Tag>();
             FileHandler = handler ?? new FileHandler();
         }
 
@@ -95,19 +95,19 @@ namespace AnalysisManager.Core.Models
 
         /// <summary>
         /// Using the contents of this file, parse the instrutions and build the list
-        /// of annotations that are present and cache them for later use.
+        /// of tags that are present and cache them for later use.
         /// </summary>
-        public void LoadAnnotationsFromContent(bool preserveCache = true)
+        public void LoadTagsFromContent(bool preserveCache = true)
         {
-            Annotation[] savedAnnotations = null;
+            Tag[] savedTags = null;
             if (preserveCache)
             {
-                savedAnnotations = new Annotation[Annotations.Count];
-                Annotations.CopyTo(savedAnnotations);
+                savedTags = new Tag[Tags.Count];
+                Tags.CopyTo(savedTags);
             }
 
-            // Any time we try to load, reset the list of annotations that may exist
-            Annotations = new List<Annotation>();
+            // Any time we try to load, reset the list of tags that may exist
+            Tags = new List<Tag>();
 
             var content = LoadFileContent();
             if (content == null || !content.Any())
@@ -121,34 +121,34 @@ namespace AnalysisManager.Core.Models
                 return;
             }
 
-            Annotations = new List<Annotation>(parser.Parse(this).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
-            Annotations.ForEach(x => x.CodeFile = this);
+            Tags = new List<Tag>(parser.Parse(this).Where(x => !string.IsNullOrWhiteSpace(x.Type)));
+            Tags.ForEach(x => x.CodeFile = this);
 
             if (preserveCache)
             {
                 // Since we are reloading from a file, at this point if we had any cached results for
-                // an annotation we want to associate that back with the annotation.
-                foreach (var annotation in Annotations)
+                // an tag we want to associate that back with the tag.
+                foreach (var tag in Tags)
                 {
-                    SetCachedAnnotation(savedAnnotations, annotation);
+                    SetCachedTag(savedTags, tag);
                 }
             }
         }
 
         /// <summary>
-        /// Given a set of existing annotations (which are assumed to have cached results already set), update
-        /// the cached results in another annotation.
+        /// Given a set of existing tags (which are assumed to have cached results already set), update
+        /// the cached results in another tag.
         /// <remarks>This is used primarily when a code file is reloaded, which resets its collection
-        /// of annotations.  Those annotations will be valid, but will have their cached results reset.</remarks>
+        /// of tags.  Those tags will be valid, but will have their cached results reset.</remarks>
         /// </summary>
-        /// <param name="existingAnnotations">The annotations that have cached results</param>
-        /// <param name="annotation">The annotation that needs to receive results</param>
-        protected void SetCachedAnnotation(IEnumerable<Annotation> existingAnnotations, Annotation annotation)
+        /// <param name="existingTags">The tags that have cached results</param>
+        /// <param name="tag">The tag that needs to receive results</param>
+        protected void SetCachedTag(IEnumerable<Tag> existingTags, Tag tag)
         {
-            var existingAnnotation = existingAnnotations.FirstOrDefault(x => x.Equals(annotation));
-            if (existingAnnotation != null && existingAnnotation.CachedResult != null)
+            var existingTag = existingTags.FirstOrDefault(x => x.Equals(tag));
+            if (existingTag != null && existingTag.CachedResult != null)
             {
-                annotation.CachedResult = new List<CommandResult>(existingAnnotation.CachedResult);
+                tag.CachedResult = new List<CommandResult>(existingTag.CachedResult);
             }
         }
 
@@ -185,7 +185,7 @@ namespace AnalysisManager.Core.Models
 
         /// <summary>
         /// Utility method to take a JSON array string and convert it back into a list of
-        /// CodeFile objects.  This does not resolve the list of annotations that may be
+        /// CodeFile objects.  This does not resolve the list of tags that may be
         /// associated with the CodeFile.
         /// </summary>
         /// <param name="value"></param>
@@ -248,153 +248,153 @@ namespace AnalysisManager.Core.Models
         }
 
         /// <summary>
-        /// Removes an annotation from the file, and from the internal cache.
+        /// Removes an tag from the file, and from the internal cache.
         /// </summary>
-        /// <param name="annotation"></param>
-        public void RemoveAnnotation(Annotation annotation)
+        /// <param name="tag"></param>
+        public void RemoveTag(Tag tag)
         {
-            if (annotation == null)
+            if (tag == null)
             {
                 return;
             }
 
-            if (!Annotations.Remove(annotation))
+            if (!Tags.Remove(tag))
             {
                 // If the exact object doesn't match, then search by equality
-                var foundAnnotation = Annotations.Find(x => x.Equals(annotation));
-                if (foundAnnotation == null)
+                var foundTag = Tags.Find(x => x.Equals(tag));
+                if (foundTag == null)
                 {
                     return;
                 }
-                Annotations.Remove(foundAnnotation);
+                Tags.Remove(foundTag);
             }
 
-            ContentCache.RemoveAt(annotation.LineEnd.Value);
-            ContentCache.RemoveAt(annotation.LineStart.Value);
+            ContentCache.RemoveAt(tag.LineEnd.Value);
+            ContentCache.RemoveAt(tag.LineStart.Value);
 
-            // Any annotations below the one being removed need to be adjusted
-            foreach (var otherAnnotation in Annotations)
+            // Any tags below the one being removed need to be adjusted
+            foreach (var otherTag in Tags)
             {
-                // Annotations can't overlap, so we can simply check for the start after the end.
-                if (otherAnnotation.LineStart > annotation.LineEnd)
+                // Tags can't overlap, so we can simply check for the start after the end.
+                if (otherTag.LineStart > tag.LineEnd)
                 {
-                    otherAnnotation.LineStart -= 2;
-                    otherAnnotation.LineEnd -= 2;
+                    otherTag.LineStart -= 2;
+                    otherTag.LineEnd -= 2;
                 }
             }
         }
 
         /// <summary>
-        /// Updates or inserts an annotation in the file.  An update takes place only if oldAnnotation
-        /// is defined, and it is able to match that old annotation.
+        /// Updates or inserts an tag in the file.  An update takes place only if oldTag
+        /// is defined, and it is able to match that old tag.
         /// </summary>
-        /// <param name="newAnnotation"></param>
-        /// <param name="oldAnnotation"></param>
-        /// <param name="matchWithPosition">When looking to replace an existing annotation (which assumes that oldAnnotation is
-        /// specified), this parameter when set to true will only replace the annotation if the line numbers match.  This is to
-        /// be used when updating duplicate named annotations, but shouldn't be used otherwise.</param>
+        /// <param name="newTag"></param>
+        /// <param name="oldTag"></param>
+        /// <param name="matchWithPosition">When looking to replace an existing tag (which assumes that oldTag is
+        /// specified), this parameter when set to true will only replace the tag if the line numbers match.  This is to
+        /// be used when updating duplicate named tags, but shouldn't be used otherwise.</param>
         /// <returns></returns>
-        public Annotation AddAnnotation(Annotation newAnnotation, Annotation oldAnnotation = null, bool matchWithPosition = false)
+        public Tag AddTag(Tag newTag, Tag oldTag = null, bool matchWithPosition = false)
         {
             // Do some sanity checking before modifying anything
-            if (newAnnotation == null || !newAnnotation.LineStart.HasValue || !newAnnotation.LineEnd.HasValue)
+            if (newTag == null || !newTag.LineStart.HasValue || !newTag.LineEnd.HasValue)
             {
                 return null;
             }
 
-            if (newAnnotation.LineStart > newAnnotation.LineEnd)
+            if (newTag.LineStart > newTag.LineEnd)
             {
-                throw new InvalidDataException("The new annotation start index is after the end index, which is not allowed.");
+                throw new InvalidDataException("The new tag start index is after the end index, which is not allowed.");
             }
 
-            var updatedAnnotation = new Annotation(newAnnotation);
+            var updatedTag = new Tag(newTag);
             var content = Content;  // Force cache to load so we can reference it later w/o accessor overhead
-            if (oldAnnotation != null)
+            if (oldTag != null)
             {
-                //var refreshedOldAnnotation = (matchWithPosition ? Annotations.FirstOrDefault(annotation => oldAnnotation.EqualsWithPosition(annotation)) : Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation)));
-                var refreshedOldAnnotation =
-                    Annotations.FirstOrDefault(annotation => oldAnnotation.Equals(annotation, matchWithPosition));
-                if (refreshedOldAnnotation == null)
+                //var refreshedOldTag = (matchWithPosition ? Tags.FirstOrDefault(tag => oldTag.EqualsWithPosition(tag)) : Tags.FirstOrDefault(tag => oldTag.Equals(tag)));
+                var refreshedOldTag =
+                    Tags.FirstOrDefault(tag => oldTag.Equals(tag, matchWithPosition));
+                if (refreshedOldTag == null)
                 {
-                    throw new InvalidDataException("Unable to find the existing annotation to update.");
+                    throw new InvalidDataException("Unable to find the existing tag to update.");
                 }
 
-                if (refreshedOldAnnotation.LineStart > refreshedOldAnnotation.LineEnd)
+                if (refreshedOldTag.LineStart > refreshedOldTag.LineEnd)
                 {
-                    throw new InvalidDataException("The existing annotation start index is after the end index, which is not allowed.");
+                    throw new InvalidDataException("The existing tag start index is after the end index, which is not allowed.");
                 }
 
-                // Remove the starting annotation and then adjust indices as appropriate
-                ContentCache.RemoveAt(refreshedOldAnnotation.LineStart.Value);
-                if (updatedAnnotation.LineStart > refreshedOldAnnotation.LineStart)
+                // Remove the starting tag and then adjust indices as appropriate
+                ContentCache.RemoveAt(refreshedOldTag.LineStart.Value);
+                if (updatedTag.LineStart > refreshedOldTag.LineStart)
                 {
-                    updatedAnnotation.LineStart -= 1;
-                    updatedAnnotation.LineEnd -= 1;  // We know line end >= line start
+                    updatedTag.LineStart -= 1;
+                    updatedTag.LineEnd -= 1;  // We know line end >= line start
                 }
-                else if (updatedAnnotation.LineEnd > refreshedOldAnnotation.LineStart)
+                else if (updatedTag.LineEnd > refreshedOldTag.LineStart)
                 {
-                    updatedAnnotation.LineEnd -= 1;
-                }
-
-                refreshedOldAnnotation.LineEnd -= 1;  // Don't forget to adjust the old annotation index
-                ContentCache.RemoveAt(refreshedOldAnnotation.LineEnd.Value);
-                if (updatedAnnotation.LineStart > refreshedOldAnnotation.LineEnd)
-                {
-                    updatedAnnotation.LineStart -= 1;
-                    updatedAnnotation.LineEnd -= 1;
-                }
-                else if (updatedAnnotation.LineEnd >= refreshedOldAnnotation.LineEnd)
-                {
-                    updatedAnnotation.LineEnd -= 1;
+                    updatedTag.LineEnd -= 1;
                 }
 
-                var index = Annotations.FindIndex(x => x.Equals(refreshedOldAnnotation, matchWithPosition));
-                Annotations.RemoveAt(index);
-                //var index = Annotations.FindIndex(x => (matchWithPosition) ? x.EqualsWithPosition(refreshedOldAnnotation) : x.Equals(refreshedOldAnnotation));
-                //Annotations.RemoveAt(index);
+                refreshedOldTag.LineEnd -= 1;  // Don't forget to adjust the old tag index
+                ContentCache.RemoveAt(refreshedOldTag.LineEnd.Value);
+                if (updatedTag.LineStart > refreshedOldTag.LineEnd)
+                {
+                    updatedTag.LineStart -= 1;
+                    updatedTag.LineEnd -= 1;
+                }
+                else if (updatedTag.LineEnd >= refreshedOldTag.LineEnd)
+                {
+                    updatedTag.LineEnd -= 1;
+                }
+
+                var index = Tags.FindIndex(x => x.Equals(refreshedOldTag, matchWithPosition));
+                Tags.RemoveAt(index);
+                //var index = Tags.FindIndex(x => (matchWithPosition) ? x.EqualsWithPosition(refreshedOldTag) : x.Equals(refreshedOldTag));
+                //Tags.RemoveAt(index);
             }
 
             var generator = Factories.GetGenerator(this);
-            ContentCache.Insert(updatedAnnotation.LineStart.Value, generator.CreateOpenTag(updatedAnnotation));
-            updatedAnnotation.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
-            ContentCache.Insert(updatedAnnotation.LineEnd.Value, generator.CreateClosingTag());
+            ContentCache.Insert(updatedTag.LineStart.Value, generator.CreateOpenTag(updatedTag));
+            updatedTag.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
+            ContentCache.Insert(updatedTag.LineEnd.Value, generator.CreateClosingTag());
 
-            // Add to our collection of annotations
-            Annotations.Add(updatedAnnotation);
-            return updatedAnnotation;
+            // Add to our collection of tags
+            Tags.Add(updatedTag);
+            return updatedTag;
         }
 
         /// <summary>
-        /// Look at all of the annotations that are defined within this code file, and create a list
-        /// of any annotations that have duplicate names.
+        /// Look at all of the tags that are defined within this code file, and create a list
+        /// of any tags that have duplicate names.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<Annotation, List<Annotation>> FindDuplicateAnnotations()
+        public Dictionary<Tag, List<Tag>> FindDuplicateTags()
         {
-            var duplicates = new Dictionary<Annotation, List<Annotation>>();
-            if (Annotations == null)
+            var duplicates = new Dictionary<Tag, List<Tag>>();
+            if (Tags == null)
             {
                 return duplicates;
             }
 
-            var distinct = new Dictionary<string, Annotation>();
-            foreach (var annotation in Annotations)
+            var distinct = new Dictionary<string, Tag>();
+            foreach (var tag in Tags)
             {
-                var searchLabel = annotation.OutputLabel.ToUpper();
+                var searchLabel = tag.OutputLabel.ToUpper();
 
-                // See if we already have this in the distinct list of annotation names
+                // See if we already have this in the distinct list of tag names
                 if (distinct.ContainsKey(searchLabel))
                 {
                     // If the duplicates collection hasn't been initialized, we will do that now.
                     if (!duplicates.ContainsKey(distinct[searchLabel]))
                     {
-                        duplicates.Add(distinct[searchLabel], new List<Annotation>());
+                        duplicates.Add(distinct[searchLabel], new List<Tag>());
                     }
-                    duplicates[distinct[searchLabel]].Add(annotation);
+                    duplicates[distinct[searchLabel]].Add(tag);
                 }
                 else
                 {
-                    distinct.Add(annotation.OutputLabel.ToUpper(), annotation);
+                    distinct.Add(tag.OutputLabel.ToUpper(), tag);
                 }
             }
             return duplicates;
@@ -408,7 +408,7 @@ namespace AnalysisManager.Core.Models
         public void UpdateContent(string text)
         {
             FileHandler.WriteAllText(FilePath, text);
-            LoadAnnotationsFromContent();
+            LoadTagsFromContent();
         }
     }
 }

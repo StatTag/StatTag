@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Parser;
 
 namespace Core.Tests.Parser
 {

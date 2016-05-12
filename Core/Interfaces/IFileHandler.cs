@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace AnalysisManager.Core.Interfaces
+namespace StatTag.Core.Interfaces
 {
     public interface IFileHandler
     {

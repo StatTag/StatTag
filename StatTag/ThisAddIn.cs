@@ -1,0 +1,240 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Xml.Linq;
+using StatTag.Core.Models;
+using StatTag.Models;
+using Word = Microsoft.Office.Interop.Word;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Tools.Word;
+using System.Windows.Forms;
+
+namespace StatTag
+{
+    public partial class ThisAddIn
+    {
+        public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
+
+        public LogManager LogManager = new LogManager();
+        public DocumentManager Manager = new DocumentManager();
+        public PropertiesManager PropertiesManager = new PropertiesManager();
+        public StatsManager StatsManager = null;
+
+        /// <summary>
+        /// Perform a safe get of the active document.  There is no other way to safely
+        /// check for the active document, since if it is not set it throws an exception.
+        /// </summary>
+        /// <returns></returns>
+        private Word.Document SafeGetActiveDocument()
+        {
+            try
+            {
+                return Application.ActiveDocument;
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteMessage("Getting ActiveDocument threw an exception");
+            }
+
+            return null;
+        }
+
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
+        {
+            StatsManager = new StatsManager(Manager);
+
+            // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
+            // a change and then confirms it through the Settings dialog.
+            PropertiesManager.Load();
+            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            LogManager.WriteMessage("Startup completed");
+            Manager.Logger = LogManager;
+            AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
+
+            try
+            {
+                // We need to perform this check before proceeding with opening a document.  This is because opening
+                // a document will in turn run the statistical code (if there is some associated), which opens the 
+                // executing stat package.  In other words, if this is below, it will always show an alert.
+                if (Stata.Automation.IsAppRunning())
+                {
+                    LogManager.WriteMessage("Stata appears to be running");
+                    MessageBox.Show(
+                        string.Format("It appears that a copy of Stata is currently running.  StatTag is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use StatTag."),
+                        UIUtility.GetAddInName(),
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+
+                // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
+                // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
+                var document = SafeGetActiveDocument();
+                if (document == null)
+                {
+                    LogManager.WriteMessage("Active document not accessible");
+                }
+                else
+                {
+                    LogManager.WriteMessage("Active document is " + document.Name);
+                    Application_DocumentOpen(document);
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize StatTag.  Not all functionality may be available.", LogManager);
+            }
+        }
+        
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
+        {
+            LogManager.WriteMessage("Shutdown completed");
+        }
+
+        void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
+        {
+            LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
+
+            try
+            {
+                Manager.SaveFilesToDocument(doc);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your StatTag data may not be saved.", LogManager);
+            }
+
+            LogManager.WriteMessage("DocumentBeforeSave - code files saved");
+        }
+
+        void Application_DocumentOpen(Word.Document doc)
+        {
+            LogManager.WriteMessage("DocumentOpen - Started");
+            Manager.LoadFilesFromDocument(doc);
+            LogManager.WriteMessage(string.Format("Loaded {0} code files from document", Manager.Files.Count));
+
+            var filesNotFound = new List<CodeFile>();
+            foreach (var file in Manager.Files)
+            {
+                if (!File.Exists(file.FilePath))
+                {
+                    filesNotFound.Add(file);
+                    LogManager.WriteMessage(string.Format("Code file: {0} not found", file.FilePath));
+                }
+                else
+                {
+                    file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
+
+                    try
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = false;
+                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded", file.FilePath, file.Tags.Count));
+                        var results = StatsManager.ExecuteStatPackage(file);
+                        LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
+                    }
+                    finally
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                    }
+                }
+            }
+
+            if (filesNotFound.Any())
+            {
+                MessageBox.Show(
+                    string.Format(
+                        "The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}",
+                        string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
+                    UIUtility.GetAddInName(),
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                LogManager.WriteMessage("Performing the document validation check");
+                Manager.PerformDocumentCheck(true);
+            }
+
+            LogManager.WriteMessage("DocumentOpen - Completed");
+        }
+
+        private void OnAfterDoubleClickErrorCallback(object sender, EventArgs eventArgs)
+        {
+            var exception = sender as Exception;
+            if (exception != null)
+            {
+                UIUtility.ReportException(exception,
+                    "There was an error attempting to load the details of this tag.  If this problem persists, you may want to remove and insert the tag again.",
+                    LogManager);
+            }
+        }
+
+        void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)
+        {
+            // Workaround for Word add-in API - there is no AfterDoubleClick event, so we will set a new
+            // thread with a timer in it to process the double-click after the message is fully processed.
+            var thread = new System.Threading.Thread(Application_AfterDoubleClick) {IsBackground = true};
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+        }
+
+        void Application_AfterDoubleClick()
+        {
+            // There is a UI delay that is noticeable, but is required as a workaround to get the double-click to
+            // be processed after the actual selection has changed.
+            Thread.Sleep(100);
+
+            var selection = Application.Selection;
+            var fields = selection.Fields;
+
+            try
+            {
+                // We require more than one field, since our AM fields show up as 2 fields.
+                if (fields.Count > 1)
+                {
+                    // If there are multiple items selected, we will grab the first field in the selection.
+                    var field = selection.Fields[1];
+                    if (field != null)
+                    {
+                        Manager.EditTagField(field);
+                        Marshal.ReleaseComObject(field);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                // This may also seem kludgy to use a callback, but we want to display the dialog in
+                // the main UI thread.  So we use the callback to transition control back over there
+                // when an error is detected.
+                if (AfterDoubleClickErrorCallback != null)
+                {
+                    AfterDoubleClickErrorCallback(exc, EventArgs.Empty);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(fields);
+                Marshal.ReleaseComObject(selection);
+            }
+        }
+
+        #region VSTO generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InternalStartup()
+        {
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+            this.Application.DocumentBeforeSave += new Word.ApplicationEvents4_DocumentBeforeSaveEventHandler(Application_DocumentBeforeSave);
+            this.Application.DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(Application_DocumentOpen);
+            this.Application.WindowBeforeDoubleClick +=
+                new Word.ApplicationEvents4_WindowBeforeDoubleClickEventHandler(Application_BeforeDoubleClick);
+        }
+        
+        #endregion
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Models;
+using StatTag.Core.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Parser
@@ -11,60 +11,60 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void Parse_EmptyParams_Defaults()
         {
-            var annotation = new Annotation();
-            ValueParameterParser.Parse("Value", annotation);
-            Assert.AreEqual(Constants.ValueFormatType.Default, annotation.ValueFormat.FormatType);
-            Assert.AreEqual(Constants.RunFrequency.Default, annotation.RunFrequency);
+            var tag = new Tag();
+            ValueParameterParser.Parse("Value", tag);
+            Assert.AreEqual(Constants.ValueFormatType.Default, tag.ValueFormat.FormatType);
+            Assert.AreEqual(Constants.RunFrequency.Default, tag.RunFrequency);
         }
 
         [TestMethod]
         public void Parse_SingleParams()
         {
             // Check each parameter by itself to ensure there are no spacing/boundary errors in our regex
-            var annotation = new Annotation();
-            ValueParameterParser.Parse("Value(Label=\"Test\")", annotation);
-            Assert.AreEqual("Test", annotation.OutputLabel);
-            ValueParameterParser.Parse("Value(Type=\"Numeric\")", annotation);
-            Assert.AreEqual("Numeric", annotation.ValueFormat.FormatType);
-            ValueParameterParser.Parse("Value(Decimals=5)", annotation);
-            Assert.AreEqual(5, annotation.ValueFormat.DecimalPlaces);
-            ValueParameterParser.Parse("Value(Thousands=true)", annotation);
-            Assert.IsTrue(annotation.ValueFormat.UseThousands);
-            ValueParameterParser.Parse("Value(DateFormat=\"MM-DD-YYYY\")", annotation);
-            Assert.AreEqual("MM-DD-YYYY", annotation.ValueFormat.DateFormat);
-            ValueParameterParser.Parse("Value(TimeFormat=\"HH:MM:SS\")", annotation);
-            Assert.AreEqual("HH:MM:SS", annotation.ValueFormat.TimeFormat);
+            var tag = new Tag();
+            ValueParameterParser.Parse("Value(Label=\"Test\")", tag);
+            Assert.AreEqual("Test", tag.OutputLabel);
+            ValueParameterParser.Parse("Value(Type=\"Numeric\")", tag);
+            Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
+            ValueParameterParser.Parse("Value(Decimals=5)", tag);
+            Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
+            ValueParameterParser.Parse("Value(Thousands=true)", tag);
+            Assert.IsTrue(tag.ValueFormat.UseThousands);
+            ValueParameterParser.Parse("Value(DateFormat=\"MM-DD-YYYY\")", tag);
+            Assert.AreEqual("MM-DD-YYYY", tag.ValueFormat.DateFormat);
+            ValueParameterParser.Parse("Value(TimeFormat=\"HH:MM:SS\")", tag);
+            Assert.AreEqual("HH:MM:SS", tag.ValueFormat.TimeFormat);
         }
 
         [TestMethod]
         public void Parse_AllParams()
         {
-            var annotation = new Annotation();
-            ValueParameterParser.Parse("Value(Label=\"Test\", Type=\"Numeric\", Decimals=5, Thousands=true, DateFormat=\"MM-DD-YYYY\", TimeFormat=\"HH:MM:SS\")", annotation);
-            Assert.AreEqual("Test", annotation.OutputLabel);
-            Assert.AreEqual("Numeric", annotation.ValueFormat.FormatType);
-            Assert.AreEqual(5, annotation.ValueFormat.DecimalPlaces);
-            Assert.IsTrue(annotation.ValueFormat.UseThousands);
-            Assert.AreEqual("MM-DD-YYYY", annotation.ValueFormat.DateFormat);
-            Assert.AreEqual("HH:MM:SS", annotation.ValueFormat.TimeFormat);
+            var tag = new Tag();
+            ValueParameterParser.Parse("Value(Label=\"Test\", Type=\"Numeric\", Decimals=5, Thousands=true, DateFormat=\"MM-DD-YYYY\", TimeFormat=\"HH:MM:SS\")", tag);
+            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
+            Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
+            Assert.IsTrue(tag.ValueFormat.UseThousands);
+            Assert.AreEqual("MM-DD-YYYY", tag.ValueFormat.DateFormat);
+            Assert.AreEqual("HH:MM:SS", tag.ValueFormat.TimeFormat);
 
             // Run it again, flipping the order of parameters to test it works in any order
-            ValueParameterParser.Parse("Value(Type=\"Numeric\", TimeFormat=\"HH:MM:SS\", Label=\"Test\", Thousands=true, Decimals=5, DateFormat=\"MM-DD-YYYY\")", annotation);
-            Assert.AreEqual("Test", annotation.OutputLabel);
-            Assert.AreEqual("Numeric", annotation.ValueFormat.FormatType);
-            Assert.AreEqual(5, annotation.ValueFormat.DecimalPlaces);
-            Assert.IsTrue(annotation.ValueFormat.UseThousands);
-            Assert.AreEqual("MM-DD-YYYY", annotation.ValueFormat.DateFormat);
-            Assert.AreEqual("HH:MM:SS", annotation.ValueFormat.TimeFormat);
+            ValueParameterParser.Parse("Value(Type=\"Numeric\", TimeFormat=\"HH:MM:SS\", Label=\"Test\", Thousands=true, Decimals=5, DateFormat=\"MM-DD-YYYY\")", tag);
+            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
+            Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
+            Assert.IsTrue(tag.ValueFormat.UseThousands);
+            Assert.AreEqual("MM-DD-YYYY", tag.ValueFormat.DateFormat);
+            Assert.AreEqual("HH:MM:SS", tag.ValueFormat.TimeFormat);
 
             // Run one more time, playing around with spacing
-            ValueParameterParser.Parse("Value( Type = \"Numeric\" , TimeFormat = \"HH:MM:SS\" , Label = \"Test\" , Thousands = true , Decimals = 5 , DateFormat = \"MM-DD-YYYY\" )", annotation);
-            Assert.AreEqual("Test", annotation.OutputLabel);
-            Assert.AreEqual("Numeric", annotation.ValueFormat.FormatType);
-            Assert.AreEqual(5, annotation.ValueFormat.DecimalPlaces);
-            Assert.IsTrue(annotation.ValueFormat.UseThousands);
-            Assert.AreEqual("MM-DD-YYYY", annotation.ValueFormat.DateFormat);
-            Assert.AreEqual("HH:MM:SS", annotation.ValueFormat.TimeFormat);
+            ValueParameterParser.Parse("Value( Type = \"Numeric\" , TimeFormat = \"HH:MM:SS\" , Label = \"Test\" , Thousands = true , Decimals = 5 , DateFormat = \"MM-DD-YYYY\" )", tag);
+            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
+            Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
+            Assert.IsTrue(tag.ValueFormat.UseThousands);
+            Assert.AreEqual("MM-DD-YYYY", tag.ValueFormat.DateFormat);
+            Assert.AreEqual("HH:MM:SS", tag.ValueFormat.TimeFormat);
         }
     }
 }
