@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AnalysisManager.Core.Interfaces;
+using StatTag.Core.Interfaces;
 using Newtonsoft.Json;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// An annotation is a sequence of lines in a CodeFile that is defined by special

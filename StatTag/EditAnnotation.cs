@@ -1,17 +1,17 @@
-﻿using AnalysisManager.Controls;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+﻿using StatTag.Controls;
+using StatTag.Core;
+using StatTag.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using AnalysisManager.Core.Utility;
-using AnalysisManager.Models;
+using StatTag.Core.Utility;
+using StatTag.Models;
 using ScintillaNET;
-using Annotation = AnalysisManager.Core.Models.Annotation;
+using Annotation = StatTag.Core.Models.Annotation;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class EditAnnotation : Form
     {

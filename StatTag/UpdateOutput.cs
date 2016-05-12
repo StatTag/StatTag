@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 using Microsoft.Office.Tools.Word;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class UpdateOutput : Form
     {

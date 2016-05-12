@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

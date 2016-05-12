@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager.Controls
+﻿namespace StatTag.Controls
 {
     partial class DateTimeValueProperties
     {

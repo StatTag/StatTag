@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.SqlServer.Server;
 
-namespace AnalysisManager.Controls
+namespace StatTag.Controls
 {
     public sealed partial class ValueProperties : UserControl
     {

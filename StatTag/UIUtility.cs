@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 using Font = Microsoft.Office.Interop.Word.Font;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public static class UIUtility
     {
@@ -66,7 +66,7 @@ namespace AnalysisManager
 
         public static string GetAddInName()
         {
-            return "Analysis Manager";
+            return "StatTag";
         }
 
         public static string GetVersionLabel()

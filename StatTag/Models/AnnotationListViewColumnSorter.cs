@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// This code is derived from https://support.microsoft.com/en-us/kb/319401

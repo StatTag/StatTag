@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     partial class UpdateOutput
     {
@@ -42,8 +42,8 @@
             this.lvwDefault = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.txtOnDemandFilter = new AnalysisManager.Controls.PlaceholderTextBox();
-            this.txtDefaultFilter = new AnalysisManager.Controls.PlaceholderTextBox();
+            this.txtOnDemandFilter = new StatTag.Controls.PlaceholderTextBox();
+            this.txtDefaultFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -238,7 +238,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "UpdateOutput";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Update Statistical Output";
+            this.Text = "StatTag - Update Statistical Output";
             this.Load += new System.EventHandler(this.UpdateOutput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

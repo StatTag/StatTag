@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Models
@@ -183,7 +183,7 @@ namespace Core.Tests.Models
         public void ToString_Tests()
         {
             var annotation = new Annotation();
-            Assert.AreEqual("AnalysisManager.Core.Models.Annotation", annotation.ToString());
+            Assert.AreEqual("StatTag.Core.Models.Annotation", annotation.ToString());
             annotation.Type = Constants.AnnotationType.Figure;
             Assert.AreEqual("Figure", annotation.ToString());
             annotation.OutputLabel = "Test";

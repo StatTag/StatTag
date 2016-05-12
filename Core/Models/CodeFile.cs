@@ -1,12 +1,12 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
-using AnalysisManager.Core.Interfaces;
+using StatTag.Core.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// A sequence of instructions saved in a text file that can be executed

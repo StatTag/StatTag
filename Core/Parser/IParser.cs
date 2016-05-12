@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Parser
+namespace StatTag.Core.Parser
 {
     public interface IParser
     {

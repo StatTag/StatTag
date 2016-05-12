@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Generator;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Generator;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Generator

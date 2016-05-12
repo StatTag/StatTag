@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     partial class CheckDocument
     {
@@ -263,7 +263,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "CheckDocument";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Check Annotations";
+            this.Text = "StatTag - Check Annotations";
             this.Load += new System.EventHandler(this.CheckDocument_Load);
             this.tabUnlinked.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedAnnotations)).EndInit();

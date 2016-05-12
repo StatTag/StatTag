@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Parser;
 using Moq;
 using Match = System.Text.RegularExpressions.Match;
 

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+using StatTag.Core;
+using StatTag.Core.Models;
 using Stata;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// Manages the execution of code files in the correct statistical package.
@@ -59,7 +59,7 @@ namespace AnalysisManager.Models
                 if (!automation.Initialize())
                 {
                     MessageBox.Show(
-                        "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in Analysis Manager.\r\n\r\nThis can be done from Analysis Manager > Settings, or see http://www.stata.com/automation",
+                        "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation",
                         UIUtility.GetAddInName());
                     return result;
                 }

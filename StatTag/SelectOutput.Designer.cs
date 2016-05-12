@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     partial class SelectOutput
     {
@@ -34,7 +34,7 @@
             this.lvwOutput = new System.Windows.Forms.ListView();
             this.colAnnotationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.txtFilter = new AnalysisManager.Controls.PlaceholderTextBox();
+            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -129,7 +129,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "SelectOutput";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Select Output Value";
+            this.Text = "StatTag - Select Output Value";
             this.Load += new System.EventHandler(this.SelectOutput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

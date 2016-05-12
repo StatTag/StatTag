@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     sealed partial class EditAnnotation
     {
@@ -46,9 +46,9 @@
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.lblInstructions = new System.Windows.Forms.Label();
-            this.tableProperties = new AnalysisManager.Controls.TableProperties();
-            this.figureProperties = new AnalysisManager.Controls.FigureProperties();
-            this.valueProperties = new AnalysisManager.Controls.ValueProperties();
+            this.tableProperties = new StatTag.Controls.TableProperties();
+            this.figureProperties = new StatTag.Controls.FigureProperties();
+            this.valueProperties = new StatTag.Controls.ValueProperties();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -218,7 +218,7 @@
             this.lblNoOutputWarning.Name = "lblNoOutputWarning";
             this.lblNoOutputWarning.Size = new System.Drawing.Size(483, 17);
             this.lblNoOutputWarning.TabIndex = 23;
-            this.lblNoOutputWarning.Text = "WARNING: The selected region of code does not output to Analysis Manager.";
+            this.lblNoOutputWarning.Text = "WARNING: The selected region of code does not output to StatTag.";
             this.lblNoOutputWarning.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.lblNoOutputWarning.Visible = false;
             // 

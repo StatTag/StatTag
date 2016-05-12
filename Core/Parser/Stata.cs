@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Parser
+namespace StatTag.Core.Parser
 {
     /// <summary>
     /// Reads through a file containing stata commands and identifies the blocks of
-    /// code that use the Analysis Manager annotation syntax
+    /// code that use the StatTag annotation syntax
     /// </summary>
     public sealed class Stata : BaseParser
     {

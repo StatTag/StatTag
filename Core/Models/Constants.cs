@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     public static class Constants
     {
@@ -91,7 +91,7 @@ namespace AnalysisManager.Core.Models
 
         public static class FieldDetails
         {
-            public const string MacroButtonName = "AnalysisManager";
+            public const string MacroButtonName = "StatTag";
         }
 
         /// <summary>

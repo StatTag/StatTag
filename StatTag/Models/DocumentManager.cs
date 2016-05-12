@@ -6,11 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+using StatTag.Core;
+using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and annotations.
@@ -21,7 +21,7 @@ namespace AnalysisManager.Models
         public FieldCreator FieldManager { get; set; }
         public AnnotationManager AnnotationManager { get; set; }
 
-        public const string ConfigurationAttribute = "Analysis Manager Configuration";
+        public const string ConfigurationAttribute = "StatTag Configuration";
 
         public DocumentManager()
         {
@@ -215,13 +215,13 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!AnnotationManager.IsAnalysisManagerField(field))
+                if (!AnnotationManager.IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
+                Log("Processing StatTag field");
                 var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
                 if (fieldAnnotation == null)
                 {
@@ -343,13 +343,13 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (!AnnotationManager.IsAnalysisManagerField(field))
+                    if (!AnnotationManager.IsStatTagField(field))
                     {
                         Marshal.ReleaseComObject(field);
                         continue;
                     }
 
-                    Log("Processing Analysis Manager field");
+                    Log("Processing StatTag field");
                     var annotation = AnnotationManager.GetFieldAnnotation(field);
                     if (annotation == null)
                     {
@@ -692,7 +692,7 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Insert an Analysis Manager field at the currently specified document range.
+        /// Insert an StatTag field at the currently specified document range.
         /// </summary>
         /// <param name="range">The range to insert the field at</param>
         /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
@@ -711,7 +711,7 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Insert an Analysis Manager field at the currently specified document range.
+        /// Insert an StatTag field at the currently specified document range.
         /// </summary>
         /// <param name="range">The range to insert the field at</param>
         /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
@@ -819,7 +819,7 @@ namespace AnalysisManager.Models
 
         public void EditAnnotationField(Field field)
         {
-            if (AnnotationManager.IsAnalysisManagerField(field))
+            if (AnnotationManager.IsStatTagField(field))
             {
                 var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
                 var annotation = AnnotationManager.FindAnnotation(fieldAnnotation);
@@ -879,7 +879,7 @@ namespace AnalysisManager.Models
         /// <param name="actions"></param>
         public void UpdateUnlinkedAnnotationsByCodeFile(Dictionary<string, CodeFileAction> actions)
         {
-            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByCodeFile, actions);
+            AnnotationManager.ProcessStatTagFields(AnnotationManager.UpdateUnlinkedAnnotationsByCodeFile, actions);
         }
 
         /// <summary>
@@ -895,7 +895,7 @@ namespace AnalysisManager.Models
         /// <param name="actions"></param>
         public void UpdateUnlinkedAnnotationsByAnnotation(Dictionary<string, CodeFileAction> actions)
         {
-            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByAnnotation, actions);
+            AnnotationManager.ProcessStatTagFields(AnnotationManager.UpdateUnlinkedAnnotationsByAnnotation, actions);
         }
 
         /// <summary>

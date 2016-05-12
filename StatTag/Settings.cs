@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Models;
+using StatTag.Models;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class Settings : Form
     {
@@ -83,7 +83,7 @@ namespace AnalysisManager
         {
             if (DialogResult.Yes !=
                 MessageBox.Show(this,
-                    "If you disable Stata Automation, Analysis Manager will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
+                    "If you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
                     UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
             {
                 return;

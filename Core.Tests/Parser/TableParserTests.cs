@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Models;
+using StatTag.Core.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Parser

@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager.Controls
+﻿namespace StatTag.Controls
 {
     partial class TableProperties
     {
@@ -30,7 +30,7 @@
         {
             this.chkIncludeColumnNames = new System.Windows.Forms.CheckBox();
             this.chkIncludeRowNames = new System.Windows.Forms.CheckBox();
-            this.numericValueProperties = new AnalysisManager.Controls.NumericValueProperties();
+            this.numericValueProperties = new StatTag.Controls.NumericValueProperties();
             this.SuspendLayout();
             // 
             // chkIncludeColumnNames

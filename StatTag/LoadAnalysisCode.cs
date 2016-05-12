@@ -1,14 +1,14 @@
 ﻿using System.Drawing;
 using System.Linq;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+using StatTag.Core;
+using StatTag.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using AnalysisManager.Core.Utility;
-using AnalysisManager.Models;
+using StatTag.Core.Utility;
+using StatTag.Models;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class LoadAnalysisCode : Form
     {

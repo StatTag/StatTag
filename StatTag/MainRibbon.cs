@@ -4,15 +4,15 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Generator;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core;
+using StatTag.Core.Generator;
+using StatTag.Core.Models;
+using StatTag.Models;
 using Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Ribbon;
 using Application = System.Windows.Forms.Application;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public partial class MainRibbon
     {

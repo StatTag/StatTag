@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     partial class LinkCodeFiles
     {
@@ -125,7 +125,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "LinkCodeFiles";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Link Code Files";
+            this.Text = "StatTag - Link Code Files";
             this.Load += new System.EventHandler(this.LinkCodeFiles_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).EndInit();
             this.ResumeLayout(false);

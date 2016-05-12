@@ -404,6 +404,7 @@
     <Content Include="Resources\1455152243_129_ArrowRight.png" />
     <Content Include="Resources\1455152332_refresh.png" />
     <Content Include="Resources\1455152483_compose.png" />
+    <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

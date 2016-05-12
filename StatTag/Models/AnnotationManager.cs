@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// The AnnotationManager is responsible for finding, editing, and otherwise managing specific annotations.
@@ -73,12 +73,12 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given a Word field, determine if it is our specialized Analysis Manager field type given
+        /// Given a Word field, determine if it is our specialized StatTag field type given
         /// its composition.
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public bool IsAnalysisManagerField(Field field)
+        public bool IsStatTagField(Field field)
         {
             return (field != null
                 && field.Type == WdFieldType.wdFieldMacroButton
@@ -88,7 +88,7 @@ namespace AnalysisManager.Models
 
         /// <summary>
         /// Determine if a field is a linked field.  While linked fields can take on various forms, we
-        /// use them in Analysis Manager to represent images.
+        /// use them in StatTag to represent images.
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
@@ -115,7 +115,7 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
+        /// Given a Word document Field, extracts the embedded StatTag annotation
         /// associated with it.
         /// </summary>
         /// <param name="field">The Word field object to investigate</param>
@@ -173,13 +173,13 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!IsAnalysisManagerField(field))
+                if (!IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
+                Log("Processing StatTag field");
                 var annotation = GetFieldAnnotation(field);
                 if (annotation == null)
                 {
@@ -208,13 +208,13 @@ namespace AnalysisManager.Models
 
         /// <summary>
         /// A generic method that will iterate over the fields in the active document, and apply a function to
-        /// each Analysis Manager field.
+        /// each StatTag field.
         /// </summary>
         /// <param name="function">The function to apply to each relevant field</param>
         /// <param name="configuration">A set of configuration information specific to the function</param>
-        public void ProcessAnalysisManagerFields(Action<Field, FieldAnnotation, object> function, object configuration)
+        public void ProcessStatTagFields(Action<Field, FieldAnnotation, object> function, object configuration)
         {
-            Log("ProcessAnalysisManagerFields - Started");
+            Log("ProcessStatTagFields - Started");
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
@@ -233,13 +233,13 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!IsAnalysisManagerField(field))
+                if (!IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
+                Log("Processing StatTag field");
                 var annotation = GetFieldAnnotation(field);
                 if (annotation == null)
                 {
@@ -255,7 +255,7 @@ namespace AnalysisManager.Models
 
             Marshal.ReleaseComObject(document);
 
-            Log("ProcessAnalysisManagerFields - Finished");
+            Log("ProcessStatTagFields - Finished");
         }
 
         /// <summary>

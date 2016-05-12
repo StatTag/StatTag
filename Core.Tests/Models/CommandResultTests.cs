@@ -1,5 +1,5 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Models
@@ -49,7 +49,7 @@ namespace Core.Tests.Models
             result.ValueResult = "";
             result.FigureResult = "";
             result.TableResult = new Table(new[] { "Test" }, new[] { "Test" }, 1, 1, new double?[] { 0.0 });
-            Assert.AreEqual("AnalysisManager.Core.Models.Table", result.ToString());
+            Assert.AreEqual("StatTag.Core.Models.Table", result.ToString());
         }
     }
 }

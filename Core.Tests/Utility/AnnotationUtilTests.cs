@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Utility;
+using StatTag.Core.Models;
+using StatTag.Core.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Utility

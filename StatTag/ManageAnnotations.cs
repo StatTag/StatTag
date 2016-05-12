@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class ManageAnnotations : Form
     {
