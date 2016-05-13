@@ -228,11 +228,11 @@
     <Compile Include="Controls\ValueProperties.Designer.cs">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="EditAnnotation.cs">
+    <Compile Include="EditTag.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EditAnnotation.Designer.cs">
-      <DependentUpon>EditAnnotation.cs</DependentUpon>
+    <Compile Include="EditTag.Designer.cs">
+      <DependentUpon>EditTag.cs</DependentUpon>
     </Compile>
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
@@ -252,17 +252,17 @@
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="ManageAnnotations.cs">
+    <Compile Include="ManageTags.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ManageAnnotations.Designer.cs">
-      <DependentUpon>ManageAnnotations.cs</DependentUpon>
+    <Compile Include="ManageTags.Designer.cs">
+      <DependentUpon>ManageTags.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AnnotationListViewColumnSorter.cs" />
     <Compile Include="Models\AnnotationManager.cs" />
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
-    <Compile Include="Models\DuplicateAnnotationResults.cs" />
+    <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FieldCreator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
     <Compile Include="Models\LogManager.cs" />
@@ -314,8 +314,8 @@
     <EmbeddedResource Include="Controls\ValueProperties.resx">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EditAnnotation.resx">
-      <DependentUpon>EditAnnotation.cs</DependentUpon>
+    <EmbeddedResource Include="EditTag.resx">
+      <DependentUpon>EditTag.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LinkCodeFiles.resx">
       <DependentUpon>LinkCodeFiles.cs</DependentUpon>
@@ -326,8 +326,8 @@
     <EmbeddedResource Include="MainRibbon.resx">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageAnnotations.resx">
-      <DependentUpon>ManageAnnotations.cs</DependentUpon>
+    <EmbeddedResource Include="ManageTags.resx">
+      <DependentUpon>ManageTags.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -404,6 +404,7 @@
     <Content Include="Resources\1455152243_129_ArrowRight.png" />
     <Content Include="Resources\1455152332_refresh.png" />
     <Content Include="Resources\1455152483_compose.png" />
+    <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

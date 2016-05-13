@@ -91,7 +91,7 @@ namespace StatTag.Core.Models
 
         public static class FieldDetails
         {
-            public const string LegacyMacroButtonName = "StatTag";
+            public const string LegacyMacroButtonName = "AnalysisManager";
             public const string MacroButtonName = "StatTag";
         }
 

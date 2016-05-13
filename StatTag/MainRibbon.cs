@@ -226,5 +226,24 @@ namespace StatTag
                 Cursor.Current = Cursors.Default;
             }
         }
+
+        private void cmdDefineTag_Click(object sender, RibbonControlEventArgs e)
+        {
+            var dialog = new EditTag(Manager);
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                Manager.SaveEditedTag(dialog);
+                foreach (var file in Manager.Files)
+                {
+                    file.LoadTagsFromContent();
+                }
+
+            }
+        }
+
+        private void cmdHelp_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
     }
 }
