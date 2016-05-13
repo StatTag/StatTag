@@ -323,14 +323,14 @@ namespace StatTag
                     if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))
                     {
                         UIUtility.WarningMessageBox(
-                            string.Format("The output label you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.OutputLabel), 
+                            string.Format("The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.OutputLabel), 
                             Manager.Logger);
                         this.DialogResult = DialogResult.None;
                         e.Cancel = true;
                     }
                     else if (DialogResult.Yes != MessageBox.Show(
                         string.Format(
-                            "The output label you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
+                            "The tag name you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
                             Tag.OutputLabel, result.Count, "file".Pluralize(result.Count)),
                         UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
                     {

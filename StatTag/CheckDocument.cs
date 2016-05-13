@@ -17,95 +17,95 @@ namespace StatTag
         /// <summary>
         /// The collection of actions that the user has indicated they wish to proceed with.
         /// </summary>
-        public Dictionary<string, CodeFileAction> UnlinkedAnnotationUpdates { get; set; }
+        public Dictionary<string, CodeFileAction> UnlinkedTagUpdates { get; set; }
 
         /// <summary>
-        /// The collection of updates that should be applied to uniquely name annotations across
+        /// The collection of updates that should be applied to uniquely name tags across
         /// code files.
         /// </summary>
-        public List<UpdatePair<Tag>> DuplicateAnnotationUpdates { get; set; }
+        public List<UpdatePair<Tag>> DuplicateTagUpdates { get; set; }
 
         /// <summary>
-        /// Used as input, this is the list of annotations that are not fully linked to the
+        /// Used as input, this is the list of tags that are not fully linked to the
         /// current document, organized by the missing code file path.
         /// </summary>
-        public Dictionary<string, List<Tag>> UnlinkedAnnotations;
+        public Dictionary<string, List<Tag>> UnlinkedTags;
 
         /// <summary>
-        /// Used as input, this is the list of code files that contain annotations with
+        /// Used as input, this is the list of code files that contain tags with
         /// duplicate names.
         /// </summary>
-        public DuplicateTagResults DuplicateAnnotations { get; set; }
+        public DuplicateTagResults DuplicateTags { get; set; }
 
         private readonly List<CodeFile> Files;
 
-        private const int ColUnlinkedCodeFile = 0;
-        private const int ColUnlinkedAnnotation = 1;
+        private const int ColUnlinkedTag = 0;
+        private const int ColUnlinkedCodeFile = 1;
         private const int ColUnlinkedActionToTake = 2;
 
-        private const int ColOriginalAnnotation = 0;
+        private const int ColOriginalTag = 0;
         private const int ColOriginalLineNumbers = 1;
-        private const int ColDuplicateAnnotation = 2;
+        private const int ColDuplicateTag = 2;
         private const int ColDuplicateLineNumbers = 3;
 
-        private class DuplicateAnnotationPair
+        private class DuplicateTagPair
         {
             public Tag First { get; set; }
             public Tag Second { get; set; }
         }
 
-        public CheckDocument(Dictionary<string, List<Tag>> unlinkedAnnotations, DuplicateTagResults duplicateAnnotations, List<CodeFile> files)
+        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files)
         {
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             MinimumSize = Size;
-            UnlinkedAnnotations = unlinkedAnnotations;
-            DuplicateAnnotations = duplicateAnnotations;
+            UnlinkedTags = unlinkedTags;
+            DuplicateTags = duplicateTags;
             Files = files;
-            UnlinkedAnnotationUpdates = new Dictionary<string, CodeFileAction>();
-            DuplicateAnnotationUpdates = new List<UpdatePair<Annotation>>();
+            UnlinkedTagUpdates = new Dictionary<string, CodeFileAction>();
+            DuplicateTagUpdates = new List<UpdatePair<Tag>>();
         }
 
         private void CheckDocument_Load(object sender, EventArgs e)
         {
             int? defaultTab = null;
 
-            // Track the annotations as we add them to the list, so we only display each unique
-            // annotation one time.  The reason we have duplicates is that this list comes from
-            // the fields in a document, where multiple instances of the same annotation could
+            // Track the tags as we add them to the list, so we only display each unique
+            // tag one time.  The reason we have duplicates is that this list comes from
+            // the fields in a document, where multiple instances of the same tag could
             // exist.
-            HashSet<string> addedAnnotations = new HashSet<string>();
-            foreach (var item in UnlinkedAnnotations)
+            HashSet<string> addedTags = new HashSet<string>();
+            foreach (var item in UnlinkedTags)
             {
-                foreach (var annotation in item.Value)
+                foreach (var tag in item.Value)
                 {
-                    if (!addedAnnotations.Contains(annotation.Id))
+                    if (!addedTags.Contains(tag.Id))
                     {
-                        int row = dgvUnlinkedAnnotations.Rows.Add(new object[] { item.Key, annotation.OutputLabel });
-                        dgvUnlinkedAnnotations.Rows[row].Tag = annotation;
-                        addedAnnotations.Add(annotation.Id);
+                        int row = dgvUnlinkedTags.Rows.Add(new object[] { tag.OutputLabel, item.Key });
+                        dgvUnlinkedTags.Rows[row].Tag = tag;
+                        addedTags.Add(tag.Id);
                     }
                 }
             }
 
-            if (dgvUnlinkedAnnotations.RowCount > 0)
+            if (dgvUnlinkedTags.RowCount > 0)
             {
                 defaultTab = 0;
-                tabUnlinked.Text += string.Format(" ({0})", dgvUnlinkedAnnotations.RowCount);
+                tabUnlinked.Text += string.Format(" ({0})", dgvUnlinkedTags.RowCount);
             }
 
-            foreach (var item in DuplicateAnnotations)
+            foreach (var item in DuplicateTags)
             {
                 foreach (var result in item.Value)
                 {
                     foreach (var duplicate in result.Value)
                     {
-                        int row = dgvDuplicateAnnotations.Rows.Add(new object[]
+                        int row = dgvDuplicateTags.Rows.Add(new object[]
                         {
                             result.Key.OutputLabel, result.Key.FormatLineNumberRange(),
                             duplicate.OutputLabel, duplicate.FormatLineNumberRange()
                         });
-                        dgvDuplicateAnnotations.Rows[row].Tag = new DuplicateAnnotationPair()
+                        dgvDuplicateTags.Rows[row].Tag = new DuplicateTagPair()
                         {
                             First = result.Key,
                             Second = duplicate
@@ -114,10 +114,10 @@ namespace StatTag
                 }
             }
 
-            if (dgvDuplicateAnnotations.RowCount > 0)
+            if (dgvDuplicateTags.RowCount > 0)
             {
                 defaultTab = 1;
-                tabDuplicate.Text += string.Format(" ({0})", dgvDuplicateAnnotations.RowCount);
+                tabDuplicate.Text += string.Format(" ({0})", dgvDuplicateTags.RowCount);
             }
 
             if (defaultTab.HasValue)
@@ -125,18 +125,18 @@ namespace StatTag
                 tabResults.SelectTab(defaultTab.Value);                
             }
 
-            UIUtility.BuildCodeFileActionColumn(Files, dgvUnlinkedAnnotations, ColUnlinkedActionToTake, true);
+            UIUtility.BuildCodeFileActionColumn(Files, dgvUnlinkedTags, ColUnlinkedActionToTake, true);
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
             // Make sure we pick up any changes that the data grid view hasn't seen yet
-            dgvUnlinkedAnnotations.EndEdit();
-            dgvDuplicateAnnotations.EndEdit();
+            dgvUnlinkedTags.EndEdit();
+            dgvDuplicateTags.EndEdit();
 
-            // Iterate the list of unlinked annotations and determine the actions that we
+            // Iterate the list of unlinked tags and determine the actions that we
             // should be taking.
-            foreach (var row in dgvUnlinkedAnnotations.Rows.OfType<DataGridViewRow>())
+            foreach (var row in dgvUnlinkedTags.Rows.OfType<DataGridViewRow>())
             {
                 var fileCell = row.Cells[ColUnlinkedCodeFile] as DataGridViewTextBoxCell;
                 var actionCell = row.Cells[ColUnlinkedActionToTake] as DataGridViewComboBoxCell;
@@ -145,46 +145,46 @@ namespace StatTag
                     continue;
                 }
 
-                var annotation = row.Tag as Annotation;
-                if (annotation != null && !UnlinkedAnnotationUpdates.ContainsKey(annotation.Id))
+                var tag = row.Tag as Tag;
+                if (tag != null && !UnlinkedTagUpdates.ContainsKey(tag.Id))
                 {
-                    UnlinkedAnnotationUpdates.Add(annotation.Id, actionCell.Value as CodeFileAction);
+                    UnlinkedTagUpdates.Add(tag.Id, actionCell.Value as CodeFileAction);
                 }
             }
 
-            // Iterate the list of duplicate named annotations and build the list of name changes
+            // Iterate the list of duplicate named tags and build the list of name changes
             // that are needed.
-            foreach (var row in dgvDuplicateAnnotations.Rows.OfType<DataGridViewRow>())
+            foreach (var row in dgvDuplicateTags.Rows.OfType<DataGridViewRow>())
             {
-                var duplicatePair = row.Tag as DuplicateAnnotationPair;
+                var duplicatePair = row.Tag as DuplicateTagPair;
                 if (duplicatePair != null)
                 {
-                    DuplicateAnnotationUpdates.Add(GetDuplicateUpdate(row, duplicatePair.First, ColOriginalAnnotation));
-                    DuplicateAnnotationUpdates.Add(GetDuplicateUpdate(row, duplicatePair.Second, ColDuplicateAnnotation));
+                    DuplicateTagUpdates.Add(GetDuplicateUpdate(row, duplicatePair.First, ColOriginalTag));
+                    DuplicateTagUpdates.Add(GetDuplicateUpdate(row, duplicatePair.Second, ColDuplicateTag));
                 }
             }
 
-            DuplicateAnnotationUpdates = DuplicateAnnotationUpdates.Where(x => x != null).ToList();
+            DuplicateTagUpdates = DuplicateTagUpdates.Where(x => x != null).ToList();
         }
 
         /// <summary>
-        /// Loop through the list of annotations that are duplicates, and see what the recommended action is
-        /// for each. Build the appropriate update list depending on if one annotation (or both) changed in the
+        /// Loop through the list of tags that are duplicates, and see what the recommended action is
+        /// for each. Build the appropriate update list depending on if one tag (or both) changed in the
         /// pair.
         /// </summary>
         /// <param name="row"></param>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <param name="textColumnIndex"></param>
         /// <returns></returns>
-        private UpdatePair<Annotation> GetDuplicateUpdate(DataGridViewRow row, Annotation annotation, int textColumnIndex)
+        private UpdatePair<Tag> GetDuplicateUpdate(DataGridViewRow row, Tag tag, int textColumnIndex)
         {
             var updatedLabel = row.Cells[textColumnIndex].Value.ToString();
-            if (!annotation.OutputLabel.Equals(updatedLabel, StringComparison.CurrentCultureIgnoreCase))
+            if (!tag.OutputLabel.Equals(updatedLabel, StringComparison.CurrentCultureIgnoreCase))
             {
-                return new UpdatePair<Annotation>()
+                return new UpdatePair<Tag>()
                 {
-                    Old = annotation,
-                    New = new Annotation(annotation) { OutputLabel = updatedLabel }
+                    Old = tag,
+                    New = new Tag(tag) { OutputLabel = updatedLabel }
                 };
             }
             return null;

@@ -184,7 +184,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Ensure that all reserved characters that appear in an output label are removed
+        /// Ensure that all reserved characters that appear in an tag name are removed
         /// and replaced with a space.
         /// </summary>
         /// <param name="label"></param>
@@ -217,7 +217,7 @@ namespace StatTag.Core.Models
         /// <returns></returns>
         public bool HasTableData()
         {
-            return !(CachedResult == null || CachedResult.Count == 0 || CachedResult[0].TableResult == null);
+            return !(CachedResult == null || CachedResult.Count == 0 || CachedResult.First().TableResult == null);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace StatTag.Core.Models
                 return;
             }
 
-            var table = CachedResult[0].TableResult;
+            var table = CachedResult.First().TableResult;
             table.FormattedCells = TableFormat.Format(table, Factories.GetValueFormatter(CodeFile));
         }
 
@@ -246,7 +246,7 @@ namespace StatTag.Core.Models
                 return null;
             }
 
-            var tableData = CachedResult[0].TableResult;
+            var tableData = CachedResult.First().TableResult;
             var dimensions = new[] { tableData.RowSize, tableData.ColumnSize };
             if (TableFormat.IncludeColumnNames && tableData.ColumnNames != null)
             {

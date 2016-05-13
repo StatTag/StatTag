@@ -136,7 +136,7 @@ namespace StatTag.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
-            string fileName = tag.CachedResult[0].FigureResult;
+            string fileName = tag.CachedResult.First().FigureResult;
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 Log(string.Format("Inserting a PDF image - {0}", fileName));
@@ -469,7 +469,7 @@ namespace StatTag.Models
 
             var cells = GetCells(selection);
             tag.UpdateFormattedTableData();
-            var table = tag.CachedResult[0].TableResult;
+            var table = tag.CachedResult.First().TableResult;
 
             var dimensions = tag.GetTableDisplayDimensions();
 
@@ -705,7 +705,7 @@ namespace StatTag.Models
                 Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
             Log(string.Format("Inserted field with identifier {0} and display value {1}", tagIdentifier, displayValue));
 
-            var dataField = fields[0];
+            var dataField = fields.First();
             dataField.Data = tag.Serialize();
             Log("CreateTagField - Finished");
         }

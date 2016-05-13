@@ -10,9 +10,9 @@ namespace StatTag.Core.Utility
     public class TagUtil
     {
         /// <summary>
-        /// Find all tags with a matching output label (regardless of case).
+        /// Find all tags with a matching tag name (regardless of case).
         /// </summary>
-        /// <param name="outputLabel">The output label to search for</param>
+        /// <param name="outputLabel">The tag name to search for</param>
         /// <returns></returns>
         public static List<Tag> FindTagsByOutputLabel(string outputLabel, List<CodeFile> files)
         {
@@ -26,7 +26,7 @@ namespace StatTag.Core.Utility
         }
 
         /// <summary>
-        /// Determine if we need to perform a check for possible conflicting output label names.
+        /// Determine if we need to perform a check for possible conflicting tag name names.
         /// </summary>
         /// <param name="oldTag"></param>
         /// <param name="newTag"></param>
@@ -48,7 +48,7 @@ namespace StatTag.Core.Utility
 
         /// <summary>
         /// Looks across all tags in a collection of code files to find those that have
-        /// the same output label.
+        /// the same tag name.
         /// </summary>
         /// <param name="tag"></param>
         /// <param name="files"></param>
@@ -80,7 +80,7 @@ namespace StatTag.Core.Utility
                     duplicateCount.Add(otherTag.CodeFile, new[] { 0, 0 });
                 }
 
-                // If the output labels are an exact match, they go into the first bucket.
+                // If the tag names are an exact match, they go into the first bucket.
                 // Otherwise, they are a case-insensitive match and go into the second bucket.
                 if (tag.OutputLabel.Equals(otherTag.OutputLabel))
                 {
