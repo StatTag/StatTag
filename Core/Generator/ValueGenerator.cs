@@ -9,38 +9,38 @@ namespace StatTag.Core.Generator
 {
     public class ValueGenerator : BaseParameterGenerator
     {
-        public string CreateParameters(Annotation annotation)
+        public string CreateParameters(Tag tag)
         {
             var builder = new StringBuilder();
-            builder.Append(GetLabelParameter(annotation));
-            builder.Append(GetRunFrequencyParameter(annotation));
-            builder.Append(CreateValueParameters(annotation));
+            builder.Append(GetLabelParameter(tag));
+            builder.Append(GetRunFrequencyParameter(tag));
+            builder.Append(CreateValueParameters(tag));
 
             return CleanResult(builder.ToString());
         }
 
-        public string CreateValueParameters(Annotation annotation)
+        public string CreateValueParameters(Tag tag)
         {
             var builder = new StringBuilder();
-            if (annotation.ValueFormat == null)
+            if (tag.ValueFormat == null)
             {
                 builder.Append(CreateDefaultParameters());
             }
             else
             {
-                switch (annotation.ValueFormat.FormatType)
+                switch (tag.ValueFormat.FormatType)
                 {
                     case Constants.ValueFormatType.Numeric:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
-                        builder.Append(CreateNumericParameters(annotation.ValueFormat));
+                        builder.Append(CreateDefaultParameters(tag.ValueFormat.FormatType, tag.ValueFormat.AllowInvalidTypes));
+                        builder.Append(CreateNumericParameters(tag.ValueFormat));
                         break;
                     case Constants.ValueFormatType.DateTime:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
-                        builder.Append(CreateDateTimeParameters(annotation.ValueFormat));
+                        builder.Append(CreateDefaultParameters(tag.ValueFormat.FormatType, tag.ValueFormat.AllowInvalidTypes));
+                        builder.Append(CreateDateTimeParameters(tag.ValueFormat));
                         break;
                     case Constants.ValueFormatType.Percentage:
-                        builder.Append(CreateDefaultParameters(annotation.ValueFormat.FormatType, annotation.ValueFormat.AllowInvalidTypes));
-                        builder.Append(CreatePercentageParameters(annotation.ValueFormat));
+                        builder.Append(CreateDefaultParameters(tag.ValueFormat.FormatType, tag.ValueFormat.AllowInvalidTypes));
+                        builder.Append(CreatePercentageParameters(tag.ValueFormat));
                         break;
                     default:
                         builder.Append(CreateDefaultParameters());

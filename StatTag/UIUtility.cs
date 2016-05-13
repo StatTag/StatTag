@@ -72,7 +72,7 @@ namespace StatTag
         public static string GetVersionLabel()
         {
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Revision);
+            return string.Format("{0} v{1}", GetAddInName(), version);
         }
 
         public static void WarningMessageBox(string text, LogManager logger)
@@ -126,12 +126,12 @@ namespace StatTag
             return howMany == 1 ? singularForm : pluralForm;
         }
 
-        public static IEnumerable<Annotation> GetCheckedAnnotationsFromListView(ListView listView)
+        public static IEnumerable<Tag> GetCheckedTagsFromListView(ListView listView)
         {
             return
                 listView.CheckedItems.Cast<ListViewItem>()
-                    .Where(x => x.Tag is Annotation)
-                    .Select(x => x.Tag as Annotation);
+                    .Where(x => x.Tag is Tag)
+                    .Select(x => x.Tag as Tag);
         }
 
         public static System.Drawing.Font CreateScaledFont(System.Drawing.Font font, Graphics graphics)
@@ -142,7 +142,7 @@ namespace StatTag
             return scaledFont;
         }
 
-        public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleAnnotation)
+        public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleTag)
         {
             var actions = new List<GridDataItem>();
             actions.Add(GridDataItem.CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null));
@@ -151,8 +151,8 @@ namespace StatTag
                 actions.Add(GridDataItem.CreateActionItem(string.Format("Use file {0}", file.FilePath),
                     Constants.CodeFileActionTask.ChangeFile, file));
             }
-            actions.Add(GridDataItem.CreateActionItem(string.Format("Remove {0} from document", (forSingleAnnotation ? "this annotation" : "all annotations in this code file")),
-                Constants.CodeFileActionTask.RemoveAnnotations, null));
+            actions.Add(GridDataItem.CreateActionItem(string.Format("Remove {0} from document", (forSingleTag ? "this tag" : "all tags in this code file")),
+                Constants.CodeFileActionTask.RemoveTags, null));
             actions.Add(GridDataItem.CreateActionItem("Link the missing code file to this document",
                 Constants.CodeFileActionTask.ReAddFile, null));
 

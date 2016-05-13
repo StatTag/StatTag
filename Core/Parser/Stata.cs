@@ -10,7 +10,7 @@ namespace StatTag.Core.Parser
 {
     /// <summary>
     /// Reads through a file containing stata commands and identifies the blocks of
-    /// code that use the StatTag annotation syntax
+    /// code that use the StatTag tag syntax
     /// </summary>
     public sealed class Stata : BaseParser
     {

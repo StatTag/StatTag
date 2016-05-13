@@ -35,56 +35,56 @@ namespace Core.Tests.Generator
         public void CreateOpenTag_Value()
         {
             var generator = new StubGenerator();
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
-                Type = Constants.AnnotationType.Value,
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            Assert.AreEqual("**>>>AM:Value(Type=\"Default\")", generator.CreateOpenTag(annotation));
+            Assert.AreEqual("**>>>AM:Value(Type=\"Default\")", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
         public void CreateOpenTag_Figure()
         {
             var generator = new StubGenerator();
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
-                Type = Constants.AnnotationType.Figure,
+                Type = Constants.TagType.Figure,
                 FigureFormat = new FigureFormat()
             };
-            Assert.AreEqual("**>>>AM:Figure()", generator.CreateOpenTag(annotation));
+            Assert.AreEqual("**>>>AM:Figure()", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
         public void CreateOpenTag_Table()
         {
             var generator = new StubGenerator();
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
-                Type = Constants.AnnotationType.Table
+                Type = Constants.TagType.Table
             };
-            Assert.AreEqual("**>>>AM:Table(Type=\"Default\")", generator.CreateOpenTag(annotation));
+            Assert.AreEqual("**>>>AM:Table(Type=\"Default\")", generator.CreateOpenTag(tag));
 
-            annotation.TableFormat = new TableFormat();
-            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(annotation));
+            tag.TableFormat = new TableFormat();
+            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
         public void CombineValueAndTableParameters()
         {
             var generator = new StubGenerator();
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
-                Type = Constants.AnnotationType.Table,
+                Type = Constants.TagType.Table,
                 ValueFormat = new ValueFormat(),
                 TableFormat = new TableFormat()
             };
 
-            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Default\"", generator.CombineValueAndTableParameters(annotation));
+            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Default\"", generator.CombineValueAndTableParameters(tag));
 
-            annotation.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
-            annotation.ValueFormat.DecimalPlaces = 2;
-            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Numeric\", Decimals=2, Thousands=False", generator.CombineValueAndTableParameters(annotation));
+            tag.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
+            tag.ValueFormat.DecimalPlaces = 2;
+            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Numeric\", Decimals=2, Thousands=False", generator.CombineValueAndTableParameters(tag));
         }
     }
 }

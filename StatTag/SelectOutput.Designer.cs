@@ -32,7 +32,7 @@
             this.cmdOK = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lvwOutput = new System.Windows.Forms.ListView();
-            this.colAnnotationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colTagName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
@@ -77,7 +77,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvwOutput.CheckBoxes = true;
             this.lvwOutput.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colAnnotationName,
+            this.colTagName,
             this.colFileName});
             this.lvwOutput.FullRowSelect = true;
             this.lvwOutput.GridLines = true;
@@ -90,10 +90,10 @@
             this.lvwOutput.View = System.Windows.Forms.View.Details;
             this.lvwOutput.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwOutput_ColumnClick);
             // 
-            // colAnnotationName
+            // colTagName
             // 
-            this.colAnnotationName.Text = "Output";
-            this.colAnnotationName.Width = 250;
+            this.colTagName.Text = "Output";
+            this.colTagName.Width = 250;
             // 
             // colFileName
             // 
@@ -142,7 +142,7 @@
         private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListView lvwOutput;
-        private System.Windows.Forms.ColumnHeader colAnnotationName;
+        private System.Windows.Forms.ColumnHeader colTagName;
         private System.Windows.Forms.ColumnHeader colFileName;
         private Controls.PlaceholderTextBox txtFilter;
     }

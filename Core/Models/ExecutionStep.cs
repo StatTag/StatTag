@@ -11,7 +11,7 @@ namespace StatTag.Core.Models
         public int Type { get; set; }
         public List<string> Code { get; set; }
         public List<string> Result { get; set; }
-        public Annotation Annotation { get; set; }
+        public Tag Tag { get; set; }
 
         public ExecutionStep()
         {

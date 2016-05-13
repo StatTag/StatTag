@@ -7,7 +7,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Models
 {
-    public class DuplicateAnnotationResults : Dictionary<CodeFile, Dictionary<Annotation, List<Annotation>>>
+    public class DuplicateTagResults : Dictionary<CodeFile, Dictionary<Tag, List<Tag>>>
     {
     }
 }

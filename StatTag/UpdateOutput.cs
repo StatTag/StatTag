@@ -15,28 +15,28 @@ namespace StatTag
 {
     public sealed partial class UpdateOutput : Form
     {
-        public List<Annotation> Annotations { get; set; }
+        public List<Tag> Tags { get; set; }
 
-        private readonly List<Annotation> DefaultAnnotations = new List<Annotation>();
-        private readonly List<Annotation> OnDemandAnnotations = new List<Annotation>();
+        private readonly List<Tag> DefaultTags = new List<Tag>();
+        private readonly List<Tag> OnDemandTags = new List<Tag>();
 
-        private AnnotationListViewColumnSorter DefaultListSorter = new AnnotationListViewColumnSorter(); 
-        private AnnotationListViewColumnSorter OnDemandListSorter = new AnnotationListViewColumnSorter();
+        private TagListViewColumnSorter DefaultListSorter = new TagListViewColumnSorter(); 
+        private TagListViewColumnSorter OnDemandListSorter = new TagListViewColumnSorter();
 
-        public List<Annotation> SelectedAnnotations
+        public List<Tag> SelectedTags
         {
             get
             {
-                var annotations = new List<Annotation>();
-                annotations.AddRange(UIUtility.GetCheckedAnnotationsFromListView(lvwDefault));
-                annotations.AddRange(UIUtility.GetCheckedAnnotationsFromListView(lvwOnDemand));
-                return annotations;
+                var tags = new List<Tag>();
+                tags.AddRange(UIUtility.GetCheckedTagsFromListView(lvwDefault));
+                tags.AddRange(UIUtility.GetCheckedTagsFromListView(lvwOnDemand));
+                return tags;
             }
         }
 
-        public UpdateOutput(List<Annotation> annotations)
+        public UpdateOutput(List<Tag> tags)
         {
-            Annotations = annotations;
+            Tags = tags;
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
@@ -71,20 +71,20 @@ namespace StatTag
 
         private void UpdateOutput_Load(object sender, EventArgs e)
         {
-            if (Annotations == null)
+            if (Tags == null)
             {
                 return;
             }
 
-            foreach (var annotation in Annotations)
+            foreach (var tag in Tags)
             {
-                if (annotation.RunFrequency.Equals(Constants.RunFrequency.Default))
+                if (tag.RunFrequency.Equals(Constants.RunFrequency.Default))
                 {
-                    DefaultAnnotations.Add(annotation);
+                    DefaultTags.Add(tag);
                 }
                 else
                 {
-                    OnDemandAnnotations.Add(annotation);
+                    OnDemandTags.Add(tag);
                 }
             }
 
@@ -97,15 +97,15 @@ namespace StatTag
 
         private void LoadOnDemandList(string filter = "")
         {
-            LoadList(OnDemandAnnotations, lvwOnDemand, false, filter);
+            LoadList(OnDemandTags, lvwOnDemand, false, filter);
         }
 
         private void LoadDefaultList(string filter = "")
         {
-            LoadList(DefaultAnnotations, lvwDefault, true, filter);
+            LoadList(DefaultTags, lvwDefault, true, filter);
         }
 
-        private void LoadList(List<Annotation> annotations, ListView listView, bool checkItem, string filter = "")
+        private void LoadList(List<Tag> tags, ListView listView, bool checkItem, string filter = "")
         {
             Cursor = Cursors.WaitCursor;
 
@@ -113,11 +113,11 @@ namespace StatTag
             {
                 listView.Items.Clear();
 
-                foreach (var annotation in annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var tag in tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = listView.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] { annotation.CodeFile.FilePath });
-                    item.Tag = annotation;
+                    var item = listView.Items.Add(tag.OutputLabel);
+                    item.SubItems.AddRange(new[] { tag.CodeFile.FilePath });
+                    item.Tag = tag;
                     item.Checked = checkItem;
                 }
             }

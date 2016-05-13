@@ -30,38 +30,38 @@
         {
             this.tabUnlinked = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
-            this.dgvUnlinkedAnnotations = new System.Windows.Forms.DataGridView();
+            this.dgvUnlinkedTags = new System.Windows.Forms.DataGridView();
             this.colCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAnnotationLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTagLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabResults = new System.Windows.Forms.TabControl();
             this.tabDuplicate = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
-            this.dgvDuplicateAnnotations = new System.Windows.Forms.DataGridView();
+            this.dgvDuplicateTags = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAnnotationLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTagLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
             this.tabUnlinked.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedAnnotations)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).BeginInit();
             this.tabResults.SuspendLayout();
             this.tabDuplicate.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateAnnotations)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateTags)).BeginInit();
             this.SuspendLayout();
             // 
             // tabUnlinked
             // 
             this.tabUnlinked.Controls.Add(this.label2);
-            this.tabUnlinked.Controls.Add(this.dgvUnlinkedAnnotations);
+            this.tabUnlinked.Controls.Add(this.dgvUnlinkedTags);
             this.tabUnlinked.Location = new System.Drawing.Point(4, 26);
             this.tabUnlinked.Name = "tabUnlinked";
             this.tabUnlinked.Padding = new System.Windows.Forms.Padding(3);
             this.tabUnlinked.Size = new System.Drawing.Size(728, 267);
             this.tabUnlinked.TabIndex = 0;
-            this.tabUnlinked.Text = "Unlinked Annotations";
+            this.tabUnlinked.Text = "Unlinked Tags";
             this.tabUnlinked.UseVisualStyleBackColor = true;
             // 
             // label2
@@ -72,33 +72,33 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(716, 38);
             this.label2.TabIndex = 3;
-            this.label2.Text = "These annotations have been inserted into your document text, but the code file a" +
+            this.label2.Text = "These tags have been inserted into your document text, but the code file a" +
     "ssociated with them is not currently linked to the document:";
             // 
-            // dgvUnlinkedAnnotations
+            // dgvUnlinkedTags
             // 
-            this.dgvUnlinkedAnnotations.AllowUserToAddRows = false;
-            this.dgvUnlinkedAnnotations.AllowUserToDeleteRows = false;
-            this.dgvUnlinkedAnnotations.AllowUserToResizeRows = false;
-            this.dgvUnlinkedAnnotations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.dgvUnlinkedTags.AllowUserToAddRows = false;
+            this.dgvUnlinkedTags.AllowUserToDeleteRows = false;
+            this.dgvUnlinkedTags.AllowUserToResizeRows = false;
+            this.dgvUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvUnlinkedAnnotations.CausesValidation = false;
-            this.dgvUnlinkedAnnotations.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvUnlinkedAnnotations.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvUnlinkedTags.CausesValidation = false;
+            this.dgvUnlinkedTags.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvUnlinkedTags.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colCodeFile,
-            this.colAnnotationLabel,
+            this.colTagLabel,
             this.colActionToTake});
-            this.dgvUnlinkedAnnotations.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvUnlinkedAnnotations.Location = new System.Drawing.Point(6, 49);
-            this.dgvUnlinkedAnnotations.MultiSelect = false;
-            this.dgvUnlinkedAnnotations.Name = "dgvUnlinkedAnnotations";
-            this.dgvUnlinkedAnnotations.RowHeadersVisible = false;
-            this.dgvUnlinkedAnnotations.ShowCellErrors = false;
-            this.dgvUnlinkedAnnotations.ShowEditingIcon = false;
-            this.dgvUnlinkedAnnotations.ShowRowErrors = false;
-            this.dgvUnlinkedAnnotations.Size = new System.Drawing.Size(719, 212);
-            this.dgvUnlinkedAnnotations.TabIndex = 2;
+            this.dgvUnlinkedTags.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dgvUnlinkedTags.Location = new System.Drawing.Point(6, 49);
+            this.dgvUnlinkedTags.MultiSelect = false;
+            this.dgvUnlinkedTags.Name = "dgvUnlinkedTags";
+            this.dgvUnlinkedTags.RowHeadersVisible = false;
+            this.dgvUnlinkedTags.ShowCellErrors = false;
+            this.dgvUnlinkedTags.ShowEditingIcon = false;
+            this.dgvUnlinkedTags.ShowRowErrors = false;
+            this.dgvUnlinkedTags.Size = new System.Drawing.Size(719, 212);
+            this.dgvUnlinkedTags.TabIndex = 2;
             // 
             // colCodeFile
             // 
@@ -108,13 +108,13 @@
             this.colCodeFile.Name = "colCodeFile";
             this.colCodeFile.ReadOnly = true;
             // 
-            // colAnnotationLabel
+            // colTagLabel
             // 
-            this.colAnnotationLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colAnnotationLabel.FillWeight = 25F;
-            this.colAnnotationLabel.HeaderText = "Annotation Label";
-            this.colAnnotationLabel.Name = "colAnnotationLabel";
-            this.colAnnotationLabel.ReadOnly = true;
+            this.colTagLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colTagLabel.FillWeight = 25F;
+            this.colTagLabel.HeaderText = "Tag Label";
+            this.colTagLabel.Name = "colTagLabel";
+            this.colTagLabel.ReadOnly = true;
             // 
             // colActionToTake
             // 
@@ -139,12 +139,12 @@
             // tabDuplicate
             // 
             this.tabDuplicate.Controls.Add(this.label3);
-            this.tabDuplicate.Controls.Add(this.dgvDuplicateAnnotations);
+            this.tabDuplicate.Controls.Add(this.dgvDuplicateTags);
             this.tabDuplicate.Location = new System.Drawing.Point(4, 26);
             this.tabDuplicate.Name = "tabDuplicate";
             this.tabDuplicate.Size = new System.Drawing.Size(728, 267);
             this.tabDuplicate.TabIndex = 1;
-            this.tabDuplicate.Text = "Duplicate Annotations";
+            this.tabDuplicate.Text = "Duplicate Tags";
             this.tabDuplicate.UseVisualStyleBackColor = true;
             // 
             // label3
@@ -155,50 +155,50 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(716, 38);
             this.label3.TabIndex = 5;
-            this.label3.Text = "The following annotation names appear multiple times in the same code file.  An o" +
+            this.label3.Text = "The following tag names appear multiple times in the same code file.  An o" +
     "utput label should only appear once in each code file.";
             // 
-            // dgvDuplicateAnnotations
+            // dgvDuplicateTags
             // 
-            this.dgvDuplicateAnnotations.AllowUserToAddRows = false;
-            this.dgvDuplicateAnnotations.AllowUserToDeleteRows = false;
-            this.dgvDuplicateAnnotations.AllowUserToResizeRows = false;
-            this.dgvDuplicateAnnotations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.dgvDuplicateTags.AllowUserToAddRows = false;
+            this.dgvDuplicateTags.AllowUserToDeleteRows = false;
+            this.dgvDuplicateTags.AllowUserToResizeRows = false;
+            this.dgvDuplicateTags.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvDuplicateAnnotations.CausesValidation = false;
-            this.dgvDuplicateAnnotations.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvDuplicateAnnotations.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvDuplicateTags.CausesValidation = false;
+            this.dgvDuplicateTags.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvDuplicateTags.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn2,
-            this.colAnnotationLines,
+            this.colTagLines,
             this.colDuplicateLabel,
             this.colDuplicateLines});
-            this.dgvDuplicateAnnotations.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvDuplicateAnnotations.Location = new System.Drawing.Point(6, 49);
-            this.dgvDuplicateAnnotations.MultiSelect = false;
-            this.dgvDuplicateAnnotations.Name = "dgvDuplicateAnnotations";
-            this.dgvDuplicateAnnotations.RowHeadersVisible = false;
-            this.dgvDuplicateAnnotations.ShowCellErrors = false;
-            this.dgvDuplicateAnnotations.ShowEditingIcon = false;
-            this.dgvDuplicateAnnotations.ShowRowErrors = false;
-            this.dgvDuplicateAnnotations.Size = new System.Drawing.Size(719, 212);
-            this.dgvDuplicateAnnotations.TabIndex = 4;
+            this.dgvDuplicateTags.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dgvDuplicateTags.Location = new System.Drawing.Point(6, 49);
+            this.dgvDuplicateTags.MultiSelect = false;
+            this.dgvDuplicateTags.Name = "dgvDuplicateTags";
+            this.dgvDuplicateTags.RowHeadersVisible = false;
+            this.dgvDuplicateTags.ShowCellErrors = false;
+            this.dgvDuplicateTags.ShowEditingIcon = false;
+            this.dgvDuplicateTags.ShowRowErrors = false;
+            this.dgvDuplicateTags.Size = new System.Drawing.Size(719, 212);
+            this.dgvDuplicateTags.TabIndex = 4;
             // 
             // dataGridViewTextBoxColumn2
             // 
             this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn2.FillWeight = 40F;
-            this.dataGridViewTextBoxColumn2.HeaderText = "Annotation Label";
+            this.dataGridViewTextBoxColumn2.HeaderText = "Tag Label";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             // 
-            // colAnnotationLines
+            // colTagLines
             // 
-            this.colAnnotationLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colAnnotationLines.DividerWidth = 3;
-            this.colAnnotationLines.FillWeight = 10F;
-            this.colAnnotationLines.HeaderText = "Lines";
-            this.colAnnotationLines.Name = "colAnnotationLines";
-            this.colAnnotationLines.ReadOnly = true;
+            this.colTagLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colTagLines.DividerWidth = 3;
+            this.colTagLines.FillWeight = 10F;
+            this.colTagLines.HeaderText = "Lines";
+            this.colTagLines.Name = "colTagLines";
+            this.colTagLines.ReadOnly = true;
             // 
             // colDuplicateLabel
             // 
@@ -263,13 +263,13 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "CheckDocument";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Check Annotations";
+            this.Text = "StatTag - Check Tags";
             this.Load += new System.EventHandler(this.CheckDocument_Load);
             this.tabUnlinked.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedAnnotations)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).EndInit();
             this.tabResults.ResumeLayout(false);
             this.tabDuplicate.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateAnnotations)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateTags)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -281,17 +281,17 @@
         private System.Windows.Forms.TabControl tabResults;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.DataGridView dgvUnlinkedAnnotations;
+        private System.Windows.Forms.DataGridView dgvUnlinkedTags;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCodeFile;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAnnotationLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTagLabel;
         private System.Windows.Forms.DataGridViewComboBoxColumn colActionToTake;
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.TabPage tabDuplicate;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.DataGridView dgvDuplicateAnnotations;
+        private System.Windows.Forms.DataGridView dgvDuplicateTags;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAnnotationLines;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTagLines;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLines;
     }

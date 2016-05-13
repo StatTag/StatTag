@@ -8,15 +8,15 @@ using Newtonsoft.Json;
 namespace StatTag.Core.Models
 {
     /// <summary>
-    /// A specialized version of Annotation that lives inside of fields within the
+    /// A specialized version of Tag that lives inside of fields within the
     /// Word document.  This contains some additional attributes that pertain to an
     /// instance of an Attribute within the documment, and not the general specification
     /// of the Attribute.
     /// </summary>
-    /// <remarks>A good example is with a Table annotation.  The Annotation defines how the
-    /// table as a whole is formatted, while the FieldAnnotation specifies a single cell
+    /// <remarks>A good example is with a Table tag.  The Tag defines how the
+    /// table as a whole is formatted, while the FieldTag specifies a single cell
     /// within the table.</remarks>
-    public class FieldAnnotation : Annotation
+    public class FieldTag : Tag
     {
         public int? TableCellIndex { get; set; }
 
@@ -44,37 +44,37 @@ namespace StatTag.Core.Models
             }
         }
 
-        public FieldAnnotation()
+        public FieldTag()
             : base()
         {
             TableCellIndex = null;
         }
 
-        public FieldAnnotation(Annotation annotation) 
-            : base(annotation)
+        public FieldTag(Tag tag) 
+            : base(tag)
         {
             TableCellIndex = null;
         }
 
-        public FieldAnnotation(Annotation annotation, int? tableCellIndex)
-            : base(annotation)
+        public FieldTag(Tag tag, int? tableCellIndex)
+            : base(tag)
         {
             TableCellIndex = tableCellIndex;
             SetCachedValue();
         }
 
-        public FieldAnnotation(Annotation annotation, FieldAnnotation fieldAnnotation)
-            : base(annotation ?? fieldAnnotation)
+        public FieldTag(Tag tag, FieldTag fieldTag)
+            : base(tag ?? fieldTag)
         {
-            TableCellIndex = fieldAnnotation.TableCellIndex;
-            CodeFilePath = fieldAnnotation.CodeFilePath;
+            TableCellIndex = fieldTag.TableCellIndex;
+            CodeFilePath = fieldTag.CodeFilePath;
             SetCachedValue();
         }
 
-        public FieldAnnotation(FieldAnnotation annotation)
-            : base(annotation)
+        public FieldTag(FieldTag tag)
+            : base(tag)
         {
-            TableCellIndex = annotation.TableCellIndex;
+            TableCellIndex = tag.TableCellIndex;
         }
 
         /// <summary>
@@ -88,49 +88,49 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Create a new Annotation object given a JSON string
+        /// Create a new Tag object given a JSON string
         /// </summary>
         /// <param name="json"></param>
         /// <param name="files"></param>
         /// <returns></returns>
-        public new static FieldAnnotation Deserialize(string json, IEnumerable<CodeFile> files = null)
+        public new static FieldTag Deserialize(string json, IEnumerable<CodeFile> files = null)
         {
-            var annotation = JsonConvert.DeserializeObject<FieldAnnotation>(json);
-            annotation.OutputLabel = NormalizeOutputLabel(annotation.OutputLabel);
-            LinkToCodeFile(annotation, files);
-            return annotation;
+            var tag = JsonConvert.DeserializeObject<FieldTag>(json);
+            tag.OutputLabel = NormalizeOutputLabel(tag.OutputLabel);
+            LinkToCodeFile(tag, files);
+            return tag;
         }
 
         /// <summary>
-        /// Provide a link to a FieldAnnotation from a list of CodeFile objects
+        /// Provide a link to a FieldTag from a list of CodeFile objects
         /// </summary>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <param name="files"></param>
-        public static void LinkToCodeFile(FieldAnnotation annotation, IEnumerable<CodeFile> files)
+        public static void LinkToCodeFile(FieldTag tag, IEnumerable<CodeFile> files)
         {
-            if (annotation == null || files == null)
+            if (tag == null || files == null)
             {
                 return;
             }
 
             foreach (var file in files)
             {
-                if (annotation.CodeFilePath.Equals(file.FilePath))
+                if (tag.CodeFilePath.Equals(file.FilePath))
                 {
-                    annotation.CodeFile = file;
+                    tag.CodeFile = file;
                     return;
                 }
             }
         }
 
         /// <summary>
-        /// Utility function called when a FieldAnnotation is created from an existing annotation and
-        /// a cell index (meaning it's a table annotation).  We want to update this annotation to
+        /// Utility function called when a FieldTag is created from an existing tag and
+        /// a cell index (meaning it's a table tag).  We want to update this tag to
         /// only carry the specific cell value.
         /// </summary>
         protected void SetCachedValue()
         {
-            if (IsTableAnnotation() && TableCellIndex.HasValue
+            if (IsTableTag() && TableCellIndex.HasValue
                 && CachedResult != null && CachedResult.Count > 0)
             {
                 var table = CachedResult.Last().TableResult;

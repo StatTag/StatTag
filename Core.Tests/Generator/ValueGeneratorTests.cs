@@ -67,36 +67,36 @@ namespace Core.Tests.Generator
         public void CreateParameters_Default()
         {
             var generator = new ValueGenerator();
-            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Annotation()));
-            Assert.AreEqual("Label=\"Test\", Type=\"Default\"", generator.CreateParameters(new Annotation() {OutputLabel = "Test" }));
-            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Annotation() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
+            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag()));
+            Assert.AreEqual("Label=\"Test\", Type=\"Default\"", generator.CreateParameters(new Tag() {OutputLabel = "Test" }));
+            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
         }
 
         [TestMethod]
         public void CreateParameters_RunFrequency()
         {
             var generator = new ValueGenerator();
-            Assert.AreEqual("Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Annotation() { RunFrequency = Constants.RunFrequency.OnDemand }));
-            Assert.AreEqual("Label=\"Test\", Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Annotation() { OutputLabel = "Test", RunFrequency = Constants.RunFrequency.OnDemand }));
-            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Annotation() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
+            Assert.AreEqual("Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Tag() { RunFrequency = Constants.RunFrequency.OnDemand }));
+            Assert.AreEqual("Label=\"Test\", Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Tag() { OutputLabel = "Test", RunFrequency = Constants.RunFrequency.OnDemand }));
+            Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
         }
 
         [TestMethod]
         public void CreateParameters_EachType()
         {
             var generator = new ValueGenerator();
-            var annotation = new Annotation() {ValueFormat = new ValueFormat()};
-            annotation.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
-            Assert.IsTrue(generator.CreateParameters(annotation).StartsWith("Type=\"Numeric\""));
-            Assert.AreNotEqual("Type=\"Numeric\"", generator.CreateParameters(annotation)); // Should be more than the type parameter
-            annotation.ValueFormat.FormatType = Constants.ValueFormatType.DateTime;
-            Assert.IsTrue(generator.CreateParameters(annotation).StartsWith("Type=\"DateTime\""));
-            Assert.AreEqual("Type=\"DateTime\"", generator.CreateParameters(annotation)); // Should be just the type parameter by default
-            annotation.ValueFormat.DateFormat = "MM-DD-YYYY";
-            Assert.AreNotEqual("Type=\"DateTime\"", generator.CreateParameters(annotation)); // Should be more than the type parameter when we have a format
-            annotation.ValueFormat.FormatType = Constants.ValueFormatType.Percentage;
-            Assert.IsTrue(generator.CreateParameters(annotation).StartsWith("Type=\"Percentage\""));
-            Assert.AreNotEqual("Type=\"Percentage\"", generator.CreateParameters(annotation)); // Should be more than the type parameter
+            var tag = new Tag() {ValueFormat = new ValueFormat()};
+            tag.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
+            Assert.IsTrue(generator.CreateParameters(tag).StartsWith("Type=\"Numeric\""));
+            Assert.AreNotEqual("Type=\"Numeric\"", generator.CreateParameters(tag)); // Should be more than the type parameter
+            tag.ValueFormat.FormatType = Constants.ValueFormatType.DateTime;
+            Assert.IsTrue(generator.CreateParameters(tag).StartsWith("Type=\"DateTime\""));
+            Assert.AreEqual("Type=\"DateTime\"", generator.CreateParameters(tag)); // Should be just the type parameter by default
+            tag.ValueFormat.DateFormat = "MM-DD-YYYY";
+            Assert.AreNotEqual("Type=\"DateTime\"", generator.CreateParameters(tag)); // Should be more than the type parameter when we have a format
+            tag.ValueFormat.FormatType = Constants.ValueFormatType.Percentage;
+            Assert.IsTrue(generator.CreateParameters(tag).StartsWith("Type=\"Percentage\""));
+            Assert.AreNotEqual("Type=\"Percentage\"", generator.CreateParameters(tag)); // Should be more than the type parameter
         }
     }
 }

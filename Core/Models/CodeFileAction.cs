@@ -8,7 +8,7 @@ namespace StatTag.Core.Models
 {
     /// <summary>
     /// Used to specify an action to take when a code file is unlinked from a document, and there
-    /// are annotations referenced in the document that it depends on.
+    /// are tags referenced in the document that it depends on.
     /// </summary>
     public class CodeFileAction
     {

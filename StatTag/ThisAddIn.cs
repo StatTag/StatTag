@@ -125,12 +125,12 @@ namespace StatTag
                 }
                 else
                 {
-                    file.LoadAnnotationsFromContent(false);  // Skip saving the cache, since this is the first load
+                    file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
 
                     try
                     {
                         Globals.ThisAddIn.Application.ScreenUpdating = false;
-                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
+                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded", file.FilePath, file.Tags.Count));
                         var results = StatsManager.ExecuteStatPackage(file);
                         LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
                     }
@@ -165,7 +165,7 @@ namespace StatTag
             if (exception != null)
             {
                 UIUtility.ReportException(exception,
-                    "There was an error attempting to load the details of this annotation.  If this problem persists, you may want to remove and insert the annotation again.",
+                    "There was an error attempting to load the details of this tag.  If this problem persists, you may want to remove and insert the tag again.",
                     LogManager);
             }
         }
@@ -197,7 +197,7 @@ namespace StatTag
                     var field = selection.Fields[1];
                     if (field != null)
                     {
-                        Manager.EditAnnotationField(field);
+                        Manager.EditTagField(field);
                         Marshal.ReleaseComObject(field);
                     }
                 }

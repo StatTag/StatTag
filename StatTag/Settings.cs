@@ -20,9 +20,9 @@ namespace StatTag
 
         public Settings(Models.Properties properties)
         {
+            InitializeComponent();
             Properties = properties;
             MinimumSize = Size;
-            InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 

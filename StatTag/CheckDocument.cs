@@ -23,19 +23,19 @@ namespace StatTag
         /// The collection of updates that should be applied to uniquely name annotations across
         /// code files.
         /// </summary>
-        public List<UpdatePair<Annotation>> DuplicateAnnotationUpdates { get; set; }
+        public List<UpdatePair<Tag>> DuplicateAnnotationUpdates { get; set; }
 
         /// <summary>
         /// Used as input, this is the list of annotations that are not fully linked to the
         /// current document, organized by the missing code file path.
         /// </summary>
-        public Dictionary<string, List<Annotation>> UnlinkedAnnotations;
+        public Dictionary<string, List<Tag>> UnlinkedAnnotations;
 
         /// <summary>
         /// Used as input, this is the list of code files that contain annotations with
         /// duplicate names.
         /// </summary>
-        public DuplicateAnnotationResults DuplicateAnnotations { get; set; }
+        public DuplicateTagResults DuplicateAnnotations { get; set; }
 
         private readonly List<CodeFile> Files;
 
@@ -50,11 +50,11 @@ namespace StatTag
 
         private class DuplicateAnnotationPair
         {
-            public Annotation First { get; set; }
-            public Annotation Second { get; set; }
+            public Tag First { get; set; }
+            public Tag Second { get; set; }
         }
 
-        public CheckDocument(Dictionary<string, List<Annotation>> unlinkedAnnotations, DuplicateAnnotationResults duplicateAnnotations, List<CodeFile> files)
+        public CheckDocument(Dictionary<string, List<Tag>> unlinkedAnnotations, DuplicateTagResults duplicateAnnotations, List<CodeFile> files)
         {
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());

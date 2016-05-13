@@ -11,7 +11,7 @@ namespace StatTag.Models
     /// <summary>
     /// This code is derived from https://support.microsoft.com/en-us/kb/319401
     /// </summary>
-    public class AnnotationListViewColumnSorter : IComparer
+    public class TagListViewColumnSorter : IComparer
     {
         /// <summary>
         /// Specifies the column to be sorted
@@ -31,7 +31,7 @@ namespace StatTag.Models
         /// <summary>
         /// Class constructor.  Initializes various elements
         /// </summary>
-        public AnnotationListViewColumnSorter()
+        public TagListViewColumnSorter()
         {
             // Initialize the column to '0'
             SortColumn = 0;

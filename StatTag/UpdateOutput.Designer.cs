@@ -37,7 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lvwOnDemand = new System.Windows.Forms.ListView();
-            this.colAnnotationName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colTagName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lvwDefault = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -119,7 +119,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(214, 17);
             this.label1.TabIndex = 16;
-            this.label1.Text = "On Demand annotations to update:";
+            this.label1.Text = "On Demand tags to update:";
             // 
             // label2
             // 
@@ -128,7 +128,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(185, 17);
             this.label2.TabIndex = 17;
-            this.label2.Text = "Default annotations to update:";
+            this.label2.Text = "Default tags to update:";
             // 
             // lvwOnDemand
             // 
@@ -136,7 +136,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvwOnDemand.CheckBoxes = true;
             this.lvwOnDemand.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colAnnotationName,
+            this.colTagName,
             this.colFileName});
             this.lvwOnDemand.FullRowSelect = true;
             this.lvwOnDemand.GridLines = true;
@@ -149,10 +149,10 @@
             this.lvwOnDemand.View = System.Windows.Forms.View.Details;
             this.lvwOnDemand.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwOnDemand_ColumnClick);
             // 
-            // colAnnotationName
+            // colTagName
             // 
-            this.colAnnotationName.Text = "Output";
-            this.colAnnotationName.Width = 250;
+            this.colTagName.Text = "Output";
+            this.colTagName.Width = 250;
             // 
             // colFileName
             // 
@@ -256,7 +256,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ListView lvwOnDemand;
-        private System.Windows.Forms.ColumnHeader colAnnotationName;
+        private System.Windows.Forms.ColumnHeader colTagName;
         private System.Windows.Forms.ColumnHeader colFileName;
         private System.Windows.Forms.ListView lvwDefault;
         private System.Windows.Forms.ColumnHeader columnHeader1;

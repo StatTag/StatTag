@@ -12,6 +12,6 @@ namespace StatTag.Core.Generator
         string CommentCharacter { get; }
         string CreateOpenTagBase();
         string CreateClosingTag();
-        string CreateOpenTag(Annotation annotation);
+        string CreateOpenTag(Tag tag);
     }
 }

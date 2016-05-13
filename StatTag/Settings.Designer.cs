@@ -147,12 +147,14 @@
             this.lblVersion.AutoSize = true;
             this.lblVersion.Location = new System.Drawing.Point(5, 21);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(138, 17);
+            this.lblVersion.Size = new System.Drawing.Size(79, 17);
             this.lblVersion.TabIndex = 13;
             this.lblVersion.Text = "StatTag v1.0";
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.lblCopyright);
             this.groupBox1.Controls.Add(this.lblVersion);
             this.groupBox1.Location = new System.Drawing.Point(13, 12);
@@ -235,7 +237,6 @@
             // Settings
             // 
             this.AcceptButton = this.cmdOK;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(465, 357);

@@ -50,13 +50,13 @@ namespace StatTag
                 {
                     Manager.Files = loadDialog.Files;
 
-                    var unlinkedResults = Manager.FindAllUnlinkedAnnotations();
+                    var unlinkedResults = Manager.FindAllUnlinkedTags();
                     if (unlinkedResults != null && unlinkedResults.Count > 0)
                     {
                         var linkDialog = new LinkCodeFiles(unlinkedResults, Manager.Files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
-                            Manager.UpdateUnlinkedAnnotationsByCodeFile(linkDialog.CodeFileUpdates);
+                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);
                         }
                     }
                 }
@@ -69,11 +69,11 @@ namespace StatTag
             }
         }
 
-        private void cmdManageAnnotations_Click(object sender, RibbonControlEventArgs e)
+        private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
             try
             {
-                var dialog = new ManageAnnotations(Manager);
+                var dialog = new ManageTags(Manager);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
                     Manager.SaveAllCodeFiles();
@@ -82,7 +82,7 @@ namespace StatTag
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to manage your annotations.",
+                    "There was an unexpected error when trying to manage your tags.",
                     LogManager);
             }
         }
@@ -96,34 +96,34 @@ namespace StatTag
                 Globals.ThisAddIn.Application.ScreenUpdating = false;
                 try
                 {
-                    var updatedAnnotations = new List<Annotation>();
+                    var updatedTags = new List<Tag>();
                     var refreshedFiles = new List<CodeFile>();
-                    var annotations = dialog.GetSelectedAnnotations();
-                    foreach (var annotation in annotations)
+                    var tags = dialog.GetSelectedTags();
+                    foreach (var tag in tags)
                     {
-                        if (!refreshedFiles.Contains(annotation.CodeFile))
+                        if (!refreshedFiles.Contains(tag.CodeFile))
                         {
-                            var result = StatsManager.ExecuteStatPackage(annotation.CodeFile,
-                                Constants.ParserFilterMode.AnnotationList, annotations);
+                            var result = StatsManager.ExecuteStatPackage(tag.CodeFile,
+                                Constants.ParserFilterMode.TagList, tags);
                             if (!result.Success)
                             {
                                 break;
                             }
 
-                            updatedAnnotations.AddRange(result.UpdatedAnnotations);
-                            refreshedFiles.Add(annotation.CodeFile);
+                            updatedTags.AddRange(result.UpdatedTags);
+                            refreshedFiles.Add(tag.CodeFile);
                         }
 
-                        Manager.InsertField(annotation);
+                        Manager.InsertField(tag);
                     }
 
                     // Now that all of the fields have been inserted, sweep through and update any existing
-                    // annotations that changed.  We do this after the fields are inserted to better manage
+                    // tags that changed.  We do this after the fields are inserted to better manage
                     // the cursor position in the document.
-                    updatedAnnotations = updatedAnnotations.Distinct().ToList();
-                    foreach (var updatedAnnotation in updatedAnnotations)
+                    updatedTags = updatedTags.Distinct().ToList();
+                    foreach (var updatedTag in updatedTags)
                     {
-                        Manager.UpdateFields(new UpdatePair<Annotation>(updatedAnnotation, updatedAnnotation));
+                        Manager.UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
                     }
                 }
                 catch (Exception exc)
@@ -162,25 +162,25 @@ namespace StatTag
 
         private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new UpdateOutput(Manager.GetAnnotations());
+            var dialog = new UpdateOutput(Manager.GetTags());
             if (DialogResult.OK != dialog.ShowDialog())
             {
                 return;
             }
 
-            var annotations = dialog.SelectedAnnotations;
+            var tags = dialog.SelectedTags;
             Cursor.Current = Cursors.WaitCursor;
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
                 // First, go through and update all of the code files to ensure we have all
-                // refreshed annotations.
+                // refreshed tags.
                 var refreshedFiles = new List<CodeFile>();
                 foreach (var codeFile in Manager.Files)
                 {
                     if (!refreshedFiles.Contains(codeFile))
                     {
-                        var result = StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.AnnotationList, annotations);
+                        var result = StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
                         if (!result.Success)
                         {
                             break;
@@ -190,8 +190,8 @@ namespace StatTag
                     }
                 }
 
-                // Now we will refresh all of the annotations that are fields.  Since we most likely
-                // have more fields than annotations, we are going to use the approach of looping
+                // Now we will refresh all of the tags that are fields.  Since we most likely
+                // have more fields than tags, we are going to use the approach of looping
                 // through all fields and updating them (via the DocumentManager).
                 Manager.UpdateFields();
             }

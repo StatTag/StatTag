@@ -1,6 +1,6 @@
 ﻿namespace StatTag
 {
-    sealed partial class EditAnnotation
+    sealed partial class EditTag
     {
         /// <summary>
         /// Required designer variable.
@@ -113,7 +113,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(246, 17);
             this.label3.TabIndex = 12;
-            this.label3.Text = "Click in the margin to define annotations:";
+            this.label3.Text = "Click in the margin to define tags:";
             // 
             // label4
             // 
@@ -275,7 +275,7 @@
             this.valueProperties.Size = new System.Drawing.Size(662, 108);
             this.valueProperties.TabIndex = 0;
             // 
-            // EditAnnotation
+            // EditTag
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -301,11 +301,11 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "EditAnnotation";
+            this.Name = "EditTag";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Annotation";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditAnnotation_FormClosing);
-            this.Load += new System.EventHandler(this.ManageAnnotation_Load);
+            this.Text = "Tag";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditTag_FormClosing);
+            this.Load += new System.EventHandler(this.ManageTag_Load);
             this.pnlType.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

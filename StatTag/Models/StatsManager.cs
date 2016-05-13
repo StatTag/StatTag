@@ -26,10 +26,10 @@ namespace StatTag.Models
             public bool Success { get; set; }
 
             /// <summary>
-            /// A list of Annotations that were detected as having changed values since they
+            /// A list of Tags that were detected as having changed values since they
             /// were originally inserted into the document
             /// </summary>
-            public List<Annotation> UpdatedAnnotations { get; set; }
+            public List<Tag> UpdatedTags { get; set; }
         }
 
         /// <summary>
@@ -49,11 +49,11 @@ namespace StatTag.Models
         /// </summary>
         /// <param name="file">The code file to execute</param>
         /// <param name="filterMode">The type of filter to apply on the types of commands to execute</param>
-        /// <param name="annotationsToRun">An optional list of annotations to execute code for.  This is only applied when the filter mode is ParserFilterMode.AnnotationList</param>
+        /// <param name="tagsToRun">An optional list of tags to execute code for.  This is only applied when the filter mode is ParserFilterMode.TagList</param>
         /// <returns></returns>
-        public ExecuteResult ExecuteStatPackage(CodeFile file, int filterMode = Constants.ParserFilterMode.ExcludeOnDemand, List<Annotation> annotationsToRun = null)
+        public ExecuteResult ExecuteStatPackage(CodeFile file, int filterMode = Constants.ParserFilterMode.ExcludeOnDemand, List<Tag> tagsToRun = null)
         {
-            var result = new ExecuteResult() { Success = false, UpdatedAnnotations = new List<Annotation>() };
+            var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
             using (var automation = new Automation())
             {
                 if (!automation.Initialize())
@@ -73,7 +73,7 @@ namespace StatTag.Models
                 try
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
-                    var steps = parser.GetExecutionSteps(file, filterMode, annotationsToRun);
+                    var steps = parser.GetExecutionSteps(file, filterMode, tagsToRun);
                     //foreach (var step in steps)
                     for (int index = 0; index < steps.Count; index++)
                     {
@@ -89,10 +89,10 @@ namespace StatTag.Models
                             Globals.ThisAddIn.Application.ScreenUpdating = false;
                         }
 
-                        // If there is no annotation, we will join all of the command code together.  This allows us to have
+                        // If there is no tag, we will join all of the command code together.  This allows us to have
                         // multi-line statements, such as a for loop.  Because we don't check for return results, we just
                         // process the command and continue.
-                        if (step.Annotation == null)
+                        if (step.Tag == null)
                         {
                             string combinedCommand = string.Join("\r\n", step.Code.ToArray());
                             automation.RunCommands(new[] {combinedCommand});
@@ -102,30 +102,30 @@ namespace StatTag.Models
 
                         var results = automation.RunCommands(step.Code.ToArray());
 
-                        var annotation = Manager.FindAnnotation(step.Annotation.Id);
-                        if (annotation != null)
+                        var tag = Manager.FindTag(step.Tag.Id);
+                        if (tag != null)
                         {
                             var resultList = new List<CommandResult>(results);
 
                             // Determine if we had a cached list, and if so if the results have changed.
-                            bool resultsChanged = (annotation.CachedResult != null &&
-                                                   !resultList.SequenceEqual(annotation.CachedResult));
-                            annotation.CachedResult = resultList;
+                            bool resultsChanged = (tag.CachedResult != null &&
+                                                   !resultList.SequenceEqual(tag.CachedResult));
+                            tag.CachedResult = resultList;
 
                             // If the results did change, we need to sweep the document and update all of the results
                             if (resultsChanged)
                             {
-                                // For all table annotations, update the formatted cells collection
-                                if (annotation.IsTableAnnotation())
+                                // For all table tags, update the formatted cells collection
+                                if (tag.IsTableTag())
                                 {
-                                    annotation.CachedResult.FindAll(x => x.TableResult != null).ForEach(
+                                    tag.CachedResult.FindAll(x => x.TableResult != null).ForEach(
                                         x =>
                                             x.TableResult.FormattedCells =
-                                                annotation.TableFormat.Format(x.TableResult,
-                                                    Factories.GetValueFormatter(annotation.CodeFile)));
+                                                tag.TableFormat.Format(x.TableResult,
+                                                    Factories.GetValueFormatter(tag.CodeFile)));
                                 }
 
-                                result.UpdatedAnnotations.Add(annotation);
+                                result.UpdatedTags.Add(tag);
                             }
                         }
                     }
