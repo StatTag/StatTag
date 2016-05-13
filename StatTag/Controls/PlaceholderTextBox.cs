@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AnalysisManager.Controls
+namespace StatTag.Controls
 {
     public sealed partial class PlaceholderTextBox : UserControl
     {

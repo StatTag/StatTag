@@ -1,5 +1,5 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Models

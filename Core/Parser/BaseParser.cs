@@ -5,17 +5,17 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Parser
+namespace StatTag.Core.Parser
 {
     public abstract class BaseParser : IParser
     {
         public abstract string CommentCharacter { get; }
 
-        protected Regex StartAnnotationRegEx = null;
-        protected Regex EndAnnotationRegEx = null;
+        protected Regex StartTagRegEx = null;
+        protected Regex EndTagRegEx = null;
 
         protected BaseParser()
         {
@@ -38,71 +38,71 @@ namespace AnalysisManager.Core.Parser
         /// <returns>A list of strings representing the code that should be executed</returns>
         public abstract List<string> PreProcessContent(List<string> originalContent);
 
-        protected Match DetectAnnotation(Regex annotationRegex, string line)
+        protected Match DetectTag(Regex tagRegex, string line)
         {
             if (line == null)
             {
                 line = string.Empty;
             }
 
-            return annotationRegex.Match(line);
+            return tagRegex.Match(line);
         }
 
         private void SetupRegEx()
         {
-            if (StartAnnotationRegEx == null)
+            if (StartTagRegEx == null)
             {
-                StartAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.AnnotationTags.StartAnnotation, Constants.AnnotationTags.AnnotationPrefix), RegexOptions.Singleline);
+                StartTagRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.TagTags.StartTag, Constants.TagTags.TagPrefix), RegexOptions.Singleline);
             }
 
-            if (EndAnnotationRegEx == null)
+            if (EndTagRegEx == null)
             {
-                EndAnnotationRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.AnnotationTags.EndAnnotation, Constants.AnnotationTags.AnnotationPrefix), RegexOptions.Singleline);
+                EndTagRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.TagTags.EndTag, Constants.TagTags.TagPrefix), RegexOptions.Singleline);
             }
         }
 
-        public Annotation[] Parse(CodeFile file,
+        public Tag[] Parse(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
-            List<Annotation> annotationsToRun = null)
+            List<Tag> tagsToRun = null)
         {
             SetupRegEx();
 
-            var annotations = new List<Annotation>();
+            var tags = new List<Tag>();
             if (file == null)
             {
-                return annotations.ToArray();
+                return tags.ToArray();
             }
 
             var lines = file.LoadFileContent();
             if (lines == null)
             {
-                return annotations.ToArray();
+                return tags.ToArray();
             }
 
             int? startIndex = null;
-            Annotation annotation = null;
+            Tag tag = null;
             for (int index = 0; index < lines.Count(); index++)
             {
                 var line = lines[index].Trim();
-                var match = StartAnnotationRegEx.Match(line);
+                var match = StartTagRegEx.Match(line);
                 if (match.Success)
                 {
-                    annotation = new Annotation()
+                    tag = new Tag()
                     {
                         LineStart = index,
                         CodeFile = file
                     };
                     startIndex = index;
-                    ProcessAnnotation(match.Groups[1].Value, annotation);
+                    ProcessTag(match.Groups[1].Value, tag);
                 }
                 else if (startIndex.HasValue)
                 {
-                    match = EndAnnotationRegEx.Match(line);
+                    match = EndTagRegEx.Match(line);
                     if (match.Success)
                     {
-                        annotation.LineStart = startIndex;
-                        annotation.LineEnd = index;
-                        annotations.Add(annotation);
+                        tag.LineStart = startIndex;
+                        tag.LineEnd = index;
+                        tags.Add(tag);
                         startIndex = null;
                     }
                 }
@@ -110,19 +110,19 @@ namespace AnalysisManager.Core.Parser
 
             if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand)
             {
-                return annotations.Where(x => x.RunFrequency == Constants.RunFrequency.Default).ToArray();
+                return tags.Where(x => x.RunFrequency == Constants.RunFrequency.Default).ToArray();
             }
-            else if (filterMode == Constants.ParserFilterMode.AnnotationList && annotationsToRun != null)
+            else if (filterMode == Constants.ParserFilterMode.TagList && tagsToRun != null)
             {
-                return annotations.Where(x => annotationsToRun.Contains(x)).ToArray();
+                return tags.Where(x => tagsToRun.Contains(x)).ToArray();
             }
 
-            return annotations.ToArray();
+            return tags.ToArray();
         }
 
         public List<ExecutionStep> GetExecutionSteps(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
-            List<Annotation> annotationsToRun = null)
+            List<Tag> tagsToRun = null)
         {
             var executionSteps = new List<ExecutionStep>();
             var lines = PreProcessContent(file.LoadFileContent());
@@ -143,7 +143,7 @@ namespace AnalysisManager.Core.Parser
                     step = new ExecutionStep();
                 }
 
-                var match = StartAnnotationRegEx.Match(line);
+                var match = StartTagRegEx.Match(line);
                 if (match.Success)
                 {
                     // If the previous code block had content, save it off and create a new one
@@ -153,24 +153,24 @@ namespace AnalysisManager.Core.Parser
                         step = new ExecutionStep();
                     }
 
-                    var annotation = new Annotation() { CodeFile = file };
+                    var tag = new Tag() { CodeFile = file };
                     startIndex = index;
-                    ProcessAnnotation(match.Groups[1].Value, annotation);
+                    ProcessTag(match.Groups[1].Value, tag);
                     if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand
-                        && annotation.RunFrequency == Constants.RunFrequency.OnDemand)
+                        && tag.RunFrequency == Constants.RunFrequency.OnDemand)
                     {
                         isSkipping = true;
                     }
-                    else if (filterMode == Constants.ParserFilterMode.AnnotationList
-                             && annotationsToRun != null
-                             && !annotationsToRun.Contains(annotation))
+                    else if (filterMode == Constants.ParserFilterMode.TagList
+                             && tagsToRun != null
+                             && !tagsToRun.Contains(tag))
                     {
                         isSkipping = true;
                     }
                     else
                     {
-                        step.Type = Constants.ExecutionStepType.Annotation;
-                        step.Annotation = annotation;
+                        step.Type = Constants.ExecutionStepType.Tag;
+                        step.Tag = tag;
                         step.Code.Add(line);
                     }
                 }
@@ -181,7 +181,7 @@ namespace AnalysisManager.Core.Parser
                         step.Code.Add(line);
                     }
                     
-                    match = EndAnnotationRegEx.Match(line);
+                    match = EndTagRegEx.Match(line);
                     if (match.Success)
                     {
                         isSkipping = false;
@@ -208,27 +208,27 @@ namespace AnalysisManager.Core.Parser
             return executionSteps;
         }
 
-        protected void ProcessAnnotation(string annotationText, Annotation annotation)
+        protected void ProcessTag(string tagText, Tag tag)
         {
-            if (annotationText.StartsWith(Constants.AnnotationType.Value))
+            if (tagText.StartsWith(Constants.TagType.Value))
             {
-                annotation.Type = Constants.AnnotationType.Value;
-                ValueParameterParser.Parse(annotationText, annotation);
+                tag.Type = Constants.TagType.Value;
+                ValueParameterParser.Parse(tagText, tag);
             }
-            else if (annotationText.StartsWith(Constants.AnnotationType.Figure))
+            else if (tagText.StartsWith(Constants.TagType.Figure))
             {
-                annotation.Type = Constants.AnnotationType.Figure;
-                FigureParameterParser.Parse(annotationText, annotation);
+                tag.Type = Constants.TagType.Figure;
+                FigureParameterParser.Parse(tagText, tag);
             }
-            else if (annotationText.StartsWith(Constants.AnnotationType.Table))
+            else if (tagText.StartsWith(Constants.TagType.Table))
             {
-                annotation.Type = Constants.AnnotationType.Table;
-                TableParameterParser.Parse(annotationText, annotation);
-                ValueParameterParser.Parse(annotationText, annotation);
+                tag.Type = Constants.TagType.Table;
+                TableParameterParser.Parse(tagText, tag);
+                ValueParameterParser.Parse(tagText, tag);
             }
             else
             {
-                //throw new Exception("Unsupported annotation type");
+                //throw new Exception("Unsupported tag type");
             }
         }
     }

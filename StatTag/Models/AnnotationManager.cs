@@ -5,80 +5,80 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
-    /// The AnnotationManager is responsible for finding, editing, and otherwise managing specific annotations.
+    /// The TagManager is responsible for finding, editing, and otherwise managing specific tags.
     /// This has some overlap (conceptually) with the DocumentManager class.  Functionality split out here is
     /// meant to relieve the DocumentManager of needing to accomplish everything.
     /// 
     /// At times, this class needs to reference the DocumentManager to perform an action.  For example - an
-    /// action for an unlinked annotation is to re-link the code file, which is handled by the DocumentManager.
+    /// action for an unlinked tag is to re-link the code file, which is handled by the DocumentManager.
     /// A reference is included back to the DocumentManager class to allow this.
     /// 
-    /// The relationship is that an AnnotationManager only exists in the context of a DocumentManager.  An instance
+    /// The relationship is that an TagManager only exists in the context of a DocumentManager.  An instance
     /// of this class should not exist outside of the DocumentManager.  These methods should only be accessed by
     /// the DocumentManager instance that contains it.
     /// </summary>
-    public class AnnotationManager : BaseManager
+    public class TagManager : BaseManager
     {
         public DocumentManager DocumentManager { get; set; }
 
-        public AnnotationManager(DocumentManager manager)
+        public TagManager(DocumentManager manager)
         {
             DocumentManager = manager;
         }
 
         /// <summary>
-        /// Find the master reference of an annotation, which is contained in the code files
+        /// Find the master reference of an tag, which is contained in the code files
         /// associated with the current document
         /// </summary>
-        /// <param name="annotation">The annotation to find</param>
+        /// <param name="tag">The tag to find</param>
         /// <returns></returns>
-        public Annotation FindAnnotation(Annotation annotation)
+        public Tag FindTag(Tag tag)
         {
-            return FindAnnotation(annotation.Id);
+            return FindTag(tag.Id);
         }
 
         /// <summary>
-        /// Find the master reference of an annotation, which is contained in the code files
+        /// Find the master reference of an tag, which is contained in the code files
         /// associated with the current document
         /// </summary>
-        /// <param name="id">The annotation identifier to search for</param>
+        /// <param name="id">The tag identifier to search for</param>
         /// <returns></returns>
-        public Annotation FindAnnotation(string id)
+        public Tag FindTag(string id)
         {
             if (DocumentManager.Files == null)
             {
-                Log("Unable to find an annotation because the Files collection is null");
+                Log("Unable to find an tag because the Files collection is null");
                 return null;
             }
 
-            return DocumentManager.Files.SelectMany(file => file.Annotations).FirstOrDefault(annotation => annotation.Id.Equals(id));
+            return DocumentManager.Files.SelectMany(file => file.Tags).FirstOrDefault(tag => tag.Id.Equals(id));
         }
 
         /// <summary>
         /// For all of the code files associated with the current document, get all of the
-        /// annotations as a single list.
+        /// tags as a single list.
         /// </summary>
         /// <returns></returns>
-        public List<Annotation> GetAnnotations()
+        public List<Tag> GetTags()
         {
-            var annotations = new List<Annotation>();
-            DocumentManager.Files.ForEach(file => annotations.AddRange(file.Annotations));
-            return annotations;
+            var tags = new List<Tag>();
+            DocumentManager.Files.ForEach(file => tags.AddRange(file.Tags));
+            return tags;
         }
 
         /// <summary>
-        /// Given a Word field, determine if it is our specialized Analysis Manager field type given
+        /// Given a Word field, determine if it is our specialized StatTag field type given
         /// its composition.
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public bool IsAnalysisManagerField(Field field)
+        public bool IsStatTagField(Field field)
         {
             return (field != null
                 && field.Type == WdFieldType.wdFieldMacroButton
@@ -88,7 +88,7 @@ namespace AnalysisManager.Models
 
         /// <summary>
         /// Determine if a field is a linked field.  While linked fields can take on various forms, we
-        /// use them in Analysis Manager to represent images.
+        /// use them in StatTag to represent images.
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
@@ -99,62 +99,62 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Deserialize a field to extract the FieldAnnotation data
+        /// Deserialize a field to extract the FieldTag data
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public FieldAnnotation DeserializeFieldAnnotation(Field field)
+        public FieldTag DeserializeFieldTag(Field field)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
-            var fieldAnnotation = FieldAnnotation.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture),
+            var fieldTag = FieldTag.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture),
                 DocumentManager.Files);
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
-            return fieldAnnotation;
+            return fieldTag;
         }
 
         /// <summary>
-        /// Given a Word document Field, extracts the embedded Analysis Manager annotation
+        /// Given a Word document Field, extracts the embedded StatTag tag
         /// associated with it.
         /// </summary>
         /// <param name="field">The Word field object to investigate</param>
         /// <returns></returns>
-        public FieldAnnotation GetFieldAnnotation(Field field)
+        public FieldTag GetFieldTag(Field field)
         {
-            var fieldAnnotation = DeserializeFieldAnnotation(field);
-            var annotation = FindAnnotation(fieldAnnotation);
+            var fieldTag = DeserializeFieldTag(field);
+            var tag = FindTag(fieldTag);
 
-            // The result of FindAnnotation is going to be a document-level annotation, not a
+            // The result of FindTag is going to be a document-level tag, not a
             // cell specific one that exists as a field.  We need to re-set the cell index
-            // from the annotation we found, to ensure it's available for later use.
-            return new FieldAnnotation(annotation, fieldAnnotation);
+            // from the tag we found, to ensure it's available for later use.
+            return new FieldTag(tag, fieldTag);
         }
 
-        public DuplicateAnnotationResults FindAllDuplicateAnnotations()
+        public DuplicateTagResults FindAllDuplicateTags()
         {
-            var duplicateAnnotations = new DuplicateAnnotationResults();
+            var duplicateTags = new DuplicateTagResults();
             foreach (var file in DocumentManager.Files)
             {
-                var result = file.FindDuplicateAnnotations();
+                var result = file.FindDuplicateTags();
                 if (result != null && result.Count > 0)
                 {
-                    duplicateAnnotations.Add(file, result);
+                    duplicateTags.Add(file, result);
                 }
             }
 
-            return duplicateAnnotations;
+            return duplicateTags;
         }
 
         /// <summary>
-        /// Search the active Word document and find all inserted annotations.  Determine if the annotation's
+        /// Search the active Word document and find all inserted tags.  Determine if the tag's
         /// code file is linked to this document, and report those that are not.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, List<Annotation>> FindAllUnlinkedAnnotations()
+        public Dictionary<string, List<Tag>> FindAllUnlinkedTags()
         {
-            Log("FindAllUnlinkedAnnotations - Started");
-            var results = new Dictionary<string, List<Annotation>>();
+            Log("FindAllUnlinkedTags - Started");
+            var results = new Dictionary<string, List<Tag>>();
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
@@ -173,48 +173,48 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!IsAnalysisManagerField(field))
+                if (!IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
-                var annotation = GetFieldAnnotation(field);
-                if (annotation == null)
+                Log("Processing StatTag field");
+                var tag = GetFieldTag(field);
+                if (tag == null)
                 {
-                    Log("The field annotation is null or could not be found");
+                    Log("The field tag is null or could not be found");
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                if (!DocumentManager.Files.Any(x => x.FilePath.Equals(annotation.CodeFilePath)))
+                if (!DocumentManager.Files.Any(x => x.FilePath.Equals(tag.CodeFilePath)))
                 {
-                    if (!results.ContainsKey(annotation.CodeFilePath))
+                    if (!results.ContainsKey(tag.CodeFilePath))
                     {
-                        results.Add(annotation.CodeFilePath, new List<Annotation>());
+                        results.Add(tag.CodeFilePath, new List<Tag>());
                     }
 
-                    results[annotation.CodeFilePath].Add(annotation);
+                    results[tag.CodeFilePath].Add(tag);
                 }
                 Marshal.ReleaseComObject(field);
             }
 
             Marshal.ReleaseComObject(document);
 
-            Log("FindAllUnlinkedAnnotations - Finished");
+            Log("FindAllUnlinkedTags - Finished");
             return results;
         }
 
         /// <summary>
         /// A generic method that will iterate over the fields in the active document, and apply a function to
-        /// each Analysis Manager field.
+        /// each StatTag field.
         /// </summary>
         /// <param name="function">The function to apply to each relevant field</param>
         /// <param name="configuration">A set of configuration information specific to the function</param>
-        public void ProcessAnalysisManagerFields(Action<Field, FieldAnnotation, object> function, object configuration)
+        public void ProcessStatTagFields(Action<Field, FieldTag, object> function, object configuration)
         {
-            Log("ProcessAnalysisManagerFields - Started");
+            Log("ProcessStatTagFields - Started");
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
@@ -233,53 +233,53 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!IsAnalysisManagerField(field))
+                if (!IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
-                var annotation = GetFieldAnnotation(field);
-                if (annotation == null)
+                Log("Processing StatTag field");
+                var tag = GetFieldTag(field);
+                if (tag == null)
                 {
-                    Log("The field annotation is null or could not be found");
+                    Log("The field tag is null or could not be found");
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                function(field, annotation, configuration);
+                function(field, tag, configuration);
 
                 Marshal.ReleaseComObject(field);
             }
 
             Marshal.ReleaseComObject(document);
 
-            Log("ProcessAnalysisManagerFields - Finished");
+            Log("ProcessStatTagFields - Finished");
         }
 
         /// <summary>
-        /// Update the annotation data in a field.
+        /// Update the tag data in a field.
         /// </summary>
-        /// <remarks>Assumes that the field parameter is known to be an annotation field</remarks>
-        /// <param name="field">The field to update.  This is the outermost layer of the annotation field.</param>
-        /// <param name="annotation">The annotation to be updated.</param>
-        public void UpdateAnnotationFieldData(Field field, FieldAnnotation annotation)
+        /// <remarks>Assumes that the field parameter is known to be an tag field</remarks>
+        /// <param name="field">The field to update.  This is the outermost layer of the tag field.</param>
+        /// <param name="tag">The tag to be updated.</param>
+        public void UpdateTagFieldData(Field field, FieldTag tag)
         {
             var code = field.Code;
             var nestedField = code.Fields[1];
-            nestedField.Data = annotation.Serialize();
+            nestedField.Data = tag.Serialize();
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
         }
 
         /// <summary>
-        /// Given a field and its annotation, update it to link to a new code file
+        /// Given a field and its tag, update it to link to a new code file
         /// </summary>
-        /// <param name="field">The document Field that contains the annotation</param>
-        /// <param name="annotation">The annotation that will be updated</param>
+        /// <param name="field">The document Field that contains the tag</param>
+        /// <param name="tag">The tag that will be updated</param>
         /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
-        public void UpdateUnlinkedAnnotationsByCodeFile(Field field, FieldAnnotation annotation, object configuration)
+        public void UpdateUnlinkedTagsByCodeFile(Field field, FieldTag tag, object configuration)
         {
             var actions = configuration as Dictionary<string, CodeFileAction>;
             if (actions == null)
@@ -290,15 +290,15 @@ namespace AnalysisManager.Models
 
             // If there is no action specified for this field, we will exit.  This should happen when we have fields that
             // are still linked in a document.
-            if (!actions.ContainsKey(annotation.CodeFilePath))
+            if (!actions.ContainsKey(tag.CodeFilePath))
             {
-                Log(string.Format("No action is needed for annotation in file {0}", annotation.CodeFilePath));
+                Log(string.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
                 return;
             }
 
             // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
             // with doing anything.
-            var action = actions[annotation.CodeFilePath];
+            var action = actions[tag.CodeFilePath];
             if (action == null)
             {
                 Log("No action was specified - exiting");
@@ -310,21 +310,21 @@ namespace AnalysisManager.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing annotation {0} from {1} to {2}",
-                        annotation.OutputLabel, annotation.CodeFilePath, codeFile.FilePath));
-                    annotation.CodeFile = codeFile;
-                    UpdateAnnotationFieldData(field, annotation);
+                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                        tag.OutputLabel, tag.CodeFilePath, codeFile.FilePath));
+                    tag.CodeFile = codeFile;
+                    UpdateTagFieldData(field, tag);
                     break;
-                case Constants.CodeFileActionTask.RemoveAnnotations:
-                    Log(string.Format("Removing {0}", annotation.OutputLabel));
+                case Constants.CodeFileActionTask.RemoveTags:
+                    Log(string.Format("Removing {0}", tag.OutputLabel));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", annotation.CodeFilePath));
-                    DocumentManager.AddCodeFile(annotation.CodeFilePath);
+                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
                     Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
@@ -333,12 +333,12 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given a field and its annotation, update it to link to a new code file
+        /// Given a field and its tag, update it to link to a new code file
         /// </summary>
-        /// <param name="field">The document Field that contains the annotation</param>
-        /// <param name="annotation">The annotation that will be updated</param>
+        /// <param name="field">The document Field that contains the tag</param>
+        /// <param name="tag">The tag that will be updated</param>
         /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
-        public void UpdateUnlinkedAnnotationsByAnnotation(Field field, FieldAnnotation annotation, object configuration)
+        public void UpdateUnlinkedTagsByTag(Field field, FieldTag tag, object configuration)
         {
             var actions = configuration as Dictionary<string, CodeFileAction>;
             if (actions == null)
@@ -349,15 +349,15 @@ namespace AnalysisManager.Models
 
             // If there is no action specified for this field, we will exit.  This should happen when we have fields that
             // are still linked in a document.
-            if (!actions.ContainsKey(annotation.Id))
+            if (!actions.ContainsKey(tag.Id))
             {
-                Log(string.Format("No action is needed for annotation {0}", annotation.Id));
+                Log(string.Format("No action is needed for tag {0}", tag.Id));
                 return;
             }
 
             // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
             // with doing anything.
-            var action = actions[annotation.Id];
+            var action = actions[tag.Id];
             if (action == null)
             {
                 Log("No action was specified - exiting");
@@ -369,21 +369,21 @@ namespace AnalysisManager.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing annotation {0} from {1} to {2}",
-                        annotation.OutputLabel, annotation.CodeFilePath, codeFile.FilePath));
-                    annotation.CodeFile = codeFile;
-                    UpdateAnnotationFieldData(field, annotation);
+                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                        tag.OutputLabel, tag.CodeFilePath, codeFile.FilePath));
+                    tag.CodeFile = codeFile;
+                    UpdateTagFieldData(field, tag);
                     break;
-                case Constants.CodeFileActionTask.RemoveAnnotations:
-                    Log(string.Format("Removing {0}", annotation.OutputLabel));
+                case Constants.CodeFileActionTask.RemoveTags:
+                    Log(string.Format("Removing {0}", tag.OutputLabel));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", annotation.CodeFilePath));
-                    DocumentManager.AddCodeFile(annotation.CodeFilePath);
+                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
                     Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));

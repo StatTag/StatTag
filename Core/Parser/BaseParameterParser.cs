@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Parser
+namespace StatTag.Core.Parser
 {
     public class BaseParameterParser
     {
@@ -15,14 +15,14 @@ namespace AnalysisManager.Core.Parser
         public const string BoolValueMatch = "true|false|True|False";
         protected static Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
 
-        public static void Parse(string annotationText, Annotation annotation)
+        public static void Parse(string tagText, Tag tag)
         {
-            annotation.OutputLabel = Annotation.NormalizeOutputLabel(GetStringParameter(Constants.AnnotationParameters.Label, annotationText));
-            annotation.RunFrequency = GetStringParameter(Constants.AnnotationParameters.Frequency, annotationText, Constants.RunFrequency.Default);
+            tag.OutputLabel = Tag.NormalizeOutputLabel(GetStringParameter(Constants.TagParameters.Label, tagText));
+            tag.RunFrequency = GetStringParameter(Constants.TagParameters.Frequency, tagText, Constants.RunFrequency.Default);
         }
 
         /// <summary>
-        /// Build the regex to identify and extract a parameter from an annotation string.
+        /// Build the regex to identify and extract a parameter from an tag string.
         /// Internally this uses a cache to save created regexes.  These are keyed by the
         /// parameters, as that will uniquely create the regex string.
         /// </summary>
@@ -36,8 +36,8 @@ namespace AnalysisManager.Core.Parser
             if (!RegexCache.ContainsKey(key))
             {
                 RegexCache.Add(key, new Regex(string.Format("\\{2}.*{0}\\s*=\\s*{1}({4}){1}.*\\{3}",
-                    name, (isQuoted ? "\\\"" : string.Empty), Constants.AnnotationTags.ParamStart,
-                    Constants.AnnotationTags.ParamEnd, valueMatch)));
+                    name, (isQuoted ? "\\\"" : string.Empty), Constants.TagTags.ParamStart,
+                    Constants.TagTags.ParamEnd, valueMatch)));
             }
 
             return RegexCache[key];

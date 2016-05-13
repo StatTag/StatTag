@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using AnalysisManager.Core.Interfaces;
+using StatTag.Core.Interfaces;
 using System.IO;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// Lightweight wrapper on top of the File class from System.IO

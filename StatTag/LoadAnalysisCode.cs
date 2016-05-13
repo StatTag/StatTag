@@ -1,14 +1,14 @@
 ﻿using System.Drawing;
 using System.Linq;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+using StatTag.Core;
+using StatTag.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using AnalysisManager.Core.Utility;
-using AnalysisManager.Models;
+using StatTag.Core.Utility;
+using StatTag.Models;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class LoadAnalysisCode : Form
     {
@@ -63,8 +63,8 @@ namespace AnalysisManager
         {
             dgvItems.CurrentCell = null;
 
-            // Save off the values that may already be cached for an annotation.
-            //var existingAnnotations = Manager.GetAnnotations().Select(a => new Annotation(a)).ToList();
+            // Save off the values that may already be cached for an tag.
+            //var existingTags = Manager.GetTags().Select(a => new Tag(a)).ToList();
 
             var files = new List<CodeFile>();
             for (int index = 0; index < dgvItems.Rows.Count; index++)
@@ -75,7 +75,7 @@ namespace AnalysisManager
                     FilePath = item.Cells[FilePathColumn].Value.ToString(),
                     StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
                 };
-                file.LoadAnnotationsFromContent();
+                file.LoadTagsFromContent();
                 files.Add(file);
                 file.SaveBackup();
             }
@@ -110,8 +110,8 @@ namespace AnalysisManager
                 //var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
                 //if (file != null)
                 //{
-                //    file.LoadAnnotationsFromContent();
-                //    var dialog = new ManageAnnotations(new List<CodeFile>(new []{ file }));
+                //    file.LoadTagsFromContent();
+                //    var dialog = new ManageTags(new List<CodeFile>(new []{ file }));
                 //    if (DialogResult.OK == dialog.ShowDialog())
                 //    {
                         

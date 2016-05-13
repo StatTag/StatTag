@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AnalysisManager.Properties {
+namespace StatTag.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

@@ -6,14 +6,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 using Word = Microsoft.Office.Interop.Word;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Word;
 using System.Windows.Forms;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public partial class ThisAddIn
     {
@@ -64,7 +64,7 @@ namespace AnalysisManager
                 {
                     LogManager.WriteMessage("Stata appears to be running");
                     MessageBox.Show(
-                        string.Format("It appears that a copy of Stata is currently running.  Analysis Manager is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use Analysis Manager."),
+                        string.Format("It appears that a copy of Stata is currently running.  StatTag is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use StatTag."),
                         UIUtility.GetAddInName(),
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
@@ -84,7 +84,7 @@ namespace AnalysisManager
             }
             catch (Exception exc)
             {
-                UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize Analysis Manager.  Not all functionality may be available.", LogManager);
+                UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize StatTag.  Not all functionality may be available.", LogManager);
             }
         }
         
@@ -103,7 +103,7 @@ namespace AnalysisManager
             }
             catch (Exception exc)
             {
-                UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your Analysis Manager data may not be saved.", LogManager);
+                UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your StatTag data may not be saved.", LogManager);
             }
 
             LogManager.WriteMessage("DocumentBeforeSave - code files saved");
@@ -125,12 +125,12 @@ namespace AnalysisManager
                 }
                 else
                 {
-                    file.LoadAnnotationsFromContent(false);  // Skip saving the cache, since this is the first load
+                    file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
 
                     try
                     {
                         Globals.ThisAddIn.Application.ScreenUpdating = false;
-                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} annotations loaded", file.FilePath, file.Annotations.Count));
+                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded", file.FilePath, file.Tags.Count));
                         var results = StatsManager.ExecuteStatPackage(file);
                         LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
                     }
@@ -165,7 +165,7 @@ namespace AnalysisManager
             if (exception != null)
             {
                 UIUtility.ReportException(exception,
-                    "There was an error attempting to load the details of this annotation.  If this problem persists, you may want to remove and insert the annotation again.",
+                    "There was an error attempting to load the details of this tag.  If this problem persists, you may want to remove and insert the tag again.",
                     LogManager);
             }
         }
@@ -197,7 +197,7 @@ namespace AnalysisManager
                     var field = selection.Fields[1];
                     if (field != null)
                     {
-                        Manager.EditAnnotationField(field);
+                        Manager.EditTagField(field);
                         Marshal.ReleaseComObject(field);
                     }
                 }

@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class LinkCodeFiles : Form
     {
@@ -18,13 +18,13 @@ namespace AnalysisManager
         /// The collection of actions that the user has indicated they wish to proceed with.
         /// </summary>
         public Dictionary<string, CodeFileAction> CodeFileUpdates { get; set; }
-        public Dictionary<string, List<Annotation>> UnlinkedResults;
+        public Dictionary<string, List<Tag>> UnlinkedResults;
         private readonly List<CodeFile> Files;
 
         private const int ColMissingCodeFile = 0;
         private const int ColActionToTake = 1;
 
-        public LinkCodeFiles(Dictionary<string, List<Annotation>> unlinkedResults, List<CodeFile> files)
+        public LinkCodeFiles(Dictionary<string, List<Tag>> unlinkedResults, List<CodeFile> files)
         {
             InitializeComponent();
 

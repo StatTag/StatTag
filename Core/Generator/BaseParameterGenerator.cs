@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Generator
+namespace StatTag.Core.Generator
 {
     public class BaseParameterGenerator
     {
-        public string GetLabelParameter(Annotation annotation)
+        public string GetLabelParameter(Tag tag)
         {
-            if (!string.IsNullOrWhiteSpace(annotation.OutputLabel))
+            if (!string.IsNullOrWhiteSpace(tag.OutputLabel))
             {
-                return string.Format("{0}=\"{1}\", ", Constants.AnnotationParameters.Label, annotation.OutputLabel);
+                return string.Format("{0}=\"{1}\", ", Constants.TagParameters.Label, tag.OutputLabel);
             }
 
             return string.Empty;
         }
 
-        public string GetRunFrequencyParameter(Annotation annotation)
+        public string GetRunFrequencyParameter(Tag tag)
         {
-            if (!string.IsNullOrWhiteSpace(annotation.RunFrequency))
+            if (!string.IsNullOrWhiteSpace(tag.RunFrequency))
             {
-                return string.Format("{0}=\"{1}\", ", Constants.AnnotationParameters.Frequency, annotation.RunFrequency);
+                return string.Format("{0}=\"{1}\", ", Constants.TagParameters.Frequency, tag.RunFrequency);
             }
 
             return string.Empty;

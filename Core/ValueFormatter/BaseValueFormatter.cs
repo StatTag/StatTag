@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AnalysisManager.Core.ValueFormatter
+namespace StatTag.Core.ValueFormatter
 {
     public class BaseValueFormatter : IValueFormatter
     {

@@ -1,6 +1,6 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
-    sealed partial class ManageAnnotations
+    sealed partial class ManageTags
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageAnnotations));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageTags));
             this.label1 = new System.Windows.Forms.Label();
             this.dgvItems = new System.Windows.Forms.DataGridView();
             this.colCheck = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -44,7 +44,7 @@
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.cmdRemove = new System.Windows.Forms.Button();
             this.cmdAdd = new System.Windows.Forms.Button();
-            this.txtFilter = new AnalysisManager.Controls.PlaceholderTextBox();
+            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,7 +55,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(375, 17);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Manage the list of annotations accessible within this document:";
+            this.label1.Text = "Manage the list of tags accessible within this document:";
             // 
             // dgvItems
             // 
@@ -171,13 +171,13 @@
             this.dataGridViewImageColumn1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewImageColumn1.Frozen = true;
             this.dataGridViewImageColumn1.HeaderText = "";
-            this.dataGridViewImageColumn1.Image = global::AnalysisManager.Properties.Resources._1446843246_delete;
+            this.dataGridViewImageColumn1.Image = global::StatTag.Properties.Resources._1446843246_delete;
             this.dataGridViewImageColumn1.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom;
             this.dataGridViewImageColumn1.MinimumWidth = 25;
             this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
             this.dataGridViewImageColumn1.ReadOnly = true;
             this.dataGridViewImageColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewImageColumn1.ToolTipText = "Delete this annotation";
+            this.dataGridViewImageColumn1.ToolTipText = "Delete this tag";
             this.dataGridViewImageColumn1.Width = 25;
             // 
             // cmdRemove
@@ -189,7 +189,7 @@
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(168, 25);
             this.cmdRemove.TabIndex = 8;
-            this.cmdRemove.Text = "&Remove Annotation(s)";
+            this.cmdRemove.Text = "&Remove Tag(s)";
             this.cmdRemove.UseVisualStyleBackColor = true;
             this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
             // 
@@ -202,7 +202,7 @@
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(168, 25);
             this.cmdAdd.TabIndex = 7;
-            this.cmdAdd.Text = "&Add Annotation";
+            this.cmdAdd.Text = "&Add Tag";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
@@ -217,7 +217,7 @@
             this.txtFilter.TabIndex = 9;
             this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
-            // ManageAnnotations
+            // ManageTags
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -233,9 +233,9 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "ManageAnnotations";
+            this.Name = "ManageTags";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Analysis Manager - Available Annotations";
+            this.Text = "StatTag - Available Tags";
             this.Load += new System.EventHandler(this.ManageCodeBlocks_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
             this.ResumeLayout(false);

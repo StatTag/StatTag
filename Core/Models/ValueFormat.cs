@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using AnalysisManager.Core.ValueFormatter;
+using StatTag.Core.ValueFormatter;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     public class ValueFormat
     {

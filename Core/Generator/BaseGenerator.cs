@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Generator
+namespace StatTag.Core.Generator
 {
     public abstract class BaseGenerator : IGenerator
     {
@@ -13,56 +13,56 @@ namespace AnalysisManager.Core.Generator
         
         public string CreateOpenTagBase()
         {
-            return string.Format("{0}{0}{1}{2}", CommentCharacter, Constants.AnnotationTags.StartAnnotation,
-                Constants.AnnotationTags.AnnotationPrefix);
+            return string.Format("{0}{0}{1}{2}", CommentCharacter, Constants.TagTags.StartTag,
+                Constants.TagTags.TagPrefix);
         }
 
         public string CreateClosingTag()
         {
-            return string.Format("{0}{0}{1}", CommentCharacter, Constants.AnnotationTags.EndAnnotation);
+            return string.Format("{0}{0}{1}", CommentCharacter, Constants.TagTags.EndTag);
         }
 
-        public string CreateOpenTag(Annotation annotation)
+        public string CreateOpenTag(Tag tag)
         {
             string openBase = CreateOpenTagBase();
-            if (annotation != null)
+            if (tag != null)
             {
-                if (annotation.Type.Equals(Constants.AnnotationType.Value))
+                if (tag.Type.Equals(Constants.TagType.Value))
                 {
                     var valueGenerator = new ValueGenerator();
-                    openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Value,
-                        Constants.AnnotationTags.ParamStart, valueGenerator.CreateParameters(annotation),
-                        Constants.AnnotationTags.ParamEnd);
+                    openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Value,
+                        Constants.TagTags.ParamStart, valueGenerator.CreateParameters(tag),
+                        Constants.TagTags.ParamEnd);
                 }
-                else if (annotation.Type.Equals(Constants.AnnotationType.Figure))
+                else if (tag.Type.Equals(Constants.TagType.Figure))
                 {
                     var figureGenerator = new FigureGenerator();
-                    openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Figure,
-                        Constants.AnnotationTags.ParamStart, figureGenerator.CreateParameters(annotation),
-                        Constants.AnnotationTags.ParamEnd);
+                    openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Figure,
+                        Constants.TagTags.ParamStart, figureGenerator.CreateParameters(tag),
+                        Constants.TagTags.ParamEnd);
                 }
-                else if (annotation.IsTableAnnotation())
+                else if (tag.IsTableTag())
                 {
                     var tableGenerator = new TableGenerator();
-                    openBase += string.Format("{0}{1}{2}{3}", Constants.AnnotationType.Table,
-                        Constants.AnnotationTags.ParamStart, CombineValueAndTableParameters(annotation),
-                        Constants.AnnotationTags.ParamEnd);
+                    openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Table,
+                        Constants.TagTags.ParamStart, CombineValueAndTableParameters(tag),
+                        Constants.TagTags.ParamEnd);
                 }
                 else
                 {
-                    throw new Exception("Unsupported annotation type");
+                    throw new Exception("Unsupported tag type");
                 }
             }
 
             return openBase;
         }
 
-        public string CombineValueAndTableParameters(Annotation annotation)
+        public string CombineValueAndTableParameters(Tag tag)
         {
             var tableGenerator = new TableGenerator();
             var valueGenerator = new ValueGenerator();
-            string tableParameters = tableGenerator.CreateParameters(annotation);
-            string valueParameters = valueGenerator.CreateValueParameters(annotation);
+            string tableParameters = tableGenerator.CreateParameters(tag);
+            string valueParameters = valueGenerator.CreateValueParameters(tag);
             var temp = string.Join(", ", new[] {tableParameters, valueParameters});
             temp = temp.Trim().Trim(new [] { ',' }).Trim();
             return temp;

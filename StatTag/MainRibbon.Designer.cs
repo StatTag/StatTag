@@ -1,4 +1,4 @@
-﻿namespace AnalysisManager
+﻿namespace StatTag
 {
     partial class MainRibbon : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -38,7 +38,7 @@
             this.tab1 = this.Factory.CreateRibbonTab();
             this.codeGroup = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
-            this.cmdManageAnnotations = this.Factory.CreateRibbonButton();
+            this.cmdManageTags = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.cmdValidateDocument = this.Factory.CreateRibbonButton();
@@ -51,41 +51,40 @@
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.Groups.Add(this.codeGroup);
-            this.tab1.Label = "Analysis Manager";
+            this.tab1.Label = "StatTag";
             this.tab1.Name = "tab1";
             // 
             // codeGroup
             // 
             this.codeGroup.Items.Add(this.cmdLoadCode);
-            this.codeGroup.Items.Add(this.cmdManageAnnotations);
+            this.codeGroup.Items.Add(this.cmdManageTags);
             this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Items.Add(this.cmdUpdateOutput);
             this.codeGroup.Items.Add(this.cmdValidateDocument);
             this.codeGroup.Items.Add(this.cmdSettings);
             this.codeGroup.Items.Add(this.button1);
-            this.codeGroup.Label = "Analysis Manager";
+            this.codeGroup.Label = "StatTag";
             this.codeGroup.Name = "codeGroup";
             // 
             // cmdLoadCode
             // 
             this.cmdLoadCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdLoadCode.Image = global::AnalysisManager.Properties.Resources._1446845069_Copy;
+            this.cmdLoadCode.Image = global::StatTag.Properties.Resources._1446845069_Copy;
             this.cmdLoadCode.Label = "Code Files";
             this.cmdLoadCode.Name = "cmdLoadCode";
             this.cmdLoadCode.ShowImage = true;
             this.cmdLoadCode.SuperTip = "Manage the list of analysis source code files used within this document.";
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
             // 
-            // cmdManageAnnotations
+            // cmdManageTags
             // 
-            this.cmdManageAnnotations.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdManageAnnotations.Image = ((System.Drawing.Image)(resources.GetObject("cmdManageAnnotations.Image")));
-            this.cmdManageAnnotations.Label = "Annotations";
-            this.cmdManageAnnotations.Name = "cmdManageAnnotations";
-            this.cmdManageAnnotations.ShowImage = true;
-            this.cmdManageAnnotations.SuperTip = "Manage the list of annotations that are used and referenced within this document." +
-    "";
-            this.cmdManageAnnotations.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageAnnotations_Click);
+            this.cmdManageTags.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdManageTags.Image = ((System.Drawing.Image)(resources.GetObject("cmdManageTags.Image")));
+            this.cmdManageTags.Label = "Tags";
+            this.cmdManageTags.Name = "cmdManageTags";
+            this.cmdManageTags.ShowImage = true;
+            this.cmdManageTags.SuperTip = "Manage the list of tags that are used and referenced within this document.";
+            this.cmdManageTags.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageTags_Click);
             // 
             // cmdInsertOutput
             // 
@@ -108,10 +107,10 @@
             // cmdValidateDocument
             // 
             this.cmdValidateDocument.Image = ((System.Drawing.Image)(resources.GetObject("cmdValidateDocument.Image")));
-            this.cmdValidateDocument.Label = "Check Annotations";
+            this.cmdValidateDocument.Label = "Check Tags";
             this.cmdValidateDocument.Name = "cmdValidateDocument";
             this.cmdValidateDocument.ScreenTip = "Perform a set of validations on the current document to ensure it is properly con" +
-    "figured for use with Analysis Manager.";
+    "figured for use with StatTag.";
             this.cmdValidateDocument.ShowImage = true;
             this.cmdValidateDocument.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdValidateDocument_Click);
             // 
@@ -146,7 +145,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup codeGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdLoadCode;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageAnnotations;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageTags;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdSettings;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;

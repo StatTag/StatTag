@@ -6,14 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// Manages loading and saving user settings and preferences.
     /// </summary>
     public class PropertiesManager
     {
-        private const string ApplicationKey = "Software\\Northwestern University\\AnalysisManager";
+        private const string ApplicationKey = "Software\\Northwestern University\\StatTag";
         private const string StataLocationKey = "Stata Location";
         private const string LogLocationKey = "Log Location";
         private const string LogEnabledKey = "Logging Enabled";

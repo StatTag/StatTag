@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Word = Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
     /// The class <see cref="FieldCreator"/> simplifies the creation of <see cref="Word.Field"/>s.

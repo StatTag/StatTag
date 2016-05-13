@@ -7,16 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 
-namespace AnalysisManager
+namespace StatTag
 {
     public sealed partial class SelectOutput : Form
     {
         protected List<CodeFile> Files = new List<CodeFile>();
-        protected List<Annotation> Annotations = new List<Annotation>();
-        private AnnotationListViewColumnSorter ListViewSorter = new AnnotationListViewColumnSorter();
+        protected List<Tag> Tags = new List<Tag>();
+        private TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
 
         public SelectOutput(List<CodeFile> files = null)
         {
@@ -25,18 +25,18 @@ namespace AnalysisManager
             Files = files;
         }
 
-        public List<Annotation> GetSelectedAnnotations()
+        public List<Tag> GetSelectedTags()
         {
-            return UIUtility.GetCheckedAnnotationsFromListView(lvwOutput).ToList();
+            return UIUtility.GetCheckedTagsFromListView(lvwOutput).ToList();
         }
 
         private void SelectOutput_Load(object sender, EventArgs e)
         {
             foreach (var file in Files)
             {
-                foreach (var annotation in file.Annotations)
+                foreach (var tag in file.Tags)
                 {
-                    Annotations.Add(annotation);
+                    Tags.Add(tag);
                 }
             }
 
@@ -52,11 +52,11 @@ namespace AnalysisManager
             {
                 lvwOutput.Items.Clear();
 
-                foreach (var annotation in Annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var tag in Tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = lvwOutput.Items.Add(annotation.OutputLabel);
-                    item.SubItems.AddRange(new[] {annotation.CodeFile.FilePath});
-                    item.Tag = annotation;
+                    var item = lvwOutput.Items.Add(tag.OutputLabel);
+                    item.SubItems.AddRange(new[] {tag.CodeFile.FilePath});
+                    item.Tag = tag;
                 }
             }
             finally

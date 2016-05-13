@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     public class UpdatePair<T>
     {

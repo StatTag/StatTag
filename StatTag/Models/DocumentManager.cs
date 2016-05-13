@@ -6,28 +6,28 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+using StatTag.Core;
+using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager.Models
+namespace StatTag.Models
 {
     /// <summary>
-    /// Manages interactions with the Word document, including managing attributes and annotations.
+    /// Manages interactions with the Word document, including managing attributes and tags.
     /// </summary>
     public class DocumentManager : BaseManager
     {
         public List<CodeFile> Files { get; set; }
         public FieldCreator FieldManager { get; set; }
-        public AnnotationManager AnnotationManager { get; set; }
+        public TagManager TagManager { get; set; }
 
-        public const string ConfigurationAttribute = "Analysis Manager Configuration";
+        public const string ConfigurationAttribute = "StatTag Configuration";
 
         public DocumentManager()
         {
             Files = new List<CodeFile>();
             FieldManager = new FieldCreator();
-            AnnotationManager = new AnnotationManager(this);
+            TagManager = new TagManager(this);
         }
 
         /// <summary>
@@ -115,28 +115,28 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Insert an image (given a definition from an annotation) into the current Word
+        /// Insert an image (given a definition from an tag) into the current Word
         /// document at the current cursor location.
         /// </summary>
-        /// <param name="annotation"></param>
-        public void InsertImage(Annotation annotation)
+        /// <param name="tag"></param>
+        public void InsertImage(Tag tag)
         {
             Log("InsertImage - Started");
-            if (annotation == null)
+            if (tag == null)
             {
-                Log("The annotation is null, no action will be taken");
+                Log("The tag is null, no action will be taken");
                 return;
             }
 
-            if (annotation.CachedResult == null || annotation.CachedResult.Count == 0)
+            if (tag.CachedResult == null || tag.CachedResult.Count == 0)
             {
-                Log("The annotation has no cached results - unable to insert image");
+                Log("The tag has no cached results - unable to insert image");
                 return;
             }
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
-            string fileName = annotation.CachedResult[0].FigureResult;
+            string fileName = tag.CachedResult[0].FigureResult;
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 Log(string.Format("Inserting a PDF image - {0}", fileName));
@@ -162,27 +162,27 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Determine if an updated annotation pair resulted in a table having different dimensions.  This purely
+        /// Determine if an updated tag pair resulted in a table having different dimensions.  This purely
         /// looks at structure of the table with headers - it does not (currently) factor in data changes.
         /// </summary>
-        /// <param name="annotationUpdatePair"></param>
+        /// <param name="tagUpdatePair"></param>
         /// <returns></returns>
         /// TODO: Move to utility class and write tests
-        private bool IsTableAnnotationChangingDimensions(UpdatePair<Annotation> annotationUpdatePair)
+        private bool IsTableTagChangingDimensions(UpdatePair<Tag> tagUpdatePair)
         {
-            if (annotationUpdatePair == null || annotationUpdatePair.New == null || annotationUpdatePair.Old == null)
+            if (tagUpdatePair == null || tagUpdatePair.New == null || tagUpdatePair.Old == null)
             {
                 return false;
             }
 
-            if (!annotationUpdatePair.Old.IsTableAnnotation() || !annotationUpdatePair.New.IsTableAnnotation())
+            if (!tagUpdatePair.Old.IsTableTag() || !tagUpdatePair.New.IsTableTag())
             {
                 return false;
             }
 
             // Are we changing the display of headers?
-            if (annotationUpdatePair.Old.TableFormat.IncludeColumnNames != annotationUpdatePair.New.TableFormat.IncludeColumnNames
-                || annotationUpdatePair.Old.TableFormat.IncludeRowNames != annotationUpdatePair.New.TableFormat.IncludeRowNames)
+            if (tagUpdatePair.Old.TableFormat.IncludeColumnNames != tagUpdatePair.New.TableFormat.IncludeColumnNames
+                || tagUpdatePair.Old.TableFormat.IncludeRowNames != tagUpdatePair.New.TableFormat.IncludeRowNames)
             {
                 Log("Table dimensions have changed based on header settings");
                 return true;
@@ -192,14 +192,14 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// For a given Word document, remove all of the field annotations for a single table.  This
+        /// For a given Word document, remove all of the field tags for a single table.  This
         /// is in preparation to then re-insert the table in response to a dimension change.
         /// </summary>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <param name="document"></param>
-        private bool RefreshTableAnnotationFields(Annotation annotation, Document document)
+        private bool RefreshTableTagFields(Tag tag, Document document)
         {
-            Log("RefreshTableAnnotationFields - Started");
+            Log("RefreshTableTagFields - Started");
             var fields = document.Fields;
             int fieldsCount = fields.Count;
             bool tableRefreshed = false;
@@ -215,25 +215,25 @@ namespace AnalysisManager.Models
                     continue;
                 }
 
-                if (!AnnotationManager.IsAnalysisManagerField(field))
+                if (!TagManager.IsStatTagField(field))
                 {
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                Log("Processing Analysis Manager field");
-                var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
-                if (fieldAnnotation == null)
+                Log("Processing StatTag field");
+                var fieldTag = TagManager.GetFieldTag(field);
+                if (fieldTag == null)
                 {
-                    Log("The field annotation is null or could not be found");
+                    Log("The field tag is null or could not be found");
                     Marshal.ReleaseComObject(field);
                     continue;
                 }
 
-                if (annotation.Equals(fieldAnnotation))
+                if (tag.Equals(fieldTag))
                 {
-                    bool isFirstCell = (fieldAnnotation.TableCellIndex.HasValue &&
-                                        fieldAnnotation.TableCellIndex.Value == 0);
+                    bool isFirstCell = (fieldTag.TableCellIndex.HasValue &&
+                                        fieldTag.TableCellIndex.Value == 0);
                     int firstFieldLocation = -1;
                     if (isFirstCell)
                     {
@@ -252,7 +252,7 @@ namespace AnalysisManager.Models
                         document.Application.Selection.Start = firstFieldLocation;
                         document.Application.Selection.End = firstFieldLocation;
                         Log("Set position, attempting to insert table");
-                        InsertField(annotation);
+                        InsertField(tag);
                         tableRefreshed = true;
                     }
                 }
@@ -260,7 +260,7 @@ namespace AnalysisManager.Models
                 Marshal.ReleaseComObject(field);
             }
 
-            Log(string.Format("RefreshTableAnnotationFields - Finished, Returning {0}", tableRefreshed));
+            Log(string.Format("RefreshTableTagFields - Finished, Returning {0}", tableRefreshed));
             return tableRefreshed;
         }
 
@@ -302,13 +302,13 @@ namespace AnalysisManager.Models
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
         /// with whatever is set as the current cached value.</remarks>
-        /// <param name="annotationUpdatePair">An optional annotation to update.  If specified, the contents of the annotation (including its underlying data) will be refreshed.
-        /// The reaason this is an Annotation and not a FieldAnnotation is that the function is only called after a change to the main annotation reference.
-        /// If not specified, all annotation fields will be updated</param>
-        /// <param name="matchOnPosition">If set to true, an annotation will only be matched if its line numbers (in the code file) are a match.  This is used when updating
-        /// after disambiguating two annotations with the same name, but isn't needed otherwise.</param>
+        /// <param name="tagUpdatePair">An optional tag to update.  If specified, the contents of the tag (including its underlying data) will be refreshed.
+        /// The reaason this is an Tag and not a FieldTag is that the function is only called after a change to the main tag reference.
+        /// If not specified, all tag fields will be updated</param>
+        /// <param name="matchOnPosition">If set to true, an tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
+        /// after disambiguating two tags with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Annotation> annotationUpdatePair = null, bool matchOnPosition = false)
+        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false)
         {
             Log("UpdateFields - Started");
 
@@ -317,11 +317,11 @@ namespace AnalysisManager.Models
 
             try
             {
-                var tableDimensionChange = IsTableAnnotationChangingDimensions(annotationUpdatePair);
+                var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
                 if (tableDimensionChange)
                 {
-                    Log(string.Format("Attempting to refresh table with annotation label: {0}", annotationUpdatePair.New.OutputLabel));
-                    if (RefreshTableAnnotationFields(annotationUpdatePair.New, document))
+                    Log(string.Format("Attempting to refresh table with tag label: {0}", tagUpdatePair.New.OutputLabel));
+                    if (RefreshTableTagFields(tagUpdatePair.New, document))
                     {
                         Log("Completed refreshing table - leaving UpdateFields");
                         return;
@@ -343,40 +343,40 @@ namespace AnalysisManager.Models
                         continue;
                     }
 
-                    if (!AnnotationManager.IsAnalysisManagerField(field))
+                    if (!TagManager.IsStatTagField(field))
                     {
                         Marshal.ReleaseComObject(field);
                         continue;
                     }
 
-                    Log("Processing Analysis Manager field");
-                    var annotation = AnnotationManager.GetFieldAnnotation(field);
-                    if (annotation == null)
+                    Log("Processing StatTag field");
+                    var tag = TagManager.GetFieldTag(field);
+                    if (tag == null)
                     {
-                        Log("The field annotation is null or could not be found");
+                        Log("The field tag is null or could not be found");
                         Marshal.ReleaseComObject(field);
                         continue;
                     }
 
-                    // If we are asked to update an annotation, we are only going to update that
-                    // annotation specifically.  Otherwise, we will process all annotation fields.
-                    if (annotationUpdatePair != null)
+                    // If we are asked to update an tag, we are only going to update that
+                    // tag specifically.  Otherwise, we will process all tag fields.
+                    if (tagUpdatePair != null)
                     {
-                        // Determine if this is a match, factoring in if we should be doing a more exact match on the annotation.
-                        if ((!matchOnPosition && !annotation.Equals(annotationUpdatePair.Old))
-                            || matchOnPosition && !annotation.EqualsWithPosition(annotationUpdatePair.Old))
+                        // Determine if this is a match, factoring in if we should be doing a more exact match on the tag.
+                        if ((!matchOnPosition && !tag.Equals(tagUpdatePair.Old))
+                            || matchOnPosition && !tag.EqualsWithPosition(tagUpdatePair.Old))
                         {
                             continue;
                         }
 
-                        Log(string.Format("Processing only a specific annotation with label: {0}", annotationUpdatePair.New.OutputLabel));
-                        annotation = new FieldAnnotation(annotationUpdatePair.New, annotation);
-                        AnnotationManager.UpdateAnnotationFieldData(field, annotation);
+                        Log(string.Format("Processing only a specific tag with label: {0}", tagUpdatePair.New.OutputLabel));
+                        tag = new FieldTag(tagUpdatePair.New, tag);
+                        TagManager.UpdateTagFieldData(field, tag);
                     }
 
-                    Log(string.Format("Inserting field for annotation: {0}", annotation.OutputLabel));
+                    Log(string.Format("Inserting field for tag: {0}", tag.OutputLabel));
                     field.Select();
-                    InsertField(annotation);
+                    InsertField(tag);
 
                     Marshal.ReleaseComObject(field);
                 }
@@ -444,34 +444,34 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Insert a table annotation into the current selection.
+        /// Insert a table tag into the current selection.
         /// </summary>
-        /// <remarks>This assumes that the annotation is known to be a table result.</remarks>
+        /// <remarks>This assumes that the tag is known to be a table result.</remarks>
         /// <param name="selection"></param>
-        /// <param name="annotation"></param>
-        public void InsertTable(Selection selection, Annotation annotation)
+        /// <param name="tag"></param>
+        public void InsertTable(Selection selection, Tag tag)
         {
             Log("InsertTable - Started");
 
-            if (annotation == null)
+            if (tag == null)
             {
-                Log("Unable to insert the table because the annotation is null");
+                Log("Unable to insert the table because the tag is null");
                 return;
             }
 
-            if (!annotation.HasTableData())
+            if (!tag.HasTableData())
             {
                 var selectionRange = selection.Range;
-                CreateAnnotationField(selectionRange, annotation.Id, Constants.Placeholders.EmptyField, annotation);
-                Log("Unable to insert the table because there are no cached results for the annotation");
+                CreateTagField(selectionRange, tag.Id, Constants.Placeholders.EmptyField, tag);
+                Log("Unable to insert the table because there are no cached results for the tag");
                 return;
             }
 
             var cells = GetCells(selection);
-            annotation.UpdateFormattedTableData();
-            var table = annotation.CachedResult[0].TableResult;
+            tag.UpdateFormattedTableData();
+            var table = tag.CachedResult[0].TableResult;
 
-            var dimensions = annotation.GetTableDisplayDimensions();
+            var dimensions = tag.GetTableDisplayDimensions();
 
             var cellsCount = cells == null ? 0 : cells.Count;  // Because of the issue we mention below, pull the cell count right away
 
@@ -479,7 +479,7 @@ namespace AnalysisManager.Models
             if (cellsCount == 0)
             {
                 Log("No cells selected, creating a new table");
-                CreateWordTableForTableResult(selection, table, annotation.TableFormat);
+                CreateWordTableForTableResult(selection, table, tag.TableFormat);
                 // The table will be the size we need.  Update these tracking variables with the cells and
                 // total size so that we can begin inserting data.
                 cells = GetCells(selection);
@@ -517,14 +517,14 @@ namespace AnalysisManager.Models
 
                 var range = cell.Range;
 
-                // Make a copy of the annotation and set the cell index.  This will let us discriminate which cell an annotation
-                // value is related with, since we have multiple fields (and therefore multiple copies of the annotation) in the
+                // Make a copy of the tag and set the cell index.  This will let us discriminate which cell an tag
+                // value is related with, since we have multiple fields (and therefore multiple copies of the tag) in the
                 // document.  Note that we are wiping out the cached value to just have the individual cell value present.
-                var innerAnnotation = new FieldAnnotation(annotation, index);
-                innerAnnotation.CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[index] } };
-                CreateAnnotationField(range,
-                    string.Format("{0}{1}{2}", annotation.OutputLabel, Constants.ReservedCharacters.AnnotationTableCellDelimiter, index),
-                    innerAnnotation.FormattedResult, innerAnnotation);
+                var innerTag = new FieldTag(tag, index);
+                innerTag.CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[index] } };
+                CreateTagField(range,
+                    string.Format("{0}{1}{2}", tag.OutputLabel, Constants.ReservedCharacters.TagTableCellDelimiter, index),
+                    innerTag.FormattedResult, innerTag);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -612,38 +612,38 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Given an annotation, insert the result into the document at the current cursor position.
-        /// <remarks>This method assumes the annotation result is already refreshed.  It does not
+        /// Given an tag, insert the result into the document at the current cursor position.
+        /// <remarks>This method assumes the tag result is already refreshed.  It does not
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
 
-        public void InsertField(Annotation annotation)
+        public void InsertField(Tag tag)
         {
-            Log("InsertField for Annotation");
-            InsertField(new FieldAnnotation(annotation));
+            Log("InsertField for Tag");
+            InsertField(new FieldTag(tag));
         }
 
         /// <summary>
-        /// Given an annotation, insert the result into the document at the current cursor position.
-        /// <remarks>This method assumes the annotation result is already refreshed.  It does not
+        /// Given an tag, insert the result into the document at the current cursor position.
+        /// <remarks>This method assumes the tag result is already refreshed.  It does not
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
-        /// <param name="annotation"></param>
-        public void InsertField(FieldAnnotation annotation)
+        /// <param name="tag"></param>
+        public void InsertField(FieldTag tag)
         {
             Log("InsertField - Started");
 
-            if (annotation == null)
+            if (tag == null)
             {
-                Log("The annotation is null");
+                Log("The tag is null");
                 return;
             }
 
-            if (annotation.Type == Constants.AnnotationType.Figure)
+            if (tag.Type == Constants.TagType.Figure)
             {
-                Log("Detected a Figure annotation");
-                InsertImage(annotation);
+                Log("Detected a Figure tag");
+                InsertImage(tag);
                 return;
             }
 
@@ -658,18 +658,18 @@ namespace AnalysisManager.Models
                     return;
                 }
 
-                // If the annotation is a table, and the cell index is not set, it means we are inserting the entire
+                // If the tag is a table, and the cell index is not set, it means we are inserting the entire
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
-                if (annotation.IsTableAnnotation() && !annotation.TableCellIndex.HasValue)
+                if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
                 {
-                    Log("Inserting a new table annotation");
-                    InsertTable(selection, annotation);
+                    Log("Inserting a new table tag");
+                    InsertTable(selection, tag);
                 }
                 else
                 {
-                    Log("Inserting a single annotation field");
+                    Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateAnnotationField(range, annotation.OutputLabel, annotation.FormattedResult, annotation);
+                    CreateTagField(range, tag.OutputLabel, tag.FormattedResult, tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -692,56 +692,56 @@ namespace AnalysisManager.Models
         }
 
         /// <summary>
-        /// Insert an Analysis Manager field at the currently specified document range.
+        /// Insert an StatTag field at the currently specified document range.
         /// </summary>
         /// <param name="range">The range to insert the field at</param>
-        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="tagIdentifier">The visible identifier of the tag (does not need to be globablly unique)</param>
         /// <param name="displayValue">The value that should display when the field is shown.</param>
-        /// <param name="annotation">The annotation to be inserted</param>
-        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, FieldAnnotation annotation)
+        /// <param name="tag">The tag to be inserted</param>
+        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
-            Log("CreateAnnotationField - Started");
+            Log("CreateTagField - Started");
             var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
-                Constants.FieldDetails.MacroButtonName, displayValue, annotationIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
-            Log(string.Format("Inserted field with identifier {0} and display value {1}", annotationIdentifier, displayValue));
+                Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
+            Log(string.Format("Inserted field with identifier {0} and display value {1}", tagIdentifier, displayValue));
 
             var dataField = fields[0];
-            dataField.Data = annotation.Serialize();
-            Log("CreateAnnotationField - Finished");
+            dataField.Data = tag.Serialize();
+            Log("CreateTagField - Finished");
         }
 
         /// <summary>
-        /// Insert an Analysis Manager field at the currently specified document range.
+        /// Insert an StatTag field at the currently specified document range.
         /// </summary>
         /// <param name="range">The range to insert the field at</param>
-        /// <param name="annotationIdentifier">The visible identifier of the annotation (does not need to be globablly unique)</param>
+        /// <param name="tagIdentifier">The visible identifier of the tag (does not need to be globablly unique)</param>
         /// <param name="displayValue">The value that should display when the field is shown.</param>
-        /// <param name="annotation">The annotation to be inserted</param>
-        protected void CreateAnnotationField(Range range, string annotationIdentifier, string displayValue, Annotation annotation)
+        /// <param name="tag">The tag to be inserted</param>
+        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, Tag tag)
         {
-            CreateAnnotationField(range, annotationIdentifier, displayValue, new FieldAnnotation(annotation));
+            CreateTagField(range, tagIdentifier, displayValue, new FieldTag(tag));
         }
 
         /// <summary>
-        /// Manage the process of editing an annotation via a dialog, and processing any
+        /// Manage the process of editing an tag via a dialog, and processing any
         /// changes within the document.
         /// </summary>
-        /// <remarks>This does not call the statistical software to update values.  It assumes that the annotation
+        /// <remarks>This does not call the statistical software to update values.  It assumes that the tag
         /// contains the most up-to-date cached value and that it may be used for display if needed.</remarks>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <returns></returns>
-        public bool EditAnnotation(Annotation annotation)
+        public bool EditTag(Tag tag)
         {
-            Log("EditAnnotation - Started");
+            Log("EditTag - Started");
 
             try
             {
-                var dialog = new EditAnnotation(this);
+                var dialog = new EditTag(this);
 
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
 
-                dialog.Annotation = new Annotation(annotation);
+                dialog.Tag = new Tag(tag);
                 var wrapper = new WindowWrapper(hwnd);
                 Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
                 if (DialogResult.OK == dialog.ShowDialog(wrapper))
@@ -749,58 +749,58 @@ namespace AnalysisManager.Models
                     // If the value format has changed, refresh the values in the document with the
                     // new formatting of the results.
                     // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
-                    if (dialog.Annotation.ValueFormat != annotation.ValueFormat)
+                    if (dialog.Tag.ValueFormat != tag.ValueFormat)
                     {
-                        Log("Updating fields after annotation value format changed");
-                        if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                        Log("Updating fields after tag value format changed");
+                        if (dialog.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Annotation.UpdateFormattedTableData();
+                            dialog.Tag.UpdateFormattedTableData();
                         }
-                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
-                    else if (dialog.Annotation.TableFormat != annotation.TableFormat)
+                    else if (dialog.Tag.TableFormat != tag.TableFormat)
                     {
-                        Log("Updating fields after annotation table format changed");
-                        dialog.Annotation.UpdateFormattedTableData();
-                        UpdateFields(new UpdatePair<Annotation>(annotation, dialog.Annotation));
+                        Log("Updating fields after tag table format changed");
+                        dialog.Tag.UpdateFormattedTableData();
+                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
 
-                    SaveEditedAnnotation(dialog, annotation);
-                    Log("EditAnnotation - Finished (action)");
+                    SaveEditedTag(dialog, tag);
+                    Log("EditTag - Finished (action)");
                     return true;
                 }
             }
             catch (Exception exc)
             {
-                Log("An exception was caught while trying to edit an annotation");
+                Log("An exception was caught while trying to edit an tag");
                 LogException(exc);
             }
 
-            Log("EditAnnotation - Finished (no action)");
+            Log("EditTag - Finished (no action)");
             return false;
         }
 
         /// <summary>
-        /// After an annotation has been edited in a dialog, handle all reference updates and saving
-        /// that annotation in its source file.
+        /// After an tag has been edited in a dialog, handle all reference updates and saving
+        /// that tag in its source file.
         /// </summary>
         /// <param name="dialog"></param>
-        /// <param name="existingAnnotation"></param>
-        public void SaveEditedAnnotation(EditAnnotation dialog, Annotation existingAnnotation = null)
+        /// <param name="existingTag"></param>
+        public void SaveEditedTag(EditTag dialog, Tag existingTag = null)
         {
-            if (dialog.Annotation != null && dialog.Annotation.CodeFile != null)
+            if (dialog.Tag != null && dialog.Tag.CodeFile != null)
             {
                 // Update the code file with whatever was in the editor window.  While the code doesn't
                 // always change, we will go ahead with the update each time instead of checking.  Note
-                // that after this update is done, the indices for the annotation objects passed in can 
+                // that after this update is done, the indices for the tag objects passed in can 
                 // no longer be trusted until we update them.
-                var codeFile = dialog.Annotation.CodeFile;
+                var codeFile = dialog.Tag.CodeFile;
                 codeFile.UpdateContent(dialog.CodeText);
 
-                // Now that the code file has been updated, we need to add the annotation.  This may
-                // be a new annotation, or an updated one.
-                codeFile.AddAnnotation(dialog.Annotation, existingAnnotation);
+                // Now that the code file has been updated, we need to add the tag.  This may
+                // be a new tag, or an updated one.
+                codeFile.AddTag(dialog.Tag, existingTag);
                 codeFile.Save();
             }
         }
@@ -810,32 +810,32 @@ namespace AnalysisManager.Models
         /// </summary>
         public void SaveAllCodeFiles()
         {
-            // Update the code files with their annotations
+            // Update the code files with their tags
             foreach (var file in Files)
             {
                 file.Save();
             }
         }
 
-        public void EditAnnotationField(Field field)
+        public void EditTagField(Field field)
         {
-            if (AnnotationManager.IsAnalysisManagerField(field))
+            if (TagManager.IsStatTagField(field))
             {
-                var fieldAnnotation = AnnotationManager.GetFieldAnnotation(field);
-                var annotation = AnnotationManager.FindAnnotation(fieldAnnotation);
-                EditAnnotation(annotation);
+                var fieldTag = TagManager.GetFieldTag(field);
+                var tag = TagManager.FindTag(fieldTag);
+                EditTag(tag);
             }
         }
 
         /// <summary>
         /// Conduct an assessment of the active document to see if there are any inserted
-        /// annotations that do not have an associated code file in the document.
+        /// tags that do not have an associated code file in the document.
         /// </summary>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
         public void PerformDocumentCheck(bool onlyShowDialogIfResultsFound = false)
         {
-            var unlinkedResults = AnnotationManager.FindAllUnlinkedAnnotations();
-            var duplicateResults = AnnotationManager.FindAllDuplicateAnnotations();
+            var unlinkedResults = TagManager.FindAllUnlinkedTags();
+            var duplicateResults = TagManager.FindAllDuplicateTags();
             if (onlyShowDialogIfResultsFound 
                 && (unlinkedResults == null || unlinkedResults.Count == 0)
                 && (duplicateResults == null || duplicateResults.Count == 0))
@@ -846,56 +846,56 @@ namespace AnalysisManager.Models
             var dialog = new CheckDocument(unlinkedResults, duplicateResults, Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                UpdateUnlinkedAnnotationsByAnnotation(dialog.UnlinkedAnnotationUpdates);
-                UpdateRenamedAnnotations(dialog.DuplicateAnnotationUpdates);
+                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates);
+                UpdateRenamedTags(dialog.DuplicateTagUpdates);
             }
         }
 
-        #region Wrappers around AnnotationManager calls
-        public Dictionary<string, List<Annotation>> FindAllUnlinkedAnnotations()
+        #region Wrappers around TagManager calls
+        public Dictionary<string, List<Tag>> FindAllUnlinkedTags()
         {
-            return AnnotationManager.FindAllUnlinkedAnnotations();
+            return TagManager.FindAllUnlinkedTags();
         }
 
-        public List<Annotation> GetAnnotations()
+        public List<Tag> GetTags()
         {
-            return AnnotationManager.GetAnnotations();
+            return TagManager.GetTags();
         }
 
-        public Annotation FindAnnotation(string id)
+        public Tag FindTag(string id)
         {
-            return AnnotationManager.FindAnnotation(id);
+            return TagManager.FindTag(id);
         }
         #endregion
 
         /// <summary>
-        /// If code files become unlinked in the document, this method is used to resolve those annotations/fields
+        /// If code files become unlinked in the document, this method is used to resolve those tags/fields
         /// already in the document that refer to the unlinked code file.  It applies a set of actions to ALL of
-        /// the annotations in the document for a code file.
+        /// the tags in the document for a code file.
         /// </summary>
-        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByAnnotation">UpdateUnlinkedAnnotationsByAnnotation</see>
-        /// if you want to perform actions on individual annotations.
+        /// <remarks>See <see cref="UpdateUnlinkedTagsByTag">UpdateUnlinkedTagsByTag</see>
+        /// if you want to perform actions on individual tags.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedAnnotationsByCodeFile(Dictionary<string, CodeFileAction> actions)
+        public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions)
         {
-            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByCodeFile, actions);
+            TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
         }
 
         /// <summary>
-        /// When reviewing all of the annotations/fields in a document for those that have unlinked code files, duplicate
-        /// names, etc., this method is used to resolve the errors in those annotations/fields.  It applies individual actions
-        /// to each annotation in the document.
+        /// When reviewing all of the tags/fields in a document for those that have unlinked code files, duplicate
+        /// names, etc., this method is used to resolve the errors in those tags/fields.  It applies individual actions
+        /// to each tag in the document.
         /// </summary>
-        /// <remarks>Some of the actions may in fact affect multiple annotations.  For example, re-linking the code file
-        /// to the document for a single annotation has the effect of re-linking it for all related annotations.</remarks>
-        /// <remarks>See <see cref="UpdateUnlinkedAnnotationsByCodeFile">UpdateUnlinkedAnnotationsByCodeFile</see>
-        /// if you want to process all annotations in a code file with a single action.
+        /// <remarks>Some of the actions may in fact affect multiple tags.  For example, re-linking the code file
+        /// to the document for a single tag has the effect of re-linking it for all related tags.</remarks>
+        /// <remarks>See <see cref="UpdateUnlinkedTagsByCodeFile">UpdateUnlinkedTagsByCodeFile</see>
+        /// if you want to process all tags in a code file with a single action.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedAnnotationsByAnnotation(Dictionary<string, CodeFileAction> actions)
+        public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions)
         {
-            AnnotationManager.ProcessAnalysisManagerFields(AnnotationManager.UpdateUnlinkedAnnotationsByAnnotation, actions);
+            TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
         }
 
         /// <summary>
@@ -913,13 +913,13 @@ namespace AnalysisManager.Models
 
             string package = CodeFile.GuessStatisticalPackage(fileName);
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
-            file.LoadAnnotationsFromContent();
+            file.LoadTagsFromContent();
             file.SaveBackup();
             Files.Add(file);
             Log(string.Format("Added code file {0}", fileName));
         }
 
-        private void UpdateRenamedAnnotations(List<UpdatePair<Annotation>> updates)
+        private void UpdateRenamedTags(List<UpdatePair<Tag>> updates)
         {
             var affectedCodeFiles = new List<CodeFile>();
             foreach (var update in updates)
@@ -934,9 +934,9 @@ namespace AnalysisManager.Models
                 }
                 UpdateFields(update, true);
 
-                // Add the annotation to the code file - replacing the old one.  Note that we require the
-                // exact line match, so we don't accidentally replace the wrong duplicate named annotation.
-                codeFile.AddAnnotation(update.New, update.Old, true);
+                // Add the tag to the code file - replacing the old one.  Note that we require the
+                // exact line match, so we don't accidentally replace the wrong duplicate named tag.
+                codeFile.AddTag(update.New, update.Old, true);
             }
 
             foreach (var codeFile in affectedCodeFiles)

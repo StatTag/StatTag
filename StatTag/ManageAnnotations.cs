@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Models;
+using StatTag.Core.Models;
+using StatTag.Models;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Word;
 
-namespace AnalysisManager
+namespace StatTag
 {
-    public sealed partial class ManageAnnotations : Form
+    public sealed partial class ManageTags : Form
     {
         private const int CheckColumn = 0;
         private const int StatPackageColumn = 1;
@@ -19,9 +19,9 @@ namespace AnalysisManager
 
         public DocumentManager Manager { get; set; }
 
-        private readonly List<Annotation> Annotations = new List<Annotation>();
+        private readonly List<Tag> Tags = new List<Tag>();
 
-        public ManageAnnotations(DocumentManager manager)
+        public ManageTags(DocumentManager manager)
         {
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
@@ -36,24 +36,24 @@ namespace AnalysisManager
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new EditAnnotation(Manager);
+            var dialog = new EditTag(Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                Manager.SaveEditedAnnotation(dialog);
-                AddRow(dialog.Annotation);
-                ReloadAnnotations();
+                Manager.SaveEditedTag(dialog);
+                AddRow(dialog.Tag);
+                ReloadTags();
             }
         }
 
-        private void AddRow(Annotation annotation)
+        private void AddRow(Tag tag)
         {
-            if (annotation == null || annotation.CodeFile == null)
+            if (tag == null || tag.CodeFile == null)
             {
                 return;
             }
 
-            int row = dgvItems.Rows.Add(new object[] { false, annotation.CodeFile.StatisticalPackage, annotation.Type, annotation.OutputLabel, annotation.RunFrequency, Constants.DialogLabels.Edit });
-            dgvItems.Rows[row].Tag = annotation;
+            int row = dgvItems.Rows.Add(new object[] { false, tag.CodeFile.StatisticalPackage, tag.Type, tag.OutputLabel, tag.RunFrequency, Constants.DialogLabels.Edit });
+            dgvItems.Rows[row].Tag = tag;
         }
 
         private void cmdRemove_Click(object sender, EventArgs e)
@@ -61,48 +61,48 @@ namespace AnalysisManager
             var removedTags = UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
             if (removedTags != null)
             {
-                var removedItems = removedTags.Select(x => x as Annotation);
+                var removedItems = removedTags.Select(x => x as Tag);
                 foreach (var item in removedItems)
                 {
-                    item.CodeFile.RemoveAnnotation(item);
+                    item.CodeFile.RemoveTag(item);
                 }
             }
         }
 
         private void ManageCodeBlocks_Load(object sender, EventArgs e)
         {
-            ReloadAnnotations();
+            ReloadTags();
         }
 
         private void LoadList(string filter = "")
         {
             dgvItems.Rows.Clear();
-            foreach (var annotation in Annotations.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+            foreach (var tag in Tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
             {
-                AddRow(annotation);
+                AddRow(tag);
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void ReloadAnnotations()
+        private void ReloadTags()
         {
-            Annotations.Clear();
+            Tags.Clear();
             foreach (var file in Manager.Files)
             {
-                file.LoadAnnotationsFromContent();
-                file.Annotations.ForEach(x => Annotations.Add(x));
+                file.LoadTagsFromContent();
+                file.Tags.ForEach(x => Tags.Add(x));
             }
             LoadList(txtFilter.Text);
         }
 
-        private void EditAnnotation(int rowIndex)
+        private void EditTag(int rowIndex)
         {
-            var existingAnnotation = dgvItems.Rows[rowIndex].Tag as Annotation;
-            if (Manager.EditAnnotation(existingAnnotation))
+            var existingTag = dgvItems.Rows[rowIndex].Tag as Tag;
+            if (Manager.EditTag(existingTag))
             {
-                ReloadAnnotations();
+                ReloadTags();
             }
         }
 
@@ -110,13 +110,13 @@ namespace AnalysisManager
         {
             if (e.ColumnIndex == EditColumn)
             {
-                EditAnnotation(e.RowIndex);
+                EditTag(e.RowIndex);
             }
         }
 
         private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            EditAnnotation(e.RowIndex);
+            EditTag(e.RowIndex);
         }
 
         private void txtFilter_FilterChanged(object sender, EventArgs e)

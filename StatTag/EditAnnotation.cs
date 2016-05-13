@@ -1,23 +1,23 @@
-﻿using AnalysisManager.Controls;
-using AnalysisManager.Core;
-using AnalysisManager.Core.Models;
+﻿using StatTag.Controls;
+using StatTag.Core;
+using StatTag.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using AnalysisManager.Core.Utility;
-using AnalysisManager.Models;
+using StatTag.Core.Utility;
+using StatTag.Models;
 using ScintillaNET;
-using Annotation = AnalysisManager.Core.Models.Annotation;
+using Tag = StatTag.Core.Models.Tag;
 
-namespace AnalysisManager
+namespace StatTag
 {
-    public sealed partial class EditAnnotation : Form
+    public sealed partial class EditTag : Form
     {
-        private const int AnnotationMargin = 1;
-        private const int AnnotationMarker = 1;
-        private const uint AnnotationMask = (1 << AnnotationMarker);
+        private const int TagMargin = 1;
+        private const int TagMarker = 1;
+        private const uint TagMask = (1 << TagMarker);
 
         public const int SelectedButtonWidth = 83;
         public const int UnselectedButtonWidth = 70;
@@ -25,14 +25,14 @@ namespace AnalysisManager
         public readonly Font UnselectedButtonFont = DefaultFont;
 
         public DocumentManager Manager { get; set; }
-        protected Annotation OriginalAnnotation { get; set; }
-        public Annotation Annotation { get; set; }
+        protected Tag OriginalTag { get; set; }
+        public Tag Tag { get; set; }
         public string CodeText { get; set; }
 
-        private string AnnotationType { get; set; }
+        private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
 
-        public EditAnnotation(DocumentManager manager = null)
+        public EditTag(DocumentManager manager = null)
         {
             try
             {
@@ -46,11 +46,11 @@ namespace AnalysisManager
             catch (Exception exc)
             {
                 const string CannotLoadDialogMessage =
-                    "There was an error trying to load the Annotation dialog.";
+                    "There was an error trying to load the Tag dialog.";
                 if (Manager != null && Manager.Logger != null)
                 {
                     Manager.Logger.WriteMessage(
-                        "An exception was caught while trying to construct the EditAnnotation dialog.  Will set the auto-close event");
+                        "An exception was caught while trying to construct the EditTag dialog.  Will set the auto-close event");
                     UIUtility.ReportException(exc, CannotLoadDialogMessage, Manager.Logger);
                 }
                 else
@@ -59,7 +59,7 @@ namespace AnalysisManager
                         MessageBoxIcon.Error);
                 }
 
-                this.Shown += new EventHandler(EditAnnotation_CloseOnStart);
+                this.Shown += new EventHandler(EditTag_CloseOnStart);
             }
         }
 
@@ -69,7 +69,7 @@ namespace AnalysisManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void EditAnnotation_CloseOnStart(object sender, EventArgs e)
+        private void EditTag_CloseOnStart(object sender, EventArgs e)
         {
             Close();
         }
@@ -106,7 +106,7 @@ namespace AnalysisManager
                 tableProperties.Visible = false;
                 UnselectTypeButton(cmdFigure);
                 UnselectTypeButton(cmdTable);
-                AnnotationType = Constants.AnnotationType.Value;
+                TagType = Constants.TagType.Value;
             }
             else if (button == cmdFigure)
             {
@@ -115,7 +115,7 @@ namespace AnalysisManager
                 tableProperties.Visible = false;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdTable);
-                AnnotationType = Constants.AnnotationType.Figure;
+                TagType = Constants.TagType.Figure;
             }
             else if (button == cmdTable)
             {
@@ -124,7 +124,7 @@ namespace AnalysisManager
                 tableProperties.Visible = true;
                 UnselectTypeButton(cmdValue);
                 UnselectTypeButton(cmdFigure);
-                AnnotationType = Constants.AnnotationType.Table;
+                TagType = Constants.TagType.Table;
             }
 
         }
@@ -139,7 +139,7 @@ namespace AnalysisManager
             UpdateForTypeClick(sender as Button);
         }
 
-        private void ManageAnnotation_Load(object sender, EventArgs e)
+        private void ManageTag_Load(object sender, EventArgs e)
         {
             OverrideCenterToScreen();
             MinimumSize = Size;
@@ -154,32 +154,32 @@ namespace AnalysisManager
             }
 
             scintilla1.Margins[0].Width = 40;
-            var margin = scintilla1.Margins[AnnotationMargin];
+            var margin = scintilla1.Margins[TagMargin];
             margin.Width = 20;
             margin.Sensitive = true;
             margin.Type = MarginType.Symbol;
             margin.Mask = Marker.MaskAll;
             margin.Cursor = MarginCursor.Arrow;
-            var marker = scintilla1.Markers[AnnotationMarker];
+            var marker = scintilla1.Markers[TagMarker];
             marker.SetBackColor(Color.DarkSeaGreen);
             marker.Symbol = MarkerSymbol.Background;
 
-            if (Annotation != null)
+            if (Tag != null)
             {
-                OriginalAnnotation = new Annotation(Annotation);
-                cboCodeFiles.SelectedItem = Annotation.CodeFile;
-                ScintillaManager.ConfigureEditor(scintilla1, Annotation.CodeFile);
+                OriginalTag = new Tag(Tag);
+                cboCodeFiles.SelectedItem = Tag.CodeFile;
+                ScintillaManager.ConfigureEditor(scintilla1, Tag.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
-                cboRunFrequency.SelectedItem = Annotation.RunFrequency;
-                txtOutputLabel.Text = Annotation.OutputLabel;
-                AnnotationType = Annotation.Type;
-                LoadCodeFile(Annotation.CodeFile);
-                if (Annotation.LineStart.HasValue && Annotation.LineEnd.HasValue)
+                cboRunFrequency.SelectedItem = Tag.RunFrequency;
+                txtOutputLabel.Text = Tag.OutputLabel;
+                TagType = Tag.Type;
+                LoadCodeFile(Tag.CodeFile);
+                if (Tag.LineStart.HasValue && Tag.LineEnd.HasValue)
                 {
                     int maxIndex = scintilla1.Lines.Count - 1;
-                    int startIndex = Math.Max(0, Annotation.LineStart.Value);
+                    int startIndex = Math.Max(0, Tag.LineStart.Value);
                     startIndex = Math.Min(startIndex, maxIndex);
-                    int endIndex = Math.Min(Annotation.LineEnd.Value, maxIndex);
+                    int endIndex = Math.Min(Tag.LineEnd.Value, maxIndex);
                     for (int index = startIndex; index <= endIndex; index++)
                     {
                         SetLineMarker(scintilla1.Lines[index], true);
@@ -187,26 +187,26 @@ namespace AnalysisManager
                     scintilla1.LineScroll(startIndex, 0);
                 }
 
-                switch (AnnotationType)
+                switch (TagType)
                 {
-                    case Constants.AnnotationType.Value:
+                    case Constants.TagType.Value:
                         UpdateForTypeClick(cmdValue);
-                        valueProperties.SetValueFormat(Annotation.ValueFormat);
+                        valueProperties.SetValueFormat(Tag.ValueFormat);
                         break;
-                    case Constants.AnnotationType.Figure:
+                    case Constants.TagType.Figure:
                         UpdateForTypeClick(cmdFigure);
-                        figureProperties.SetFigureFormat(Annotation.FigureFormat);
+                        figureProperties.SetFigureFormat(Tag.FigureFormat);
                         break;
-                    case Constants.AnnotationType.Table:
+                    case Constants.TagType.Table:
                         UpdateForTypeClick(cmdTable);
-                        tableProperties.SetTableFormat(Annotation.TableFormat);
-                        tableProperties.SetValueFormat(Annotation.ValueFormat);
+                        tableProperties.SetTableFormat(Tag.TableFormat);
+                        tableProperties.SetValueFormat(Tag.ValueFormat);
                         break;
                 }
             }
             else
             {
-                OriginalAnnotation = null;
+                OriginalTag = null;
 
                 // If there is only one file available, select it by default
                 if (Manager != null && Manager.Files != null && Manager.Files.Count == 1)
@@ -221,47 +221,47 @@ namespace AnalysisManager
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
-            if (Annotation == null)
+            if (Tag == null)
             {
-                Annotation = new Annotation();
+                Tag = new Tag();
             }
 
             CodeText = scintilla1.Text;
-            Annotation.Type = AnnotationType;
-            Annotation.OutputLabel = Annotation.NormalizeOutputLabel(txtOutputLabel.Text);
-            Annotation.RunFrequency = cboRunFrequency.SelectedItem as string;
-            Annotation.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
+            Tag.Type = TagType;
+            Tag.OutputLabel = Tag.NormalizeOutputLabel(txtOutputLabel.Text);
+            Tag.RunFrequency = cboRunFrequency.SelectedItem as string;
+            Tag.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
             var selectedIndices = GetSelectedIndices();
             if (!selectedIndices.Any())
             {
-                Annotation.LineStart = null;
-                Annotation.LineEnd = null;
+                Tag.LineStart = null;
+                Tag.LineEnd = null;
             }
             else if (selectedIndices.Length == 1)
             {
-                Annotation.LineStart = selectedIndices[0];
-                Annotation.LineEnd = Annotation.LineStart;
+                Tag.LineStart = selectedIndices[0];
+                Tag.LineEnd = Tag.LineStart;
             }
             else
             {
-                Annotation.LineStart = selectedIndices.Min();
-                Annotation.LineEnd = selectedIndices.Max();
+                Tag.LineStart = selectedIndices.Min();
+                Tag.LineEnd = selectedIndices.Max();
             }
 
-            switch (AnnotationType)
+            switch (TagType)
             {
-                case Constants.AnnotationType.Value:
-                    Annotation.ValueFormat = valueProperties.GetValueFormat();
+                case Constants.TagType.Value:
+                    Tag.ValueFormat = valueProperties.GetValueFormat();
                     break;
-                case Constants.AnnotationType.Figure:
-                    Annotation.FigureFormat = figureProperties.GetFigureFormat();
+                case Constants.TagType.Figure:
+                    Tag.FigureFormat = figureProperties.GetFigureFormat();
                     break;
-                case Constants.AnnotationType.Table:
-                    Annotation.TableFormat = tableProperties.GetTableFormat();
-                    Annotation.ValueFormat = tableProperties.GetValueFormat();
+                case Constants.TagType.Table:
+                    Tag.TableFormat = tableProperties.GetTableFormat();
+                    Tag.ValueFormat = tableProperties.GetValueFormat();
                     break;
                 default:
-                    throw new NotSupportedException("This annotation type is not yet supported");
+                    throw new NotSupportedException("This tag type is not yet supported");
             }
         }
 
@@ -284,7 +284,7 @@ namespace AnalysisManager
         private void txtOutputLabel_KeyPress(object sender, KeyPressEventArgs e)
         {
             // Ignore reserved characters
-            if (e.KeyChar == Constants.ReservedCharacters.AnnotationTableCellDelimiter)
+            if (e.KeyChar == Constants.ReservedCharacters.TagTableCellDelimiter)
             {
                 e.Handled = true;
             }
@@ -308,22 +308,22 @@ namespace AnalysisManager
             };
         }
 
-        private void EditAnnotation_FormClosing(object sender, FormClosingEventArgs e)
+        private void EditTag_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.DialogResult == DialogResult.OK)
             {
-                if (!AnnotationUtil.ShouldCheckForDuplicateLabel(OriginalAnnotation, Annotation))
+                if (!TagUtil.ShouldCheckForDuplicateLabel(OriginalTag, Tag))
                 {
                     return;
                 }
 
-                var result = AnnotationUtil.CheckForDuplicateLabels(Annotation, Manager.Files);
+                var result = TagUtil.CheckForDuplicateLabels(Tag, Manager.Files);
                 if (result != null && result.Count > 0)
                 {
-                    if (AnnotationUtil.IsDuplicateLabelInSameFile(Annotation, result))
+                    if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))
                     {
                         UIUtility.WarningMessageBox(
-                            string.Format("The output label you have entered ('{0}') already appears in this file.\r\nPlease give this annotation a unique name before proceeding.", Annotation.OutputLabel), 
+                            string.Format("The output label you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.OutputLabel), 
                             Manager.Logger);
                         this.DialogResult = DialogResult.None;
                         e.Cancel = true;
@@ -331,7 +331,7 @@ namespace AnalysisManager
                     else if (DialogResult.Yes != MessageBox.Show(
                         string.Format(
                             "The output label you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
-                            Annotation.OutputLabel, result.Count, "file".Pluralize(result.Count)),
+                            Tag.OutputLabel, result.Count, "file".Pluralize(result.Count)),
                         UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
                     {
                         this.DialogResult = DialogResult.None;
@@ -372,14 +372,14 @@ namespace AnalysisManager
 
         private void scintilla1_MarginClick(object sender, MarginClickEventArgs e)
         {
-            if (e.Margin == AnnotationMargin)
+            if (e.Margin == TagMargin)
             {
                 var lineIndex = scintilla1.LineFromPosition(e.Position);
                 var line = scintilla1.Lines[lineIndex];
 
                 // Check to see if there are any existing selections.  If so, we need to determine if the newly selected
                 // row is a neighbor to the existing selection since we only allow continuous ranges.
-                var previousLineIndex = scintilla1.Lines[lineIndex - 1].MarkerPrevious(1 << AnnotationMarker);
+                var previousLineIndex = scintilla1.Lines[lineIndex - 1].MarkerPrevious(1 << TagMarker);
                 if (previousLineIndex != -1)
                 {
                     if (Math.Abs(lineIndex - previousLineIndex) > 1)
@@ -398,14 +398,14 @@ namespace AnalysisManager
                             {
                                 SetLineMarker(scintilla1.Lines[previousLineIndex], false);
                                 previousLineIndex =
-                                    scintilla1.Lines[previousLineIndex].MarkerPrevious(1 << AnnotationMarker);
+                                    scintilla1.Lines[previousLineIndex].MarkerPrevious(1 << TagMarker);
                             }
                         }
                     }
                 }
                 else
                 {
-                    var nextLineIndex = scintilla1.Lines[lineIndex + 1].MarkerNext(1 << AnnotationMarker);
+                    var nextLineIndex = scintilla1.Lines[lineIndex + 1].MarkerNext(1 << TagMarker);
                     if (Math.Abs(lineIndex - nextLineIndex) > 1)
                     {
                         if ((e.Modifiers & Keys.Shift) == Keys.Shift)
@@ -422,14 +422,14 @@ namespace AnalysisManager
                             {
                                 SetLineMarker(scintilla1.Lines[nextLineIndex], false);
                                 nextLineIndex =
-                                    scintilla1.Lines[nextLineIndex].MarkerNext(1 << AnnotationMarker);
+                                    scintilla1.Lines[nextLineIndex].MarkerNext(1 << TagMarker);
                             }
                         }
                     }
                 }
 
                 // Toggle based on the line's current marker status.
-                SetLineMarker(line, (line.MarkerGet() & AnnotationMask) <= 0);
+                SetLineMarker(line, (line.MarkerGet() & TagMask) <= 0);
 
                 if (codeCheckWorker.IsBusy)
                 {
@@ -462,7 +462,7 @@ namespace AnalysisManager
         private Line[] GetSelectedLines()
         {
             var lines = new List<Line>();
-            var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << AnnotationMarker);
+            var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << TagMarker);
             while (nextLineIndex > -1 && nextLineIndex < scintilla1.Lines.Count)
             {
                 lines.Add(scintilla1.Lines[nextLineIndex]);
@@ -471,7 +471,7 @@ namespace AnalysisManager
                     break;
                 }
                 nextLineIndex =
-                    scintilla1.Lines[nextLineIndex + 1].MarkerNext(1 << AnnotationMarker);
+                    scintilla1.Lines[nextLineIndex + 1].MarkerNext(1 << TagMarker);
             }
             return lines.ToArray();
         }
@@ -480,11 +480,11 @@ namespace AnalysisManager
         {
             if (mark)
             {
-                line.MarkerAdd(AnnotationMarker);
+                line.MarkerAdd(TagMarker);
             }
             else
             {
-                line.MarkerDelete(AnnotationMarker);
+                line.MarkerDelete(TagMarker);
             }
         }
 
