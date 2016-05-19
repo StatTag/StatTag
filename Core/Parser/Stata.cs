@@ -27,7 +27,11 @@ namespace StatTag.Core.Parser
         private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
         private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
-        private static Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
+        private static Regex[] MultiLineIndicators = new[]
+        {
+            new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline),
+            new Regex("/\\*.*\\*/\\s?", RegexOptions.Singleline),
+        };
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -184,7 +188,12 @@ namespace StatTag.Core.Parser
             }
 
             var originalText = string.Join("\r\n", originalContent);
-            var modifiedText = MultiLineIndicator.Replace(originalText, " ");
+            var modifiedText = originalText;
+            foreach (var regex in MultiLineIndicators)
+            {
+                modifiedText = regex.Replace(modifiedText, " ");
+            }
+            
             return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
         }
     }

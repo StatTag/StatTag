@@ -195,7 +195,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void PreProcessContent()
+        public void PreProcessContent_TrailingComment()
         {
             var testList = new List<string>(new string[]
             {
@@ -223,6 +223,40 @@ namespace Core.Tests.Parser
                 "Third line ///"
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+        }
+
+        [TestMethod]
+        public void PreProcessContent_MultiLineComment()
+        {
+            var parser = new Stata();
+            var testList = new List<string>(new string[]
+            {
+                "First line",
+                "Second line /*",
+                "*/Third line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line\r\nSecond line  Third line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+
+            testList = new List<string>(new string[]
+            {
+                "First line /*",
+                "Second line ///",
+                "Third line */"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "First line /*",
+                "Second line /*",
+                "Third line */",
+                "Fourth line */"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
     }
 }

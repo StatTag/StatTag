@@ -124,7 +124,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(83, 17);
             this.label4.TabIndex = 14;
-            this.label4.Text = "Output label:";
+            this.label4.Text = "Tag name:";
             // 
             // txtName
             // 
