@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AnalysisManager.Core.Interfaces;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;

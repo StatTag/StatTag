@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using AnalysisManager.Core.Interfaces;
+using Stata;
 using StatTag.Core.Models;
 using StatTag.Models;
 using Font = Microsoft.Office.Interop.Word.Font;
@@ -165,6 +167,40 @@ namespace StatTag
         public static void SetDialogTitle(Form form)
         {
             form.Text = string.Format("{0} - {1}", GetAddInName(), form.Text);
+        }
+
+        public static IResultCommandList GetResultCommandList(CodeFile file, string resultType)
+        {
+            if (file != null)
+            {
+                IResultCommandFormatter formatter = null;
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        formatter = new StataCommands();
+                        break;
+                }
+
+                if (formatter != null)
+                {
+                    switch (resultType)
+                    {
+                        case Constants.TagType.Value:
+                            return formatter.ValueResultCommands();
+                        case Constants.TagType.Figure:
+                            return formatter.FigureResultCommands();
+                        case Constants.TagType.Table:
+                            return formatter.TableResultCommands();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static System.Drawing.Font ToggleBoldFont(Control control, bool bold)
+        {
+            return new System.Drawing.Font(control.Font, bold ? FontStyle.Bold : FontStyle.Regular);
         }
     }
 }

@@ -39,10 +39,10 @@
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.lblNoOutputWarning = new System.Windows.Forms.Label();
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
-            this.scintilla1 = new ScintillaNET.Scintilla();
-            this.lblInstructions = new System.Windows.Forms.Label();
             this.cmdSaveAndInsert = new System.Windows.Forms.Button();
             this.pnlType = new System.Windows.Forms.Panel();
+            this.lblAllowedCommands = new System.Windows.Forms.Label();
+            this.lblInstructionTitle = new System.Windows.Forms.Label();
             this.tableProperties = new StatTag.Controls.TableProperties();
             this.figureProperties = new StatTag.Controls.FigureProperties();
             this.valueProperties = new StatTag.Controls.ValueProperties();
@@ -50,6 +50,7 @@
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdValue = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
+            this.scintilla1 = new ScintillaNET.Scintilla();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -154,7 +155,7 @@
             this.lblNoOutputWarning.AutoSize = true;
             this.lblNoOutputWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNoOutputWarning.ForeColor = System.Drawing.Color.Red;
-            this.lblNoOutputWarning.Location = new System.Drawing.Point(284, 242);
+            this.lblNoOutputWarning.Location = new System.Drawing.Point(353, 244);
             this.lblNoOutputWarning.Name = "lblNoOutputWarning";
             this.lblNoOutputWarning.Size = new System.Drawing.Size(414, 17);
             this.lblNoOutputWarning.TabIndex = 23;
@@ -166,27 +167,6 @@
             // 
             this.codeCheckWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.codeCheckWorker_DoWork);
             this.codeCheckWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.codeCheckWorker_RunWorkerCompleted);
-            // 
-            // scintilla1
-            // 
-            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
-            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
-            this.scintilla1.Location = new System.Drawing.Point(16, 265);
-            this.scintilla1.Name = "scintilla1";
-            this.scintilla1.Size = new System.Drawing.Size(751, 408);
-            this.scintilla1.TabIndex = 24;
-            this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
-            // 
-            // lblInstructions
-            // 
-            this.lblInstructions.AutoSize = true;
-            this.lblInstructions.Location = new System.Drawing.Point(251, 243);
-            this.lblInstructions.Name = "lblInstructions";
-            this.lblInstructions.Size = new System.Drawing.Size(0, 17);
-            this.lblInstructions.TabIndex = 25;
             // 
             // cmdSaveAndInsert
             // 
@@ -207,6 +187,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlType.Controls.Add(this.lblAllowedCommands);
+            this.pnlType.Controls.Add(this.lblInstructionTitle);
             this.pnlType.Controls.Add(this.tableProperties);
             this.pnlType.Controls.Add(this.figureProperties);
             this.pnlType.Controls.Add(this.valueProperties);
@@ -216,34 +198,60 @@
             this.pnlType.Size = new System.Drawing.Size(669, 110);
             this.pnlType.TabIndex = 28;
             // 
+            // lblAllowedCommands
+            // 
+            this.lblAllowedCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblAllowedCommands.Location = new System.Drawing.Point(397, 44);
+            this.lblAllowedCommands.Name = "lblAllowedCommands";
+            this.lblAllowedCommands.Size = new System.Drawing.Size(267, 60);
+            this.lblAllowedCommands.TabIndex = 4;
+            this.lblAllowedCommands.Text = "(None specified)";
+            // 
+            // lblInstructionTitle
+            // 
+            this.lblInstructionTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblInstructionTitle.Location = new System.Drawing.Point(381, 6);
+            this.lblInstructionTitle.Name = "lblInstructionTitle";
+            this.lblInstructionTitle.Size = new System.Drawing.Size(283, 34);
+            this.lblInstructionTitle.TabIndex = 3;
+            this.lblInstructionTitle.Text = "The following Stata commands can be used for Value results:\r\n";
+            // 
             // tableProperties
             // 
-            this.tableProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tableProperties.Location = new System.Drawing.Point(5, 0);
+            this.tableProperties.Location = new System.Drawing.Point(6, 4);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(662, 108);
+            this.tableProperties.Size = new System.Drawing.Size(369, 100);
             this.tableProperties.TabIndex = 2;
             // 
             // figureProperties
             // 
-            this.figureProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.figureProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.figureProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.figureProperties.Location = new System.Drawing.Point(5, 0);
+            this.figureProperties.Location = new System.Drawing.Point(6, 4);
             this.figureProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(662, 108);
+            this.figureProperties.Size = new System.Drawing.Size(369, 100);
             this.figureProperties.TabIndex = 1;
             // 
             // valueProperties
             // 
-            this.valueProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.valueProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(5, 0);
+            this.valueProperties.Location = new System.Drawing.Point(6, 2);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(662, 108);
+            this.valueProperties.Size = new System.Drawing.Size(369, 100);
             this.valueProperties.TabIndex = 0;
             // 
             // cmdTable
@@ -256,6 +264,7 @@
             this.cmdTable.TabIndex = 31;
             this.cmdTable.Text = "Table";
             this.cmdTable.UseVisualStyleBackColor = true;
+            this.cmdTable.Click += new System.EventHandler(this.cmdTable_Click);
             // 
             // cmdFigure
             // 
@@ -267,6 +276,7 @@
             this.cmdFigure.TabIndex = 30;
             this.cmdFigure.Text = "Figure";
             this.cmdFigure.UseVisualStyleBackColor = true;
+            this.cmdFigure.Click += new System.EventHandler(this.cmdFigure_Click);
             // 
             // cmdValue
             // 
@@ -279,6 +289,7 @@
             this.cmdValue.TabIndex = 29;
             this.cmdValue.Text = "Value";
             this.cmdValue.UseVisualStyleBackColor = false;
+            this.cmdValue.Click += new System.EventHandler(this.cmdValue_Click);
             // 
             // label5
             // 
@@ -289,6 +300,19 @@
             this.label5.Size = new System.Drawing.Size(355, 17);
             this.label5.TabIndex = 27;
             this.label5.Text = "How should these results be accessible from the document:";
+            // 
+            // scintilla1
+            // 
+            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
+            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
+            this.scintilla1.Location = new System.Drawing.Point(16, 265);
+            this.scintilla1.Name = "scintilla1";
+            this.scintilla1.Size = new System.Drawing.Size(751, 408);
+            this.scintilla1.TabIndex = 24;
+            this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
             // 
             // EditTag
             // 
@@ -302,7 +326,6 @@
             this.Controls.Add(this.cmdValue);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.cmdSaveAndInsert);
-            this.Controls.Add(this.lblInstructions);
             this.Controls.Add(this.scintilla1);
             this.Controls.Add(this.lblNoOutputWarning);
             this.Controls.Add(this.cboCodeFiles);
@@ -342,7 +365,6 @@
         private System.Windows.Forms.Label lblNoOutputWarning;
         private System.ComponentModel.BackgroundWorker codeCheckWorker;
         private ScintillaNET.Scintilla scintilla1;
-        private System.Windows.Forms.Label lblInstructions;
         private System.Windows.Forms.Button cmdSaveAndInsert;
         private System.Windows.Forms.Panel pnlType;
         private Controls.TableProperties tableProperties;
@@ -352,5 +374,7 @@
         private System.Windows.Forms.Button cmdFigure;
         private System.Windows.Forms.Button cmdValue;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lblAllowedCommands;
+        private System.Windows.Forms.Label lblInstructionTitle;
     }
 }

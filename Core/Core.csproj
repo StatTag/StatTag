@@ -52,6 +52,8 @@
     <Compile Include="Generator\TableGenerator.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
+    <Compile Include="Interfaces\IResultCommandFormatter.cs" />
+    <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />

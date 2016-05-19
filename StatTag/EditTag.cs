@@ -130,6 +130,24 @@ namespace StatTag
                 TagType = Constants.TagType.Table;
             }
 
+            SetInstructionText();
+        }
+
+        private void SetInstructionText()
+        {
+            var selectedCodeFile = cboCodeFiles.SelectedItem as CodeFile;
+            var statPackage = (selectedCodeFile == null) ? "tag" : selectedCodeFile.StatisticalPackage;
+            lblInstructionTitle.Text = string.Format("The following {0} commands may be used for {1} output:",
+                statPackage, TagType);
+            var commandList = UIUtility.GetResultCommandList(selectedCodeFile, TagType);
+            if (commandList == null)
+            {
+                lblAllowedCommands.Text = "(None specified)";
+            }
+            else
+            {
+                lblAllowedCommands.Text = string.Join("\r\n", commandList.GetCommands());
+            }
         }
 
         private void cmdFigure_Click(object sender, EventArgs e)
@@ -236,12 +254,14 @@ namespace StatTag
         private void LoadCodeFile(CodeFile file)
         {
             scintilla1.Text = string.Empty;
-            scintilla1.EmptyUndoBuffer();
             if (file != null)
             {
                 scintilla1.Text = string.Join("\r\n", file.Content);
                 ScintillaManager.ConfigureEditor(scintilla1, file);
             }
+            scintilla1.EmptyUndoBuffer();
+
+            SetInstructionText();
         }
 
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
@@ -319,6 +339,13 @@ namespace StatTag
             }
         }
 
+        private void SetWarningDisplay(bool warning)
+        {
+            lblNoOutputWarning.Visible = warning;
+            lblInstructionTitle.Font = UIUtility.ToggleBoldFont(lblInstructionTitle, warning);
+            lblAllowedCommands.Font = lblInstructionTitle.Font;
+        }
+
         private void codeCheckWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             if (ReprocessCodeReview)
@@ -329,7 +356,8 @@ namespace StatTag
             }
             else
             {
-                lblNoOutputWarning.Visible = (bool)e.Result;
+                bool warning = (bool) e.Result;
+                SetWarningDisplay(warning);
             }
         }
 
@@ -403,7 +431,7 @@ namespace StatTag
                 var selectedText = GetSelectedText();
                 if (selectedText.Length == 0)
                 {
-                    lblNoOutputWarning.Visible = false;
+                    SetWarningDisplay(false);
                 }
                 else
                 {
