@@ -311,12 +311,12 @@ namespace StatTag.Models
             {
                 case Constants.CodeFileActionTask.ChangeFile:
                     Log(string.Format("Changing tag {0} from {1} to {2}",
-                        tag.OutputLabel, tag.CodeFilePath, codeFile.FilePath));
+                        tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.OutputLabel));
+                    Log(string.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
@@ -370,12 +370,12 @@ namespace StatTag.Models
             {
                 case Constants.CodeFileActionTask.ChangeFile:
                     Log(string.Format("Changing tag {0} from {1} to {2}",
-                        tag.OutputLabel, tag.CodeFilePath, codeFile.FilePath));
+                        tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.OutputLabel));
+                    Log(string.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;

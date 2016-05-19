@@ -39,6 +39,7 @@ namespace StatTag
             Tags = tags;
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.SetDialogTitle(this);
         }
 
         private void ToggleList(ListView box, bool value)
@@ -78,7 +79,7 @@ namespace StatTag
 
             foreach (var tag in Tags)
             {
-                if (tag.RunFrequency.Equals(Constants.RunFrequency.Default))
+                if (tag.RunFrequency.Equals(Constants.RunFrequency.Always))
                 {
                     DefaultTags.Add(tag);
                 }
@@ -113,9 +114,9 @@ namespace StatTag
             {
                 listView.Items.Clear();
 
-                foreach (var tag in tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var tag in tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = listView.Items.Add(tag.OutputLabel);
+                    var item = listView.Items.Add(tag.Name);
                     item.SubItems.AddRange(new[] { tag.CodeFile.FilePath });
                     item.Tag = tag;
                     item.Checked = checkItem;

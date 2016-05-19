@@ -117,7 +117,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(9, 6);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(214, 17);
+            this.label1.Size = new System.Drawing.Size(171, 17);
             this.label1.TabIndex = 16;
             this.label1.Text = "On Demand tags to update:";
             // 
@@ -126,9 +126,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(9, 198);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(185, 17);
+            this.label2.Size = new System.Drawing.Size(142, 17);
             this.label2.TabIndex = 17;
-            this.label2.Text = "Default tags to update:";
+            this.label2.Text = "Tags to always update:";
             // 
             // lvwOnDemand
             // 
@@ -238,7 +238,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "UpdateOutput";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Update Statistical Output";
+            this.Text = "Update Statistical Output";
             this.Load += new System.EventHandler(this.UpdateOutput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

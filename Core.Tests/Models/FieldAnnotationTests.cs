@@ -20,12 +20,12 @@ namespace Core.Tests.Models
         {
             var tag = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value
             };
 
             var fieldTag = new FieldTag(tag);
-            Assert.AreEqual(tag.OutputLabel, fieldTag.OutputLabel);
+            Assert.AreEqual(tag.Name, fieldTag.Name);
             Assert.AreEqual(tag.Type, fieldTag.Type);
             Assert.IsNull(fieldTag.TableCellIndex);
         }
@@ -35,12 +35,12 @@ namespace Core.Tests.Models
         {
             var tag = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Table
             };
 
             var fieldTag = new FieldTag(tag, 10);
-            Assert.AreEqual(tag.OutputLabel, fieldTag.OutputLabel);
+            Assert.AreEqual(tag.Name, fieldTag.Name);
             Assert.AreEqual(tag.Type, fieldTag.Type);
             Assert.AreEqual(10, fieldTag.TableCellIndex);
 
@@ -53,13 +53,13 @@ namespace Core.Tests.Models
         {
             var tag = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Table
             };
 
             var fieldTag = new FieldTag() { CodeFilePath = "Test.do", TableCellIndex = 10};
             var newFieldTag = new FieldTag(tag, fieldTag);
-            Assert.AreEqual(tag.OutputLabel, newFieldTag.OutputLabel);
+            Assert.AreEqual(tag.Name, newFieldTag.Name);
             Assert.AreEqual(tag.Type, newFieldTag.Type);
             Assert.AreEqual(10, newFieldTag.TableCellIndex);
             Assert.AreEqual("Test.do", newFieldTag.CodeFilePath);
@@ -70,14 +70,14 @@ namespace Core.Tests.Models
         {
             var fieldTag = new FieldTag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Table,
                 CodeFilePath = "Test.do",
                 TableCellIndex = 10
             };
 
             var newFieldTag = new FieldTag(null, fieldTag);
-            Assert.AreEqual(fieldTag.OutputLabel, newFieldTag.OutputLabel);
+            Assert.AreEqual(fieldTag.Name, newFieldTag.Name);
             Assert.AreEqual(fieldTag.Type, newFieldTag.Type);
             Assert.AreEqual(fieldTag.TableCellIndex, newFieldTag.TableCellIndex);
             Assert.AreEqual(fieldTag.CodeFilePath, newFieldTag.CodeFilePath);
@@ -88,7 +88,7 @@ namespace Core.Tests.Models
         {
             var tag = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Table,
                 CachedResult = new List<CommandResult>()
                 {
@@ -121,13 +121,13 @@ namespace Core.Tests.Models
         {
             var tag = new FieldTag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Table,
                 TableCellIndex = 15
             };
 
             var fieldTag = new FieldTag(tag);
-            Assert.AreEqual(tag.OutputLabel, fieldTag.OutputLabel);
+            Assert.AreEqual(tag.Name, fieldTag.Name);
             Assert.AreEqual(tag.Type, fieldTag.Type);
             Assert.AreEqual(tag.TableCellIndex, fieldTag.TableCellIndex);
         }
@@ -143,7 +143,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(tag.FormattedResult, recreatedTag.FormattedResult);
             Assert.AreEqual(tag.LineEnd, recreatedTag.LineEnd);
             Assert.AreEqual(tag.LineStart, recreatedTag.LineStart);
-            Assert.AreEqual(tag.OutputLabel, recreatedTag.OutputLabel);
+            Assert.AreEqual(tag.Name, recreatedTag.Name);
             Assert.AreEqual(tag.RunFrequency, recreatedTag.RunFrequency);
             Assert.AreEqual(tag.Type, recreatedTag.Type);
             Assert.AreEqual(tag.ValueFormat, recreatedTag.ValueFormat);

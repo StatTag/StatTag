@@ -161,5 +161,10 @@ namespace StatTag
             column.DisplayMember = "Display";
             column.ValueMember = "Data";
         }
+
+        public static void SetDialogTitle(Form form)
+        {
+            form.Text = string.Format("{0} - {1}", GetAddInName(), form.Text);
+        }
     }
 }

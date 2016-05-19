@@ -14,7 +14,7 @@ namespace Core.Tests.Parser
             var tag = new Tag();
             ValueParameterParser.Parse("Value", tag);
             Assert.AreEqual(Constants.ValueFormatType.Default, tag.ValueFormat.FormatType);
-            Assert.AreEqual(Constants.RunFrequency.Default, tag.RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, tag.RunFrequency);
         }
 
         [TestMethod]
@@ -23,7 +23,7 @@ namespace Core.Tests.Parser
             // Check each parameter by itself to ensure there are no spacing/boundary errors in our regex
             var tag = new Tag();
             ValueParameterParser.Parse("Value(Label=\"Test\")", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             ValueParameterParser.Parse("Value(Type=\"Numeric\")", tag);
             Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
             ValueParameterParser.Parse("Value(Decimals=5)", tag);
@@ -41,7 +41,7 @@ namespace Core.Tests.Parser
         {
             var tag = new Tag();
             ValueParameterParser.Parse("Value(Label=\"Test\", Type=\"Numeric\", Decimals=5, Thousands=true, DateFormat=\"MM-DD-YYYY\", TimeFormat=\"HH:MM:SS\")", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
             Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
             Assert.IsTrue(tag.ValueFormat.UseThousands);
@@ -50,7 +50,7 @@ namespace Core.Tests.Parser
 
             // Run it again, flipping the order of parameters to test it works in any order
             ValueParameterParser.Parse("Value(Type=\"Numeric\", TimeFormat=\"HH:MM:SS\", Label=\"Test\", Thousands=true, Decimals=5, DateFormat=\"MM-DD-YYYY\")", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
             Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
             Assert.IsTrue(tag.ValueFormat.UseThousands);
@@ -59,7 +59,7 @@ namespace Core.Tests.Parser
 
             // Run one more time, playing around with spacing
             ValueParameterParser.Parse("Value( Type = \"Numeric\" , TimeFormat = \"HH:MM:SS\" , Label = \"Test\" , Thousands = true , Decimals = 5 , DateFormat = \"MM-DD-YYYY\" )", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.AreEqual("Numeric", tag.ValueFormat.FormatType);
             Assert.AreEqual(5, tag.ValueFormat.DecimalPlaces);
             Assert.IsTrue(tag.ValueFormat.UseThousands);

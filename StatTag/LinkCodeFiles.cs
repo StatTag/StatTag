@@ -33,6 +33,7 @@ namespace StatTag
             Files = files;
             MinimumSize = Size;
             CodeFileUpdates = new Dictionary<string, CodeFileAction>();
+            UIUtility.SetDialogTitle(this);
         }
 
         private void LinkCodeFiles_Load(object sender, EventArgs e)

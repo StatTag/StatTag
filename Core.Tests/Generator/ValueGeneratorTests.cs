@@ -68,7 +68,7 @@ namespace Core.Tests.Generator
         {
             var generator = new ValueGenerator();
             Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag()));
-            Assert.AreEqual("Label=\"Test\", Type=\"Default\"", generator.CreateParameters(new Tag() {OutputLabel = "Test" }));
+            Assert.AreEqual("Label=\"Test\", Type=\"Default\"", generator.CreateParameters(new Tag() {Name = "Test" }));
             Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
         }
 
@@ -77,7 +77,7 @@ namespace Core.Tests.Generator
         {
             var generator = new ValueGenerator();
             Assert.AreEqual("Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Tag() { RunFrequency = Constants.RunFrequency.OnDemand }));
-            Assert.AreEqual("Label=\"Test\", Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Tag() { OutputLabel = "Test", RunFrequency = Constants.RunFrequency.OnDemand }));
+            Assert.AreEqual("Label=\"Test\", Frequency=\"On Demand\", Type=\"Default\"", generator.CreateParameters(new Tag() { Name = "Test", RunFrequency = Constants.RunFrequency.OnDemand }));
             Assert.AreEqual("Type=\"Default\"", generator.CreateParameters(new Tag() { ValueFormat = new ValueFormat() { FormatType = "Unknown" } }));
         }
 

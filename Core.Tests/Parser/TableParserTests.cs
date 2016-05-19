@@ -13,7 +13,7 @@ namespace Core.Tests.Parser
         {
             var tag = new Tag();
             TableParameterParser.Parse("Table", tag);
-            Assert.AreEqual(Constants.RunFrequency.Default, tag.RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, tag.RunFrequency);
             Assert.AreEqual(Constants.TableParameterDefaults.ColumnNames, tag.TableFormat.IncludeColumnNames);
             Assert.AreEqual(Constants.TableParameterDefaults.RowNames, tag.TableFormat.IncludeRowNames);
         }
@@ -24,7 +24,7 @@ namespace Core.Tests.Parser
             // Check each parameter by itself to ensure there are no spacing/boundary errors in our regex
             var tag = new Tag();
             TableParameterParser.Parse("Table(Label=\"Test\")", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             TableParameterParser.Parse("Table(ColumnNames=True)", tag);
             Assert.IsTrue(tag.TableFormat.IncludeColumnNames);
             TableParameterParser.Parse("Table(RowNames=True)", tag);
@@ -36,19 +36,19 @@ namespace Core.Tests.Parser
         {
             var tag = new Tag();
             TableParameterParser.Parse("Table(Label=\"Test\", ColumnNames=True, RowNames=False)", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.IsTrue(tag.TableFormat.IncludeColumnNames);
             Assert.IsFalse(tag.TableFormat.IncludeRowNames);
 
             // Run it again, flipping the order of parameters to test it works in any order
             TableParameterParser.Parse("Table(RowNames=True, ColumnNames=False, Label=\"Test\")", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.IsFalse(tag.TableFormat.IncludeColumnNames);
             Assert.IsTrue(tag.TableFormat.IncludeRowNames);
 
             // Run one more time, playing around with spacing
             TableParameterParser.Parse("Table( RowNames = True , ColumnNames = True , Label = \"Test\" ) ", tag);
-            Assert.AreEqual("Test", tag.OutputLabel);
+            Assert.AreEqual("Test", tag.Name);
             Assert.IsTrue(tag.TableFormat.IncludeColumnNames);
             Assert.IsTrue(tag.TableFormat.IncludeRowNames);
         }

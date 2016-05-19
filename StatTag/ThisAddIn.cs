@@ -43,6 +43,12 @@ namespace StatTag
             return null;
         }
 
+        /// <summary>
+        /// Called when the add-in is started up.  This performs basic initialization and one-time setup for running
+        /// in a Word session.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             StatsManager = new StatsManager(Manager);
@@ -88,11 +94,22 @@ namespace StatTag
             }
         }
         
+        /// <summary>
+        /// Called when the add-in is being unloaded and shut down.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
             LogManager.WriteMessage("Shutdown completed");
         }
 
+        /// <summary>
+        /// Perform some customization to document metadata before the document is actually saved.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="saveAsUI"></param>
+        /// <param name="cancel"></param>
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
             LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
@@ -109,6 +126,7 @@ namespace StatTag
             LogManager.WriteMessage("DocumentBeforeSave - code files saved");
         }
 
+        // Hande initailization when a document is opened.  This may be called multiple times in a single Word session.
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
@@ -159,6 +177,11 @@ namespace StatTag
             LogManager.WriteMessage("DocumentOpen - Completed");
         }
 
+        /// <summary>
+        /// Respond to an error after double-clicking on a field.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         private void OnAfterDoubleClickErrorCallback(object sender, EventArgs eventArgs)
         {
             var exception = sender as Exception;
@@ -170,6 +193,11 @@ namespace StatTag
             }
         }
 
+        /// <summary>
+        /// The official event handler for add-ins in response to double-click.
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="cancel"></param>
         void Application_BeforeDoubleClick(Word.Selection selection, ref bool cancel)
         {
             // Workaround for Word add-in API - there is no AfterDoubleClick event, so we will set a new
@@ -179,6 +207,10 @@ namespace StatTag
             thread.Start();
         }
 
+        /// <summary>
+        /// Special handler called by us to allow the event queue to be processed before we try responding to
+        /// a double-click message.  This allows us to simulate an AfterDoubleClick event.
+        /// </summary>
         void Application_AfterDoubleClick()
         {
             // There is a UI delay that is noticeable, but is required as a workaround to get the double-click to

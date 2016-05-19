@@ -151,12 +151,12 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
             var results = parser.Parse(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(1, results.Length);
-            Assert.AreEqual(Constants.RunFrequency.Default, results[0].RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, results[0].RunFrequency);
 
             results = parser.Parse(mock.Object);
             Assert.AreEqual(2, results.Length);
             Assert.AreEqual(Constants.RunFrequency.OnDemand, results[0].RunFrequency);
-            Assert.AreEqual(Constants.RunFrequency.Default, results[1].RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, results[1].RunFrequency);
         }
 
         [TestMethod]
@@ -182,10 +182,10 @@ namespace Core.Tests.Parser
 
             results = parser.Parse(mock.Object, Constants.ParserFilterMode.TagList, new List<Tag>()
             {
-                new Tag() { OutputLabel = "Test2", Type = Constants.TagType.Value, CodeFile = mock.Object }
+                new Tag() { Name = "Test2", Type = Constants.TagType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(1, results.Length);
-            Assert.AreEqual("Test2", results[0].OutputLabel);
+            Assert.AreEqual("Test2", results[0].Name);
         }
 
         [TestMethod]
@@ -333,14 +333,14 @@ namespace Core.Tests.Parser
 
             results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.TagList, new List<Tag>()
             {
-                new Tag() { OutputLabel = "Test1", Type = Constants.TagType.Value, CodeFile = mock.Object }
+                new Tag() { Name = "Test1", Type = Constants.TagType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Tag);
             Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
             Assert.IsNotNull(results[1].Tag);
-            Assert.AreEqual("Test1", results[1].Tag.OutputLabel);
+            Assert.AreEqual("Test1", results[1].Tag.Name);
         }
     }
 }

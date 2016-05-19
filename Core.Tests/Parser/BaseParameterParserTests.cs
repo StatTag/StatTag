@@ -18,8 +18,8 @@ namespace Core.Tests.Parser
             const string tagText = "()";
             var tag = new Tag();
             BaseParameterParser.Parse(tagText, tag);
-            Assert.AreEqual(string.Empty, tag.OutputLabel);
-            Assert.AreEqual(Constants.RunFrequency.Default, tag.RunFrequency);
+            Assert.AreEqual(string.Empty, tag.Name);
+            Assert.AreEqual(Constants.RunFrequency.Always, tag.RunFrequency);
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@ namespace Core.Tests.Parser
             const string tagText = "(Label=\"test\", Frequency=\"On Demand\")";
             var tag = new Tag();
             BaseParameterParser.Parse(tagText, tag);
-            Assert.AreEqual("test", tag.OutputLabel);
+            Assert.AreEqual("test", tag.Name);
             Assert.AreEqual(Constants.RunFrequency.OnDemand, tag.RunFrequency);
         }
 

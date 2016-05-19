@@ -19,7 +19,7 @@ namespace Core.Tests.Generator
         public void CreateParameters_Label()
         {
             var generator = new FigureGenerator();
-            Assert.AreEqual("Label=\"Test\"", generator.CreateParameters(new Tag() { OutputLabel = "Test" }));
+            Assert.AreEqual("Label=\"Test\"", generator.CreateParameters(new Tag() { Name = "Test" }));
         }
     }
 }

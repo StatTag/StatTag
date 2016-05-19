@@ -110,7 +110,7 @@ namespace StatTag.Core.Parser
 
             if (filterMode == Constants.ParserFilterMode.ExcludeOnDemand)
             {
-                return tags.Where(x => x.RunFrequency == Constants.RunFrequency.Default).ToArray();
+                return tags.Where(x => x.RunFrequency == Constants.RunFrequency.Always).ToArray();
             }
             else if (filterMode == Constants.ParserFilterMode.TagList && tagsToRun != null)
             {

@@ -17,8 +17,8 @@ namespace Core.Tests.Utility
                 FilePath = "Test1",
                 Tags = new List<Tag>(new Tag[]
                 {
-                    new Tag() {OutputLabel = "Test1"},
-                    new Tag() {OutputLabel = "Test2"},
+                    new Tag() {Name = "Test1"},
+                    new Tag() {Name = "Test2"},
                 })
             },
             new CodeFile()
@@ -26,8 +26,8 @@ namespace Core.Tests.Utility
                 FilePath = "Test2",
                 Tags = new List<Tag>(new Tag[]
                 {
-                    new Tag() {OutputLabel = "Test3"},
-                    new Tag() {OutputLabel = "Test4"},
+                    new Tag() {Name = "Test3"},
+                    new Tag() {Name = "Test4"},
                 })
             },
         });
@@ -39,9 +39,9 @@ namespace Core.Tests.Utility
                 FilePath = "Test1",
                 Tags = new List<Tag>(new Tag[]
                 {
-                    new Tag() {OutputLabel = "Test1"},
-                    new Tag() {OutputLabel = "Test2"},
-                    new Tag() {OutputLabel = "test1"},
+                    new Tag() {Name = "Test1"},
+                    new Tag() {Name = "Test2"},
+                    new Tag() {Name = "test1"},
                 })
             },
             new CodeFile()
@@ -49,9 +49,9 @@ namespace Core.Tests.Utility
                 FilePath = "Test2",
                 Tags = new List<Tag>(new Tag[]
                 {
-                    new Tag() {OutputLabel = "test1"},
-                    new Tag() {OutputLabel = "test2"},
-                    new Tag() {OutputLabel = "Test1"},
+                    new Tag() {Name = "test1"},
+                    new Tag() {Name = "test2"},
+                    new Tag() {Name = "Test1"},
                 })
             },
         });
@@ -75,26 +75,26 @@ namespace Core.Tests.Utility
         }
 
         [TestMethod]
-        public void FindTagsByOutputLabel_NullAndEmpty()
+        public void FindTagsByName_NullAndEmpty()
         {
-            Assert.IsNull(TagUtil.FindTagsByOutputLabel(string.Empty, null));
-            Assert.IsNull(TagUtil.FindTagsByOutputLabel(null, new List<CodeFile>()));
+            Assert.IsNull(TagUtil.FindTagsByName(string.Empty, null));
+            Assert.IsNull(TagUtil.FindTagsByName(null, new List<CodeFile>()));
         }
 
         [TestMethod]
-        public void FindTagsByOutputLabel_SingleResults()
+        public void FindTagsByName_SingleResults()
         {
-            Assert.AreEqual(0, TagUtil.FindTagsByOutputLabel(string.Empty, DistinctTags).Count);
-            var tags = TagUtil.FindTagsByOutputLabel("Test3", DistinctTags);
+            Assert.AreEqual(0, TagUtil.FindTagsByName(string.Empty, DistinctTags).Count);
+            var tags = TagUtil.FindTagsByName("Test3", DistinctTags);
             Assert.AreEqual(1, tags.Count);
             Assert.AreEqual("Test2", tags[0].CodeFile.FilePath);
         }
 
         [TestMethod]
-        public void FindTagsByOutputLabel_MultipleResults()
+        public void FindTagsByName_MultipleResults()
         {
-            Assert.AreEqual(0, TagUtil.FindTagsByOutputLabel(string.Empty, DuplicateTags).Count);
-            var tags = TagUtil.FindTagsByOutputLabel("test1", DuplicateTags);
+            Assert.AreEqual(0, TagUtil.FindTagsByName(string.Empty, DuplicateTags).Count);
+            var tags = TagUtil.FindTagsByName("test1", DuplicateTags);
             Assert.AreEqual(4, tags.Count);
         }
 
@@ -103,7 +103,7 @@ namespace Core.Tests.Utility
         {
             Assert.IsNull(TagUtil.CheckForDuplicateLabels(null, null));
             Assert.IsNull(TagUtil.CheckForDuplicateLabels(null, new List<CodeFile>()));
-            var tag = new Tag() { OutputLabel = "test" };
+            var tag = new Tag() { Name = "test" };
             Assert.IsNull(TagUtil.CheckForDuplicateLabels(tag, new List<CodeFile>()));
             Assert.IsNull(TagUtil.CheckForDuplicateLabels(tag, null));
         }
@@ -117,12 +117,12 @@ namespace Core.Tests.Utility
             Assert.AreEqual(0, results.Count);
 
             // Next find one with an exactly matching label in the same file
-            tag = new Tag() { OutputLabel = "Test1", CodeFile = DistinctTags.First() };
+            tag = new Tag() { Name = "Test1", CodeFile = DistinctTags.First() };
             results = TagUtil.CheckForDuplicateLabels(tag, DistinctTags);
             Assert.AreEqual(1, results.Count);
 
             // Next find one with an exactly matching label in a different file
-            tag = new Tag() { OutputLabel = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
+            tag = new Tag() { Name = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = TagUtil.CheckForDuplicateLabels(tag, DistinctTags);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Test1", results.First().Key.FilePath);
@@ -130,7 +130,7 @@ namespace Core.Tests.Utility
             Assert.AreEqual(0, results.First().Value[1]);
 
             // Finally, look for the same label but case insensitive
-            tag = new Tag() { OutputLabel = "test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
+            tag = new Tag() { Name = "test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = TagUtil.CheckForDuplicateLabels(tag, DistinctTags);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Test1", results.First().Key.FilePath);
@@ -144,7 +144,7 @@ namespace Core.Tests.Utility
             // Here we simulate creating a new tag object in an existing file, which is going to have
             // the same name as an existing tag.  We will also identify those tags that have
             // case-insensitive name matches.  All of these should be identified by the check.
-            var tag = new Tag() { OutputLabel = "Test1", CodeFile = DuplicateTags.First() };
+            var tag = new Tag() { Name = "Test1", CodeFile = DuplicateTags.First() };
             var results = TagUtil.CheckForDuplicateLabels(tag, DuplicateTags);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(1, results.ElementAt(0).Value[0]);
@@ -153,7 +153,7 @@ namespace Core.Tests.Utility
             Assert.AreEqual(1, results.ElementAt(1).Value[1]);
 
             // Next find those with matching labels (both exact and non-exact) even if we're in another file
-            tag = new Tag() { OutputLabel = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
+            tag = new Tag() { Name = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = TagUtil.CheckForDuplicateLabels(tag, DuplicateTags);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(1, results.ElementAt(0).Value[0]);
@@ -180,15 +180,15 @@ namespace Core.Tests.Utility
             Assert.IsFalse(TagUtil.ShouldCheckForDuplicateLabel(oldTag, newTag));
 
             // We went from having no tag (null) to a new tag.  It should perform the check.
-            newTag = new Tag() { OutputLabel = "Test" };
+            newTag = new Tag() { Name = "Test" };
             Assert.IsTrue(TagUtil.ShouldCheckForDuplicateLabel(oldTag, newTag));
 
             // We now have the old tag and the new tag being the same.  It should not do the check.
-            oldTag = new Tag() { OutputLabel = "Test" };
+            oldTag = new Tag() { Name = "Test" };
             Assert.IsFalse(TagUtil.ShouldCheckForDuplicateLabel(oldTag, newTag));
 
             // The name is slightly different - now it should do the check
-            oldTag = new Tag() { OutputLabel = "test" };
+            oldTag = new Tag() { Name = "test" };
             Assert.IsTrue(TagUtil.ShouldCheckForDuplicateLabel(oldTag, newTag));
 
             // Finally, the new tag is null.  There's nothing there, so we do not want to do a check.
@@ -205,9 +205,9 @@ namespace Core.Tests.Utility
             results.Add(new CodeFile() { FilePath = "Test1.do"}, new[] { 0, 0 });
             results.Add(new CodeFile() { FilePath = "Test2.do" }, new[] { 0, 0 });
 
-            var tagInFile = new Tag() { OutputLabel = "Test", CodeFile = results.First().Key };
-            var tagNotInFile = new Tag() { OutputLabel = "Test", CodeFile = null };
-            var tagInOtherFile = new Tag() { OutputLabel = "Test", CodeFile = new CodeFile() { FilePath = "Test3.do"} };
+            var tagInFile = new Tag() { Name = "Test", CodeFile = results.First().Key };
+            var tagNotInFile = new Tag() { Name = "Test", CodeFile = null };
+            var tagInOtherFile = new Tag() { Name = "Test", CodeFile = new CodeFile() { FilePath = "Test3.do"} };
 
             // Check our null conditions first
             Assert.IsFalse(TagUtil.IsDuplicateLabelInSameFile(null, results));

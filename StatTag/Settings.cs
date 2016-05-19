@@ -24,6 +24,7 @@ namespace StatTag
             Properties = properties;
             MinimumSize = Size;
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.SetDialogTitle(this);
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)

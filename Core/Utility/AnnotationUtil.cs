@@ -14,7 +14,7 @@ namespace StatTag.Core.Utility
         /// </summary>
         /// <param name="outputLabel">The tag name to search for</param>
         /// <returns></returns>
-        public static List<Tag> FindTagsByOutputLabel(string outputLabel, List<CodeFile> files)
+        public static List<Tag> FindTagsByName(string outputLabel, List<CodeFile> files)
         {
             if (files == null || files.Count == 0)
             {
@@ -22,7 +22,7 @@ namespace StatTag.Core.Utility
             }
 
             return files.SelectMany(file => file.Tags).Where(
-                tag => tag.OutputLabel.Equals(outputLabel, StringComparison.CurrentCultureIgnoreCase)).ToList();
+                tag => tag.Name.Equals(outputLabel, StringComparison.CurrentCultureIgnoreCase)).ToList();
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace StatTag.Core.Utility
                 return false;
             }
 
-            return !oldTag.OutputLabel.Equals(newTag.OutputLabel);
+            return !oldTag.Name.Equals(newTag.Name);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace StatTag.Core.Utility
                 return null;
             }
 
-            var tags = FindTagsByOutputLabel(tag.OutputLabel, files);
+            var tags = FindTagsByName(tag.Name, files);
             if (tags == null || tags.Count == 0)
             {
                 return null;
@@ -82,7 +82,7 @@ namespace StatTag.Core.Utility
 
                 // If the tag names are an exact match, they go into the first bucket.
                 // Otherwise, they are a case-insensitive match and go into the second bucket.
-                if (tag.OutputLabel.Equals(otherTag.OutputLabel))
+                if (tag.Name.Equals(otherTag.Name))
                 {
                     duplicateCount[otherTag.CodeFile][0]++;
                 }

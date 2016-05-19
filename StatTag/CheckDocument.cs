@@ -64,6 +64,7 @@ namespace StatTag
             Files = files;
             UnlinkedTagUpdates = new Dictionary<string, CodeFileAction>();
             DuplicateTagUpdates = new List<UpdatePair<Tag>>();
+            UIUtility.SetDialogTitle(this);
         }
 
         private void CheckDocument_Load(object sender, EventArgs e)
@@ -81,7 +82,7 @@ namespace StatTag
                 {
                     if (!addedTags.Contains(tag.Id))
                     {
-                        int row = dgvUnlinkedTags.Rows.Add(new object[] { tag.OutputLabel, item.Key });
+                        int row = dgvUnlinkedTags.Rows.Add(new object[] { tag.Name, item.Key });
                         dgvUnlinkedTags.Rows[row].Tag = tag;
                         addedTags.Add(tag.Id);
                     }
@@ -102,8 +103,8 @@ namespace StatTag
                     {
                         int row = dgvDuplicateTags.Rows.Add(new object[]
                         {
-                            result.Key.OutputLabel, result.Key.FormatLineNumberRange(),
-                            duplicate.OutputLabel, duplicate.FormatLineNumberRange()
+                            result.Key.Name, result.Key.FormatLineNumberRange(),
+                            duplicate.Name, duplicate.FormatLineNumberRange()
                         });
                         dgvDuplicateTags.Rows[row].Tag = new DuplicateTagPair()
                         {
@@ -179,12 +180,12 @@ namespace StatTag
         private UpdatePair<Tag> GetDuplicateUpdate(DataGridViewRow row, Tag tag, int textColumnIndex)
         {
             var updatedLabel = row.Cells[textColumnIndex].Value.ToString();
-            if (!tag.OutputLabel.Equals(updatedLabel, StringComparison.CurrentCultureIgnoreCase))
+            if (!tag.Name.Equals(updatedLabel, StringComparison.CurrentCultureIgnoreCase))
             {
                 return new UpdatePair<Tag>()
                 {
                     Old = tag,
-                    New = new Tag(tag) { OutputLabel = updatedLabel }
+                    New = new Tag(tag) { Name = updatedLabel }
                 };
             }
             return null;

@@ -125,7 +125,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "LinkCodeFiles";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Link Code Files";
+            this.Text = "Link Code Files";
             this.Load += new System.EventHandler(this.LinkCodeFiles_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).EndInit();
             this.ResumeLayout(false);

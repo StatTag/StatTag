@@ -27,6 +27,7 @@ namespace StatTag
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             MinimumSize = Size;
             Manager = manager;
+            UIUtility.SetDialogTitle(this);
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
@@ -36,7 +37,7 @@ namespace StatTag
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            var dialog = new EditTag(Manager);
+            var dialog = new EditTag(false, Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.SaveEditedTag(dialog);
@@ -52,7 +53,7 @@ namespace StatTag
                 return;
             }
 
-            int row = dgvItems.Rows.Add(new object[] { false, tag.CodeFile.StatisticalPackage, tag.Type, tag.OutputLabel, tag.RunFrequency, Constants.DialogLabels.Edit });
+            int row = dgvItems.Rows.Add(new object[] { false, tag.CodeFile.StatisticalPackage, tag.Type, tag.Name, tag.RunFrequency, Constants.DialogLabels.Edit });
             dgvItems.Rows[row].Tag = tag;
         }
 
@@ -77,7 +78,7 @@ namespace StatTag
         private void LoadList(string filter = "")
         {
             dgvItems.Rows.Clear();
-            foreach (var tag in Tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+            foreach (var tag in Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
             {
                 AddRow(tag);
             }

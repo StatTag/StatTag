@@ -20,6 +20,7 @@ namespace StatTag.Models
         public List<CodeFile> Files { get; set; }
         public FieldCreator FieldManager { get; set; }
         public TagManager TagManager { get; set; }
+        public StatsManager StatsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
 
@@ -28,6 +29,7 @@ namespace StatTag.Models
             Files = new List<CodeFile>();
             FieldManager = new FieldCreator();
             TagManager = new TagManager(this);
+            StatsManager = new StatsManager(this);
         }
 
         /// <summary>
@@ -320,7 +322,7 @@ namespace StatTag.Models
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
                 if (tableDimensionChange)
                 {
-                    Log(string.Format("Attempting to refresh table with tag label: {0}", tagUpdatePair.New.OutputLabel));
+                    Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
                     if (RefreshTableTagFields(tagUpdatePair.New, document))
                     {
                         Log("Completed refreshing table - leaving UpdateFields");
@@ -369,12 +371,12 @@ namespace StatTag.Models
                             continue;
                         }
 
-                        Log(string.Format("Processing only a specific tag with label: {0}", tagUpdatePair.New.OutputLabel));
+                        Log(string.Format("Processing only a specific tag with label: {0}", tagUpdatePair.New.Name));
                         tag = new FieldTag(tagUpdatePair.New, tag);
                         TagManager.UpdateTagFieldData(field, tag);
                     }
 
-                    Log(string.Format("Inserting field for tag: {0}", tag.OutputLabel));
+                    Log(string.Format("Inserting field for tag: {0}", tag.Name));
                     field.Select();
                     InsertField(tag);
 
@@ -523,7 +525,7 @@ namespace StatTag.Models
                 var innerTag = new FieldTag(tag, index);
                 innerTag.CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[index] } };
                 CreateTagField(range,
-                    string.Format("{0}{1}{2}", tag.OutputLabel, Constants.ReservedCharacters.TagTableCellDelimiter, index),
+                    string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
                     innerTag.FormattedResult, innerTag);
                 index++;
                 Marshal.ReleaseComObject(range);
@@ -669,7 +671,7 @@ namespace StatTag.Models
                 {
                     Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateTagField(range, tag.OutputLabel, tag.FormattedResult, tag);
+                    CreateTagField(range, tag.Name, tag.FormattedResult, tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -736,7 +738,7 @@ namespace StatTag.Models
 
             try
             {
-                var dialog = new EditTag(this);
+                var dialog = new EditTag(false, this);
 
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
@@ -824,6 +826,77 @@ namespace StatTag.Models
                 var fieldTag = TagManager.GetFieldTag(field);
                 var tag = TagManager.FindTag(fieldTag);
                 EditTag(tag);
+            }
+        }
+
+        /// <summary>
+        /// This is a specialized utility function to be called whenever the user clicks "Save and Insert"
+        /// from the Edit Tag dialog.
+        /// </summary>
+        /// <param name="dialog"></param>
+        public void CheckForInsertSavedTag(EditTag dialog)
+        {
+            // If the user clicked the "Save and Insert", we will perform the insertion now.
+            if (dialog.InsertInDocument)
+            {
+                Logger.WriteMessage("Inserting into document after defining tag");
+
+                var tag = FindTag(dialog.Tag.Id);
+                if (tag == null)
+                {
+                    Logger.WriteMessage(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
+                    return;
+                }
+
+                InsertTagsInDocument(new List<Tag>(new[] { tag }));
+            }
+        }
+
+        public void InsertTagsInDocument(List<Tag> tags)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+            try
+            {
+                var updatedTags = new List<Tag>();
+                var refreshedFiles = new List<CodeFile>();
+                foreach (var tag in tags)
+                {
+                    if (!refreshedFiles.Contains(tag.CodeFile))
+                    {
+                        var result = StatsManager.ExecuteStatPackage(tag.CodeFile,
+                            Constants.ParserFilterMode.TagList, tags);
+                        if (!result.Success)
+                        {
+                            break;
+                        }
+
+                        updatedTags.AddRange(result.UpdatedTags);
+                        refreshedFiles.Add(tag.CodeFile);
+                    }
+
+                    InsertField(tag);
+                }
+
+                // Now that all of the fields have been inserted, sweep through and update any existing
+                // tags that changed.  We do this after the fields are inserted to better manage
+                // the cursor position in the document.
+                updatedTags = updatedTags.Distinct().ToList();
+                foreach (var updatedTag in updatedTags)
+                {
+                    UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to insert the tag output into the Word sdocument.",
+                    Logger);
+            }
+            finally
+            {
+                Globals.ThisAddIn.Application.ScreenUpdating = true;
+                Cursor.Current = Cursors.Default;
             }
         }
 

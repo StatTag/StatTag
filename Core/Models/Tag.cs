@@ -16,7 +16,7 @@ namespace StatTag.Core.Models
         [JsonIgnore]
         public CodeFile CodeFile { get; set; }
         public string Type { get; set; }
-        public string OutputLabel { get; set; }
+        public string Name { get; set; }
         public string RunFrequency { get; set; }
         public ValueFormat ValueFormat { get; set; }
         public FigureFormat FigureFormat { get; set; }
@@ -27,7 +27,7 @@ namespace StatTag.Core.Models
         {
             get
             {
-                return string.Format("{0}--{1}", OutputLabel, (CodeFile == null ? string.Empty : CodeFile.FilePath));
+                return string.Format("{0}--{1}", Name, (CodeFile == null ? string.Empty : CodeFile.FilePath));
             }
         }
 
@@ -87,7 +87,7 @@ namespace StatTag.Core.Models
 
             CodeFile = tag.CodeFile;
             Type = tag.Type;
-            OutputLabel = NormalizeOutputLabel(tag.OutputLabel);
+            Name = NormalizeName(tag.Name);
             RunFrequency = tag.RunFrequency;
             ValueFormat = tag.ValueFormat;
             FigureFormat = tag.FigureFormat;
@@ -103,7 +103,7 @@ namespace StatTag.Core.Models
         /// <returns></returns>
         public string Serialize()
         {
-            OutputLabel = NormalizeOutputLabel(OutputLabel);
+            Name = NormalizeName(Name);
             return JsonConvert.SerializeObject(this);
         }
 
@@ -115,7 +115,7 @@ namespace StatTag.Core.Models
         public static Tag Deserialize(string json)
         {
             var tag = JsonConvert.DeserializeObject<Tag>(json);
-            tag.OutputLabel = NormalizeOutputLabel(tag.OutputLabel);
+            tag.Name = NormalizeName(tag.Name);
             return tag;
         }
 
@@ -127,7 +127,7 @@ namespace StatTag.Core.Models
                 return false;
             }
 
-            if (!OutputLabel.Equals(tag.OutputLabel))
+            if (!Name.Equals(tag.Name))
             {
                 return false;
             }
@@ -147,14 +147,14 @@ namespace StatTag.Core.Models
 
         public override int GetHashCode()
         {
-            return ((OutputLabel != null && CodeFile != null) ? (string.Format("{0}--{1}", OutputLabel, CodeFile.FilePath)).GetHashCode() : 0);
+            return ((Name != null && CodeFile != null) ? (string.Format("{0}--{1}", Name, CodeFile.FilePath)).GetHashCode() : 0);
         }
 
         public override string ToString()
         {
-            if (!string.IsNullOrWhiteSpace(OutputLabel))
+            if (!string.IsNullOrWhiteSpace(Name))
             {
-                return OutputLabel;
+                return Name;
             }
 
             if (!string.IsNullOrWhiteSpace(Type))
@@ -189,7 +189,7 @@ namespace StatTag.Core.Models
         /// </summary>
         /// <param name="label"></param>
         /// <returns></returns>
-        public static string NormalizeOutputLabel(string label)
+        public static string NormalizeName(string label)
         {
             if (string.IsNullOrWhiteSpace(label))
             {

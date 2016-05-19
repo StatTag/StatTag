@@ -21,14 +21,14 @@ namespace StatTag.Core.Models
 
         public static class RunFrequency
         {
-            public const string Default = "Default";
+            public const string Always = "Always";
             public const string OnDemand = "On Demand";
 
             public static string[] GetList()
             {
                 return new[]
                 {
-                    Default, OnDemand
+                    Always, OnDemand
                 };
             }
         }

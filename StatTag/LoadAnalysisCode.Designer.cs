@@ -198,7 +198,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "LoadAnalysisCode";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Manage Code Files";
+            this.Text = "Manage Code Files";
             this.Load += new System.EventHandler(this.LoadAnalysisCode_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
             this.ResumeLayout(false);

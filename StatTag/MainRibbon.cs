@@ -38,7 +38,17 @@ namespace StatTag
 
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
+            UIStatusAfterFileLoad();
+        }
 
+        private void UIStatusAfterFileLoad()
+        {
+            bool enabled = (Manager.Files != null && Manager.Files.Count > 0);
+            cmdDefineTag.Enabled = enabled;
+            cmdInsertOutput.Enabled = enabled;
+            cmdUpdateOutput.Enabled = enabled;
+            cmdManageTags.Enabled = enabled;
+            cmdValidateDocument.Enabled = enabled;
         }
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
@@ -59,6 +69,8 @@ namespace StatTag
                             Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);
                         }
                     }
+
+                    UIStatusAfterFileLoad();
                 }
             }
             catch (Exception exc)
@@ -92,50 +104,22 @@ namespace StatTag
             var dialog = new SelectOutput(Manager.Files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                Cursor.Current = Cursors.WaitCursor;
-                Globals.ThisAddIn.Application.ScreenUpdating = false;
                 try
                 {
-                    var updatedTags = new List<Tag>();
-                    var refreshedFiles = new List<CodeFile>();
                     var tags = dialog.GetSelectedTags();
-                    foreach (var tag in tags)
-                    {
-                        if (!refreshedFiles.Contains(tag.CodeFile))
-                        {
-                            var result = StatsManager.ExecuteStatPackage(tag.CodeFile,
-                                Constants.ParserFilterMode.TagList, tags);
-                            if (!result.Success)
-                            {
-                                break;
-                            }
-
-                            updatedTags.AddRange(result.UpdatedTags);
-                            refreshedFiles.Add(tag.CodeFile);
-                        }
-
-                        Manager.InsertField(tag);
-                    }
-
-                    // Now that all of the fields have been inserted, sweep through and update any existing
-                    // tags that changed.  We do this after the fields are inserted to better manage
-                    // the cursor position in the document.
-                    updatedTags = updatedTags.Distinct().ToList();
-                    foreach (var updatedTag in updatedTags)
-                    {
-                        Manager.UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
-                    }
+                    LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
+                    Manager.InsertTagsInDocument(tags);
                 }
                 catch (Exception exc)
                 {
                     UIUtility.ReportException(exc,
-                        "There was an unexpected error when trying to insert a value into the document.",
+                        "There was an unexpected error when trying to insert the tag output into the document.",
                         LogManager);
                 }
                 finally
                 {
                     Globals.ThisAddIn.Application.ScreenUpdating = true;
-                    Cursor.Current = Cursors.Default;   
+                    Cursor.Current = Cursors.Default;
                 }
             }
         }
@@ -229,7 +213,7 @@ namespace StatTag
 
         private void cmdDefineTag_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new EditTag(Manager);
+            var dialog = new EditTag(true, Manager);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.SaveEditedTag(dialog);
@@ -238,6 +222,7 @@ namespace StatTag
                     file.LoadTagsFromContent();
                 }
 
+                Manager.CheckForInsertSavedTag(dialog);
             }
         }
 

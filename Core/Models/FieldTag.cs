@@ -83,7 +83,7 @@ namespace StatTag.Core.Models
         /// <returns></returns>
         public new string Serialize()
         {
-            OutputLabel = NormalizeOutputLabel(OutputLabel);
+            Name = NormalizeName(Name);
             return JsonConvert.SerializeObject(this);
         }
 
@@ -96,7 +96,7 @@ namespace StatTag.Core.Models
         public new static FieldTag Deserialize(string json, IEnumerable<CodeFile> files = null)
         {
             var tag = JsonConvert.DeserializeObject<FieldTag>(json);
-            tag.OutputLabel = NormalizeOutputLabel(tag.OutputLabel);
+            tag.Name = NormalizeName(tag.Name);
             LinkToCodeFile(tag, files);
             return tag;
         }

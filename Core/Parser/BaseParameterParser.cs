@@ -17,8 +17,8 @@ namespace StatTag.Core.Parser
 
         public static void Parse(string tagText, Tag tag)
         {
-            tag.OutputLabel = Tag.NormalizeOutputLabel(GetStringParameter(Constants.TagParameters.Label, tagText));
-            tag.RunFrequency = GetStringParameter(Constants.TagParameters.Frequency, tagText, Constants.RunFrequency.Default);
+            tag.Name = Tag.NormalizeName(GetStringParameter(Constants.TagParameters.Label, tagText));
+            tag.RunFrequency = GetStringParameter(Constants.TagParameters.Frequency, tagText, Constants.RunFrequency.Always);
         }
 
         /// <summary>

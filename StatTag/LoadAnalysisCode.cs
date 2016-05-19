@@ -28,6 +28,7 @@ namespace StatTag
             Manager = manager;
             Files = files;
             MinimumSize = Size;
+            UIUtility.SetDialogTitle(this);
         }
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)

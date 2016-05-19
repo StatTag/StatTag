@@ -18,7 +18,7 @@ namespace StatTag.Core.Parser
             if (paramIndex == -1)
             {
                 tag.ValueFormat.FormatType = Constants.ValueFormatType.Default;
-                tag.RunFrequency = Constants.RunFrequency.Default;
+                tag.RunFrequency = Constants.RunFrequency.Always;
                 return;
             }
 

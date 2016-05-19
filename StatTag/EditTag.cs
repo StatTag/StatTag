@@ -28,11 +28,12 @@ namespace StatTag
         protected Tag OriginalTag { get; set; }
         public Tag Tag { get; set; }
         public string CodeText { get; set; }
+        public bool InsertInDocument { get; private set; }
 
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
 
-        public EditTag(DocumentManager manager = null)
+        public EditTag(bool allowInsertInDocument, DocumentManager manager = null)
         {
             try
             {
@@ -42,6 +43,8 @@ namespace StatTag
                 Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
                 SelectedButtonFont = Font;
                 UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
+                UIUtility.SetDialogTitle(this);
+                cmdSaveAndInsert.Enabled = allowInsertInDocument;
             }
             catch (Exception exc)
             {
@@ -161,7 +164,8 @@ namespace StatTag
             margin.Mask = Marker.MaskAll;
             margin.Cursor = MarginCursor.Arrow;
             var marker = scintilla1.Markers[TagMarker];
-            marker.SetBackColor(Color.DarkSeaGreen);
+            marker.SetBackColor(Color.FromArgb(0, 204, 196, 223));
+            //marker.SetBackColor(Color.DarkSeaGreen);
             marker.Symbol = MarkerSymbol.Background;
 
             if (Tag != null)
@@ -171,7 +175,7 @@ namespace StatTag
                 ScintillaManager.ConfigureEditor(scintilla1, Tag.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
                 cboRunFrequency.SelectedItem = Tag.RunFrequency;
-                txtOutputLabel.Text = Tag.OutputLabel;
+                txtName.Text = Tag.Name;
                 TagType = Tag.Type;
                 LoadCodeFile(Tag.CodeFile);
                 if (Tag.LineStart.HasValue && Tag.LineEnd.HasValue)
@@ -215,54 +219,13 @@ namespace StatTag
                 }
 
                 // Default the default run frequency to "Default" (by default)
-                cboRunFrequency.SelectedItem = Constants.RunFrequency.Default;
+                cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
             }
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
-            if (Tag == null)
-            {
-                Tag = new Tag();
-            }
-
-            CodeText = scintilla1.Text;
-            Tag.Type = TagType;
-            Tag.OutputLabel = Tag.NormalizeOutputLabel(txtOutputLabel.Text);
-            Tag.RunFrequency = cboRunFrequency.SelectedItem as string;
-            Tag.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
-            var selectedIndices = GetSelectedIndices();
-            if (!selectedIndices.Any())
-            {
-                Tag.LineStart = null;
-                Tag.LineEnd = null;
-            }
-            else if (selectedIndices.Length == 1)
-            {
-                Tag.LineStart = selectedIndices[0];
-                Tag.LineEnd = Tag.LineStart;
-            }
-            else
-            {
-                Tag.LineStart = selectedIndices.Min();
-                Tag.LineEnd = selectedIndices.Max();
-            }
-
-            switch (TagType)
-            {
-                case Constants.TagType.Value:
-                    Tag.ValueFormat = valueProperties.GetValueFormat();
-                    break;
-                case Constants.TagType.Figure:
-                    Tag.FigureFormat = figureProperties.GetFigureFormat();
-                    break;
-                case Constants.TagType.Table:
-                    Tag.TableFormat = tableProperties.GetTableFormat();
-                    Tag.ValueFormat = tableProperties.GetValueFormat();
-                    break;
-                default:
-                    throw new NotSupportedException("This tag type is not yet supported");
-            }
+            HandleOkClick(false);
         }
 
         private void cboCodeFiles_SelectedIndexChanged(object sender, EventArgs e)
@@ -281,7 +244,7 @@ namespace StatTag
             }
         }
 
-        private void txtOutputLabel_KeyPress(object sender, KeyPressEventArgs e)
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
         {
             // Ignore reserved characters
             if (e.KeyChar == Constants.ReservedCharacters.TagTableCellDelimiter)
@@ -323,7 +286,7 @@ namespace StatTag
                     if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))
                     {
                         UIUtility.WarningMessageBox(
-                            string.Format("The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.OutputLabel), 
+                            string.Format("The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.Name), 
                             Manager.Logger);
                         this.DialogResult = DialogResult.None;
                         e.Cancel = true;
@@ -331,7 +294,7 @@ namespace StatTag
                     else if (DialogResult.Yes != MessageBox.Show(
                         string.Format(
                             "The tag name you have entered ('{0}') appears in {1} other {2}.  Are you sure you want to use the same label?",
-                            Tag.OutputLabel, result.Count, "file".Pluralize(result.Count)),
+                            Tag.Name, result.Count, "file".Pluralize(result.Count)),
                         UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
                     {
                         this.DialogResult = DialogResult.None;
@@ -506,6 +469,59 @@ namespace StatTag
                     width = Math.Max(width, (int)graphics.MeasureString(file.FilePath, font).Width + vertScrollBarWidth);
                 }
                 comboBox.DropDownWidth = width;
+            }
+        }
+
+        private void cmdSaveAndInsert_Click(object sender, EventArgs e)
+        {
+            HandleOkClick(true);
+        }
+
+        private void HandleOkClick(bool insertInDocument)
+        {
+            InsertInDocument = insertInDocument;
+
+            if (Tag == null)
+            {
+                Tag = new Tag();
+            }
+
+            CodeText = scintilla1.Text;
+            Tag.Type = TagType;
+            Tag.Name = Tag.NormalizeName(txtName.Text);
+            Tag.RunFrequency = cboRunFrequency.SelectedItem as string;
+            Tag.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
+            var selectedIndices = GetSelectedIndices();
+            if (!selectedIndices.Any())
+            {
+                Tag.LineStart = null;
+                Tag.LineEnd = null;
+            }
+            else if (selectedIndices.Length == 1)
+            {
+                Tag.LineStart = selectedIndices[0];
+                Tag.LineEnd = Tag.LineStart;
+            }
+            else
+            {
+                Tag.LineStart = selectedIndices.Min();
+                Tag.LineEnd = selectedIndices.Max();
+            }
+
+            switch (TagType)
+            {
+                case Constants.TagType.Value:
+                    Tag.ValueFormat = valueProperties.GetValueFormat();
+                    break;
+                case Constants.TagType.Figure:
+                    Tag.FigureFormat = figureProperties.GetFigureFormat();
+                    break;
+                case Constants.TagType.Table:
+                    Tag.TableFormat = tableProperties.GetTableFormat();
+                    Tag.ValueFormat = tableProperties.GetValueFormat();
+                    break;
+                default:
+                    throw new NotSupportedException("This tag type is not yet supported");
             }
         }
     }

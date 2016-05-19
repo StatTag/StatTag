@@ -228,7 +228,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 1,
                 LineEnd = 2,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -248,7 +248,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test2",
+                Name = "Test2",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -265,7 +265,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 0,
                 LineEnd = 0,
-                OutputLabel = "Test3",
+                Name = "Test3",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -305,7 +305,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 0,
                 LineEnd = 3,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -343,7 +343,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 0,
                 LineEnd = 2,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -362,7 +362,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -381,7 +381,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 1,
                 LineEnd = 2,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -400,7 +400,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -444,7 +444,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 0,
                 LineEnd = 2,
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -476,7 +476,7 @@ namespace Core.Tests.Models
             {
                 LineStart = 4,
                 LineEnd = 6,
-                OutputLabel = "Test 2",
+                Name = "Test 2",
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
@@ -552,8 +552,8 @@ namespace Core.Tests.Models
             codeFile.LoadTagsFromContent();
 
             codeFile.RemoveTag(null);
-            codeFile.RemoveTag(new Tag() { OutputLabel = "NotHere", Type = Constants.TagType.Value });
-            codeFile.RemoveTag(new Tag() { OutputLabel = "test", Type = Constants.TagType.Value });
+            codeFile.RemoveTag(new Tag() { Name = "NotHere", Type = Constants.TagType.Value });
+            codeFile.RemoveTag(new Tag() { Name = "test", Type = Constants.TagType.Value });
             Assert.AreEqual(2, codeFile.Tags.Count);
             Assert.AreEqual(9, codeFile.Content.Count);
         }
@@ -601,8 +601,8 @@ namespace Core.Tests.Models
         {
             var codeFile = new CodeFile() { FilePath = "Test.do", Tags = new List<Tag>(new []
             {
-                new Tag() { OutputLabel = "Test"}, 
-                new Tag() { OutputLabel = "Test2"},
+                new Tag() { Name = "Test"}, 
+                new Tag() { Name = "Test2"},
             }) };
             var result = codeFile.FindDuplicateTags();
             Assert.AreEqual(0, result.Count);
@@ -616,11 +616,11 @@ namespace Core.Tests.Models
                 FilePath = "Test.do",
                 Tags = new List<Tag>(new[]
             {
-                new Tag() { OutputLabel = "Test"}, 
-                new Tag() { OutputLabel = "Test2"},
-                new Tag() { OutputLabel = "test"},
-                new Tag() { OutputLabel = "test2"},
-                new Tag() { OutputLabel = "Test"},
+                new Tag() { Name = "Test"}, 
+                new Tag() { Name = "Test2"},
+                new Tag() { Name = "test"},
+                new Tag() { Name = "test2"},
+                new Tag() { Name = "Test"},
             })
             };
             var result = codeFile.FindDuplicateTags();

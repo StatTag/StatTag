@@ -11,9 +11,9 @@ namespace StatTag.Core.Generator
     {
         public string GetLabelParameter(Tag tag)
         {
-            if (!string.IsNullOrWhiteSpace(tag.OutputLabel))
+            if (!string.IsNullOrWhiteSpace(tag.Name))
             {
-                return string.Format("{0}=\"{1}\", ", Constants.TagParameters.Label, tag.OutputLabel);
+                return string.Format("{0}=\"{1}\", ", Constants.TagParameters.Label, tag.Name);
             }
 
             return string.Empty;

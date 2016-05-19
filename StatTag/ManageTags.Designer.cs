@@ -34,7 +34,7 @@
             this.colCheck = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colStatPackage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colOutputLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRunFrequency = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
             this.cmdCancel = new System.Windows.Forms.Button();
@@ -51,9 +51,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(266, 17);
+            this.label1.Size = new System.Drawing.Size(100, 17);
             this.label1.TabIndex = 0;
-            this.label1.Text = "List of tags defined within linked code file(s):";
+            this.label1.Text = "Available tag(s):";
             // 
             // dgvItems
             // 
@@ -70,7 +70,7 @@
             this.colCheck,
             this.colStatPackage,
             this.colType,
-            this.colOutputLabel,
+            this.colName,
             this.colRunFrequency,
             this.colEdit});
             this.dgvItems.Location = new System.Drawing.Point(15, 39);
@@ -85,10 +85,10 @@
             // colCheck
             // 
             this.colCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colCheck.HeaderText = "";
+            this.colCheck.HeaderText = "Remove";
             this.colCheck.MinimumWidth = 20;
             this.colCheck.Name = "colCheck";
-            this.colCheck.Width = 20;
+            this.colCheck.Width = 61;
             // 
             // colStatPackage
             // 
@@ -105,13 +105,13 @@
             this.colType.ReadOnly = true;
             this.colType.Width = 61;
             // 
-            // colOutputLabel
+            // colName
             // 
-            this.colOutputLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colOutputLabel.HeaderText = "Output Label";
-            this.colOutputLabel.MinimumWidth = 150;
-            this.colOutputLabel.Name = "colOutputLabel";
-            this.colOutputLabel.ReadOnly = true;
+            this.colName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colName.HeaderText = "Name";
+            this.colName.MinimumWidth = 150;
+            this.colName.Name = "colName";
+            this.colName.ReadOnly = true;
             // 
             // colRunFrequency
             // 
@@ -172,7 +172,7 @@
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(168, 25);
             this.cmdRemove.TabIndex = 8;
-            this.cmdRemove.Text = "&Remove Tag(s)";
+            this.cmdRemove.Text = "&Remove Checked Tag(s)";
             this.cmdRemove.UseVisualStyleBackColor = true;
             this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
             // 
@@ -185,7 +185,7 @@
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(168, 25);
             this.cmdAdd.TabIndex = 7;
-            this.cmdAdd.Text = "&Add Tag";
+            this.cmdAdd.Text = "Define &New Tag";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
@@ -218,7 +218,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "ManageTags";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Available Tags";
+            this.Text = "Manage Tags";
             this.Load += new System.EventHandler(this.ManageCodeBlocks_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
             this.ResumeLayout(false);
@@ -235,12 +235,12 @@
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
         private System.Windows.Forms.Button cmdRemove;
         private System.Windows.Forms.Button cmdAdd;
+        private Controls.PlaceholderTextBox txtFilter;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colCheck;
         private System.Windows.Forms.DataGridViewTextBoxColumn colStatPackage;
         private System.Windows.Forms.DataGridViewTextBoxColumn colType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colOutputLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colRunFrequency;
         private System.Windows.Forms.DataGridViewButtonColumn colEdit;
-        private Controls.PlaceholderTextBox txtFilter;
     }
 }

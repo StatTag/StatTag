@@ -23,6 +23,7 @@ namespace StatTag
             InitializeComponent();
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             Files = files;
+            UIUtility.SetDialogTitle(this);
         }
 
         public List<Tag> GetSelectedTags()
@@ -52,9 +53,9 @@ namespace StatTag
             {
                 lvwOutput.Items.Clear();
 
-                foreach (var tag in Tags.Where(x => x.OutputLabel.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                foreach (var tag in Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
                 {
-                    var item = lvwOutput.Items.Add(tag.OutputLabel);
+                    var item = lvwOutput.Items.Add(tag.Name);
                     item.SubItems.AddRange(new[] {tag.CodeFile.FilePath});
                     item.Tag = tag;
                 }

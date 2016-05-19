@@ -14,7 +14,7 @@ namespace Core.Tests.Models
         {
             var tag1 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 1,
                 LineEnd = 2
@@ -32,7 +32,7 @@ namespace Core.Tests.Models
             Assert.IsNull(tag.FigureFormat);
             Assert.IsNull(tag.LineEnd);
             Assert.IsNull(tag.LineStart);
-            Assert.IsNull(tag.OutputLabel);
+            Assert.IsNull(tag.Name);
             Assert.IsNull(tag.RunFrequency);
             Assert.IsNull(tag.TableFormat);
             Assert.IsNull(tag.Type);
@@ -45,7 +45,7 @@ namespace Core.Tests.Models
             var file1 = new CodeFile() { FilePath = "File1.txt" };
             var tag1 = new Tag()
             {
-                OutputLabel= "Test",
+                Name= "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 1,
                 LineEnd = 2,
@@ -54,7 +54,7 @@ namespace Core.Tests.Models
 
             var tag2 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 3,
                 LineEnd = 4,
@@ -80,7 +80,7 @@ namespace Core.Tests.Models
 
             var tag1 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 1,
                 LineEnd = 2,
@@ -90,7 +90,7 @@ namespace Core.Tests.Models
             // Same file as tag 1, but in a different file
             var tag2 = new Tag()
             {
-                OutputLabel = "Test2",
+                Name = "Test2",
                 Type = Constants.TagType.Value,
                 LineStart = 1,
                 LineEnd = 2,
@@ -100,7 +100,7 @@ namespace Core.Tests.Models
             // Same label as tag1, but in a different file.
             var tag3 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 3,
                 LineEnd = 4,
@@ -121,7 +121,7 @@ namespace Core.Tests.Models
             var file1 = new CodeFile() { FilePath = "File1.txt" };
             var tag1 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 1,
                 LineEnd = 2,
@@ -130,7 +130,7 @@ namespace Core.Tests.Models
 
             var tag2 = new Tag()
             {
-                OutputLabel = "Test",
+                Name = "Test",
                 Type = Constants.TagType.Value,
                 LineStart = 3,
                 LineEnd = 4,
@@ -186,7 +186,7 @@ namespace Core.Tests.Models
             Assert.AreEqual("StatTag.Core.Models.Tag", tag.ToString());
             tag.Type = Constants.TagType.Figure;
             Assert.AreEqual("Figure", tag.ToString());
-            tag.OutputLabel = "Test";
+            tag.Name = "Test";
             Assert.AreEqual("Test", tag.ToString());
         }
 
@@ -201,7 +201,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(tag.FormattedResult, recreatedTag.FormattedResult);
             Assert.AreEqual(tag.LineEnd, recreatedTag.LineEnd);
             Assert.AreEqual(tag.LineStart, recreatedTag.LineStart);
-            Assert.AreEqual(tag.OutputLabel, recreatedTag.OutputLabel);
+            Assert.AreEqual(tag.Name, recreatedTag.Name);
             Assert.AreEqual(tag.RunFrequency, recreatedTag.RunFrequency);
             Assert.AreEqual(tag.Type, recreatedTag.Type);
             Assert.AreEqual(tag.ValueFormat, recreatedTag.ValueFormat);
@@ -210,22 +210,22 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
-        public void NormalizeOutputLabel_Blanks()
+        public void NormalizeName_Blanks()
         {
-            Assert.AreEqual(string.Empty, Tag.NormalizeOutputLabel(null));
-            Assert.AreEqual(string.Empty, Tag.NormalizeOutputLabel(string.Empty));
-            Assert.AreEqual(string.Empty, Tag.NormalizeOutputLabel("   "));
+            Assert.AreEqual(string.Empty, Tag.NormalizeName(null));
+            Assert.AreEqual(string.Empty, Tag.NormalizeName(string.Empty));
+            Assert.AreEqual(string.Empty, Tag.NormalizeName("   "));
         }
 
         [TestMethod]
-        public void NormalizeOutputLabel_Values()
+        public void NormalizeName_Values()
         {
-            Assert.AreEqual("Test", Tag.NormalizeOutputLabel("Test"));
-            Assert.AreEqual("Test", Tag.NormalizeOutputLabel("|Test"));
-            Assert.AreEqual("Test", Tag.NormalizeOutputLabel("   |   Test"));
-            Assert.AreEqual("Test", Tag.NormalizeOutputLabel("Test|"));
-            Assert.AreEqual("Test", Tag.NormalizeOutputLabel("Test |   "));
-            Assert.AreEqual("Test one", Tag.NormalizeOutputLabel("Test|one"));
+            Assert.AreEqual("Test", Tag.NormalizeName("Test"));
+            Assert.AreEqual("Test", Tag.NormalizeName("|Test"));
+            Assert.AreEqual("Test", Tag.NormalizeName("   |   Test"));
+            Assert.AreEqual("Test", Tag.NormalizeName("Test|"));
+            Assert.AreEqual("Test", Tag.NormalizeName("Test |   "));
+            Assert.AreEqual("Test one", Tag.NormalizeName("Test|one"));
         }
 
         [TestMethod]

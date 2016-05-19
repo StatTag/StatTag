@@ -380,7 +380,7 @@ namespace StatTag.Core.Models
             var distinct = new Dictionary<string, Tag>();
             foreach (var tag in Tags)
             {
-                var searchLabel = tag.OutputLabel.ToUpper();
+                var searchLabel = tag.Name.ToUpper();
 
                 // See if we already have this in the distinct list of tag names
                 if (distinct.ContainsKey(searchLabel))
@@ -394,7 +394,7 @@ namespace StatTag.Core.Models
                 }
                 else
                 {
-                    distinct.Add(tag.OutputLabel.ToUpper(), tag);
+                    distinct.Add(tag.Name.ToUpper(), tag);
                 }
             }
             return duplicates;

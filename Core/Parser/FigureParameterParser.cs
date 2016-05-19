@@ -16,7 +16,7 @@ namespace StatTag.Core.Parser
             // If no parameters are set, fill in default values
             if (paramIndex == -1)
             {
-                tag.RunFrequency = Constants.RunFrequency.Default;
+                tag.RunFrequency = Constants.RunFrequency.Always;
                 return;
             }
 

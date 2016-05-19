@@ -31,20 +31,20 @@
             this.tabUnlinked = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.dgvUnlinkedTags = new System.Windows.Forms.DataGridView();
+            this.colTagName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabResults = new System.Windows.Forms.TabControl();
             this.tabDuplicate = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
             this.dgvDuplicateTags = new System.Windows.Forms.DataGridView();
-            this.label1 = new System.Windows.Forms.Label();
-            this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTagLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTagLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cmdCancel = new System.Windows.Forms.Button();
+            this.cmdOK = new System.Windows.Forms.Button();
             this.tabUnlinked.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).BeginInit();
             this.tabResults.SuspendLayout();
@@ -86,7 +86,7 @@
             this.dgvUnlinkedTags.CausesValidation = false;
             this.dgvUnlinkedTags.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvUnlinkedTags.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colTagLabel,
+            this.colTagName,
             this.colCodeFile,
             this.colActionToTake});
             this.dgvUnlinkedTags.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
@@ -99,6 +99,29 @@
             this.dgvUnlinkedTags.ShowRowErrors = false;
             this.dgvUnlinkedTags.Size = new System.Drawing.Size(719, 212);
             this.dgvUnlinkedTags.TabIndex = 2;
+            // 
+            // colTagName
+            // 
+            this.colTagName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colTagName.FillWeight = 25F;
+            this.colTagName.HeaderText = "Tag Name";
+            this.colTagName.Name = "colTagName";
+            this.colTagName.ReadOnly = true;
+            // 
+            // colCodeFile
+            // 
+            this.colCodeFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colCodeFile.FillWeight = 35F;
+            this.colCodeFile.HeaderText = "Code File";
+            this.colCodeFile.Name = "colCodeFile";
+            this.colCodeFile.ReadOnly = true;
+            // 
+            // colActionToTake
+            // 
+            this.colActionToTake.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colActionToTake.FillWeight = 40F;
+            this.colActionToTake.HeaderText = "Action to Take";
+            this.colActionToTake.Name = "colActionToTake";
             // 
             // tabResults
             // 
@@ -162,6 +185,37 @@
             this.dgvDuplicateTags.Size = new System.Drawing.Size(719, 212);
             this.dgvDuplicateTags.TabIndex = 4;
             // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn2.FillWeight = 40F;
+            this.dataGridViewTextBoxColumn2.HeaderText = "Tag Name";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // colTagLines
+            // 
+            this.colTagLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colTagLines.DividerWidth = 3;
+            this.colTagLines.FillWeight = 10F;
+            this.colTagLines.HeaderText = "Lines";
+            this.colTagLines.Name = "colTagLines";
+            this.colTagLines.ReadOnly = true;
+            // 
+            // colDuplicateLabel
+            // 
+            this.colDuplicateLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colDuplicateLabel.FillWeight = 40F;
+            this.colDuplicateLabel.HeaderText = "Duplicate Tag Name";
+            this.colDuplicateLabel.Name = "colDuplicateLabel";
+            // 
+            // colDuplicateLines
+            // 
+            this.colDuplicateLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colDuplicateLines.FillWeight = 10F;
+            this.colDuplicateLines.HeaderText = "Lines";
+            this.colDuplicateLines.Name = "colDuplicateLines";
+            this.colDuplicateLines.ReadOnly = true;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -194,60 +248,6 @@
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dataGridViewTextBoxColumn2.FillWeight = 40F;
-            this.dataGridViewTextBoxColumn2.HeaderText = "Tag Name";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            // 
-            // colTagLines
-            // 
-            this.colTagLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colTagLines.DividerWidth = 3;
-            this.colTagLines.FillWeight = 10F;
-            this.colTagLines.HeaderText = "Lines";
-            this.colTagLines.Name = "colTagLines";
-            this.colTagLines.ReadOnly = true;
-            // 
-            // colDuplicateLabel
-            // 
-            this.colDuplicateLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colDuplicateLabel.FillWeight = 40F;
-            this.colDuplicateLabel.HeaderText = "Duplicate Tag Name";
-            this.colDuplicateLabel.Name = "colDuplicateLabel";
-            // 
-            // colDuplicateLines
-            // 
-            this.colDuplicateLines.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colDuplicateLines.FillWeight = 10F;
-            this.colDuplicateLines.HeaderText = "Lines";
-            this.colDuplicateLines.Name = "colDuplicateLines";
-            this.colDuplicateLines.ReadOnly = true;
-            // 
-            // colTagLabel
-            // 
-            this.colTagLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colTagLabel.FillWeight = 25F;
-            this.colTagLabel.HeaderText = "Tag Name";
-            this.colTagLabel.Name = "colTagLabel";
-            this.colTagLabel.ReadOnly = true;
-            // 
-            // colCodeFile
-            // 
-            this.colCodeFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colCodeFile.FillWeight = 35F;
-            this.colCodeFile.HeaderText = "Code File";
-            this.colCodeFile.Name = "colCodeFile";
-            this.colCodeFile.ReadOnly = true;
-            // 
-            // colActionToTake
-            // 
-            this.colActionToTake.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colActionToTake.FillWeight = 40F;
-            this.colActionToTake.HeaderText = "Action to Take";
-            this.colActionToTake.Name = "colActionToTake";
-            // 
             // CheckDocument
             // 
             this.AcceptButton = this.cmdOK;
@@ -264,7 +264,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "CheckDocument";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Check Tags";
+            this.Text = "Check Tags";
             this.Load += new System.EventHandler(this.CheckDocument_Load);
             this.tabUnlinked.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).EndInit();
@@ -292,7 +292,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colTagLines;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLines;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTagLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTagName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCodeFile;
         private System.Windows.Forms.DataGridViewComboBoxColumn colActionToTake;
     }

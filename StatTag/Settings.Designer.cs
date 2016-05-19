@@ -250,7 +250,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Settings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "StatTag - Settings";
+            this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
