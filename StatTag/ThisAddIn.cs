@@ -20,7 +20,7 @@ namespace StatTag
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
 
         public LogManager LogManager = new LogManager();
-        public DocumentManager Manager = new DocumentManager();
+        public DocumentManager DocumentManager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
         public StatsManager StatsManager = null;
 
@@ -29,7 +29,7 @@ namespace StatTag
         /// check for the active document, since if it is not set it throws an exception.
         /// </summary>
         /// <returns></returns>
-        private Word.Document SafeGetActiveDocument()
+        public Word.Document SafeGetActiveDocument()
         {
             try
             {
@@ -51,14 +51,14 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            StatsManager = new StatsManager(Manager);
+            StatsManager = new StatsManager(DocumentManager);
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
             LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
             LogManager.WriteMessage("Startup completed");
-            Manager.Logger = LogManager;
+            DocumentManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
             try
@@ -116,7 +116,7 @@ namespace StatTag
 
             try
             {
-                Manager.SaveFilesToDocument(doc);
+                DocumentManager.SaveCodeFileListToDocument(doc);
             }
             catch (Exception exc)
             {
@@ -126,15 +126,21 @@ namespace StatTag
             LogManager.WriteMessage("DocumentBeforeSave - code files saved");
         }
 
+        void Application_NewDocument(Word.Document doc)
+        {
+            LogManager.WriteMessage("DocumentOpen - Started");
+        }
+
         // Hande initailization when a document is opened.  This may be called multiple times in a single Word session.
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            Manager.LoadFilesFromDocument(doc);
-            LogManager.WriteMessage(string.Format("Loaded {0} code files from document", Manager.Files.Count));
+            DocumentManager.LoadCodeFileListFromDocument(doc);
+            var files = DocumentManager.GetCodeFileList(doc);
+            LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 
             var filesNotFound = new List<CodeFile>();
-            foreach (var file in Manager.Files)
+            foreach (var file in files)
             {
                 if (!File.Exists(file.FilePath))
                 {
@@ -171,7 +177,7 @@ namespace StatTag
             else
             {
                 LogManager.WriteMessage("Performing the document validation check");
-                Manager.PerformDocumentCheck(true);
+                DocumentManager.PerformDocumentCheck(doc, true);
             }
 
             LogManager.WriteMessage("DocumentOpen - Completed");
@@ -229,7 +235,7 @@ namespace StatTag
                     var field = selection.Fields[1];
                     if (field != null)
                     {
-                        Manager.EditTagField(field);
+                        DocumentManager.EditTagField(field);
                         Marshal.ReleaseComObject(field);
                     }
                 }
@@ -251,6 +257,11 @@ namespace StatTag
             }
         }
 
+        void Application_WindowActivate(Word.Document doc, Word.Window window)
+        {
+            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+        }
+
         #region VSTO generated code
 
         /// <summary>
@@ -265,8 +276,12 @@ namespace StatTag
             this.Application.DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(Application_DocumentOpen);
             this.Application.WindowBeforeDoubleClick +=
                 new Word.ApplicationEvents4_WindowBeforeDoubleClickEventHandler(Application_BeforeDoubleClick);
+            // Have to cast the application object to avoid ambiguity on the reference to NewDocument
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/34c6abe2-2544-4f47-aff7-74ec5e08b814/ambiguity-between-microsoftofficeinteropwordapplicationnewdocument-and?forum=vsto
+            ((Microsoft.Office.Interop.Word.ApplicationEvents4_Event)this.Application).NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(Application_NewDocument);
+            this.Application.WindowActivate += new Word.ApplicationEvents4_WindowActivateEventHandler(Application_WindowActivate);
         }
-        
+
         #endregion
     }
 }

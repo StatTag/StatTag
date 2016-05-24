@@ -17,7 +17,8 @@ namespace StatTag.Models
     /// </summary>
     public class DocumentManager : BaseManager
     {
-        public List<CodeFile> Files { get; set; }
+        //public List<CodeFile> Files { get; set; }
+        private Dictionary<Document, List<CodeFile>> DocumentCodeFiles { get; set; }
         public FieldCreator FieldManager { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
@@ -26,7 +27,8 @@ namespace StatTag.Models
 
         public DocumentManager()
         {
-            Files = new List<CodeFile>();
+            //Files = new List<CodeFile>();
+            DocumentCodeFiles = new Dictionary<Document, List<CodeFile>>();
             FieldManager = new FieldCreator();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this);
@@ -55,24 +57,42 @@ namespace StatTag.Models
         /// Save the referenced code files to the current Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void SaveFilesToDocument(Document document)
+        public void SaveCodeFileListToDocument(Document document)
         {
-            Log("SaveFilesToDocument - Started");
+            Log("SaveCodeFileListToDocument - Started");
 
             var variables = document.Variables;
             var variable = variables[ConfigurationAttribute];
             try
             {
-                var attribute = CodeFile.SerializeList(Files);
+                var files = GetCodeFileList(document);
+                var hasCodeFiles = (files != null && files.Count > 0) ;
+                var attribute = CodeFile.SerializeList(files);
                 if (!DocumentVariableExists(variable))
                 {
-                    Log(string.Format("Document variable does not exist.  Adding attribute value of {0}", attribute));
-                    variables.Add(ConfigurationAttribute, attribute);
+                    if (hasCodeFiles)
+                    {
+                        Log(string.Format("Document variable does not exist.  Adding attribute value of {0}", attribute));
+                        variables.Add(ConfigurationAttribute, attribute);
+                    }
+                    else
+                    {
+                        Log("There are no code files to add.");
+                    }
                 }
                 else
                 {
-                    Log(string.Format("Document variable already exists.  Updating attribute value to {0}", attribute));
-                    variable.Value = attribute;
+                    if (hasCodeFiles)
+                    {
+                        Log(string.Format("Document variable already exists.  Updating attribute value to {0}",
+                            attribute));
+                        variable.Value = attribute;
+                    }
+                    else
+                    {
+                        Log("There are no code files - removing existing variable");
+                        variable.Delete();
+                    }
                 }
             }
             finally
@@ -81,16 +101,16 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(variables);
             }
 
-            Log("SaveFilesToDocument - Finished");
+            Log("SaveCodeFileListToDocument - Finished");
         }
 
         /// <summary>
         /// Load the list of associated Code Files from a Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void LoadFilesFromDocument(Document document)
+        public void LoadCodeFileListFromDocument(Document document)
         {
-            Log("LoadFilesFromDocument - Started");
+            Log("LoadCodeFileListFromDocument - Started");
 
             var variables = document.Variables;
             var variable = variables[ConfigurationAttribute];
@@ -98,13 +118,14 @@ namespace StatTag.Models
             {
                 if (DocumentVariableExists(variable))
                 {
-                    Files = CodeFile.DeserializeList(variable.Value);
-                    Log(string.Format("Document variable existed, loaded {0} code files", Files.Count));
+                    var list = CodeFile.DeserializeList(variable.Value);
+                    DocumentCodeFiles[document] = list;
+                    Log(string.Format("Document variable existed, loaded {0} code files", list.Count));
                 }
                 else
                 {
-                    Files = new List<CodeFile>();
-                    Log(string.Format("Document variable does not exist, no code files loaded"));
+                    DocumentCodeFiles[document] = new List<CodeFile>();
+                    Log("Document variable does not exist, no code files loaded");
                 }
             }
             finally
@@ -113,7 +134,7 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(variables);
             }
 
-            Log("LoadFilesFromDocument - Finished");
+            Log("LoadCodeFileListFromDocument - Finished");
         }
 
         /// <summary>
@@ -810,10 +831,10 @@ namespace StatTag.Models
         /// <summary>
         /// Save all changes to all code files referenced by the current document.
         /// </summary>
-        public void SaveAllCodeFiles()
+        public void SaveAllCodeFiles(Document document)
         {
             // Update the code files with their tags
-            foreach (var file in Files)
+            foreach (var file in GetCodeFileList(document))
             {
                 file.Save();
             }
@@ -905,7 +926,7 @@ namespace StatTag.Models
         /// tags that do not have an associated code file in the document.
         /// </summary>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
-        public void PerformDocumentCheck(bool onlyShowDialogIfResultsFound = false)
+        public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
@@ -916,7 +937,7 @@ namespace StatTag.Models
                 return;
             }
 
-            var dialog = new CheckDocument(unlinkedResults, duplicateResults, Files);
+            var dialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates);
@@ -976,9 +997,11 @@ namespace StatTag.Models
         /// discovering code files to link to the document.
         /// </summary>
         /// <param name="fileName"></param>
-        public void AddCodeFile(string fileName)
+        /// <param name="document"></param>
+        public void AddCodeFile(string fileName, Document document = null)
         {
-            if (Files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
+            var files = GetCodeFileList(document);
+            if (files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
             {
                 Log(string.Format("Code file {0} already exists and won't be added again", fileName));
                 return;
@@ -988,7 +1011,7 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            Files.Add(file);
+            files.Add(file);
             Log(string.Format("Added code file {0}", fileName));
         }
 
@@ -1016,6 +1039,54 @@ namespace StatTag.Models
             {
                 codeFile.Save();
             }
+        }
+
+        /// <summary>
+        /// Helper accessor to get the list of code files associated with a document.  If the code file list
+        /// hasn't been established yet for the document, it will be created and returned.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <returns></returns>
+        public List<CodeFile> GetCodeFileList(Document document = null)
+        {
+            if (document == null)
+            {
+                Logger.WriteMessage("No document specified, so fetching code file list for active document.");
+                document = Globals.ThisAddIn.SafeGetActiveDocument();
+            }
+            if (document == null)
+            {
+                Logger.WriteMessage("Attempted to access code files for a null document.  Throwing exception.");
+                throw new ArgumentNullException("The Word document must be specified.");
+            }
+
+            if (!DocumentCodeFiles.ContainsKey(document))
+            {
+                DocumentCodeFiles.Add(document, new List<CodeFile>());
+            }
+
+            return DocumentCodeFiles[document];
+        }
+
+        /// <summary>
+        /// Helper setter to update a document's list of associated code files.
+        /// </summary>
+        /// <param name="files"></param>
+        /// <param name="document"></param>
+        public void SetCodeFileList(List<CodeFile> files, Document document = null)
+        {
+            if (document == null)
+            {
+                Logger.WriteMessage("No document specified, so getting a reference to the active document.");
+                document = Globals.ThisAddIn.SafeGetActiveDocument();
+            }
+            if (document == null)
+            {
+                Logger.WriteMessage("Attempted to set the code files for a null document.  Throwing exception.");
+                throw new ArgumentNullException("The Word document must be specified.");
+            }
+
+            DocumentCodeFiles[document] = files;
         }
     }
 }

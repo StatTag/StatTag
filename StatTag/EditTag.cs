@@ -169,9 +169,13 @@ namespace StatTag
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
-            if (Manager != null && Manager.Files != null)
+            if (Manager != null)
             {
-                cboCodeFiles.Items.AddRange(Manager.Files.Select(x => x as object).ToArray());
+                var files = Manager.GetCodeFileList();
+                if (files != null)
+                {
+                    cboCodeFiles.Items.AddRange(files.Select(x => x as object).ToArray());
+                }
             }
 
             scintilla1.Margins[0].Width = 40;
@@ -231,9 +235,13 @@ namespace StatTag
                 OriginalTag = null;
 
                 // If there is only one file available, select it by default
-                if (Manager != null && Manager.Files != null && Manager.Files.Count == 1)
+                if (Manager != null)
                 {
-                    cboCodeFiles.SelectedIndex = 0;
+                    var files = Manager.GetCodeFileList();
+                    if (files != null && files.Count == 1)
+                    {
+                        cboCodeFiles.SelectedIndex = 0;
+                    }
                 }
 
                 // Default the default run frequency to "Default" (by default)
@@ -300,7 +308,8 @@ namespace StatTag
                     return;
                 }
 
-                var result = TagUtil.CheckForDuplicateLabels(Tag, Manager.Files);
+                var files = Manager.GetCodeFileList();
+                var result = TagUtil.CheckForDuplicateLabels(Tag, files);
                 if (result != null && result.Count > 0)
                 {
                     if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))

@@ -51,13 +51,14 @@ namespace StatTag.Models
         /// <returns></returns>
         public Tag FindTag(string id)
         {
-            if (DocumentManager.Files == null)
+            var files = DocumentManager.GetCodeFileList();
+            if (files == null)
             {
                 Log("Unable to find an tag because the Files collection is null");
                 return null;
             }
 
-            return DocumentManager.Files.SelectMany(file => file.Tags).FirstOrDefault(tag => tag.Id.Equals(id));
+            return files.SelectMany(file => file.Tags).FirstOrDefault(tag => tag.Id.Equals(id));
         }
 
         /// <summary>
@@ -67,8 +68,9 @@ namespace StatTag.Models
         /// <returns></returns>
         public List<Tag> GetTags()
         {
+            var files = DocumentManager.GetCodeFileList();
             var tags = new List<Tag>();
-            DocumentManager.Files.ForEach(file => tags.AddRange(file.Tags));
+            files.ForEach(file => tags.AddRange(file.Tags));
             return tags;
         }
 
@@ -105,10 +107,11 @@ namespace StatTag.Models
         /// <returns></returns>
         public FieldTag DeserializeFieldTag(Field field)
         {
+            var files = DocumentManager.GetCodeFileList();
             var code = field.Code;
             var nestedField = code.Fields[1];
             var fieldTag = FieldTag.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture),
-                DocumentManager.Files);
+                files);
             Marshal.ReleaseComObject(nestedField);
             Marshal.ReleaseComObject(code);
             return fieldTag;
@@ -133,8 +136,9 @@ namespace StatTag.Models
 
         public DuplicateTagResults FindAllDuplicateTags()
         {
+            var files = DocumentManager.GetCodeFileList();
             var duplicateTags = new DuplicateTagResults();
-            foreach (var file in DocumentManager.Files)
+            foreach (var file in files)
             {
                 var result = file.FindDuplicateTags();
                 if (result != null && result.Count > 0)
@@ -163,6 +167,7 @@ namespace StatTag.Models
             int fieldsCount = fields.Count;
 
             // Fields is a 1-based index
+            var files = DocumentManager.GetCodeFileList();
             Log(string.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
             {
@@ -188,7 +193,7 @@ namespace StatTag.Models
                     continue;
                 }
 
-                if (!DocumentManager.Files.Any(x => x.FilePath.Equals(tag.CodeFilePath)))
+                if (!files.Any(x => x.FilePath.Equals(tag.CodeFilePath)))
                 {
                     if (!results.ContainsKey(tag.CodeFilePath))
                     {

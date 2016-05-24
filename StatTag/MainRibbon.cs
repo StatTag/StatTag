@@ -18,7 +18,7 @@ namespace StatTag
     {
         public DocumentManager Manager
         {
-            get { return Globals.ThisAddIn.Manager; }
+            get { return Globals.ThisAddIn.DocumentManager; }
         }
 
         public PropertiesManager PropertiesManager
@@ -36,14 +36,20 @@ namespace StatTag
             get { return Globals.ThisAddIn.StatsManager; }
         }
 
+        public Document ActiveDocument
+        {
+            get { return Globals.ThisAddIn.SafeGetActiveDocument();  }
+        }
+
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             UIStatusAfterFileLoad();
         }
 
-        private void UIStatusAfterFileLoad()
+        public void UIStatusAfterFileLoad()
         {
-            bool enabled = (Manager.Files != null && Manager.Files.Count > 0);
+            var files = Manager.GetCodeFileList(ActiveDocument);
+            bool enabled = (files != null && files.Count > 0);
             cmdDefineTag.Enabled = enabled;
             cmdInsertOutput.Enabled = enabled;
             cmdUpdateOutput.Enabled = enabled;
@@ -55,15 +61,16 @@ namespace StatTag
         {
             try
             {
-                var loadDialog = new LoadAnalysisCode(Manager, Manager.Files);
+                var files = Manager.GetCodeFileList(ActiveDocument);
+                var loadDialog = new LoadAnalysisCode(Manager, files);
                 if (DialogResult.OK == loadDialog.ShowDialog())
                 {
-                    Manager.Files = loadDialog.Files;
+                    Manager.SetCodeFileList(loadDialog.Files);
 
                     var unlinkedResults = Manager.FindAllUnlinkedTags();
                     if (unlinkedResults != null && unlinkedResults.Count > 0)
                     {
-                        var linkDialog = new LinkCodeFiles(unlinkedResults, Manager.Files);
+                        var linkDialog = new LinkCodeFiles(unlinkedResults, files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
                             Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);
@@ -88,7 +95,7 @@ namespace StatTag
                 var dialog = new ManageTags(Manager);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    Manager.SaveAllCodeFiles();
+                    Manager.SaveAllCodeFiles(ActiveDocument);
                 }
             }
             catch (Exception exc)
@@ -101,7 +108,8 @@ namespace StatTag
 
         private void cmdInsertOutput_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new SelectOutput(Manager.Files);
+            var files = Manager.GetCodeFileList(ActiveDocument);
+            var dialog = new SelectOutput(files);
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 try
@@ -160,7 +168,8 @@ namespace StatTag
                 // First, go through and update all of the code files to ensure we have all
                 // refreshed tags.
                 var refreshedFiles = new List<CodeFile>();
-                foreach (var codeFile in Manager.Files)
+                var files = Manager.GetCodeFileList(ActiveDocument);
+                foreach (var codeFile in files)
                 {
                     if (!refreshedFiles.Contains(codeFile))
                     {
@@ -197,7 +206,7 @@ namespace StatTag
             Cursor.Current = Cursors.WaitCursor;
             try
             {
-                Manager.PerformDocumentCheck();
+                Manager.PerformDocumentCheck(ActiveDocument);
             }
             catch (Exception exc)
             {
@@ -217,7 +226,8 @@ namespace StatTag
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 Manager.SaveEditedTag(dialog);
-                foreach (var file in Manager.Files)
+                var files = Manager.GetCodeFileList(ActiveDocument);
+                foreach (var file in files)
                 {
                     file.LoadTagsFromContent();
                 }
