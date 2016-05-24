@@ -46,7 +46,7 @@ namespace StatTag
             UIStatusAfterFileLoad();
         }
 
-        private void UIStatusAfterFileLoad()
+        public void UIStatusAfterFileLoad()
         {
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);

@@ -257,6 +257,11 @@ namespace StatTag
             }
         }
 
+        void Application_WindowActivate(Word.Document doc, Word.Window window)
+        {
+            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+        }
+
         #region VSTO generated code
 
         /// <summary>
@@ -274,8 +279,9 @@ namespace StatTag
             // Have to cast the application object to avoid ambiguity on the reference to NewDocument
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/34c6abe2-2544-4f47-aff7-74ec5e08b814/ambiguity-between-microsoftofficeinteropwordapplicationnewdocument-and?forum=vsto
             ((Microsoft.Office.Interop.Word.ApplicationEvents4_Event)this.Application).NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(Application_NewDocument);
+            this.Application.WindowActivate += new Word.ApplicationEvents4_WindowActivateEventHandler(Application_WindowActivate);
         }
-        
+
         #endregion
     }
 }
