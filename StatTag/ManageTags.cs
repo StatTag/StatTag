@@ -90,7 +90,7 @@ namespace StatTag
         private void ReloadTags()
         {
             Tags.Clear();
-            foreach (var file in Manager.Files)
+            foreach (var file in Manager.GetCodeFileList())
             {
                 file.LoadTagsFromContent();
                 file.Tags.ForEach(x => Tags.Add(x));

@@ -81,7 +81,7 @@ namespace StatTag
                 file.SaveBackup();
             }
             Files = files;
-            Manager.Files = Files;
+            Manager.SetCodeFileList(Files);
             
             Close();
         }
