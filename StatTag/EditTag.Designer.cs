@@ -43,13 +43,13 @@
             this.pnlType = new System.Windows.Forms.Panel();
             this.lblAllowedCommands = new System.Windows.Forms.Label();
             this.lblInstructionTitle = new System.Windows.Forms.Label();
-            this.tableProperties = new StatTag.Controls.TableProperties();
-            this.figureProperties = new StatTag.Controls.FigureProperties();
-            this.valueProperties = new StatTag.Controls.ValueProperties();
             this.cmdTable = new System.Windows.Forms.Button();
             this.cmdFigure = new System.Windows.Forms.Button();
             this.cmdValue = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
+            this.tableProperties = new StatTag.Controls.TableProperties();
+            this.figureProperties = new StatTag.Controls.FigureProperties();
+            this.valueProperties = new StatTag.Controls.ValueProperties();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
@@ -58,7 +58,7 @@
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(501, 696);
+            this.cmdCancel.Location = new System.Drawing.Point(501, 678);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(164, 25);
@@ -70,7 +70,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(113, 696);
+            this.cmdOK.Location = new System.Drawing.Point(113, 678);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(164, 25);
@@ -122,7 +122,7 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(13, 73);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(83, 17);
+            this.label4.Size = new System.Drawing.Size(69, 17);
             this.label4.TabIndex = 14;
             this.label4.Text = "Tag name:";
             // 
@@ -172,7 +172,7 @@
             // 
             this.cmdSaveAndInsert.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdSaveAndInsert.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdSaveAndInsert.Location = new System.Drawing.Point(307, 696);
+            this.cmdSaveAndInsert.Location = new System.Drawing.Point(307, 678);
             this.cmdSaveAndInsert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdSaveAndInsert.Name = "cmdSaveAndInsert";
             this.cmdSaveAndInsert.Size = new System.Drawing.Size(164, 25);
@@ -183,7 +183,7 @@
             // 
             // pnlType
             // 
-            this.pnlType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnlType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -217,6 +217,49 @@
             this.lblInstructionTitle.Size = new System.Drawing.Size(283, 34);
             this.lblInstructionTitle.TabIndex = 3;
             this.lblInstructionTitle.Text = "The following Stata commands can be used for Value results:\r\n";
+            // 
+            // cmdTable
+            // 
+            this.cmdTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdTable.Location = new System.Drawing.Point(21, 180);
+            this.cmdTable.Name = "cmdTable";
+            this.cmdTable.Size = new System.Drawing.Size(75, 30);
+            this.cmdTable.TabIndex = 31;
+            this.cmdTable.Text = "Table";
+            this.cmdTable.UseVisualStyleBackColor = true;
+            this.cmdTable.Click += new System.EventHandler(this.cmdTable_Click);
+            // 
+            // cmdFigure
+            // 
+            this.cmdFigure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdFigure.Location = new System.Drawing.Point(21, 151);
+            this.cmdFigure.Name = "cmdFigure";
+            this.cmdFigure.Size = new System.Drawing.Size(75, 30);
+            this.cmdFigure.TabIndex = 30;
+            this.cmdFigure.Text = "Figure";
+            this.cmdFigure.UseVisualStyleBackColor = true;
+            this.cmdFigure.Click += new System.EventHandler(this.cmdFigure_Click);
+            // 
+            // cmdValue
+            // 
+            this.cmdValue.BackColor = System.Drawing.Color.White;
+            this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdValue.Location = new System.Drawing.Point(13, 122);
+            this.cmdValue.Name = "cmdValue";
+            this.cmdValue.Size = new System.Drawing.Size(83, 30);
+            this.cmdValue.TabIndex = 29;
+            this.cmdValue.Text = "Value";
+            this.cmdValue.UseVisualStyleBackColor = false;
+            this.cmdValue.Click += new System.EventHandler(this.cmdValue_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(13, 101);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(355, 17);
+            this.label5.TabIndex = 27;
+            this.label5.Text = "How should these results be accessible from the document:";
             // 
             // tableProperties
             // 
@@ -254,53 +297,6 @@
             this.valueProperties.Size = new System.Drawing.Size(369, 100);
             this.valueProperties.TabIndex = 0;
             // 
-            // cmdTable
-            // 
-            this.cmdTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cmdTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdTable.Location = new System.Drawing.Point(21, 180);
-            this.cmdTable.Name = "cmdTable";
-            this.cmdTable.Size = new System.Drawing.Size(75, 30);
-            this.cmdTable.TabIndex = 31;
-            this.cmdTable.Text = "Table";
-            this.cmdTable.UseVisualStyleBackColor = true;
-            this.cmdTable.Click += new System.EventHandler(this.cmdTable_Click);
-            // 
-            // cmdFigure
-            // 
-            this.cmdFigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cmdFigure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdFigure.Location = new System.Drawing.Point(21, 151);
-            this.cmdFigure.Name = "cmdFigure";
-            this.cmdFigure.Size = new System.Drawing.Size(75, 30);
-            this.cmdFigure.TabIndex = 30;
-            this.cmdFigure.Text = "Figure";
-            this.cmdFigure.UseVisualStyleBackColor = true;
-            this.cmdFigure.Click += new System.EventHandler(this.cmdFigure_Click);
-            // 
-            // cmdValue
-            // 
-            this.cmdValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cmdValue.BackColor = System.Drawing.Color.White;
-            this.cmdValue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdValue.Location = new System.Drawing.Point(13, 122);
-            this.cmdValue.Name = "cmdValue";
-            this.cmdValue.Size = new System.Drawing.Size(83, 30);
-            this.cmdValue.TabIndex = 29;
-            this.cmdValue.Text = "Value";
-            this.cmdValue.UseVisualStyleBackColor = false;
-            this.cmdValue.Click += new System.EventHandler(this.cmdValue_Click);
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 101);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(355, 17);
-            this.label5.TabIndex = 27;
-            this.label5.Text = "How should these results be accessible from the document:";
-            // 
             // scintilla1
             // 
             this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -310,7 +306,7 @@
             this.scintilla1.Lexer = ScintillaNET.Lexer.R;
             this.scintilla1.Location = new System.Drawing.Point(16, 265);
             this.scintilla1.Name = "scintilla1";
-            this.scintilla1.Size = new System.Drawing.Size(751, 408);
+            this.scintilla1.Size = new System.Drawing.Size(751, 390);
             this.scintilla1.TabIndex = 24;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
             // 
@@ -319,7 +315,7 @@
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(779, 734);
+            this.ClientSize = new System.Drawing.Size(779, 716);
             this.Controls.Add(this.pnlType);
             this.Controls.Add(this.cmdTable);
             this.Controls.Add(this.cmdFigure);
