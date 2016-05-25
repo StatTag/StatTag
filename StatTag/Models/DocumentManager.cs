@@ -556,7 +556,13 @@ namespace StatTag.Models
 
             Marshal.ReleaseComObject(cells);
 
-            InsertNewLineAndMoveDown(selection);
+            // Once the table has been inserted, re-select it (inserting fields messes with the previous selection) and
+            // insert a new line after it.  This gives us spacing after a table so inserting multiple tables doesn't have
+            // them all glued together.
+            selection.Tables[1].Select();
+            var tableSelection = Globals.ThisAddIn.Application.Selection;
+            InsertNewLineAndMoveDown(tableSelection);
+            Marshal.ReleaseComObject(tableSelection);
 
             Log("InsertTable - Finished");
         }
@@ -724,12 +730,14 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
-            var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
-                Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
-            Log(string.Format("Inserted field with identifier {0} and display value {1}", tagIdentifier, displayValue));
+            range.InsertXML(OpenXmlGenerator.GenerateField(tagIdentifier, displayValue, tag));
 
-            var dataField = fields.First();
-            dataField.Data = tag.Serialize();
+            //var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
+            //    Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
+            //Log(string.Format("Inserted field with identifier {0} and display value {1}", tagIdentifier, displayValue));
+
+            //var dataField = fields.First();
+            //dataField.Data = tag.Serialize();
             Log("CreateTagField - Finished");
         }
 
