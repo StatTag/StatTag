@@ -18,7 +18,7 @@ namespace StatTag.Models
     public class DocumentManager : BaseManager
     {
         //public List<CodeFile> Files { get; set; }
-        private Dictionary<Document, List<CodeFile>> DocumentCodeFiles { get; set; }
+        private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
         public FieldCreator FieldManager { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
@@ -28,7 +28,7 @@ namespace StatTag.Models
         public DocumentManager()
         {
             //Files = new List<CodeFile>();
-            DocumentCodeFiles = new Dictionary<Document, List<CodeFile>>();
+            DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
             FieldManager = new FieldCreator();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this);
@@ -119,12 +119,12 @@ namespace StatTag.Models
                 if (DocumentVariableExists(variable))
                 {
                     var list = CodeFile.DeserializeList(variable.Value);
-                    DocumentCodeFiles[document] = list;
+                    DocumentCodeFiles[document.FullName] = list;
                     Log(string.Format("Document variable existed, loaded {0} code files", list.Count));
                 }
                 else
                 {
-                    DocumentCodeFiles[document] = new List<CodeFile>();
+                    DocumentCodeFiles[document.FullName] = new List<CodeFile>();
                     Log("Document variable does not exist, no code files loaded");
                 }
             }
@@ -731,13 +731,6 @@ namespace StatTag.Models
         {
             Log("CreateTagField - Started");
             range.InsertXML(OpenXmlGenerator.GenerateField(tagIdentifier, displayValue, tag));
-
-            //var fields = FieldManager.InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
-            //    Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldCreator.FieldOpen, FieldCreator.FieldClose));
-            //Log(string.Format("Inserted field with identifier {0} and display value {1}", tagIdentifier, displayValue));
-
-            //var dataField = fields.First();
-            //dataField.Data = tag.Serialize();
             Log("CreateTagField - Finished");
         }
 
@@ -1068,12 +1061,13 @@ namespace StatTag.Models
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
-            if (!DocumentCodeFiles.ContainsKey(document))
+            var fullName = document.FullName;
+            if (!DocumentCodeFiles.ContainsKey(fullName))
             {
-                DocumentCodeFiles.Add(document, new List<CodeFile>());
+                DocumentCodeFiles.Add(fullName, new List<CodeFile>());
             }
 
-            return DocumentCodeFiles[document];
+            return DocumentCodeFiles[fullName];
         }
 
         /// <summary>
@@ -1094,7 +1088,7 @@ namespace StatTag.Models
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
-            DocumentCodeFiles[document] = files;
+            DocumentCodeFiles[document.FullName] = files;
         }
     }
 }
