@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AnalysisManager.Core.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// A table is a generic representation of a matrix, vector, list, etc. from different

@@ -3,92 +3,92 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Utility
+namespace StatTag.Core.Utility
 {
-    public class AnnotationUtil
+    public class TagUtil
     {
         /// <summary>
-        /// Find all annotations with a matching output label (regardless of case).
+        /// Find all tags with a matching tag name (regardless of case).
         /// </summary>
-        /// <param name="outputLabel">The output label to search for</param>
+        /// <param name="outputLabel">The tag name to search for</param>
         /// <returns></returns>
-        public static List<Annotation> FindAnnotationsByOutputLabel(string outputLabel, List<CodeFile> files)
+        public static List<Tag> FindTagsByName(string outputLabel, List<CodeFile> files)
         {
             if (files == null || files.Count == 0)
             {
                 return null;
             }
 
-            return files.SelectMany(file => file.Annotations).Where(
-                annotation => annotation.OutputLabel.Equals(outputLabel, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            return files.SelectMany(file => file.Tags).Where(
+                tag => tag.Name.Equals(outputLabel, StringComparison.CurrentCultureIgnoreCase)).ToList();
         }
 
         /// <summary>
-        /// Determine if we need to perform a check for possible conflicting output label names.
+        /// Determine if we need to perform a check for possible conflicting tag name names.
         /// </summary>
-        /// <param name="oldAnnotation"></param>
-        /// <param name="newAnnotation"></param>
+        /// <param name="oldTag"></param>
+        /// <param name="newTag"></param>
         /// <returns></returns>
-        public static bool ShouldCheckForDuplicateLabel(Annotation oldAnnotation, Annotation newAnnotation)
+        public static bool ShouldCheckForDuplicateLabel(Tag oldTag, Tag newTag)
         {
-            if (oldAnnotation == null && newAnnotation != null)
+            if (oldTag == null && newTag != null)
             {
                 return true;
             }
 
-            if (newAnnotation == null)
+            if (newTag == null)
             {
                 return false;
             }
 
-            return !oldAnnotation.OutputLabel.Equals(newAnnotation.OutputLabel);
+            return !oldTag.Name.Equals(newTag.Name);
         }
 
         /// <summary>
-        /// Looks across all annotations in a collection of code files to find those that have
-        /// the same output label.
+        /// Looks across all tags in a collection of code files to find those that have
+        /// the same tag name.
         /// </summary>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <param name="files"></param>
         /// <returns></returns>
-        public static Dictionary<CodeFile, int[]> CheckForDuplicateLabels(Annotation annotation, List<CodeFile> files)
+        public static Dictionary<CodeFile, int[]> CheckForDuplicateLabels(Tag tag, List<CodeFile> files)
         {
-            if (annotation == null)
+            if (tag == null)
             {
                 return null;
             }
 
-            var annotations = FindAnnotationsByOutputLabel(annotation.OutputLabel, files);
-            if (annotations == null || annotations.Count == 0)
+            var tags = FindTagsByName(tag.Name, files);
+            if (tags == null || tags.Count == 0)
             {
                 return null;
             }
 
             var duplicateCount = new Dictionary<CodeFile, int[]>();
-            foreach (var otherAnnotation in annotations)
+            foreach (var otherTag in tags)
             {
-                // If the annotation is the exact some object, skip it.
-                if (object.ReferenceEquals(otherAnnotation, annotation))
+                // If the tag is the exact some object, skip it.
+                if (object.ReferenceEquals(otherTag, tag))
                 {
                     continue;
                 }
 
-                if (!duplicateCount.ContainsKey(otherAnnotation.CodeFile))
+                if (!duplicateCount.ContainsKey(otherTag.CodeFile))
                 {
-                    duplicateCount.Add(otherAnnotation.CodeFile, new[] { 0, 0 });
+                    duplicateCount.Add(otherTag.CodeFile, new[] { 0, 0 });
                 }
 
-                // If the output labels are an exact match, they go into the first bucket.
+                // If the tag names are an exact match, they go into the first bucket.
                 // Otherwise, they are a case-insensitive match and go into the second bucket.
-                if (annotation.OutputLabel.Equals(otherAnnotation.OutputLabel))
+                if (tag.Name.Equals(otherTag.Name))
                 {
-                    duplicateCount[otherAnnotation.CodeFile][0]++;
+                    duplicateCount[otherTag.CodeFile][0]++;
                 }
                 else
                 {
-                    duplicateCount[otherAnnotation.CodeFile][1]++;
+                    duplicateCount[otherTag.CodeFile][1]++;
                 }
             }
 
@@ -96,23 +96,23 @@ namespace AnalysisManager.Core.Utility
         }
 
         /// <summary>
-        /// This is expected to be paired with the results of CheckForDuplicateLabels to determine if the annotation
+        /// This is expected to be paired with the results of CheckForDuplicateLabels to determine if the tag
         /// has duplicates that appear in the results.  It assumes we have asserted a duplicate may exist.
         /// </summary>
-        /// <param name="annotation"></param>
+        /// <param name="tag"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static bool IsDuplicateLabelInSameFile(Annotation annotation, Dictionary<CodeFile, int[]> result)
+        public static bool IsDuplicateLabelInSameFile(Tag tag, Dictionary<CodeFile, int[]> result)
         {
-            // If the annotation itself is null, or it has no code file reference, we will assume this isn't in the same file (or that no
+            // If the tag itself is null, or it has no code file reference, we will assume this isn't in the same file (or that no
             // file exists for it to be the "same" in).  Likewise, if our result structure is null, we have nothing to check so we are done.
-            if (annotation == null || result == null || annotation.CodeFile == null)
+            if (tag == null || result == null || tag.CodeFile == null)
             {
                 return false;
             }
 
-            // Look in the list of code files that had matching results of some degree to see if this annotation's code file is represented.
-            var codeFileResult = result.Where(x => x.Key.Equals(annotation.CodeFile)).Select(x => (KeyValuePair<CodeFile, int[]>?)x).FirstOrDefault();
+            // Look in the list of code files that had matching results of some degree to see if this tag's code file is represented.
+            var codeFileResult = result.Where(x => x.Key.Equals(tag.CodeFile)).Select(x => (KeyValuePair<CodeFile, int[]>?)x).FirstOrDefault();
 
             // This really shouldn't happen, but as a guard we'll look to see if the code file exists.  If not, we will assume that there
             // is no duplicate label in this file.

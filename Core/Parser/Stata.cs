@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Parser
+namespace StatTag.Core.Parser
 {
     /// <summary>
     /// Reads through a file containing stata commands and identifies the blocks of
-    /// code that use the Analysis Manager annotation syntax
+    /// code that use the StatTag tag syntax
     /// </summary>
     public sealed class Stata : BaseParser
     {
@@ -27,6 +27,11 @@ namespace AnalysisManager.Core.Parser
         private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
         private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
+        private static Regex[] MultiLineIndicators = new[]
+        {
+            new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline),
+            new Regex("/\\*.*\\*/\\s?", RegexOptions.Singleline),
+        };
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -167,6 +172,29 @@ namespace AnalysisManager.Core.Parser
 
             var results = matches.OfType<Match>().Select(match => match.Groups[groupNum].Value.Trim()).ToList();
             return results.ToArray();
+        }
+
+        /// <summary>
+        /// To prepare for use, we need to collapse down some of the text.  This includes:
+        ///  - Collapsing commands that span multiple lines into a single line
+        /// </summary>
+        /// <param name="originalContent"></param>
+        /// <returns></returns>
+        public override List<string> PreProcessContent(List<string> originalContent)
+        {
+            if (originalContent == null || originalContent.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            var originalText = string.Join("\r\n", originalContent);
+            var modifiedText = originalText;
+            foreach (var regex in MultiLineIndicators)
+            {
+                modifiedText = regex.Replace(modifiedText, " ");
+            }
+            
+            return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
         }
     }
 }

@@ -7,7 +7,7 @@
     <ProjectGuid>{F77D97B2-EDA9-4F08-8765-41FF692DB52B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AnalysisManager.Core</RootNamespace>
+    <RootNamespace>StatTag.Core</RootNamespace>
     <AssemblyName>Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -52,13 +52,15 @@
     <Compile Include="Generator\TableGenerator.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
-    <Compile Include="Models\Annotation.cs" />
+    <Compile Include="Interfaces\IResultCommandFormatter.cs" />
+    <Compile Include="Interfaces\IResultCommandList.cs" />
+    <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\ExecutionStep.cs" />
-    <Compile Include="Models\FieldAnnotation.cs" />
+    <Compile Include="Models\FieldTag.cs" />
     <Compile Include="Models\FigureFormat.cs" />
     <Compile Include="Models\FileHandler.cs" />
     <Compile Include="Models\Table.cs" />

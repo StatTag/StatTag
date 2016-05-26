@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Generator;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Parser;
-using AnalysisManager.Core.ValueFormatter;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Generator;
+using StatTag.Core.Models;
+using StatTag.Core.Parser;
+using StatTag.Core.ValueFormatter;
 
-namespace AnalysisManager.Core
+namespace StatTag.Core
 {
     public static class Factories
     {
@@ -19,7 +20,7 @@ namespace AnalysisManager.Core
                 switch (file.StatisticalPackage)
                 {
                     case Constants.StatisticalPackages.Stata:
-                        return new AnalysisManager.Core.Parser.Stata();
+                        return new StatTag.Core.Parser.Stata();
                 }
             }
 
@@ -33,7 +34,7 @@ namespace AnalysisManager.Core
                 switch (file.StatisticalPackage)
                 {
                     case Constants.StatisticalPackages.Stata:
-                        return new AnalysisManager.Core.Generator.Stata();
+                        return new StatTag.Core.Generator.Stata();
                 }
             }
 
@@ -47,7 +48,7 @@ namespace AnalysisManager.Core
                 switch (file.StatisticalPackage)
                 {
                     case Constants.StatisticalPackages.Stata:
-                        return new AnalysisManager.Core.ValueFormatter.Stata();
+                        return new StatTag.Core.ValueFormatter.Stata();
                 }
             }
 

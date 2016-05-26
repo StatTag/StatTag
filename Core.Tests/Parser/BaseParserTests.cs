@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Parser;
 using Moq;
 using Match = System.Text.RegularExpressions.Match;
 
@@ -19,14 +19,14 @@ namespace Core.Tests.Parser
                 get { return "*"; }
             }
 
-            public Match DetectStartAnnotation(string line)
+            public Match DetectStartTag(string line)
             {
-                return base.DetectAnnotation(StartAnnotationRegEx, line);
+                return base.DetectTag(StartTagRegEx, line);
             }
 
-            public Match DetectEndAnnotation(string line)
+            public Match DetectEndTag(string line)
             {
-                return base.DetectAnnotation(EndAnnotationRegEx, line);
+                return base.DetectTag(EndTagRegEx, line);
             }
 
             public override bool IsImageExport(string command)
@@ -57,6 +57,11 @@ namespace Core.Tests.Parser
             public override string GetTableName(string command)
             {
                 throw new NotImplementedException();
+            }
+
+            public override List<string> PreProcessContent(List<string> originalContent)
+            {
+                return originalContent;
             }
         }
 
@@ -146,16 +151,16 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
             var results = parser.Parse(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(1, results.Length);
-            Assert.AreEqual(Constants.RunFrequency.Default, results[0].RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, results[0].RunFrequency);
 
             results = parser.Parse(mock.Object);
             Assert.AreEqual(2, results.Length);
             Assert.AreEqual(Constants.RunFrequency.OnDemand, results[0].RunFrequency);
-            Assert.AreEqual(Constants.RunFrequency.Default, results[1].RunFrequency);
+            Assert.AreEqual(Constants.RunFrequency.Always, results[1].RunFrequency);
         }
 
         [TestMethod]
-        public void Parse_AnnotationList()
+        public void Parse_TagList()
         {
             var parser = new StubParser();
             var lines = new List<string>(new string[]
@@ -172,30 +177,30 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
             mock.Object.FilePath = "Test.do";
             mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
-            var results = parser.Parse(mock.Object, Constants.ParserFilterMode.AnnotationList);
+            var results = parser.Parse(mock.Object, Constants.ParserFilterMode.TagList);
             Assert.AreEqual(2, results.Length);
 
-            results = parser.Parse(mock.Object, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            results = parser.Parse(mock.Object, Constants.ParserFilterMode.TagList, new List<Tag>()
             {
-                new Annotation() { OutputLabel = "Test2", Type = Constants.AnnotationType.Value, CodeFile = mock.Object }
+                new Tag() { Name = "Test2", Type = Constants.TagType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(1, results.Length);
-            Assert.AreEqual("Test2", results[0].OutputLabel);
+            Assert.AreEqual("Test2", results[0].Name);
         }
 
         [TestMethod]
-        public void DetectStartAnnotation_Null_Empty()
+        public void DetectStartTag_Null_Empty()
         {
             var parser = new StubParser();
-            Assert.IsFalse(parser.DetectStartAnnotation(null).Success);
-            Assert.IsFalse(parser.DetectStartAnnotation(string.Empty).Success);
+            Assert.IsFalse(parser.DetectStartTag(null).Success);
+            Assert.IsFalse(parser.DetectStartTag(string.Empty).Success);
         }
 
         [TestMethod]
-        public void DetectStartAnnotation_Simple()
+        public void DetectStartTag_Simple()
         {
             var parser = new StubParser();
-            var match = parser.DetectStartAnnotation("**>>>AM:Test");
+            var match = parser.DetectStartTag("**>>>AM:Test");
             Assert.IsTrue(match.Success);
         }
 
@@ -215,13 +220,13 @@ namespace Core.Tests.Parser
             var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
-            Assert.IsNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
+            Assert.IsNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[2].Type);
-            Assert.IsNull(results[2].Annotation);
+            Assert.IsNull(results[2].Tag);
 
-            // Annotation at the beginning
+            // Tag at the beginning
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "**>>>AM:Value",
@@ -231,12 +236,12 @@ namespace Core.Tests.Parser
             }));
             results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[0].Type);
-            Assert.IsNotNull(results[0].Annotation);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[0].Type);
+            Assert.IsNotNull(results[0].Tag);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[1].Type);
-            Assert.IsNull(results[1].Annotation);
+            Assert.IsNull(results[1].Tag);
 
-            // Annotation at the end
+            // Tag at the end
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value2",
@@ -247,11 +252,11 @@ namespace Core.Tests.Parser
             results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
-            Assert.IsNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
+            Assert.IsNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
 
-            // Back to back annotations
+            // Back to back tags
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "**>>>AM:Value",
@@ -266,12 +271,12 @@ namespace Core.Tests.Parser
             }));
             results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[0].Type);
-            Assert.IsNotNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[2].Type);
-            Assert.IsNotNull(results[2].Annotation);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[0].Type);
+            Assert.IsNotNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[2].Type);
+            Assert.IsNotNull(results[2].Tag);
         }
 
         [TestMethod]
@@ -292,22 +297,22 @@ namespace Core.Tests.Parser
             var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
-            Assert.IsNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
+            Assert.IsNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
 
             results = parser.GetExecutionSteps(mock.Object);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
-            Assert.IsNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[2].Type);
-            Assert.IsNotNull(results[2].Annotation);
+            Assert.IsNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[2].Type);
+            Assert.IsNotNull(results[2].Tag);
         }
 
         [TestMethod]
-        public void GetExecutionSteps_AnnotationList()
+        public void GetExecutionSteps_TagList()
         {
             var parser = new StubParser();
             var mock = new Mock<CodeFile>();
@@ -323,19 +328,19 @@ namespace Core.Tests.Parser
             }));
             mock.Object.FilePath = "Test.do";
             mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
-            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.AnnotationList);
+            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.TagList);
             Assert.AreEqual(3, results.Count);
 
-            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.AnnotationList, new List<Annotation>()
+            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.TagList, new List<Tag>()
             {
-                new Annotation() { OutputLabel = "Test1", Type = Constants.AnnotationType.Value, CodeFile = mock.Object }
+                new Tag() { Name = "Test1", Type = Constants.TagType.Value, CodeFile = mock.Object }
             });
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
-            Assert.IsNull(results[0].Annotation);
-            Assert.AreEqual(Constants.ExecutionStepType.Annotation, results[1].Type);
-            Assert.IsNotNull(results[1].Annotation);
-            Assert.AreEqual("Test1", results[1].Annotation.OutputLabel);
+            Assert.IsNull(results[0].Tag);
+            Assert.AreEqual(Constants.ExecutionStepType.Tag, results[1].Type);
+            Assert.IsNotNull(results[1].Tag);
+            Assert.AreEqual("Test1", results[1].Tag.Name);
         }
     }
 }

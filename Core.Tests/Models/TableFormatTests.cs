@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.ValueFormatter;
+using StatTag.Core.Models;
+using StatTag.Core.ValueFormatter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Models

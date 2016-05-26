@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Generator;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Generator;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Generator
@@ -12,14 +12,14 @@ namespace Core.Tests.Generator
         public void CreateParameters_NoLabel()
         {
             var generator = new FigureGenerator();
-            Assert.AreEqual("", generator.CreateParameters(new Annotation()));
+            Assert.AreEqual("", generator.CreateParameters(new Tag()));
         }
 
         [TestMethod]
         public void CreateParameters_Label()
         {
             var generator = new FigureGenerator();
-            Assert.AreEqual("Label=\"Test\"", generator.CreateParameters(new Annotation() { OutputLabel = "Test" }));
+            Assert.AreEqual("Label=\"Test\"", generator.CreateParameters(new Tag() { Name = "Test" }));
         }
     }
 }

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Models;
 
-namespace AnalysisManager.Core.Generator
+namespace StatTag.Core.Generator
 {
     public interface IGenerator
     {
         string CommentCharacter { get; }
         string CreateOpenTagBase();
         string CreateClosingTag();
-        string CreateOpenTag(Annotation annotation);
+        string CreateOpenTag(Tag tag);
     }
 }

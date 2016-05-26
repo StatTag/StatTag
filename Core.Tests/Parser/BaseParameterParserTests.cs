@@ -1,6 +1,6 @@
 ﻿using System;
-using AnalysisManager.Core.Models;
-using AnalysisManager.Core.Parser;
+using StatTag.Core.Models;
+using StatTag.Core.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Tests.Parser
@@ -15,21 +15,21 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void Parse_EmptyParams()
         {
-            const string annotationText = "()";
-            var annotation = new Annotation();
-            BaseParameterParser.Parse(annotationText, annotation);
-            Assert.AreEqual(string.Empty, annotation.OutputLabel);
-            Assert.AreEqual(Constants.RunFrequency.Default, annotation.RunFrequency);
+            const string tagText = "()";
+            var tag = new Tag();
+            BaseParameterParser.Parse(tagText, tag);
+            Assert.AreEqual(string.Empty, tag.Name);
+            Assert.AreEqual(Constants.RunFrequency.Always, tag.RunFrequency);
         }
 
         [TestMethod]
         public void Parse_Values()
         {
-            const string annotationText = "(Label=\"test\", Frequency=\"On Demand\")";
-            var annotation = new Annotation();
-            BaseParameterParser.Parse(annotationText, annotation);
-            Assert.AreEqual("test", annotation.OutputLabel);
-            Assert.AreEqual(Constants.RunFrequency.OnDemand, annotation.RunFrequency);
+            const string tagText = "(Label=\"test\", Frequency=\"On Demand\")";
+            var tag = new Tag();
+            BaseParameterParser.Parse(tagText, tag);
+            Assert.AreEqual("test", tag.Name);
+            Assert.AreEqual(Constants.RunFrequency.OnDemand, tag.RunFrequency);
         }
 
         [TestMethod]

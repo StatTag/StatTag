@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using AnalysisManager.Core.Interfaces;
-using AnalysisManager.Core.Models;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -28,18 +28,18 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
-        public void LoadAnnotationsFromContent_Empty()
+        public void LoadTagsFromContent_Empty()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new string[0]);
 
             var codeFile = new CodeFile(mock.Object);
-            codeFile.LoadAnnotationsFromContent();
-            Assert.AreEqual(0, codeFile.Annotations.Count);
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(0, codeFile.Tags.Count);
         }
 
         [TestMethod]
-        public void LoadAnnotationsFromContent_UnknownType()
+        public void LoadTagsFromContent_UnknownType()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -50,12 +50,12 @@ namespace Core.Tests.Models
                 });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata, };
-            codeFile.LoadAnnotationsFromContent();
-            Assert.AreEqual(0, codeFile.Annotations.Count);
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(0, codeFile.Tags.Count);
         }
 
         [TestMethod]
-        public void LoadAnnotationsFromContent_Normal()
+        public void LoadTagsFromContent_Normal()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -66,14 +66,14 @@ namespace Core.Tests.Models
                 });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            codeFile.LoadAnnotationsFromContent();
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(Constants.AnnotationType.Value, codeFile.Annotations[0].Type);
-            Assert.AreSame(codeFile, codeFile.Annotations[0].CodeFile);
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(Constants.TagType.Value, codeFile.Tags[0].Type);
+            Assert.AreSame(codeFile, codeFile.Tags[0].CodeFile);
         }
 
         [TestMethod]
-        public void LoadAnnotationsFromContent_RestoreCache()
+        public void LoadTagsFromContent_RestoreCache()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -84,24 +84,24 @@ namespace Core.Tests.Models
                 });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            codeFile.LoadAnnotationsFromContent();
-            codeFile.Annotations[0].CachedResult = new List<CommandResult>(new[]
+            codeFile.LoadTagsFromContent();
+            codeFile.Tags[0].CachedResult = new List<CommandResult>(new[]
             {
                 new CommandResult() { ValueResult = "Test result 1" },
             });
 
             // Now restore and preserve the cahced value result
-            codeFile.LoadAnnotationsFromContent();
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(Constants.AnnotationType.Value, codeFile.Annotations[0].Type);
-            var cachedResult = codeFile.Annotations[0].CachedResult[0];
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(Constants.TagType.Value, codeFile.Tags[0].Type);
+            var cachedResult = codeFile.Tags[0].CachedResult[0];
             Assert.AreEqual("Test result 1", cachedResult.ValueResult);
 
             // Restore again but do not preserve the cahced value result
-            codeFile.LoadAnnotationsFromContent(false);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(Constants.AnnotationType.Value, codeFile.Annotations[0].Type);
-            Assert.IsNull(codeFile.Annotations[0].CachedResult);
+            codeFile.LoadTagsFromContent(false);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(Constants.TagType.Value, codeFile.Tags[0].Type);
+            Assert.IsNull(codeFile.Tags[0].CachedResult);
         }
 
         [TestMethod]
@@ -184,34 +184,34 @@ namespace Core.Tests.Models
 
         [TestMethod]
         [ExpectedException(typeof(InvalidDataException))]
-        public void AddAnnotation_FlippedIndex()
+        public void AddTag_FlippedIndex()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[] { "first line" });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
                 LineStart = 2,
                 LineEnd = 1
             };
-            codeFile.AddAnnotation(annotation);
+            codeFile.AddTag(tag);
         }
 
         [TestMethod]
-        public void AddAnnotation_Null()
+        public void AddTag_Null()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[] { "first line" });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            Assert.IsNull(codeFile.AddAnnotation(null));
-            Assert.IsNull(codeFile.AddAnnotation(new Annotation()));
-            Assert.IsNull(codeFile.AddAnnotation(new Annotation() { LineStart = 1 }));
+            Assert.IsNull(codeFile.AddTag(null));
+            Assert.IsNull(codeFile.AddTag(new Tag()));
+            Assert.IsNull(codeFile.AddTag(new Tag() { LineStart = 1 }));
         }
 
         [TestMethod]
-        public void AddAnnotation_New()
+        public void AddTag_New()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -224,65 +224,65 @@ namespace Core.Tests.Models
                 });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            var annotation = new Annotation()
+            var tag = new Tag()
             {
                 LineStart = 1,
                 LineEnd = 2,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            var updatedAnnotation = codeFile.AddAnnotation(annotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(1, updatedAnnotation.LineStart);
-            Assert.AreEqual(4, updatedAnnotation.LineEnd);
-            Assert.AreEqual(7, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
-            // Existing annotation should not be modified (we don't check start because that happens to always be the same)
-            Assert.AreNotEqual(updatedAnnotation.LineEnd, annotation.LineEnd);
+            var updatedTag = codeFile.AddTag(tag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(1, updatedTag.LineStart);
+            Assert.AreEqual(4, updatedTag.LineEnd);
+            Assert.AreEqual(7, codeFile.Content.Count);  // Two tag lines should be added
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
+            // Existing tag should not be modified (we don't check start because that happens to always be the same)
+            Assert.AreNotEqual(updatedTag.LineEnd, tag.LineEnd);
 
 
-            // Insert after an existing annotation
-            annotation = new Annotation()
+            // Insert after an existing tag
+            tag = new Tag()
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test2",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test2",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            updatedAnnotation = codeFile.AddAnnotation(annotation);
-            Assert.AreEqual(2, codeFile.Annotations.Count);
-            Assert.AreEqual(5, updatedAnnotation.LineStart);
-            Assert.AreEqual(8, updatedAnnotation.LineEnd);
-            Assert.AreEqual(9, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+            updatedTag = codeFile.AddTag(tag);
+            Assert.AreEqual(2, codeFile.Tags.Count);
+            Assert.AreEqual(5, updatedTag.LineStart);
+            Assert.AreEqual(8, updatedTag.LineEnd);
+            Assert.AreEqual(9, codeFile.Content.Count);  // Two tag lines should be added
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
-            // Insert before existing annotations
-            annotation = new Annotation()
+            // Insert before existing tags
+            tag = new Tag()
             {
                 LineStart = 0,
                 LineEnd = 0,
-                OutputLabel = "Test3",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test3",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            updatedAnnotation = codeFile.AddAnnotation(annotation);
-            Assert.AreEqual(3, codeFile.Annotations.Count);
-            Assert.AreEqual(0, updatedAnnotation.LineStart);
-            Assert.AreEqual(2, updatedAnnotation.LineEnd);
-            Assert.AreEqual(11, codeFile.Content.Count);  // Two annotation lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+            updatedTag = codeFile.AddTag(tag);
+            Assert.AreEqual(3, codeFile.Tags.Count);
+            Assert.AreEqual(0, updatedTag.LineStart);
+            Assert.AreEqual(2, updatedTag.LineEnd);
+            Assert.AreEqual(11, codeFile.Content.Count);  // Two tag lines should be added
+            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
             // Final check that the file content is exactly as we expect:
             Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\"), first line, **<<<, **>>>AM:Value(Label=\"Test\", Type=\"Default\"), second line, third line, **<<<, **>>>AM:Value(Label=\"Test2\", Type=\"Default\"), fourth line, fifth line, **<<<", string.Join(", ", codeFile.Content));
         }
 
         [TestMethod]
-        public void AddAnnotation_NoChange()
+        public void AddTag_NoChange()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -297,30 +297,30 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
-            // Overlap the new selection with the existing opening annotation tag
-            var oldAnnotation = codeFile.Annotations[0];
-            var newAnnotation = new Annotation()
+            // Overlap the new selection with the existing opening tag tag
+            var oldTag = codeFile.Tags[0];
+            var newTag = new Tag()
             {
                 LineStart = 0,
                 LineEnd = 3,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(0, updatedAnnotation.LineStart);
-            Assert.AreEqual(3, updatedAnnotation.LineEnd);
+            var updatedTag = codeFile.AddTag(newTag, oldTag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(0, updatedTag.LineStart);
+            Assert.AreEqual(3, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
-                codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+                codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
         }
 
         [TestMethod]
-        public void AddAnnotation_Update()
+        public void AddTag_Update()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -335,88 +335,88 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
-            // Overlap the new selection with the existing opening annotation tag
-            var oldAnnotation = codeFile.Annotations[0];
-            var newAnnotation = new Annotation()
+            // Overlap the new selection with the existing opening tag tag
+            var oldTag = codeFile.Tags[0];
+            var newTag = new Tag()
             {
                 LineStart = 0,
                 LineEnd = 2,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(0, updatedAnnotation.LineStart);
-            Assert.AreEqual(3, updatedAnnotation.LineEnd);
+            var updatedTag = codeFile.AddTag(newTag, oldTag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(0, updatedTag.LineStart);
+            Assert.AreEqual(3, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
-                codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+                codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
-            // Now select the last two lines and update that annotation
-            oldAnnotation = codeFile.Annotations[0];
-            newAnnotation = new Annotation()
+            // Now select the last two lines and update that tag
+            oldTag = codeFile.Tags[0];
+            newTag = new Tag()
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(3, updatedAnnotation.LineStart);
-            Assert.AreEqual(6, updatedAnnotation.LineEnd);
+            updatedTag = codeFile.AddTag(newTag, oldTag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(3, updatedTag.LineStart);
+            Assert.AreEqual(6, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
-                codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+                codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
-            // Select an annotation that's entirely before the existing annotation
-            oldAnnotation = codeFile.Annotations[0];
-            newAnnotation = new Annotation()
+            // Select an tag that's entirely before the existing tag
+            oldTag = codeFile.Tags[0];
+            newTag = new Tag()
             {
                 LineStart = 1,
                 LineEnd = 2,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(1, updatedAnnotation.LineStart);
-            Assert.AreEqual(4, updatedAnnotation.LineEnd);
+            updatedTag = codeFile.AddTag(newTag, oldTag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(1, updatedTag.LineStart);
+            Assert.AreEqual(4, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
-                codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+                codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
-            // Overlap the selection with the existing closing annotation tag
-            oldAnnotation = codeFile.Annotations[0];
-            newAnnotation = new Annotation()
+            // Overlap the selection with the existing closing tag tag
+            oldTag = codeFile.Tags[0];
+            newTag = new Tag()
             {
                 LineStart = 5,
                 LineEnd = 6,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
-            Assert.AreEqual(3, updatedAnnotation.LineStart);
-            Assert.AreEqual(6, updatedAnnotation.LineEnd);
+            updatedTag = codeFile.AddTag(newTag, oldTag);
+            Assert.AreEqual(1, codeFile.Tags.Count);
+            Assert.AreEqual(3, updatedTag.LineStart);
+            Assert.AreEqual(6, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
-                codeFile.Content[updatedAnnotation.LineStart.Value]);
-            Assert.AreEqual("**<<<", codeFile.Content[updatedAnnotation.LineEnd.Value]);
+                codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidDataException))]
-        public void AddAnnotation_ExactLineMatch_NotFound()
+        public void AddTag_ExactLineMatch_NotFound()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -432,27 +432,27 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
-            // Try to add a new annotation that does not have matching line numbers
-            var oldAnnotation = new Annotation(codeFile.Annotations[0])
+            // Try to add a new tag that does not have matching line numbers
+            var oldTag = new Tag(codeFile.Tags[0])
             {
                 LineStart = 4,
                 LineEnd = 5
             };
-            var newAnnotation = new Annotation()
+            var newTag = new Tag()
             {
                 LineStart = 0,
                 LineEnd = 2,
-                OutputLabel = "Test",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
+            codeFile.AddTag(newTag, oldTag, true);
         }
 
         [TestMethod]
-        public void AddAnnotation_ExactLineMatch()
+        public void AddTag_ExactLineMatch()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -468,22 +468,22 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
             // Match the second one - this should bypass the first one which matches on name but not on line number.
-            var oldAnnotation = codeFile.Annotations[1];
-            var newAnnotation = new Annotation()
+            var oldTag = codeFile.Tags[1];
+            var newTag = new Tag()
             {
                 LineStart = 4,
                 LineEnd = 6,
-                OutputLabel = "Test 2",
-                Type = Constants.AnnotationType.Value,
+                Name = "Test 2",
+                Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            var updatedAnnotation = codeFile.AddAnnotation(newAnnotation, oldAnnotation, true);
-            Assert.AreEqual(2, codeFile.Annotations.Count);
+            var updatedTag = codeFile.AddTag(newTag, oldTag, true);
+            Assert.AreEqual(2, codeFile.Tags.Count);
             Assert.AreEqual(8, codeFile.Content.Count);
-            // Make sure it didn't modify the first annotation - only the second one should be a match.
+            // Make sure it didn't modify the first tag - only the second one should be a match.
             Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
                             codeFile.Content[1]);
             Assert.AreEqual("**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
@@ -501,7 +501,7 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
-        public void RemoveAnnotation_Exists()
+        public void RemoveTag_Exists()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -518,21 +518,21 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
-            codeFile.RemoveAnnotation(codeFile.Annotations[0]);
-            Assert.AreEqual(1, codeFile.Annotations.Count);
+            codeFile.RemoveTag(codeFile.Tags[0]);
+            Assert.AreEqual(1, codeFile.Tags.Count);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual(2, codeFile.Annotations[0].LineStart);
-            Assert.AreEqual(4, codeFile.Annotations[0].LineEnd);
+            Assert.AreEqual(2, codeFile.Tags[0].LineStart);
+            Assert.AreEqual(4, codeFile.Tags[0].LineEnd);
 
-            codeFile.RemoveAnnotation(codeFile.Annotations[0]);
-            Assert.AreEqual(0, codeFile.Annotations.Count);
+            codeFile.RemoveTag(codeFile.Tags[0]);
+            Assert.AreEqual(0, codeFile.Tags.Count);
             Assert.AreEqual(5, codeFile.Content.Count);
         }
 
         [TestMethod]
-        public void RemoveAnnotation_DoesNotExist()
+        public void RemoveTag_DoesNotExist()
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
@@ -549,12 +549,12 @@ namespace Core.Tests.Models
             });
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
-            codeFile.LoadAnnotationsFromContent();
+            codeFile.LoadTagsFromContent();
 
-            codeFile.RemoveAnnotation(null);
-            codeFile.RemoveAnnotation(new Annotation() { OutputLabel = "NotHere", Type = Constants.AnnotationType.Value });
-            codeFile.RemoveAnnotation(new Annotation() { OutputLabel = "test", Type = Constants.AnnotationType.Value });
-            Assert.AreEqual(2, codeFile.Annotations.Count);
+            codeFile.RemoveTag(null);
+            codeFile.RemoveTag(new Tag() { Name = "NotHere", Type = Constants.TagType.Value });
+            codeFile.RemoveTag(new Tag() { Name = "test", Type = Constants.TagType.Value });
+            Assert.AreEqual(2, codeFile.Tags.Count);
             Assert.AreEqual(9, codeFile.Content.Count);
         }
 
@@ -575,58 +575,58 @@ namespace Core.Tests.Models
             codeFile.StatisticalPackage = Constants.StatisticalPackages.Stata;
             codeFile.UpdateContent("test content");
             mock.Verify();
-            Assert.AreEqual(1, codeFile.Annotations.Count);
+            Assert.AreEqual(1, codeFile.Tags.Count);
         }
 
         [TestMethod]
-        public void FindDuplicateAnnotations_EmptyAnnotations()
+        public void FindDuplicateTags_EmptyTags()
         {
-            // This is when we have code files with null or otherwise empty collections of annotations, to ensure we are
+            // This is when we have code files with null or otherwise empty collections of tags, to ensure we are
             // handling this boundary scenarios appropriately.
-            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = null };
-            var result = codeFile.FindDuplicateAnnotations();
+            var codeFile = new CodeFile() { FilePath = "Test.do", Tags = null };
+            var result = codeFile.FindDuplicateTags();
             Assert.AreEqual(0, result.Count);
 
             codeFile = new CodeFile() { FilePath = "Test.do" };
-            result = codeFile.FindDuplicateAnnotations();
+            result = codeFile.FindDuplicateTags();
             Assert.AreEqual(0, result.Count);
 
-            codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>() };
-            result = codeFile.FindDuplicateAnnotations();
+            codeFile = new CodeFile() { FilePath = "Test.do", Tags = new List<Tag>() };
+            result = codeFile.FindDuplicateTags();
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public void FindDuplicateAnnotations_NoDuplicates()
+        public void FindDuplicateTags_NoDuplicates()
         {
-            var codeFile = new CodeFile() { FilePath = "Test.do", Annotations = new List<Annotation>(new []
+            var codeFile = new CodeFile() { FilePath = "Test.do", Tags = new List<Tag>(new []
             {
-                new Annotation() { OutputLabel = "Test"}, 
-                new Annotation() { OutputLabel = "Test2"},
+                new Tag() { Name = "Test"}, 
+                new Tag() { Name = "Test2"},
             }) };
-            var result = codeFile.FindDuplicateAnnotations();
+            var result = codeFile.FindDuplicateTags();
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public void FindDuplicateAnnotations_Duplicates()
+        public void FindDuplicateTags_Duplicates()
         {
             var codeFile = new CodeFile()
             {
                 FilePath = "Test.do",
-                Annotations = new List<Annotation>(new[]
+                Tags = new List<Tag>(new[]
             {
-                new Annotation() { OutputLabel = "Test"}, 
-                new Annotation() { OutputLabel = "Test2"},
-                new Annotation() { OutputLabel = "test"},
-                new Annotation() { OutputLabel = "test2"},
-                new Annotation() { OutputLabel = "Test"},
+                new Tag() { Name = "Test"}, 
+                new Tag() { Name = "Test2"},
+                new Tag() { Name = "test"},
+                new Tag() { Name = "test2"},
+                new Tag() { Name = "Test"},
             })
             };
-            var result = codeFile.FindDuplicateAnnotations();
+            var result = codeFile.FindDuplicateTags();
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(2, result[codeFile.Annotations[0]].Count);
-            Assert.AreEqual(1, result[codeFile.Annotations[1]].Count);
+            Assert.AreEqual(2, result[codeFile.Tags[0]].Count);
+            Assert.AreEqual(1, result[codeFile.Tags[1]].Count);
         }
     }
 }
