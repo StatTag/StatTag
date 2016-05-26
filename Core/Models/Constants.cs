@@ -75,7 +75,7 @@ namespace StatTag.Core.Models
 
         public static class FileExtensions
         {
-            public const string Backup = "am-bak";
+            public const string Backup = "st-bak";
         }
 
         public static class Placeholders
@@ -91,7 +91,6 @@ namespace StatTag.Core.Models
 
         public static class FieldDetails
         {
-            public const string LegacyMacroButtonName = "AnalysisManager";
             public const string MacroButtonName = "StatTag";
         }
 
@@ -144,7 +143,7 @@ namespace StatTag.Core.Models
         {
             public const string StartTag = ">>>";
             public const string EndTag = "<<<";
-            public const string TagPrefix = "AM:";
+            public const string TagPrefix = "ST:";
             public const string ParamStart = "(";
             public const string ParamEnd = ")";
         }

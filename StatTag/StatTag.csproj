@@ -258,8 +258,8 @@
     <Compile Include="ManageTags.Designer.cs">
       <DependentUpon>ManageTags.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\AnnotationListViewColumnSorter.cs" />
-    <Compile Include="Models\AnnotationManager.cs" />
+    <Compile Include="Models\TagListViewColumnSorter.cs" />
+    <Compile Include="Models\TagManager.cs" />
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using AnalysisManager.Core.Interfaces;
+using StatTag.Core.Interfaces;
 using Stata;
 using StatTag.Core.Models;
 using StatTag.Models;

@@ -7,7 +7,7 @@
     <ProjectGuid>{F77D97B2-EDA9-4F08-8765-41FF692DB52B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AnalysisManager.Core</RootNamespace>
+    <RootNamespace>StatTag.Core</RootNamespace>
     <AssemblyName>Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

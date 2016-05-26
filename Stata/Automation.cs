@@ -19,7 +19,7 @@ namespace Stata
         /// <summary>
         /// This is a special local macro name that is being used within StatTag.
         /// </summary>
-        public const string StatTagTempMacroName = "__am_tmp_display_value";
+        public const string StatTagTempMacroName = "__st_tmp_display_value";
 
         public const string DisablePagingCommand = "set more off";
 
