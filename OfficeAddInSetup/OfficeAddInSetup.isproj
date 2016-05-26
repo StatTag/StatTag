@@ -29,13 +29,13 @@
 	</ItemGroup>
 	<Import Project="$(MSBuildExtensionsPath32)\InstallShield\2015Limited\InstallShield.targets"/>
 	<ItemGroup>
-		<ProjectReference Include="..\AnalysisManager\AnalysisManager.csproj">
-			<Name>AnalysisManager</Name>
-			<Project>{5DDB8DB2-68B0-4339-BFA7-71339FF7E95F}</Project>
-		</ProjectReference>
 		<ProjectReference Include="..\Core\Core.csproj">
 			<Name>Core</Name>
 			<Project>{F77D97B2-EDA9-4F08-8765-41FF692DB52B}</Project>
+		</ProjectReference>
+		<ProjectReference Include="..\StatTag\StatTag.csproj">
+			<Name>StatTag</Name>
+			<Project>{5DDB8DB2-68B0-4339-BFA7-71339FF7E95F}</Project>
 		</ProjectReference>
 		<ProjectReference Include="..\Stata\Stata.csproj">
 			<Name>Stata</Name>
