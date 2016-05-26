@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Analysis Manager</subject>
+		<subject>##ID_STRING3##</subject>
 		<author>##ID_STRING2##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>Contact:  Your local administrator</comments>
@@ -340,7 +340,6 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>AnalysisManager.Primary_output</td><td>{A228C2AF-5F01-4C7F-9CE8-06DA6607F997}</td><td>INSTALLDIR</td><td>2</td><td/><td>analysismanager.primary_outp</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Core.Primary_output</td><td>{C834205A-DDEE-48D0-97FD-FFA46C5F8CDE}</td><td>INSTALLDIR</td><td>2</td><td/><td>core.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td>{D62D35C2-88B4-4A60-BAB1-0A940D52D307}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td>{484D4617-A262-4C65-B417-7E4F0BBE942B}</td><td>INSTALLDIR</td><td>258</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -348,6 +347,7 @@
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td>{BA8730F7-B5C2-4AD2-B872-78F902338AA9}</td><td>X64</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SciLexer.dll</td><td>{CB81218B-1095-4881-BD39-1D7FBC55DD59}</td><td>X86</td><td>2</td><td/><td>scilexer.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SciLexer.dll1</td><td>{DD040F83-C7BB-4346-BB74-E99B5BA783B2}</td><td>X64</td><td>2</td><td/><td>scilexer.dll1</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>StatTag.Primary_output</td><td>{E73F1F18-864F-49B5-90ED-6BE4E29059F9}</td><td>INSTALLDIR</td><td>2</td><td/><td>stattag.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Stata.Primary_output</td><td>{756FC6B3-DD2E-4A7E-A66C-EF6459CDDC9F}</td><td>INSTALLDIR</td><td>2</td><td/><td>stata.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -1057,7 +1057,6 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>INSTALLDIR</td><td>AnalysisManager.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>Core.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT1</td></row>
@@ -1065,6 +1064,7 @@
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT3</td></row>
 		<row><td>INSTALLDIR</td><td>SciLexer.dll</td></row>
 		<row><td>INSTALLDIR</td><td>SciLexer.dll1</td></row>
+		<row><td>INSTALLDIR</td><td>StatTag.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>Stata.Primary_output</td></row>
 		<row><td>X64</td><td>ISX_DEFAULTCOMPONENT3</td></row>
 		<row><td>X64</td><td>SciLexer.dll1</td></row>
@@ -1161,7 +1161,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ANALYSIS_MANAGER</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>STATTAG</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1180,6 +1180,7 @@
 		<row><td>ProgramFilesFolder</td><td>TARGETDIR</td><td>.:PROGRA~1|program files</td><td/><td>0</td><td/></row>
 		<row><td>ProgramMenuFolder</td><td>TARGETDIR</td><td>.:Programs</td><td/><td>3</td><td/></row>
 		<row><td>RecentFolder</td><td>TARGETDIR</td><td>.:Recent</td><td/><td>0</td><td/></row>
+		<row><td>STATTAG</td><td>NORTHWESTERN_UNIVERSITY</td><td>StatTag</td><td/><td>0</td><td/></row>
 		<row><td>SendToFolder</td><td>TARGETDIR</td><td>.:SendTo</td><td/><td>3</td><td/></row>
 		<row><td>StartMenuFolder</td><td>TARGETDIR</td><td>.:STARTM~1|Start Menu</td><td/><td>3</td><td/></row>
 		<row><td>StartupFolder</td><td>TARGETDIR</td><td>.:StartUp</td><td/><td>3</td><td/></row>
@@ -1885,7 +1886,6 @@
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>AlwaysInstall</td><td>AnalysisManager.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>Core.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT1</td></row>
@@ -1893,6 +1893,7 @@
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT3</td></row>
 		<row><td>AlwaysInstall</td><td>SciLexer.dll</td></row>
 		<row><td>AlwaysInstall</td><td>SciLexer.dll1</td></row>
+		<row><td>AlwaysInstall</td><td>StatTag.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>Stata.Primary_output</td></row>
 	</table>
 
@@ -1908,13 +1909,13 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>analysismanager.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.MAN|AnalysisManager.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\AnalysisManager.dll.manifest</td><td>1</td><td/></row>
-		<row><td>analysismanager.primary_outp</td><td>AnalysisManager.Primary_output</td><td>AnalysisManager.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;AnalysisManager&gt;|Built</td><td>3</td><td/></row>
-		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|AnalysisManager.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\AnalysisManager.vsto</td><td>1</td><td/></row>
+		<row><td>analysismanager.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.MAN|StatTag.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\StatTag.dll.manifest</td><td>1</td><td/></row>
+		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|StatTag.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\StatTag.vsto</td><td>1</td><td/></row>
 		<row><td>core.primary_output</td><td>Core.Primary_output</td><td>Core.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Core&gt;|Built</td><td>3</td><td/></row>
-		<row><td>scilexer.dll</td><td>SciLexer.dll</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\x86\SciLexer.dll</td><td>1</td><td/></row>
-		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\AnalysisManager\AnalysisManager\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
+		<row><td>scilexer.dll</td><td>SciLexer.dll</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x86\SciLexer.dll</td><td>1</td><td/></row>
+		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>stata.primary_output</td><td>Stata.Primary_output</td><td>Stata.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Stata&gt;|Built</td><td>3</td><td/></row>
+		<row><td>stattag.primary_output</td><td>StatTag.Primary_output</td><td>StatTag.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;StatTag&gt;|Built</td><td>3</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -2058,7 +2059,6 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>AnalysisManager.Primary_output</td><td/><td/><td>_2F94D674_DB66_4CFF_A8D8_1CCA545FE414_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Core.Primary_output</td><td/><td/><td>_44E9E718_6013_453D_B755_732E3BB4D780_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td/><td/><td>_034497B7_7EEB_4C17_8C6C_6B5ADB6C69F4_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td/><td/><td>_D3944672_90F7_4A99_B502_33CBF155B8C9_FILTER</td><td/><td/><td/><td/></row>
@@ -2066,6 +2066,7 @@
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td/><td/><td>_E1FCB837_FDF6_4C6B_AAD1_0A03FABEBF57_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SciLexer.dll</td><td/><td/><td>_6EDBF4D0_B725_4E8F_BE9D_D9448C9DC114_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SciLexer.dll1</td><td/><td/><td>_35A32B77_A9CC_440B_8320_317A170EE781_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>StatTag.Primary_output</td><td/><td/><td>_742CF811_86EC_4120_A18F_66092919B141_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Stata.Primary_output</td><td/><td/><td>_961E1804_3179_4EC3_B9A7_701B5E32643E_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -2345,7 +2346,7 @@
 		<col def="S255">Value</col>
 		<col def="S255">TestValue</col>
 		<col def="i4">Type</col>
-		<row><td>AnalysisManager</td><td>AnalysisManager\AnalysisManager.csproj</td><td/><td>2</td></row>
+		<row><td>AnalysisManager</td><td>AnalysisManager\StatTag.csproj</td><td/><td>2</td></row>
 		<row><td>CommonFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>Core</td><td>Core\Core.csproj</td><td/><td>2</td></row>
 		<row><td>ISPROJECTDIR</td><td/><td/><td>1</td></row>
@@ -2353,6 +2354,7 @@
 		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
+		<row><td>StatTag</td><td>StatTag\StatTag.csproj</td><td/><td>2</td></row>
 		<row><td>Stata</td><td>Stata\Stata.csproj</td><td/><td>2</td></row>
 		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
 		<row><td>WindowsFolder</td><td/><td/><td>1</td></row>
@@ -3765,6 +3767,7 @@
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>http://www.NorthwesternUniversity.com</td><td>0</td><td/><td>967099786</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>967099786</td></row>
+		<row><td>ID_STRING3</td><td>1033</td><td>StatTag</td><td>0</td><td/><td>-760956019</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>1042514665</td></row>
 	</table>
 
@@ -4386,9 +4389,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{A0A5F308-74BD-469A-9830-2F7AA12DC5D9}</td><td/></row>
-		<row><td>ProductName</td><td>Analysis Manager</td><td/></row>
-		<row><td>ProductVersion</td><td>0.10.1</td><td/></row>
+		<row><td>ProductCode</td><td>{338F9187-C3D1-40D8-9B03-418149F489DA}</td><td/></row>
+		<row><td>ProductName</td><td>StatTag</td><td/></row>
+		<row><td>ProductVersion</td><td>0.10.2</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4459,11 +4462,11 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>Registry1</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
 		<row><td>Registry10</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 		<row><td>Registry11</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
-		<row><td>Registry12</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]AnalysisManager.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry12</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 		<row><td>Registry2</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins</td><td/><td/><td>ISX_DEFAULTCOMPONENT1</td><td>1</td></row>
 		<row><td>Registry3</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
 		<row><td>Registry4</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
-		<row><td>Registry5</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]AnalysisManager.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry5</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
 		<row><td>Registry9</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 	</table>
 
