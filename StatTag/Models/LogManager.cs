@@ -80,7 +80,7 @@ namespace StatTag.Models
         {
             if (Enabled)
             {
-                File.AppendAllText(LogFilePath, string.Format("{0} - {1}\r\n", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), text));
+                File.AppendAllText(LogFilePath, string.Format("{0} - {1}\r\n", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff"), text));
             }
         }
 

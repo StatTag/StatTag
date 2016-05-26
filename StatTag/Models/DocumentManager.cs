@@ -17,9 +17,7 @@ namespace StatTag.Models
     /// </summary>
     public class DocumentManager : BaseManager
     {
-        //public List<CodeFile> Files { get; set; }
         private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
-        public FieldCreator FieldManager { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
 
@@ -27,9 +25,7 @@ namespace StatTag.Models
 
         public DocumentManager()
         {
-            //Files = new List<CodeFile>();
             DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
-            FieldManager = new FieldCreator();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this);
         }
@@ -337,7 +333,8 @@ namespace StatTag.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
-
+            Cursor.Current = Cursors.WaitCursor;
+            application.ScreenUpdating = false;
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
@@ -408,6 +405,8 @@ namespace StatTag.Models
             finally
             {
                 Marshal.ReleaseComObject(document);
+                Cursor.Current = Cursors.Default;
+                application.ScreenUpdating = true;
             }
 
             Log("UpdateFields - Finished");
@@ -702,14 +701,6 @@ namespace StatTag.Models
                     Marshal.ReleaseComObject(range);
                 }
 
-                #region Nothing to see here
-                // Awful little hack... something with the way the InsertField method works returns fields
-                // with special characters in the embedded fields.  A workaround is toggling the fields
-                // to show and hide codes.
-                document.Fields.ToggleShowCodes();
-                document.Fields.ToggleShowCodes();
-                #endregion
-
                 Marshal.ReleaseComObject(selection);
             }
             finally
@@ -874,6 +865,10 @@ namespace StatTag.Models
             }
         }
 
+        /// <summary>
+        /// Performs the insertion of tags into a document as fields.
+        /// </summary>
+        /// <param name="tags"></param>
         public void InsertTagsInDocument(List<Tag> tags)
         {
             Cursor.Current = Cursors.WaitCursor;
