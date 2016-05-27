@@ -21,7 +21,7 @@ namespace Core.Tests.Generator
         public void CreateOpenTagBase()
         {
             var generator = new StubGenerator();
-            Assert.AreEqual("**>>>AM:", generator.CreateOpenTag(null));
+            Assert.AreEqual("**>>>ST:", generator.CreateOpenTag(null));
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Core.Tests.Generator
                 Type = Constants.TagType.Value,
                 ValueFormat = new ValueFormat()
             };
-            Assert.AreEqual("**>>>AM:Value(Type=\"Default\")", generator.CreateOpenTag(tag));
+            Assert.AreEqual("**>>>ST:Value(Type=\"Default\")", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Core.Tests.Generator
                 Type = Constants.TagType.Figure,
                 FigureFormat = new FigureFormat()
             };
-            Assert.AreEqual("**>>>AM:Figure()", generator.CreateOpenTag(tag));
+            Assert.AreEqual("**>>>ST:Figure()", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
@@ -63,10 +63,10 @@ namespace Core.Tests.Generator
             {
                 Type = Constants.TagType.Table
             };
-            Assert.AreEqual("**>>>AM:Table(Type=\"Default\")", generator.CreateOpenTag(tag));
+            Assert.AreEqual("**>>>ST:Table(Type=\"Default\")", generator.CreateOpenTag(tag));
 
             tag.TableFormat = new TableFormat();
-            Assert.AreEqual("**>>>AM:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(tag));
+            Assert.AreEqual("**>>>ST:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]

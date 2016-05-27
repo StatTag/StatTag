@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.InteropServices;
@@ -205,7 +206,7 @@ namespace Stata
                 case ScalarType.String:
                     return Application.ScalarString(name);
                 case ScalarType.Numeric:
-                    return Application.ScalarNumeric(name).ToString();
+                    return Application.ScalarNumeric(name).ToString(CultureInfo.CurrentCulture);
                 default:
                     // If it's not a scalar type, it's assumed to be a saved type that can be returned
                     return Application.StReturnString(name);
@@ -311,9 +312,12 @@ namespace Stata
         /// <returns>true if successful, false otherwise</returns>
         protected static bool RunProcess(string path, string parameters)
         {
-            var startInfo = new ProcessStartInfo(path, parameters);
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Verb = "runas";  // Allows running as administrator, needed to change COM registration
+            var startInfo = new ProcessStartInfo(path, parameters)
+            {
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Verb = "runas"
+            };
+            // Allows running as administrator, needed to change COM registration
             var process = Process.Start(startInfo);
             if (process == null)
             {

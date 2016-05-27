@@ -86,7 +86,7 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Test",
+                "**>>>ST:Test",
                 "declare value",
                 "**<<<AM:Test"
             });
@@ -104,7 +104,7 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Test",
+                "**>>>ST:Test",
                 "declare value"
             });
             var mock = new Mock<CodeFile>();
@@ -119,9 +119,9 @@ namespace Core.Tests.Parser
             var parser = new StubParser();
             var lines = new List<string>(new string[]
             {
-                "**>>>AM:Test",
+                "**>>>ST:Test",
                 "declare value",
-                "**>>>AM:Test",
+                "**>>>ST:Test",
                 "declare value",
                 "**<<<AM:Test"
             });
@@ -140,10 +140,10 @@ namespace Core.Tests.Parser
             var lines = new List<string>(new string[]
             {
                 "declare value",
-                "**>>>AM:Value(Frequency=\"On Demand\")",
+                "**>>>ST:Value(Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value2",
                 "**<<<"
             });
@@ -166,10 +166,10 @@ namespace Core.Tests.Parser
             var lines = new List<string>(new string[]
             {
                 "declare value",
-                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test2\")",
+                "**>>>ST:Value(Label=\"Test2\")",
                 "declare value2",
                 "**<<<"
             });
@@ -200,7 +200,7 @@ namespace Core.Tests.Parser
         public void DetectStartTag_Simple()
         {
             var parser = new StubParser();
-            var match = parser.DetectStartTag("**>>>AM:Test");
+            var match = parser.DetectStartTag("**>>>ST:Test");
             Assert.IsTrue(match.Success);
         }
 
@@ -212,7 +212,7 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new []
             {
                 "declare value1",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value2",
                 "**<<<",
                 "declare value3",
@@ -229,7 +229,7 @@ namespace Core.Tests.Parser
             // Tag at the beginning
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value2",
                 "**<<<",
                 "declare value3",
@@ -245,7 +245,7 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value2",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value3",
                 "**<<<",
             }));
@@ -259,13 +259,13 @@ namespace Core.Tests.Parser
             // Back to back tags
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value1",
                 "**<<<",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value2",
                 "**<<<",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value3",
                 "**<<<",
             }));
@@ -287,10 +287,10 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value",
-                "**>>>AM:Value(Frequency=\"On Demand\")",
+                "**>>>ST:Value(Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value",
+                "**>>>ST:Value",
                 "declare value2",
                 "**<<<"
             }));
@@ -319,10 +319,10 @@ namespace Core.Tests.Parser
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
             {
                 "declare value",
-                "**>>>AM:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",
                 "declare value",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test2\")",
+                "**>>>ST:Value(Label=\"Test2\")",
                 "declare value2",
                 "**<<<"
             }));

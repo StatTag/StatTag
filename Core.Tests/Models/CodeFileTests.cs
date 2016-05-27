@@ -44,7 +44,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
                 {
-                    "**>>>AM:Test(Type=\"Default\")",
+                    "**>>>ST:Test(Type=\"Default\")",
                     "some code here",
                     "**<<<"
                 });
@@ -60,7 +60,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
                 {
-                    "**>>>AM:Value(Type=\"Default\")",
+                    "**>>>ST:Value(Type=\"Default\")",
                     "some code here",
                     "**<<<"
                 });
@@ -78,7 +78,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
                 {
-                    "**>>>AM:Value(Type=\"Default\")",
+                    "**>>>ST:Value(Type=\"Default\")",
                     "some code here",
                     "**<<<"
                 });
@@ -158,7 +158,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
                 {
-                    "**>>>AM:Test(Type=\"Default\")",
+                    "**>>>ST:Test(Type=\"Default\")",
                     "some code here",
                     "**<<<"
                 });
@@ -237,7 +237,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(1, updatedTag.LineStart);
             Assert.AreEqual(4, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);  // Two tag lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
             // Existing tag should not be modified (we don't check start because that happens to always be the same)
             Assert.AreNotEqual(updatedTag.LineEnd, tag.LineEnd);
@@ -257,7 +257,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(5, updatedTag.LineStart);
             Assert.AreEqual(8, updatedTag.LineEnd);
             Assert.AreEqual(9, codeFile.Content.Count);  // Two tag lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test2\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
             // Insert before existing tags
@@ -274,11 +274,11 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedTag.LineStart);
             Assert.AreEqual(2, updatedTag.LineEnd);
             Assert.AreEqual(11, codeFile.Content.Count);  // Two tag lines should be added
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test3\", Type=\"Default\")", codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
             // Final check that the file content is exactly as we expect:
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test3\", Type=\"Default\"), first line, **<<<, **>>>AM:Value(Label=\"Test\", Type=\"Default\"), second line, third line, **<<<, **>>>AM:Value(Label=\"Test2\", Type=\"Default\"), fourth line, fifth line, **<<<", string.Join(", ", codeFile.Content));
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test3\", Type=\"Default\"), first line, **<<<, **>>>ST:Value(Label=\"Test\", Type=\"Default\"), second line, third line, **<<<, **>>>ST:Value(Label=\"Test2\", Type=\"Default\"), fourth line, fifth line, **<<<", string.Join(", ", codeFile.Content));
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@ namespace Core.Tests.Models
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "first line",
                 "second line",
                 "**<<<",
@@ -314,7 +314,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedTag.LineStart);
             Assert.AreEqual(3, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
         }
@@ -326,7 +326,7 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "third line",
                 "**<<<",
@@ -352,7 +352,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(0, updatedTag.LineStart);
             Assert.AreEqual(3, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
@@ -371,7 +371,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(3, updatedTag.LineStart);
             Assert.AreEqual(6, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
@@ -390,7 +390,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(1, updatedTag.LineStart);
             Assert.AreEqual(4, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
@@ -409,7 +409,7 @@ namespace Core.Tests.Models
             Assert.AreEqual(3, updatedTag.LineStart);
             Assert.AreEqual(6, updatedTag.LineEnd);
             Assert.AreEqual(7, codeFile.Content.Count);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
         }
@@ -422,10 +422,10 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "third line",
                 "**<<<",
                 "fourth line"
@@ -458,10 +458,10 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "third line",
                 "**<<<",
                 "fourth line"
@@ -469,6 +469,7 @@ namespace Core.Tests.Models
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             codeFile.LoadTagsFromContent();
+            Assert.AreEqual(2, codeFile.Tags.Count);
 
             // Match the second one - this should bypass the first one which matches on name but not on line number.
             var oldTag = codeFile.Tags[1];
@@ -484,9 +485,9 @@ namespace Core.Tests.Models
             Assert.AreEqual(2, codeFile.Tags.Count);
             Assert.AreEqual(8, codeFile.Content.Count);
             // Make sure it didn't modify the first tag - only the second one should be a match.
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                             codeFile.Content[1]);
-            Assert.AreEqual("**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+            Assert.AreEqual("**>>>ST:Value(Label=\"Test 2\", Type=\"Default\")",
                 codeFile.Content[4]);
         }
 
@@ -507,10 +508,10 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test 2\", Type=\"Default\")",
                 "third line",
                 "**<<<",
                 "fourth line",
@@ -538,10 +539,10 @@ namespace Core.Tests.Models
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
                 "first line",
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "second line",
                 "**<<<",
-                "**>>>AM:Value(Label=\"Test 2\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test 2\", Type=\"Default\")",
                 "third line",
                 "**<<<",
                 "fourth line",
@@ -565,7 +566,7 @@ namespace Core.Tests.Models
             mock.Setup(file => file.WriteAllText(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
             mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
             {
-                "**>>>AM:Value(Label=\"Test\", Type=\"Default\")",
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
                 "first line",
                 "second line",
                 "**<<<"

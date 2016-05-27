@@ -93,7 +93,7 @@ namespace StatTag.Core.Models
         /// <param name="json"></param>
         /// <param name="files"></param>
         /// <returns></returns>
-        public new static FieldTag Deserialize(string json, IEnumerable<CodeFile> files = null)
+        public static FieldTag Deserialize(string json, IEnumerable<CodeFile> files = null)
         {
             var tag = JsonConvert.DeserializeObject<FieldTag>(json);
             tag.Name = NormalizeName(tag.Name);

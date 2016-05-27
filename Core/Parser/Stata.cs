@@ -17,17 +17,17 @@ namespace StatTag.Core.Parser
         private static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         private static string ValueCommand = "di(?:splay)?";
-        private static Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
         //private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
-        private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", ValueCommand));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", ValueCommand));
         private static string GraphCommand = "gr(?:aph)? export";
-        private static Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
-        private static Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
+        private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
+        private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
         private static string TableCommand = "mat(?:rix)? l(?:ist)?";
-        private static Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
-        private static Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
-        private static Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
-        private static Regex[] MultiLineIndicators = new[]
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
+        private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
+        private static readonly Regex[] MultiLineIndicators = new[]
         {
             new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline),
             new Regex("/\\*.*\\*/\\s?", RegexOptions.Singleline),
@@ -38,7 +38,7 @@ namespace StatTag.Core.Parser
         /// <remarks>It assumes the rest of the display command has been extracted, 
         /// and only the value name remains.</remarks>
         /// </summary>
-        private static Regex MacroValueRegex = new Regex("^\\s*`(.+)'");
+        private static readonly Regex MacroValueRegex = new Regex("^\\s*`(.+)'");
 
         public override string CommentCharacter
         {
