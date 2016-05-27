@@ -1916,6 +1916,7 @@
 		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>stata.primary_output</td><td>Stata.Primary_output</td><td>Stata.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Stata&gt;|Built</td><td>3</td><td/></row>
 		<row><td>stattag.primary_output</td><td>StatTag.Primary_output</td><td>StatTag.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;StatTag&gt;|Built</td><td>3</td><td/></row>
+		<row><td>stattag_userguide.pdf</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.PDF|StatTag-UserGuide.pdf</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\Resources\StatTag-UserGuide.pdf</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">

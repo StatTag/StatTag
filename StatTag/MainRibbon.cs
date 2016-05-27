@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -238,7 +239,17 @@ namespace StatTag
 
         private void cmdHelp_Click(object sender, RibbonControlEventArgs e)
         {
+            var userGuidePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StatTag-UserGuide.pdf");
+            if (!File.Exists(userGuidePath))
+            {
+                UIUtility.WarningMessageBox(
+                    string.Format("We were unable to find the user guide at {0}.", userGuidePath), 
+                    LogManager);
+                return;
+            }
 
+            LogManager.WriteMessage(string.Format("Opening the user guide file {0}.", userGuidePath));
+            System.Diagnostics.Process.Start(userGuidePath);
         }
     }
 }
