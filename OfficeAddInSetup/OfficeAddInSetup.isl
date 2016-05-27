@@ -4390,7 +4390,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{338F9187-C3D1-40D8-9B03-418149F489DA}</td><td/></row>
+		<row><td>ProductCode</td><td>{970154AA-2A47-4C05-9411-B8B45C4D391A}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
 		<row><td>ProductVersion</td><td>0.10.2</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
@@ -4460,15 +4460,15 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>Registry1</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
-		<row><td>Registry10</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
-		<row><td>Registry11</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
-		<row><td>Registry12</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>Description</td><td>Northwestern University StatTag</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry10</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>FriendlyName</td><td>StatTag</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry11</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry12</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 		<row><td>Registry2</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins</td><td/><td/><td>ISX_DEFAULTCOMPONENT1</td><td>1</td></row>
-		<row><td>Registry3</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>FriendlyName</td><td>Analysis Manager</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
-		<row><td>Registry4</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
-		<row><td>Registry5</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
-		<row><td>Registry9</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.AnalysisManager</td><td>Description</td><td>Northwestern University Analysis Manager</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
+		<row><td>Registry3</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>FriendlyName</td><td>StatTag</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry4</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>LoadBehavior</td><td>#3</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry5</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>Manifest</td><td>file:///[INSTALLDIR]StatTag.vsto|vstolocal</td><td>ISX_DEFAULTCOMPONENT</td><td>0</td></row>
+		<row><td>Registry9</td><td>2</td><td>SOFTWARE\Microsoft\Office\Word\Addins\NorthwesternUniversity.StatTag</td><td>Description</td><td>Northwestern University StatTag</td><td>ISX_DEFAULTCOMPONENT1</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">
