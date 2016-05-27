@@ -230,7 +230,7 @@ namespace StatTag.Models
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index", index));
+                    Log(string.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -359,7 +359,7 @@ namespace StatTag.Models
                     var field = fields[index];
                     if (field == null)
                     {
-                        Log(string.Format("Null field detected at index", index));
+                        Log(string.Format("Null field detected at index {0}", index));
                         continue;
                     }
 
@@ -490,6 +490,12 @@ namespace StatTag.Models
             }
 
             var cells = GetCells(selection);
+            if (cells == null)
+            {
+                Log("Unable to insert the table because the cells collection came back as null.");
+                return;
+            }
+
             tag.UpdateFormattedTableData();
             var table = tag.CachedResult.First().TableResult;
 
@@ -542,8 +548,11 @@ namespace StatTag.Models
                 // Make a copy of the tag and set the cell index.  This will let us discriminate which cell an tag
                 // value is related with, since we have multiple fields (and therefore multiple copies of the tag) in the
                 // document.  Note that we are wiping out the cached value to just have the individual cell value present.
-                var innerTag = new FieldTag(tag, index);
-                innerTag.CachedResult = new List<CommandResult>() { new CommandResult() { ValueResult = table.FormattedCells[index] } };
+                var innerTag = new FieldTag(tag, index)
+                {
+                    CachedResult =
+                        new List<CommandResult>() {new CommandResult() {ValueResult = table.FormattedCells[index]}}
+                };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
                     innerTag.FormattedResult, innerTag);
@@ -921,6 +930,7 @@ namespace StatTag.Models
         /// Conduct an assessment of the active document to see if there are any inserted
         /// tags that do not have an associated code file in the document.
         /// </summary>
+        /// <param name="document">The Word document to analyze.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
         public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
         {

@@ -14,9 +14,9 @@ namespace StatTag
 {
     public sealed partial class SelectOutput : Form
     {
-        protected List<CodeFile> Files = new List<CodeFile>();
-        protected List<Tag> Tags = new List<Tag>();
-        private TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
+        private readonly List<CodeFile> Files = new List<CodeFile>();
+        private readonly List<Tag> Tags = new List<Tag>();
+        private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
 
         public SelectOutput(List<CodeFile> files = null)
         {

@@ -13,6 +13,7 @@ namespace StatTag.Core.Utility
         /// Find all tags with a matching tag name (regardless of case).
         /// </summary>
         /// <param name="outputLabel">The tag name to search for</param>
+        /// <param name="files">The list of code files the tag should be contained in.</param>
         /// <returns></returns>
         public static List<Tag> FindTagsByName(string outputLabel, List<CodeFile> files)
         {

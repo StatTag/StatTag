@@ -9,7 +9,7 @@ namespace StatTag.Core.Parser
 {
     public class FigureParameterParser : BaseParameterParser
     {
-        public static void Parse(string tagText, Tag tag)
+        public new static void Parse(string tagText, Tag tag)
         {
             tag.FigureFormat = new FigureFormat();
             int paramIndex = tagText.IndexOf(Constants.TagTags.ParamStart, StringComparison.CurrentCulture);

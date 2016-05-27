@@ -18,6 +18,8 @@ namespace StatTag
         private const int TagMargin = 1;
         private const int TagMarker = 1;
         private const uint TagMask = (1 << TagMarker);
+        private const string CannotLoadDialogMessage =
+            "There was an error trying to load the Tag dialog.";
 
         public const int SelectedButtonWidth = 83;
         public const int UnselectedButtonWidth = 70;
@@ -25,7 +27,7 @@ namespace StatTag
         public readonly Font UnselectedButtonFont = DefaultFont;
 
         public DocumentManager Manager { get; set; }
-        protected Tag OriginalTag { get; set; }
+        private Tag OriginalTag { get; set; }
         public Tag Tag { get; set; }
         public string CodeText { get; set; }
         public bool InsertInDocument { get; private set; }
@@ -48,8 +50,6 @@ namespace StatTag
             }
             catch (Exception exc)
             {
-                const string CannotLoadDialogMessage =
-                    "There was an error trying to load the Tag dialog.";
                 if (Manager != null && Manager.Logger != null)
                 {
                     Manager.Logger.WriteMessage(
@@ -140,14 +140,7 @@ namespace StatTag
             lblInstructionTitle.Text = string.Format("The following {0} commands may be used for {1} output:",
                 statPackage, TagType);
             var commandList = UIUtility.GetResultCommandList(selectedCodeFile, TagType);
-            if (commandList == null)
-            {
-                lblAllowedCommands.Text = "(None specified)";
-            }
-            else
-            {
-                lblAllowedCommands.Text = string.Join("\r\n", commandList.GetCommands());
-            }
+            lblAllowedCommands.Text = commandList == null ? "(None specified)" : string.Join("\r\n", commandList.GetCommands());
         }
 
         private void cmdFigure_Click(object sender, EventArgs e)
@@ -338,7 +331,7 @@ namespace StatTag
             using (var automation = new Stata.Automation())
             {
                 var commands = e.Argument as string[];
-                if (commands.Any(command => automation.IsReturnable(command)))
+                if (commands != null && commands.Any(command => automation.IsReturnable(command)))
                 {
                     e.Result = false;
                     return;

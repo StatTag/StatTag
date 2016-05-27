@@ -20,8 +20,8 @@ namespace StatTag
         private readonly List<Tag> DefaultTags = new List<Tag>();
         private readonly List<Tag> OnDemandTags = new List<Tag>();
 
-        private TagListViewColumnSorter DefaultListSorter = new TagListViewColumnSorter(); 
-        private TagListViewColumnSorter OnDemandListSorter = new TagListViewColumnSorter();
+        private readonly TagListViewColumnSorter DefaultListSorter = new TagListViewColumnSorter(); 
+        private readonly TagListViewColumnSorter OnDemandListSorter = new TagListViewColumnSorter();
 
         public List<Tag> SelectedTags
         {

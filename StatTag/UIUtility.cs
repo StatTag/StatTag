@@ -146,8 +146,10 @@ namespace StatTag
 
         public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleTag)
         {
-            var actions = new List<GridDataItem>();
-            actions.Add(GridDataItem.CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null));
+            var actions = new List<GridDataItem>
+            {
+                GridDataItem.CreateActionItem(string.Empty, Constants.CodeFileActionTask.NoAction, null)
+            };
             foreach (var file in files)
             {
                 actions.Add(GridDataItem.CreateActionItem(string.Format("Use file {0}", file.FilePath),

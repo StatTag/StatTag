@@ -104,6 +104,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <!--
     This section defines properties that are set when the "Release" configuration is selected.
@@ -349,6 +350,7 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
@@ -405,6 +407,23 @@
     <Content Include="Resources\1455152243_129_ArrowRight.png" />
     <Content Include="Resources\1455152332_refresh.png" />
     <Content Include="Resources\1455152483_compose.png" />
+    <Content Include="Resources\1461792350_checklist.png" />
+    <Content Include="Resources\1463081093_icon-148-tag-add.png" />
+    <Content Include="Resources\1463105039_05.Tag.png" />
+    <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
+    <Content Include="Resources\1463105115_icon-ios7-redo.png" />
+    <Content Include="Resources\1463105124_icon-clipboard.png" />
+    <Content Include="Resources\1463105261_icon-ios7-gear.png" />
+    <Content Include="Resources\1463105465_icon-ios7-refresh-empty.png" />
+    <Content Include="Resources\1463105545_icon-ios7-redo.png" />
+    <Content Include="Resources\1463105637_icon-clipboard.png" />
+    <Content Include="Resources\1463105646_icon-help.png" />
+    <Content Include="Resources\1463105652_icon-alert-circled.png" />
+    <Content Include="Resources\1463107022_12.File.png" />
+    <Content Include="Resources\1463107707_icon-148-tag-add.png" />
+    <Content Include="Resources\1463181117_icon-loop.png" />
+    <Content Include="Resources\1463181737_seo_programming.png" />
+    <Content Include="Resources\tag-add.png" />
     <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>
   <PropertyGroup>
@@ -435,4 +454,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(ProjectDir)Resources\*.pdf $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
