@@ -230,7 +230,7 @@ namespace StatTag.Models
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index", index));
+                    Log(string.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -359,7 +359,7 @@ namespace StatTag.Models
                     var field = fields[index];
                     if (field == null)
                     {
-                        Log(string.Format("Null field detected at index", index));
+                        Log(string.Format("Null field detected at index {0}", index));
                         continue;
                     }
 

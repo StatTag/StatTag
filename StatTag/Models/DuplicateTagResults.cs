@@ -7,6 +7,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Models
 {
+    [Serializable]
     public class DuplicateTagResults : Dictionary<CodeFile, Dictionary<Tag, List<Tag>>>
     {
     }

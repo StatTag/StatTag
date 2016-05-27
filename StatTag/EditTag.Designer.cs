@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+            UnselectedButtonFont.Dispose();
             base.Dispose(disposing);
         }
 
