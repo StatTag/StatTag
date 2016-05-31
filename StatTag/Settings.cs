@@ -84,7 +84,7 @@ namespace StatTag
         {
             if (DialogResult.Yes !=
                 MessageBox.Show(this,
-                    "If you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
+                    "***WARNING: Disabling Stata Automation will reset your Stata user preferences.\r\n\r\nAlso, if you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
                     UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
             {
                 return;
