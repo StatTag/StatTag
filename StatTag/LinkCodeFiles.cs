@@ -24,6 +24,8 @@ namespace StatTag
         private const int ColMissingCodeFile = 0;
         private const int ColActionToTake = 1;
 
+        private bool IsSelectingFile = false;
+
         public LinkCodeFiles(Dictionary<string, List<Tag>> unlinkedResults, List<CodeFile> files)
         {
             InitializeComponent();
@@ -68,6 +70,56 @@ namespace StatTag
         private void dgvCodeFiles_Leave(object sender, EventArgs e)
         {
             dgvCodeFiles.EndEdit();
+        }
+
+        private void dgvCodeFiles_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvCodeFiles.IsCurrentCellDirty)
+            {
+                dgvCodeFiles.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                dgvCodeFiles.EndEdit(DataGridViewDataErrorContexts.LeaveControl);
+                dgvCodeFiles.CurrentCell = dgvCodeFiles[0, 0];
+            }
+        }
+
+        private void dgvCodeFiles_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (IsSelectingFile)
+            {
+                return;
+            }
+
+            if (e.ColumnIndex != ColActionToTake || e.RowIndex < 0)
+            {
+                return;
+            }
+
+            var combo = dgvCodeFiles[e.ColumnIndex, e.RowIndex] as DataGridViewComboBoxCell;
+            if (combo == null)
+            {
+                return;
+            }
+
+            IsSelectingFile = true;
+            var value = combo.Value as CodeFileAction;
+            if (value != null && value.Action == Constants.CodeFileActionTask.SelectFile)
+            {
+                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    string package = CodeFile.GuessStatisticalPackage(fileName);
+                    var action = UIUtility.AddOptionToBuildCodeFileActionColumn(
+                        new CodeFile { FilePath = fileName, StatisticalPackage = package }, dgvCodeFiles, ColActionToTake);
+                    combo.Value = action.Data;
+                }
+                else
+                {
+                    combo.Value = null;
+                }
+
+                
+            }
+            IsSelectingFile = false;
         }
     }
 }

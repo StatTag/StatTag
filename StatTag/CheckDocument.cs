@@ -48,6 +48,8 @@ namespace StatTag
         private const int ColDuplicateTag = 2;
         private const int ColDuplicateLineNumbers = 3;
 
+        private bool IsSelectingFile = false;
+
         private class DuplicateTagPair
         {
             public Tag First { get; set; }
@@ -74,8 +76,8 @@ namespace StatTag
             // Track the tags as we add them to the list, so we only display each unique
             // tag one time.  The reason we have duplicates is that this list comes from
             // the fields in a document, where multiple instances of the same tag could
-            // exist.
-            HashSet<string> addedTags = new HashSet<string>();
+            // exist.s
+            var addedTags = new List<string>();
             foreach (var item in UnlinkedTags)
             {
                 foreach (var tag in item.Value)
@@ -189,6 +191,56 @@ namespace StatTag
                 };
             }
             return null;
+        }
+
+        private void dgvUnlinkedTags_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvUnlinkedTags.IsCurrentCellDirty)
+            {
+                dgvUnlinkedTags.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                dgvUnlinkedTags.EndEdit(DataGridViewDataErrorContexts.LeaveControl);
+                dgvUnlinkedTags.CurrentCell = dgvUnlinkedTags[0, 0];
+            }
+        }
+
+        private void dgvUnlinkedTags_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (IsSelectingFile)
+            {
+                return;
+            }
+
+            if (e.ColumnIndex != ColUnlinkedActionToTake || e.RowIndex < 0)
+            {
+                return;
+            }
+
+            var combo = dgvUnlinkedTags[e.ColumnIndex, e.RowIndex] as DataGridViewComboBoxCell;
+            if (combo == null)
+            {
+                return;
+            }
+
+            IsSelectingFile = true;
+            var value = combo.Value as CodeFileAction;
+            if (value != null && value.Action == Constants.CodeFileActionTask.SelectFile)
+            {
+                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    string package = CodeFile.GuessStatisticalPackage(fileName);
+                    var action = UIUtility.AddOptionToBuildCodeFileActionColumn(
+                        new CodeFile { FilePath = fileName, StatisticalPackage = package }, dgvUnlinkedTags, ColUnlinkedActionToTake);
+                    combo.Value = action.Data;
+                }
+                else
+                {
+                    combo.Value = null;
+                }
+
+
+            }
+            IsSelectingFile = false;
         }
     }
 }

@@ -71,6 +71,9 @@
             this.dgvCodeFiles.ShowRowErrors = false;
             this.dgvCodeFiles.Size = new System.Drawing.Size(748, 229);
             this.dgvCodeFiles.TabIndex = 1;
+            this.dgvCodeFiles.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCodeFiles_CellValueChanged);
+            this.dgvCodeFiles.CurrentCellDirtyStateChanged += new System.EventHandler(this.dgvCodeFiles_CurrentCellDirtyStateChanged);
+            this.dgvCodeFiles.Leave += new System.EventHandler(this.dgvCodeFiles_Leave);
             // 
             // colMissingCodeFile
             // 

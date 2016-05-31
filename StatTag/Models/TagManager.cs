@@ -318,6 +318,7 @@ namespace StatTag.Models
                     Log(string.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
@@ -377,6 +378,7 @@ namespace StatTag.Models
                     Log(string.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:

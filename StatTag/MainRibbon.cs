@@ -55,7 +55,6 @@ namespace StatTag
             cmdInsertOutput.Enabled = enabled;
             cmdUpdateOutput.Enabled = enabled;
             cmdManageTags.Enabled = enabled;
-            cmdValidateDocument.Enabled = enabled;
         }
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
@@ -71,7 +70,7 @@ namespace StatTag
                     var unlinkedResults = Manager.FindAllUnlinkedTags();
                     if (unlinkedResults != null && unlinkedResults.Count > 0)
                     {
-                        var linkDialog = new LinkCodeFiles(unlinkedResults, files);
+                        var linkDialog = new LinkCodeFiles(unlinkedResults, loadDialog.Files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
                             Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);

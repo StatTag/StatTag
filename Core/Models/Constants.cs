@@ -185,6 +185,7 @@ namespace StatTag.Core.Models
             public const int ChangeFile = 1;
             public const int RemoveTags = 2;
             public const int ReAddFile = 3;
+            public const int SelectFile = 4;
         }
     }
 }
