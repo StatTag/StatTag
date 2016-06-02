@@ -157,13 +157,28 @@ namespace StatTag
             }
             actions.Add(GridDataItem.CreateActionItem(string.Format("Remove {0} from document", (forSingleTag ? "this tag" : "all tags in this code file")),
                 Constants.CodeFileActionTask.RemoveTags, null));
-            actions.Add(GridDataItem.CreateActionItem("Link the missing code file to this document",
+            actions.Add(GridDataItem.CreateActionItem("Re-link this missing code file to the document",
                 Constants.CodeFileActionTask.ReAddFile, null));
+            actions.Add(GridDataItem.CreateActionItem("Select another file to link...",
+                Constants.CodeFileActionTask.SelectFile, null));
 
             var column = gridView.Columns[columnIndex] as DataGridViewComboBoxColumn;
             column.DataSource = actions;
             column.DisplayMember = "Display";
             column.ValueMember = "Data";
+        }
+
+        public static GridDataItem AddOptionToBuildCodeFileActionColumn(CodeFile file, DataGridView gridView, int columnIndex)
+        {
+            var action = GridDataItem.CreateActionItem(string.Format("Use file {0}", file.FilePath),
+                Constants.CodeFileActionTask.ChangeFile, file);
+
+            var column = gridView.Columns[columnIndex] as DataGridViewComboBoxColumn;
+            var actions = (column.DataSource as List<GridDataItem>);
+            var index = actions.FindIndex(x => x.Data.Action == Constants.CodeFileActionTask.RemoveTags);
+            actions.Insert(index, action);
+            column.DataSource = actions;
+            return action;
         }
 
         public static void SetDialogTitle(Form form)

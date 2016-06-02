@@ -99,6 +99,8 @@
             this.dgvUnlinkedTags.ShowRowErrors = false;
             this.dgvUnlinkedTags.Size = new System.Drawing.Size(719, 212);
             this.dgvUnlinkedTags.TabIndex = 2;
+            this.dgvUnlinkedTags.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvUnlinkedTags_CellValueChanged);
+            this.dgvUnlinkedTags.CurrentCellDirtyStateChanged += new System.EventHandler(this.dgvUnlinkedTags_CurrentCellDirtyStateChanged);
             // 
             // colTagName
             // 

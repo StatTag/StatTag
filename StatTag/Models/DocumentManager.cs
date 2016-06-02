@@ -1062,8 +1062,8 @@ namespace StatTag.Models
             }
             if (document == null)
             {
-                Logger.WriteMessage("Attempted to access code files for a null document.  Throwing exception.");
-                throw new ArgumentNullException("The Word document must be specified.");
+                Logger.WriteMessage("Attempted to access code files for a null document.  Returning empty collection.");
+                return new List<CodeFile>();
             }
 
             var fullName = document.FullName;
