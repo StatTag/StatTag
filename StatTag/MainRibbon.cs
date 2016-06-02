@@ -44,7 +44,16 @@ namespace StatTag
 
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-            UIStatusAfterFileLoad();
+            try
+            {
+                UIStatusAfterFileLoad();
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to load the application ribbon.",
+                    LogManager);
+            }
         }
 
         public void UIStatusAfterFileLoad()
