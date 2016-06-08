@@ -490,11 +490,6 @@ namespace StatTag.Models
             }
 
             var cells = GetCells(selection);
-            if (cells == null)
-            {
-                Log("Unable to insert the table because the cells collection came back as null.");
-                return;
-            }
 
             tag.UpdateFormattedTableData();
             var table = tag.CachedResult.First().TableResult;
@@ -526,6 +521,12 @@ namespace StatTag.Models
             if (table.FormattedCells == null || table.FormattedCells.Length == 0)
             {
                 UIUtility.WarningMessageBox("There are no table results to insert.", Logger);
+                return;
+            }
+
+            if (cells == null)
+            {
+                Log("Unable to insert the table because the cells collection came back as null.");
                 return;
             }
 

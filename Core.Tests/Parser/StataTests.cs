@@ -142,6 +142,8 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetValueName("display (test)"));
             Assert.AreEqual("test", parser.GetValueName("display(test)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)"));
+            Assert.AreEqual("r(n)", parser.GetValueName("display r(n)\r\n\r\n*Some comments following"));
+            Assert.AreEqual("2", parser.GetValueName("display 2 \r\n \r\n*Some comments following"));
             Assert.AreEqual("5*2", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
             Assert.AreEqual("5*2+(7*8)", parser.GetValueName("display(5*2+(7*8))")); // Handle calculations with nested parentheses
             Assert.AreEqual("(5*2", parser.GetValueName("display (5*2")); // Mismatched parentheses.  We want to grab it, even though it'll be an error in Stata
@@ -168,6 +170,7 @@ namespace Core.Tests.Parser
         {
             var parser = new Stata();
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'"));
+            Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'\r\n\r\n*Some comments following"));
             Assert.AreEqual("test", parser.GetMacroValueName("display test"));   // This isn't a proper Stata macro value, but is the expected return
         }
 
@@ -183,6 +186,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetTableName("mat l test"));
             Assert.AreEqual("r(coefs)", parser.GetTableName("mat l r(coefs)"));
             Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
+            Assert.AreEqual("B", parser.GetTableName("matrix list B\r\n\r\n*Some comments following"));
         }
 
         [TestMethod]

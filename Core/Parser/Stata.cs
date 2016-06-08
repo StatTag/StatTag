@@ -25,7 +25,7 @@ namespace StatTag.Core.Parser
         private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
         private static string TableCommand = "mat(?:rix)? l(?:ist)?";
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*)", TableCommand.Replace(" ", "\\s+")));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:\\r|\\n|$)", TableCommand.Replace(" ", "\\s+")));
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
         private static readonly Regex[] MultiLineIndicators = new[]
         {
