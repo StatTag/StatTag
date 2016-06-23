@@ -74,6 +74,17 @@ namespace Core.Tests.Models
             Assert.AreEqual("0, 1, 2, 3", string.Join(", ", format.Format(table)));
         }
 
+
+        [TestMethod]
+        public void Format_DataColumnsAndRows_EmptyNameCollections()
+        {
+            var format = new TableFormat() { IncludeColumnNames = true, IncludeRowNames = true };
+            var table = new Table(new string[0], new string[0], 2, 2,
+                new double?[] { 0.0, 1.0, 2.0, 3.0 });
+            Assert.AreEqual(4, format.Format(table).Length);
+            Assert.AreEqual("0, 1, 2, 3", string.Join(", ", format.Format(table)));
+        }
+
         public class TestValueFormatter : BaseValueFormatter
         {
             public override string GetMissingValue()
