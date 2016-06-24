@@ -133,6 +133,19 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Serialize_NormalizesObjectName()
+        {
+            // The Serailize function will modify the Name property to a normalized value.
+            // We expect this and explicitly confirm it's intended behavior.
+            var tag = new FieldTag();
+            Assert.IsNull(tag.Name);
+            var serialized = tag.Serialize();
+            Assert.IsNotNull(tag.Name);
+        }
+
+        //TODO: Test serialize/deserialize with a TableResult in the CachedResult collection
+
+        [TestMethod]
         public void Serialize_Deserialize()
         {
             var codeFile = new CodeFile() {FilePath = "Test.do"};
