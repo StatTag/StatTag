@@ -59,17 +59,19 @@ namespace StatTag.Core.Models
         {
             public const string StataLabel = "Stata Do Files";
             public const string StataFilter = "*.do;*.ado";
-            public const string RLabel = "R";
-            public const string RFilter = "*.r";
             public const string SASLabel = "SAS";
             public const string SASFilter = "*.sas";
+            public const string RLabel = "R";
+            public const string RFilter = "*.r";
             public const string AllLabel = "All files";
             public const string AllFilter = "*.*";
 
             public static string FormatForOpenFileDialog()
             {
-                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-                    StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}",
+                    StataLabel, StataFilter, SASLabel, SASFilter, AllLabel, AllFilter);
+                //return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                //    StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
             }
         }
 
@@ -135,8 +137,8 @@ namespace StatTag.Core.Models
         public static class CodeFileComment
         {
             public const string Stata = "*";
+            public const string SAS = "*";
             //public const string R = "*";
-            //public const string SAS = "";
         }
 
         public static class TagTags
