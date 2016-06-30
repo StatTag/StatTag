@@ -66,7 +66,7 @@ namespace StatTag
                 // We need to perform this check before proceeding with opening a document.  This is because opening
                 // a document will in turn run the statistical code (if there is some associated), which opens the 
                 // executing stat package.  In other words, if this is below, it will always show an alert.
-                if (Stata.Automation.IsAppRunning())
+                if (Stata.StataAutomation.IsAppRunning())
                 {
                     LogManager.WriteMessage("Stata appears to be running");
                     MessageBox.Show(

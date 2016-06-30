@@ -10,7 +10,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
 {
-    public abstract class BaseParser : IParser
+    public abstract class BaseParser : ICodeFileParser
     {
         public abstract string CommentCharacter { get; }
 

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
@@ -12,7 +10,7 @@ namespace StatTag.Core.Parser
     /// Reads through a file containing stata commands and identifies the blocks of
     /// code that use the StatTag tag syntax
     /// </summary>
-    public sealed class Stata : BaseParser
+    public sealed class StataParser : BaseParser
     {
         private static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };

@@ -13,14 +13,16 @@ namespace StatTag.Core
 {
     public static class Factories
     {
-        public static IParser GetParser(CodeFile file)
+        public static ICodeFileParser GetParser(CodeFile file)
         {
             if (file != null)
             {
                 switch (file.StatisticalPackage)
                 {
                     case Constants.StatisticalPackages.Stata:
-                        return new StatTag.Core.Parser.Stata();
+                        return new StataParser();
+                    case Constants.StatisticalPackages.SAS:
+                        return new SASParser();
                 }
             }
 
@@ -35,6 +37,8 @@ namespace StatTag.Core
                 {
                     case Constants.StatisticalPackages.Stata:
                         return new StatTag.Core.Generator.Stata();
+                    case Constants.StatisticalPackages.SAS:
+                        return new StatTag.Core.Generator.SAS();
                 }
             }
 
@@ -49,6 +53,8 @@ namespace StatTag.Core
                 {
                     case Constants.StatisticalPackages.Stata:
                         return new StatTag.Core.ValueFormatter.Stata();
+                    case Constants.StatisticalPackages.SAS:
+                        return new StatTag.Core.ValueFormatter.SAS();
                 }
             }
 
