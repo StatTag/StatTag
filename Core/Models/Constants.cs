@@ -141,6 +141,12 @@ namespace StatTag.Core.Models
             //public const string R = "*";
         }
 
+        public static class CodeFileCommentSuffix
+        {
+            public const string Default = "";
+            public const string SAS = ";";
+        }
+
         public static class TagTags
         {
             public const string StartTag = ">>>";

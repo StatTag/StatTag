@@ -5,12 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
+using StatTag.Core.Parser;
 
 namespace SAS
 {
-    public class SASAutomation : IDisposable, IStatAutomation
+    public class SASAutomation : IStatAutomation
     {
         private SasServer Server = null;
+        protected SASParser Parser { get; set; }
+
+        public SASAutomation()
+        {
+            Parser = new SASParser();
+        }
 
         public string GetInitializationErrorMessage()
         {
@@ -38,24 +45,75 @@ namespace SAS
 
         public CommandResult[] RunCommands(string[] commands)
         {
+            var commandResults = new List<CommandResult>();
+            foreach (var command in commands)
+            {
+                var result = RunCommand(command);
+                if (result != null && !result.IsEmpty())
+                {
+                    commandResults.Add(result);
+                }
+            }
+
+            return commandResults.ToArray();
+        }
+
+        /// <summary>
+        /// Run a Stata command and provide the result of the command (if one should be returned).
+        /// </summary>
+        /// <param name="command">The command to run, taken from a Stata do file</param>
+        /// <returns>The result of the command, or null if the command does not provide a result.</returns>
+        public CommandResult RunCommand(string command)
+        {
             Array carriageControls;
-            Array lineTypes;
-            Array logLines;
+            Array lineTypeArray;
+            Array logLineArray;
             Array listLines;
-            Server.Workspace.LanguageService.Submit(string.Join("\r\n", commands));
-            //For some reason, these two declarations need to be here
-            SAS.LanguageServiceCarriageControl CarriageControl = new SAS.LanguageServiceCarriageControl();
-            SAS.LanguageServiceLineType LineType = new SAS.LanguageServiceLineType();
+            Server.Workspace.LanguageService.Submit(command);
 
-            Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypes, out logLines);
+            // These calls need to be made because they cause SAS to initialize internal structures that
+            // are used when FlushLogLines is called.  Even though we're not really doing anything with these
+            // values, don't remove these calls.
+            SAS.LanguageServiceCarriageControl carriageControl = new SAS.LanguageServiceCarriageControl();
+            SAS.LanguageServiceLineType lineType = new SAS.LanguageServiceLineType();
 
-            Server.Workspace.LanguageService.FlushListLines(1000, out carriageControls, out lineTypes, out listLines);
+            Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
+                out logLineArray);
+
+            // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
+            // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
+            // will dump out a bunch of extra output when we run, including blank Normal lines.
+            var relevantLines = new List<string>();
+            var lineTypes = lineTypeArray.OfType<LanguageServiceLineType>().ToArray();
+            var logLines = logLineArray.OfType<string>().ToArray();
+            for (int index = 0; index < lineTypes.Length; index++)
+            {
+                var line = logLines[index];
+                if (lineTypes[index] == LanguageServiceLineType.LanguageServiceLineTypeNormal
+                    && !string.IsNullOrWhiteSpace(line))
+                {
+                    relevantLines.Add(line);
+                }
+            }
+
+            // If we have a value command, we will pull out the last relevant line from the output.
+            if (Parser.IsValueDisplay(command))
+            {
+                return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
+            }
+
+            //int returnCode = Application.DoCommandAsync(command);
+            //if (returnCode != 0)
+            //{
+            //    throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
+            //}
+
             return null;
         }
 
         public bool IsReturnable(string command)
         {
-            return false;
+            return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
     }
 }

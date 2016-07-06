@@ -13,5 +13,10 @@ namespace StatTag.Core.Generator
         {
             get { return Constants.CodeFileComment.SAS; }
         }
+
+        public override string CommentSuffixCharacter
+        {
+            get { return Constants.CodeFileCommentSuffix.SAS; }
+        }
     }
 }

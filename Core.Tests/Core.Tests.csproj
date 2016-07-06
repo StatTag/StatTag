@@ -69,6 +69,7 @@
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
     <Compile Include="Parser\TableParserTests.cs" />
+    <Compile Include="Parser\SASTests.cs" />
     <Compile Include="Parser\ValueParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />

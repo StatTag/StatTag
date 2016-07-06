@@ -142,6 +142,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetValueName("display (test)"));
             Assert.AreEqual("test", parser.GetValueName("display(test)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)"));
+            Assert.AreEqual("n*(3)", parser.GetValueName("display n*(3)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)\r\n\r\n*Some comments following"));
             Assert.AreEqual("2", parser.GetValueName("display 2 \r\n \r\n*Some comments following"));
             Assert.AreEqual("5*2", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
