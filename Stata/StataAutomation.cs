@@ -8,12 +8,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
 
 namespace Stata
 {
-    public class Automation : IDisposable
+    public class StataAutomation : IDisposable, IStatAutomation
     {
         public const string LocalMacroPrefix = "_";
 
@@ -28,8 +29,14 @@ namespace Stata
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
 
+        public string GetInitializationErrorMessage()
+        {
+            return
+                "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+        }
+
         protected stata.StataOLEApp Application { get; set; }
-        protected StatTag.Core.Parser.Stata Parser { get; set; }
+        protected StataParser Parser { get; set; }
         protected List<string> OpenLogs { get; set; } 
 
         /// <summary>
@@ -58,9 +65,9 @@ namespace Stata
         private const int MinimizeStata = 2;
         private const int ShowStata = 3;
 
-        public Automation()
+        public StataAutomation()
         {
-            Parser = new StatTag.Core.Parser.Stata();
+            Parser = new StataParser();
         }
 
         /// <summary>

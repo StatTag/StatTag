@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StatTag.Core.Interfaces;
+﻿using System.Collections.Generic;
 using StatTag.Core.Models;
 
-namespace StatTag.Core.Parser
+namespace StatTag.Core.Interfaces
 {
-    public interface IParser
+    public interface ICodeFileParser
     {
         Tag[] Parse(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);
         List<ExecutionStep> GetExecutionSteps(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);

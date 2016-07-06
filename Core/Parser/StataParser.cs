@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
@@ -12,13 +10,12 @@ namespace StatTag.Core.Parser
     /// Reads through a file containing stata commands and identifies the blocks of
     /// code that use the StatTag tag syntax
     /// </summary>
-    public sealed class Stata : BaseParser
+    public sealed class StataParser : BaseParser
     {
         private static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         private static string ValueCommand = "di(?:splay)?";
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
-        //private static Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+(.*)", ValueCommand));
         private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", ValueCommand));
         private static string GraphCommand = "gr(?:aph)? export";
         private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
@@ -149,29 +146,6 @@ namespace StatTag.Core.Parser
         public bool IsCalculatedDisplayValue(string command)
         {
             return GetValueName(command).IndexOfAny(CalculationOperators) != -1;
-        }
-
-        private string MatchRegexReturnGroup(string text, Regex regex, int groupNum)
-        {
-            var match = regex.Match(text);
-            if (match.Success)
-            {
-                return match.Groups[groupNum].Value.Trim();
-            }
-
-            return string.Empty;
-        }
-
-        private string[] GlobalMatchRegexReturnGroup(string text, Regex regex, int groupNum)
-        {
-            var matches = regex.Matches(text);
-            if (matches.Count == 0)
-            {
-                return null;
-            }
-
-            var results = matches.OfType<Match>().Select(match => match.Groups[groupNum].Value.Trim()).ToList();
-            return results.ToArray();
         }
 
         /// <summary>

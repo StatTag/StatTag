@@ -20,6 +20,8 @@ Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "OfficeAddInSetup", "OfficeA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScintillaNET", "..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj", "{22AE2386-60F1-476E-9303-61CDB0AAC4CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAS", "SAS\SAS.csproj", "{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -101,6 +103,18 @@ Global
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Signed|Any CPU.Build.0 = Signed|Any CPU
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.SingleImage|Any CPU.ActiveCfg = Signed|Any CPU
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.SingleImage|Any CPU.Build.0 = Signed|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.CD_ROM|Any CPU.Build.0 = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.Signed|Any CPU.Build.0 = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}.SingleImage|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

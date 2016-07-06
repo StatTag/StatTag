@@ -328,7 +328,7 @@ namespace StatTag
 
         private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            using (var automation = new Stata.Automation())
+            using (var automation = new Stata.StataAutomation())
             {
                 var commands = e.Argument as string[];
                 if (commands != null && commands.Any(command => automation.IsReturnable(command)))

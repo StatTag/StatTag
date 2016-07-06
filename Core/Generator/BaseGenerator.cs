@@ -10,6 +10,11 @@ namespace StatTag.Core.Generator
     public abstract class BaseGenerator : IGenerator
     {
         public abstract string CommentCharacter { get; }
+
+        public virtual string CommentSuffixCharacter
+        {
+            get { return Constants.CodeFileCommentSuffix.Default; }
+        }
         
         public string CreateOpenTagBase()
         {
@@ -19,7 +24,7 @@ namespace StatTag.Core.Generator
 
         public string CreateClosingTag()
         {
-            return string.Format("{0}{0}{1}", CommentCharacter, Constants.TagTags.EndTag);
+            return string.Format("{0}{0}{1}{2}", CommentCharacter, Constants.TagTags.EndTag, CommentSuffixCharacter);
         }
 
         public string CreateOpenTag(Tag tag)
@@ -53,6 +58,8 @@ namespace StatTag.Core.Generator
                     throw new Exception("Unsupported tag type");
                 }
             }
+
+            openBase += CommentSuffixCharacter;
 
             return openBase;
         }

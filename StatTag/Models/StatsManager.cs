@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SAS;
 using StatTag.Core;
 using StatTag.Core.Models;
 using Stata;
+using StatTag.Core.Interfaces;
+using StatTag.Core.Parser;
 
 namespace StatTag.Models
 {
@@ -45,6 +48,41 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Factory method to return the appropriate statistical automation engine
+        /// </summary>
+        /// <param name="file">The code file we will be executing</param>
+        /// <returns>A stat package automation instance</returns>
+        public static IStatAutomation GetStatAutomation(CodeFile file)
+        {
+            if (file != null)
+            {
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        return new StataAutomation();
+                    case Constants.StatisticalPackages.SAS:
+                        return new SASAutomation();
+                }
+            }
+
+            return null;
+        }
+
+        public static ICodeFileParser GetCodeFileParser(CodeFile file)
+        {
+            if (file != null)
+            {
+                switch (file.StatisticalPackage)
+                {
+                    case Constants.StatisticalPackages.Stata:
+                        return new StataParser();
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Run the statistical package for a given code file.
         /// </summary>
         /// <param name="file">The code file to execute</param>
@@ -54,13 +92,11 @@ namespace StatTag.Models
         public ExecuteResult ExecuteStatPackage(CodeFile file, int filterMode = Constants.ParserFilterMode.ExcludeOnDemand, List<Tag> tagsToRun = null)
         {
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
-            using (var automation = new Automation())
+            using (var automation = GetStatAutomation(file))
             {
                 if (!automation.Initialize())
                 {
-                    MessageBox.Show(
-                        "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation",
-                        UIUtility.GetAddInName());
+                    MessageBox.Show(automation.GetInitializationErrorMessage(), UIUtility.GetAddInName());
                     return result;
                 }
 
