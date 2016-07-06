@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using SAS;
 using StatTag.Core.Interfaces;
 using Stata;
 using StatTag.Core.Models;
@@ -195,6 +196,9 @@ namespace StatTag
                 {
                     case Constants.StatisticalPackages.Stata:
                         formatter = new StataCommands();
+                        break;
+                    case Constants.StatisticalPackages.SAS:
+                        formatter = new SASCommands();
                         break;
                 }
 

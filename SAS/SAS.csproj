@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SASCommands.cs" />
     <Compile Include="SASAutomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SasServer.cs" />

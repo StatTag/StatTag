@@ -9,8 +9,14 @@ namespace StatTag.Core.Generator
 {
     public abstract class BaseGenerator : IGenerator
     {
+        /// <summary>
+        /// The comment character that is used for single line comments
+        /// </summary>
         public abstract string CommentCharacter { get; }
 
+        /// <summary>
+        /// The suffix expected at the end of a comment (default is none)
+        /// </summary>
         public virtual string CommentSuffixCharacter
         {
             get { return Constants.CodeFileCommentSuffix.Default; }
