@@ -126,4 +126,7 @@ Lo Magno, G.L. (2013). Sar: Automatic generation of statistical reports using St
     <value>Development of StatTag was supported, in part, by the National Institutes of Health's National Center for Advancing Translational Sciences, Grant Number UL1TR001422.
 The content is solely the responsibility of the developers and does not necessarily represent the official views of the National Institutes of Health.</value>
   </data>
+  <metadata name="textBox1.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
 </root>
