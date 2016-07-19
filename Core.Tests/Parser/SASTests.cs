@@ -33,5 +33,32 @@ namespace Core.Tests.Parser
             Assert.AreEqual("&test", parser.GetValueName("%put\r\n&test;"));
             Assert.AreEqual("&test", parser.GetValueName(" %put   &test  ;  "));
         }
+
+        [TestMethod]
+        public void IsImageExport()
+        {
+            var parser = new SASParser();
+            Assert.IsTrue(parser.IsImageExport("ods pdf"));
+            Assert.IsFalse(parser.IsImageExport("ods rtf"));
+            Assert.IsTrue(parser.IsImageExport("ods pdf file=\"\""));
+            Assert.IsTrue(parser.IsImageExport("   ods    pdf    file   =   \"test.pdf\""   ));
+            Assert.IsFalse(parser.IsImageExport("ods pdfd file=\"test.pdf\""));
+            Assert.IsFalse(parser.IsImageExport("aods pdf file=\"test.pdf\""));
+            Assert.IsFalse(parser.IsImageExport("a ods pdf file=\"test.pdf\""));
+        }
+
+        [TestMethod]
+        public void GetImageSaveLocation()
+        {
+            var parser = new SASParser();
+            Assert.AreEqual("", parser.GetImageSaveLocation("ods pdf file=\"\";"));
+            Assert.AreEqual("", parser.GetImageSaveLocation("ods pdf file=\"test.pdf\"")); // It won't match because there is no semicolon
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\"test.pdf\";"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file = \"test.pdf\";"));
+            Assert.AreEqual("", parser.GetImageSaveLocation("ods pdf file=test.pdf;")); // It won't match because there are no quotes
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("   ods    pdf    file   =   \"test.pdf\" ;"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf\r\n   file=\"test.pdf\";"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\" test.pdf \";")); // Trims the response
+        }
     }
 }

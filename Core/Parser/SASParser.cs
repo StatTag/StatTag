@@ -9,20 +9,36 @@ namespace StatTag.Core.Parser
         private static string ValueCommand = "%put";
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
         private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", ValueCommand));
+        private static string FigureCommand = "ods pdf";
+        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FigureCommand.Replace(" ", "\\s+")));
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}[.\\s]*file\\s*=\\s*\"(.*)\".*;", FigureCommand.Replace(" ", "\\s+")));
 
         public override string CommentCharacter
         {
             get { return Constants.CodeFileComment.SAS; }
         }
 
+        /// <summary>
+        /// Determine if a command is for exporting an image
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override bool IsImageExport(string command)
         {
-            return false;
+            return FigureKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Returns the file path where an image exported from the statistical package
+        /// is being saved.
+        /// </summary>
+        /// <remarks>Assumes that you have verified this is an image export command
+        /// using IsImageExport first</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetImageSaveLocation(string command)
         {
-            return string.Empty;
+            return MatchRegexReturnGroup(command, FigureRegex, 1);
         }
 
         /// <summary>
