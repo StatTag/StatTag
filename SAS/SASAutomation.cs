@@ -102,6 +102,11 @@ namespace SAS
                 return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
             }
 
+            if (Parser.IsImageExport(command))
+            {
+                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+            }
+
             //int returnCode = Application.DoCommandAsync(command);
             //if (returnCode != 0)
             //{
