@@ -11,6 +11,8 @@ namespace SAS
 {
     public class SASAutomation : IStatAutomation
     {
+        private const string DisplayMacroValueCommand = "%PUT";
+
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
 
@@ -68,7 +70,7 @@ namespace SAS
             Array carriageControls;
             Array lineTypeArray;
             Array logLineArray;
-            Array listLines;
+
             Server.Workspace.LanguageService.Submit(command);
 
             // These calls need to be made because they cause SAS to initialize internal structures that
@@ -102,11 +104,10 @@ namespace SAS
                 return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
             }
 
-            //int returnCode = Application.DoCommandAsync(command);
-            //if (returnCode != 0)
-            //{
-            //    throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
-            //}
+            if (Parser.IsImageExport(command))
+            {
+                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+            }
 
             return null;
         }

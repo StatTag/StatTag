@@ -21,8 +21,7 @@ namespace SAS
 
         public class FigureCommands : IResultCommandList
         {
-            //TODO Define this
-            public const string GraphExport = "";
+            public const string GraphExport = "ods pdf";
 
             public string[] GetCommands()
             {
