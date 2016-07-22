@@ -71,5 +71,14 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\" test.pdf \";")); // Trims the response
             Assert.AreEqual("", parser.GetImageSaveLocation("ods pdfd file = \"test.pdf\";"));
         }
+
+        [TestMethod]
+        public void HasMacroIndicator()
+        {
+            var parser = new SASParser();
+            Assert.IsTrue(parser.HasMacroIndicator("&test"));
+            Assert.IsFalse(parser.HasMacroIndicator("%test"));
+            Assert.IsFalse(parser.HasMacroIndicator("test"));
+        }
     }
 }

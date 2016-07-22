@@ -12,6 +12,7 @@ namespace StatTag.Core.Parser
         private static string FigureCommand = "ods pdf";
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        private static string MacroIndicator = "&";
 
         public override string CommentCharacter
         {
@@ -39,6 +40,18 @@ namespace StatTag.Core.Parser
         public override string GetImageSaveLocation(string command)
         {
             return MatchRegexReturnGroup(command, FigureRegex, 1);
+        }
+
+        /// <summary>
+        /// Determine if a command has character(s) that indicate a macro value may
+        /// be included within.  This is primarily intended for use when a filename
+        /// is used and we need to resolve the path to a literal value.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool HasMacroIndicator(string command)
+        {
+            return command.Contains(MacroIndicator);
         }
 
         /// <summary>
@@ -76,7 +89,6 @@ namespace StatTag.Core.Parser
         public override List<string> PreProcessContent(List<string> originalContent)
         {
             return originalContent;
-            ;
         }
     }
 }

@@ -11,6 +11,8 @@ namespace SAS
 {
     public class SASAutomation : IStatAutomation
     {
+        private const string DisplayMacroValueCommand = "%PUT";
+
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
 
@@ -68,7 +70,24 @@ namespace SAS
             Array carriageControls;
             Array lineTypeArray;
             Array logLineArray;
-            Array listLines;
+            string imageFileName = string.Empty;
+            if (Parser.IsImageExport(command))
+            {
+                imageFileName = Parser.GetImageSaveLocation(command);
+                if (Parser.HasMacroIndicator(imageFileName))
+                {
+                    // If we have a possible macro value used in a file name, we will attempt to
+                    // expand it by executing a command to do so.  If that returns no result, we
+                    // will proceed with the original file name passed (although it's likely that
+                    // will result in an error downstream).
+                    var result = RunCommand(string.Format("{0} \"{1}\";", DisplayMacroValueCommand, imageFileName));
+                    if (result != null && !result.IsEmpty())
+                    {
+                        imageFileName = result.ValueResult;
+                    }
+                }
+            }
+
             Server.Workspace.LanguageService.Submit(command);
 
             // These calls need to be made because they cause SAS to initialize internal structures that
@@ -104,14 +123,8 @@ namespace SAS
 
             if (Parser.IsImageExport(command))
             {
-                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+                return new CommandResult() { FigureResult = imageFileName };
             }
-
-            //int returnCode = Application.DoCommandAsync(command);
-            //if (returnCode != 0)
-            //{
-            //    throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
-            //}
 
             return null;
         }
