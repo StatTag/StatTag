@@ -731,7 +731,7 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
-            range.InsertXML(OpenXmlGenerator.GenerateField(tagIdentifier, displayValue, tag));
+            range.InsertXML(OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag));
             Log("CreateTagField - Finished");
         }
 
