@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Office.Interop.Word;
 using StatTag.Core.Models;
 using System = Microsoft.Office.Interop.Word.System;
@@ -97,10 +99,53 @@ namespace StatTag.Models
             // Set the font each time, regardless.  Note that size is represented
             // in half points (I have no idea why...) so we need to multiply the
             // font size by 2.
+            var fontSize = (font.Size*2).ToString();
+            if (font.Size >= WdUndefined)
+            {
+                fontSize = GetFirstFontSizeInRange(range);
+            }
+
             builder.AppendFormat(
                 @"<w:rFonts w:ascii=""{0}"" w:h-ansi=""{0}"" w:cs=""{0}""/>
-                  <w:sz w:val=""{1}""/>", font.Name, (font.Size * 2));
+                    <w:sz w:val=""{1}""/>", font.Name, fontSize);
+
             return builder.ToString();
+        }
+
+        private static string GetFirstFontSizeInRange(Range range)
+        {
+            //var words = range.Words.First.Font;
+            var tmp = range.XML;
+            var xmlSnippet = new XmlDocument();
+            xmlSnippet.LoadXml(tmp);
+            //Instantiate an XmlNamespaceManager object. 
+            XmlNamespaceManager xmlnsManager = new XmlNamespaceManager(xmlSnippet.NameTable);
+            //Add the namespaces used in books.xml to the XmlNamespaceManager.
+            xmlnsManager.AddNamespace("w", "http://schemas.microsoft.com/office/word/2003/wordml");
+            var nodes = xmlSnippet.SelectNodes("//w:r/w:rPr/w:sz", xmlnsManager);
+            if (nodes != null && nodes.Count > 0)
+            {
+                for (int index = 0; index < nodes.Count; index++)
+                {
+                    if (nodes[index].Attributes.Count > 0 && nodes[index].Attributes["w:val"] != null)
+                    {
+                        return nodes[index].Attributes["w:val"].Value;
+                    }
+                }
+            }
+            //var characters = range.Characters;
+            //for (int index = 1; index <= characters.Count; index++)
+            //{
+            //    var character = characters[index];
+            //    if (character.Font.Size < WdUndefined)
+            //    {
+            //        return character.Font;
+            //    }
+            //    Marshal.ReleaseComObject(character);
+            //}
+
+            //Marshal.ReleaseComObject(characters);
+            return null;
         }
 
         /// <summary>
