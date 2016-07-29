@@ -26,13 +26,13 @@ namespace StatTag.Core.Models
                 return formattedResults.ToArray();
             }
 
-            bool canIncludeColumnNames = (IncludeColumnNames && tableData.ColumnNames != null);
+            bool canIncludeColumnNames = (IncludeColumnNames && tableData.ColumnNames != null && tableData.ColumnNames.Count > 0);
             if (canIncludeColumnNames)
             {
                 formattedResults.AddRange(tableData.ColumnNames);
             }
 
-            bool canIncludeRowNames = (IncludeRowNames && tableData.RowNames != null);
+            bool canIncludeRowNames = (IncludeRowNames && tableData.RowNames != null && tableData.RowNames.Count > 0);
             for (int rowIndex = 0; rowIndex < tableData.RowSize; rowIndex++)
             {
                 if (canIncludeRowNames)

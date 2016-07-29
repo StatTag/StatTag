@@ -181,6 +181,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="CheckDocument.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -259,6 +265,7 @@
     <Compile Include="ManageTags.Designer.cs">
       <DependentUpon>ManageTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />
     <Compile Include="Models\BaseManager.cs" />
@@ -295,6 +302,9 @@
     <Compile Include="UpdateOutput.Designer.cs">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CheckDocument.resx">
       <DependentUpon>CheckDocument.cs</DependentUpon>
     </EmbeddedResource>

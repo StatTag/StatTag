@@ -147,29 +147,35 @@ namespace Core.Tests.Utility
             var tag = new Tag() { Name = "Test1", CodeFile = DuplicateTags.First() };
             var results = TagUtil.CheckForDuplicateLabels(tag, DuplicateTags);
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(1, results.ElementAt(0).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(0).Value[1]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[1]);
+            var fileKey = DuplicateTags[0];
+            Assert.AreEqual(1, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
+            fileKey = DuplicateTags[1];
+            Assert.AreEqual(1, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
 
             // Next find those with matching labels (both exact and non-exact) even if we're in another file
             tag = new Tag() { Name = "Test1", CodeFile = new CodeFile() { FilePath = "NewCodeFile.r" } };
             results = TagUtil.CheckForDuplicateLabels(tag, DuplicateTags);
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(1, results.ElementAt(0).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(0).Value[1]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[1]);
+            fileKey = DuplicateTags[0];
+            Assert.AreEqual(1, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
+            fileKey = DuplicateTags[1];
+            Assert.AreEqual(1, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
 
             // Search with the first tag which is the same object as an existing one.  We should know that
             // they are the same and not count it.
             tag = DuplicateTags.First().Tags.First();
             results = TagUtil.CheckForDuplicateLabels(tag, DuplicateTags);
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(0, results.ElementAt(0).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(0).Value[1]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[0]);
-            Assert.AreEqual(1, results.ElementAt(1).Value[1]);
+            fileKey = DuplicateTags[0];
+            Assert.AreEqual(0, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
+            fileKey = DuplicateTags[1];
+            Assert.AreEqual(1, results[fileKey][0]);
+            Assert.AreEqual(1, results[fileKey][1]);
         }
 
         [TestMethod]

@@ -259,5 +259,18 @@ namespace StatTag
             LogManager.WriteMessage(string.Format("Opening the user guide file {0}.", userGuidePath));
             System.Diagnostics.Process.Start(userGuidePath);
         }
+
+        private void cmdAbout_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var about = new About();
+                about.ShowDialog();
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteException(exc);
+            }
+        }
     }
 }
