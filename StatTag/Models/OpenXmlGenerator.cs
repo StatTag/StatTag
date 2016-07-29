@@ -19,6 +19,8 @@ namespace StatTag.Models
         /// </summary>
         public const int WdTrue = -1;
 
+        public const int WdUndefined = 9999999;
+
         /// <summary>
         /// Build the formatting properties for the current range.
         /// <remarks>We need to do this because inserting an OpenXML block doesn't preserve any
@@ -84,8 +86,13 @@ namespace StatTag.Models
                 builder.AppendFormat("<w:highlight w:val=\"{0}\"/>", GetHighlightColor(range.HighlightColorIndex));
             }
 
-            var color = RgbColorRetriever.GetRGBColor(font.Color, range.Document);
-            builder.AppendFormat("<w:color w:val=\"{0}\" />", ColorTranslator.ToHtml(color));
+            // Sometimes we will get an undefined value for the color.  It's not optimal, but we will just revert to
+            // the default color (by not specifying a color tag).
+            if (WdUndefined != (int)font.Color)
+            {
+                var color = RgbColorRetriever.GetRGBColor(font.Color, range.Document);
+                builder.AppendFormat("<w:color w:val=\"{0}\" />", ColorTranslator.ToHtml(color));
+            }
 
             // Set the font each time, regardless.  Note that size is represented
             // in half points (I have no idea why...) so we need to multiply the
