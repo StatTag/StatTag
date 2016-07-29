@@ -56,9 +56,6 @@ namespace StatTag
             
             UpdateLoggingControls();
             UpdateStataControls();
-
-            lblVersion.Text = UIUtility.GetVersionLabel();
-            lblCopyright.Text = UIUtility.GetCopyright();
         }
 
         private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)

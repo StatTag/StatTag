@@ -946,7 +946,7 @@
 		<row><td>InstallChangeFolder</td><td>OK</td><td>EndDialog</td><td>Return</td><td>1</td><td>3</td></row>
 		<row><td>InstallChangeFolder</td><td>OK</td><td>SetTargetPath</td><td>[_BrowseProperty]</td><td>1</td><td>2</td></row>
 		<row><td>InstallChangeFolder</td><td>Up</td><td>DirectoryListUp</td><td>0</td><td>1</td><td>0</td></row>
-		<row><td>InstallWelcome</td><td>Back</td><td>NewDialog</td><td>SplashBitmap</td><td>Display_IsBitmapDlg</td><td>0</td></row>
+		<row><td>InstallWelcome</td><td>Back</td><td>NewDialog</td><td>SplashBitmap</td><td>NOT Installed</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Next</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>0</td></row>
 		<row><td>LicenseAgreement</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>NOT Installed</td><td>0</td></row>
@@ -1915,6 +1915,7 @@
 		<row><td>analysismanager.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.MAN|StatTag.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\StatTag.dll.manifest</td><td>1</td><td/></row>
 		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|StatTag.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\StatTag.vsto</td><td>1</td><td/></row>
 		<row><td>core.primary_output</td><td>Core.Primary_output</td><td>Core.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Core&gt;|Built</td><td>3</td><td/></row>
+		<row><td>license</td><td>ISX_DEFAULTCOMPONENT</td><td>LICENSE</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\LICENSE</td><td>1</td><td/></row>
 		<row><td>scilexer.dll</td><td>SciLexer.dll</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x86\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>stata.primary_output</td><td>Stata.Primary_output</td><td>Stata.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Stata&gt;|Built</td><td>3</td><td/></row>
@@ -4050,7 +4051,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>FindRelatedProducts</td><td/><td>430</td><td>FindRelatedProducts</td><td/></row>
 		<row><td>ISPreventDowngrade</td><td>ISFOUNDNEWERPRODUCTVERSION</td><td>450</td><td>ISPreventDowngrade</td><td/></row>
 		<row><td>ISSetAllUsers</td><td>Not Installed</td><td>10</td><td/><td/></row>
-		<row><td>InstallWelcome</td><td>Not Installed</td><td>1210</td><td>InstallWelcome</td><td/></row>
+		<row><td>InstallWelcome</td><td>Not UITEST And Not Installed</td><td>1110</td><td/><td/></row>
 		<row><td>IsolateComponents</td><td/><td>950</td><td>IsolateComponents</td><td/></row>
 		<row><td>LaunchConditions</td><td>Not Installed</td><td>410</td><td>LaunchConditions</td><td/></row>
 		<row><td>MaintenanceWelcome</td><td>Installed And Not RESUME And Not Preselected And Not PATCH</td><td>1230</td><td>MaintenanceWelcome</td><td/></row>
@@ -4393,9 +4394,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{CD6E93F9-3F5D-4319-8309-0F9F281501A5}</td><td/></row>
+		<row><td>ProductCode</td><td>{8E561A8E-753F-4128-A010-80D297235210}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>0.10.4</td><td/></row>
+		<row><td>ProductVersion</td><td>1.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
