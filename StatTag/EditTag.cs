@@ -335,7 +335,7 @@ namespace StatTag
         private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var data = e.Argument as ThreadData;
-            if (data == null)
+            if (data == null || data.File == null)
             {
                 // If the data was not set, we're going to just avoid triggering any errors and
                 // pretend everything went fine.  The thought is that this is an internal glitch,
@@ -344,7 +344,7 @@ namespace StatTag
                 return;
             }
 
-            using (var automation = StatsManager.GetStatAutomation(data.File)) // new Stata.StataAutomation())
+            using (var automation = StatsManager.GetStatAutomation(data.File))
             {
                 var commands = data.Text;
                 if (commands != null && commands.Any(command => automation.IsReturnable(command)))
@@ -455,14 +455,14 @@ namespace StatTag
                 else
                 {
                     RunWorker(selectedText);
-                    //codeCheckWorker.RunWorkerAsync(selectedText);
                 }
             }
         }
 
         private void RunWorker(string[] selectedText)
         {
-            codeCheckWorker.RunWorkerAsync(new ThreadData() {File = Tag.CodeFile, Text = selectedText});
+            var codeFile = cboCodeFiles.SelectedItem as CodeFile;
+            codeCheckWorker.RunWorkerAsync(new ThreadData() {File = codeFile, Text = selectedText});
         }
 
         private string[] GetSelectedText()
