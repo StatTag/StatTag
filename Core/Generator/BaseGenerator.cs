@@ -9,7 +9,18 @@ namespace StatTag.Core.Generator
 {
     public abstract class BaseGenerator : IGenerator
     {
+        /// <summary>
+        /// The comment character that is used for single line comments
+        /// </summary>
         public abstract string CommentCharacter { get; }
+
+        /// <summary>
+        /// The suffix expected at the end of a comment (default is none)
+        /// </summary>
+        public virtual string CommentSuffixCharacter
+        {
+            get { return Constants.CodeFileCommentSuffix.Default; }
+        }
         
         public string CreateOpenTagBase()
         {
@@ -19,7 +30,7 @@ namespace StatTag.Core.Generator
 
         public string CreateClosingTag()
         {
-            return string.Format("{0}{0}{1}", CommentCharacter, Constants.TagTags.EndTag);
+            return string.Format("{0}{0}{1}{2}", CommentCharacter, Constants.TagTags.EndTag, CommentSuffixCharacter);
         }
 
         public string CreateOpenTag(Tag tag)
@@ -53,6 +64,8 @@ namespace StatTag.Core.Generator
                     throw new Exception("Unsupported tag type");
                 }
             }
+
+            openBase += CommentSuffixCharacter;
 
             return openBase;
         }

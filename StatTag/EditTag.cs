@@ -15,6 +15,12 @@ namespace StatTag
 {
     public sealed partial class EditTag : Form
     {
+        private class ThreadData
+        {
+            public string[] Text;
+            public CodeFile File;
+        }
+
         private const int TagMargin = 1;
         private const int TagMarker = 1;
         private const uint TagMask = (1 << TagMarker);
@@ -328,9 +334,19 @@ namespace StatTag
 
         private void codeCheckWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            using (var automation = new Stata.Automation())
+            var data = e.Argument as ThreadData;
+            if (data == null || data.File == null)
             {
-                var commands = e.Argument as string[];
+                // If the data was not set, we're going to just avoid triggering any errors and
+                // pretend everything went fine.  The thought is that this is an internal glitch,
+                // and users may get annoyed seeing "error" when things are actually fine.
+                e.Result = true;
+                return;
+            }
+
+            using (var automation = StatsManager.GetStatAutomation(data.File))
+            {
+                var commands = data.Text;
                 if (commands != null && commands.Any(command => automation.IsReturnable(command)))
                 {
                     e.Result = false;
@@ -354,7 +370,8 @@ namespace StatTag
             {
                 ReprocessCodeReview = false;
                 var selectedText = GetSelectedText();
-                codeCheckWorker.RunWorkerAsync(selectedText);
+                RunWorker(selectedText);
+                //codeCheckWorker.RunWorkerAsync(selectedText);
             }
             else
             {
@@ -437,9 +454,15 @@ namespace StatTag
                 }
                 else
                 {
-                    codeCheckWorker.RunWorkerAsync(selectedText);
+                    RunWorker(selectedText);
                 }
             }
+        }
+
+        private void RunWorker(string[] selectedText)
+        {
+            var codeFile = cboCodeFiles.SelectedItem as CodeFile;
+            codeCheckWorker.RunWorkerAsync(new ThreadData() {File = codeFile, Text = selectedText});
         }
 
         private string[] GetSelectedText()

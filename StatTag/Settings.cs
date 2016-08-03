@@ -63,7 +63,7 @@ namespace StatTag
             try
             {
                 Cursor = Cursors.WaitCursor;
-                if (!Stata.Automation.RegisterAutomationAPI(txtStataLocation.Text))
+                if (!Stata.StataAutomation.RegisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("enable");
                     return;
@@ -90,7 +90,7 @@ namespace StatTag
             try
             {
                 Cursor = Cursors.WaitCursor;
-                if (!Stata.Automation.UnregisterAutomationAPI(txtStataLocation.Text))
+                if (!Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("disable");
                     return;

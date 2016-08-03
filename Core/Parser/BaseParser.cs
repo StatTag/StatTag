@@ -10,7 +10,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
 {
-    public abstract class BaseParser : IParser
+    public abstract class BaseParser : ICodeFileParser
     {
         public abstract string CommentCharacter { get; }
 
@@ -231,5 +231,30 @@ namespace StatTag.Core.Parser
                 //throw new Exception("Unsupported tag type");
             }
         }
+
+        protected string MatchRegexReturnGroup(string text, Regex regex, int groupNum)
+        {
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                return match.Groups[groupNum].Value.Trim();
+            }
+
+            return string.Empty;
+        }
+
+        protected string[] GlobalMatchRegexReturnGroup(string text, Regex regex, int groupNum)
+        {
+            var matches = regex.Matches(text);
+            if (matches.Count == 0)
+            {
+                return null;
+            }
+
+            var results = matches.OfType<Match>().Select(match => match.Groups[groupNum].Value.Trim()).ToList();
+            return results.ToArray();
+        }
+
+
     }
 }

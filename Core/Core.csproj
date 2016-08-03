@@ -48,12 +48,16 @@
     <Compile Include="Generator\BaseParameterGenerator.cs" />
     <Compile Include="Generator\FigureGenerator.cs" />
     <Compile Include="Generator\IGenerator.cs" />
-    <Compile Include="Generator\Stata.cs" />
+    <Compile Include="Generator\SAS.cs" />
+    <Compile Include="Generator\Stata.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Generator\TableGenerator.cs" />
     <Compile Include="Generator\ValueGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Interfaces\IResultCommandFormatter.cs" />
     <Compile Include="Interfaces\IResultCommandList.cs" />
+    <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />
@@ -70,8 +74,9 @@
     <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\FigureParameterParser.cs" />
-    <Compile Include="Parser\IParser.cs" />
-    <Compile Include="Parser\Stata.cs" />
+    <Compile Include="Interfaces\ICodeFileParser.cs" />
+    <Compile Include="Parser\SASParser.cs" />
+    <Compile Include="Parser\StataParser.cs" />
     <Compile Include="Parser\TableParameterParser.cs" />
     <Compile Include="Parser\ValueParameterParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +84,7 @@
     <Compile Include="Utility\AnnotationUtil.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatter.cs" />
     <Compile Include="ValueFormatter\IValueFormatter.cs" />
+    <Compile Include="ValueFormatter\SAS.cs" />
     <Compile Include="ValueFormatter\Stata.cs" />
   </ItemGroup>
   <ItemGroup>

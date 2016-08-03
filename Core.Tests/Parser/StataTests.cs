@@ -13,7 +13,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsImageExport()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsImageExport("graph"));
             Assert.IsTrue(parser.IsImageExport("graph export"));
             Assert.IsTrue(parser.IsImageExport("  graph export  "));
@@ -27,7 +27,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsValueDisplay()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsValueDisplay("displa"));
             Assert.IsTrue(parser.IsValueDisplay("display"));
             Assert.IsTrue(parser.IsValueDisplay("  display  "));
@@ -42,7 +42,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsMacroDisplayValue()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsMacroDisplayValue("displa `x'"));
             Assert.IsTrue(parser.IsMacroDisplayValue("display `x'"));
             Assert.IsTrue(parser.IsMacroDisplayValue("display ` x '"));
@@ -54,7 +54,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsTableResult()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsTableResult("matri lis"));
             Assert.IsTrue(parser.IsTableResult("matrix list"));
             Assert.IsTrue(parser.IsTableResult("  matrix   list "));
@@ -69,7 +69,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsStartingLog()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsStartingLog("*log using tmp.txt"));
             Assert.IsFalse(parser.IsStartingLog("*cmdlog using tmp.txt"));
             Assert.IsFalse(parser.IsStartingLog("  *  log using tmp.txt  "));
@@ -97,7 +97,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetLogType()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsNull(parser.GetLogType("*log using tmp.txt"));
             Assert.IsNull(parser.GetLogType("*cmdlog using tmp.txt"));
             Assert.IsNull(parser.GetLogType("  *  log using tmp.txt  "));
@@ -120,7 +120,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetImageSaveLocation()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation("graph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
             Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation(" graph   export   \"C:\\Development\\Stats\\bpgraph.pdf\" ,  as(pdf)  replace"));
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("agraph export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
@@ -134,7 +134,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetValueName()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual("test", parser.GetValueName("display test"));
             Assert.AreEqual("`x2'", parser.GetValueName("display  `x2'"));
             Assert.AreEqual("test", parser.GetValueName(" display   test  "));
@@ -142,6 +142,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetValueName("display (test)"));
             Assert.AreEqual("test", parser.GetValueName("display(test)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)"));
+            Assert.AreEqual("n*(3)", parser.GetValueName("display n*(3)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)\r\n\r\n*Some comments following"));
             Assert.AreEqual("2", parser.GetValueName("display 2 \r\n \r\n*Some comments following"));
             Assert.AreEqual("5*2", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
@@ -156,7 +157,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsCalculatedDisplayValue()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.IsFalse(parser.IsCalculatedDisplayValue(""));
             Assert.IsFalse(parser.IsCalculatedDisplayValue("2*3"));
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display (5*2)"));
@@ -168,7 +169,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetMacroValueName()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'"));
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'\r\n\r\n*Some comments following"));
             Assert.AreEqual("test", parser.GetMacroValueName("display test"));   // This isn't a proper Stata macro value, but is the expected return
@@ -177,7 +178,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetTableName()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual("test_matrix", parser.GetTableName("matrix list test_matrix"));
             Assert.AreEqual("test_matrix", parser.GetTableName("   matrix   list    test_matrix  "));
             Assert.AreEqual("test  value", parser.GetTableName("   matrix   list    test  value  "));  // Not sure if this is valid for Stata, but it's what we should pull out
@@ -192,7 +193,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void PreProcessContent_Empty()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual(0, parser.PreProcessContent(null).Count);
             var emptyList = new List<string>();
             Assert.AreEqual(0, parser.PreProcessContent(emptyList).Count);
@@ -208,7 +209,7 @@ namespace Core.Tests.Parser
                 "Third line"
             });
 
-            var parser = new Stata();
+            var parser = new StataParser();
             Assert.AreEqual(3, parser.PreProcessContent(testList).Count);
 
             testList = new List<string>(new string[]
@@ -232,7 +233,7 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void PreProcessContent_MultiLineComment()
         {
-            var parser = new Stata();
+            var parser = new StataParser();
             var testList = new List<string>(new string[]
             {
                 "First line",
