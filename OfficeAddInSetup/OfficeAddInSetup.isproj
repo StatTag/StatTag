@@ -33,6 +33,10 @@
 			<Name>Core</Name>
 			<Project>{F77D97B2-EDA9-4F08-8765-41FF692DB52B}</Project>
 		</ProjectReference>
+		<ProjectReference Include="..\SAS\SAS.csproj">
+			<Name>SAS</Name>
+			<Project>{F8A2E797-74D8-4FB3-B65F-2F0FB81033F7}</Project>
+		</ProjectReference>
 		<ProjectReference Include="..\StatTag\StatTag.csproj">
 			<Name>StatTag</Name>
 			<Project>{5DDB8DB2-68B0-4339-BFA7-71339FF7E95F}</Project>
