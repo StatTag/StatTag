@@ -57,6 +57,7 @@ namespace StatTag
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
             LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
@@ -260,6 +261,31 @@ namespace StatTag
         void Application_WindowActivate(Word.Document doc, Word.Window window)
         {
             Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+        }
+
+        /// <summary>
+        /// Produce a logging string that contains information about the user's environment (StatTag, Word and OS)
+        /// </summary>
+        /// <returns></returns>
+        public string GetUserEnvironmentDetails()
+        {
+            string value = String.Empty;
+            try
+            {
+                var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                value = string.Format(
+                    "\r\n***********************\r\n* {0}\r\n*    Full name: {1}\r\n*    Code base: {2}\r\n*    CLR: {3}\r\n* MS Word {4}\r\n*    Build: {5}\r\n*    Is sandboxed: {6}\r\n*    Path: {7}\r\n* Process environment\r\n*    Is 64-bit: {8}\r\n*    Current directory: {9}\r\n* OS\r\n*    Version: {10}\r\n*    Is 64-bit: {11}\r\n***********************",
+                    UIUtility.GetVersionLabel(), executingAssembly.FullName, executingAssembly.CodeBase,
+                    executingAssembly.ImageRuntimeVersion,
+                    Application.Version, Application.Build, Application.IsSandboxed, Application.Path,
+                    Environment.Is64BitProcess, Environment.CurrentDirectory,
+                    Environment.OSVersion.ToString(), Environment.Is64BitOperatingSystem);
+            }
+            catch (Exception exc)
+            {
+                value = string.Format("Error in GetUserEnvironment: {0}", exc.Message);
+            }
+            return value;
         }
 
         #region VSTO generated code
