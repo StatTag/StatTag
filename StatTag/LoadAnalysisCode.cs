@@ -45,11 +45,15 @@ namespace StatTag
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
-            if (!string.IsNullOrWhiteSpace(fileName))
+            var fileNames = UIUtility.GetOpenFileNames(Constants.FileFilters.FormatForOpenFileDialog());
+            if (fileNames != null)
             {
-                string package = CodeFile.GuessStatisticalPackage(fileName);
-                AddItem(new CodeFile {FilePath = fileName, StatisticalPackage = package});
+                var cleanedFiles = fileNames.Where(x => !string.IsNullOrWhiteSpace(x));
+                foreach (var fileName in cleanedFiles)
+                {
+                    string package = CodeFile.GuessStatisticalPackage(fileName);
+                    AddItem(new CodeFile { FilePath = fileName, StatisticalPackage = package });                    
+                }
             }
         }
 
@@ -93,7 +97,7 @@ namespace StatTag
 
         private void EditFilePath(int rowIndex)
         {
-            string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+            string fileName = UIUtility.GetOpenFileName(Constants.FileFilters.FormatForOpenFileDialog());
             if (!string.IsNullOrWhiteSpace(fileName))
             {
                 dgvItems.Rows[rowIndex].Cells[FilePathColumn].Value = fileName;
