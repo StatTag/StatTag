@@ -247,13 +247,13 @@ namespace Stata
         /// will detect missing values and set them to null.</remarks>
         /// <param name="data"></param>
         /// <returns></returns>
-        private double?[] ProcessForMissingValues(double[] data)
+        private string[] ProcessForMissingValues(double[] data)
         {
-            var cleanedData = new double?[data.Length];
+            var cleanedData = new string[data.Length];
             var missingValue = Application.UtilGetStMissingValue();
             for (int index = 0; index < data.Length; index++)
             {
-                cleanedData[index] = (data[index] >= missingValue) ? (double?) null : data[index];
+                cleanedData[index] = (data[index] >= missingValue) ? null : data[index].ToString();
             }
 
             return cleanedData;

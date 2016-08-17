@@ -21,7 +21,7 @@ namespace SAS
 
         public class FigureCommands : IResultCommandList
         {
-            public const string GraphExport = "ods pdf";
+            public const string GraphExport = "ODS PDF";
 
             public string[] GetCommands()
             {
@@ -31,8 +31,7 @@ namespace SAS
 
         public class TableCommands : IResultCommandList
         {
-            //TODO Define this
-            public const string MatrixList = "";
+            public const string MatrixList = "ODS CSV";
 
             public string[] GetCommands()
             {

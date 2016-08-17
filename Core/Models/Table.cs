@@ -18,7 +18,7 @@ namespace StatTag.Core.Models
         public List<string> ColumnNames { get; set; }
         public int RowSize { get; set; }
         public int ColumnSize { get; set; }
-        public double?[] Data { get; set; }
+        public string[] Data { get; set; }
         public string[] FormattedCells { get; set; }
 
         public Table()
@@ -27,7 +27,7 @@ namespace StatTag.Core.Models
             ColumnNames = new List<string>();
         }
 
-        public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, double?[] data)
+        public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, string[] data)
         {
             RowNames = (rowNames == null) ? null : new List<string>(rowNames);
             ColumnNames = (columnNames == null) ? null : new List<string>(columnNames);

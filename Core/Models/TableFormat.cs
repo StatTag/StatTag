@@ -43,7 +43,7 @@ namespace StatTag.Core.Models
                 for (int columnIndex = 0; columnIndex < tableData.ColumnSize; columnIndex++)
                 {
                     int index = (rowIndex * tableData.ColumnSize) + columnIndex;
-                    formattedResults.Add(tableData.Data[index].ToString());
+                    formattedResults.Add(tableData.Data[index]);
                 }
             }
 
