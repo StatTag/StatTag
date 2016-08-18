@@ -122,12 +122,6 @@ namespace Stata
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
-        public CommandResult[] CombineAndRunCommands(string[] commands)
-        {
-            string combinedCommand = string.Join("\r\n", commands);
-            return RunCommands(new[] { combinedCommand });
-        }
-
         /// <summary>
         /// Run a collection of commands and provide all applicable results.
         /// </summary>

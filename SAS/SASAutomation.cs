@@ -47,6 +47,23 @@ namespace SAS
             return true;
         }
 
+        /// <summary>
+        /// Iterate through a list of command results and resolve any outstanding
+        /// promises on the results.
+        /// </summary>
+        /// <param name="commandResults">The list of command results</param>
+        private void ResolveCommandPromises(List<CommandResult> commandResults)
+        {
+            foreach (var result in commandResults)
+            {
+                if (!string.IsNullOrEmpty(result.TableResultPromise))
+                {
+                    result.TableResult = GetTableResult(result.TableResultPromise);
+                    result.TableResultPromise = null;
+                }
+            }
+        }
+
         public CommandResult[] RunCommands(string[] commands)
         {
             var commandResults = new List<CommandResult>();
@@ -59,6 +76,7 @@ namespace SAS
                 }
             }
 
+            ResolveCommandPromises(commandResults);
             return commandResults.ToArray();
         }
 
@@ -113,7 +131,7 @@ namespace SAS
 
             if (Parser.IsTableResult(command))
             {
-                return new CommandResult() { TableResult = GetTableResult(command) };
+                return new CommandResult() { TableResultPromise = Parser.GetTableName(command) };
             }
 
             return null;
@@ -127,12 +145,11 @@ namespace SAS
         /// <summary>
         /// Combines the different components of a matrix command into a single structure.
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="tableFilePath"></param>
         /// <returns></returns>
-        public Table GetTableResult(string command)
+        public Table GetTableResult(string tableFilePath)
         {
             var table = new Table();
-            var tableFilePath = Parser.GetTableName(command);
             if (!File.Exists(tableFilePath))
             {
                 return table;
