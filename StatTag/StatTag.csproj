@@ -271,7 +271,7 @@
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />
-    <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\OpenXmlGenerator.cs" />

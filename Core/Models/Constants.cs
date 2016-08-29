@@ -199,5 +199,13 @@ namespace StatTag.Core.Models
             public const int ReAddFile = 3;
             public const int SelectFile = 4;
         }
+
+        public static class WordVersion
+        {
+            public const int Unknown = -1;
+            public const int Word2010 = 14;
+            public const int Word2013 = 15;
+            public const int Word2016 = 16;
+        }
     }
 }

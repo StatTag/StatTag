@@ -249,5 +249,24 @@ namespace StatTag
         {
             return new System.Drawing.Font(control.Font, bold ? FontStyle.Bold : FontStyle.Regular);
         }
+
+        /// <summary>
+        /// Derive the major version number of the Microsoft Word instance we are currently
+        /// connected to.
+        /// </summary>
+        /// <returns>An integer representing the major version number (e.g., 14 is Word 2010).
+        /// If we aren't able to derive the version, we will return Constants.WordVersion.Unknown
+        /// instead.</returns>
+        public static int GetWordMajorVersionNumber()
+        {
+            var versionComponents = Globals.ThisAddIn.Application.Version.Split('.');
+            int version = 0;
+            if (int.TryParse(versionComponents.FirstOrDefault(), out version))
+            {
+                return version;
+            }
+
+            return Constants.WordVersion.Unknown;
+        }
     }
 }

@@ -129,7 +129,7 @@ namespace StatTag
 
         void Application_NewDocument(Word.Document doc)
         {
-            LogManager.WriteMessage("DocumentOpen - Started");
+            LogManager.WriteMessage("NewDocument - Started");
         }
 
         // Hande initailization when a document is opened.  This may be called multiple times in a single Word session.

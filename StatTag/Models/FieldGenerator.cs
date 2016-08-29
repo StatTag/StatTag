@@ -9,17 +9,38 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using StatTag.Core.Models;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace StatTag.Models
 {
     /// <summary>
-    /// The class <see cref="FieldCreator"/> simplifies the creation of <see cref="Word.Field"/>s.
+    /// The class <see cref="FieldGenerator"/> simplifies the creation of <see cref="Word.Field"/>s.
     /// </summary>
-    public class FieldCreator
+    public class FieldGenerator
     {
         public const string FieldOpen = "<";
         public const string FieldClose = ">";
+
+        /// <summary>
+        /// Insert a StatTag nested field at the document range specified in the parameters.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <param name="tagIdentifier"></param>
+        /// <param name="displayValue"></param>
+        /// <param name="tag"></param>
+        public static void GenerateField(Word.Range range, string tagIdentifier, string displayValue, FieldTag tag)
+        {
+            var fields = InsertField(range, string.Format("{3}MacroButton {0} {1}{3}ADDIN {2}{4}{4}",
+                Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, FieldOpen, FieldClose));
+            var dataField = fields.First();
+            dataField.Data = tag.Serialize();
+
+            // This is a terrible hack, I know, but it's the only way I've found to get fields
+            // to appear correctly after doing this insert.
+            range.Document.Fields.ToggleShowCodes();
+            range.Document.Fields.ToggleShowCodes();
+        }
 
         /// <summary>
         /// Adds one or more new <see cref="Word.Field"/> to the specified <see cref="Word.Range"/>.
@@ -41,7 +62,7 @@ namespace StatTag.Models
         /// A solution for VBA has been taken from <a href="http://stoptyping.co.uk/word/nested-fields-in-vba">this</a>
         /// article and adopted for C# by the author.
         /// </remarks>
-        public Word.Field[] InsertField(
+        private static Word.Field[] InsertField(
             Word.Range range,
             string theString = FieldOpen + FieldClose,
             string fieldOpen = FieldOpen,
@@ -71,7 +92,7 @@ namespace StatTag.Models
             // Special case. If we do not check this, the algorithm breaks.
             if (theString == fieldOpen + fieldClose)
             {
-                fields.Add(this.InsertEmpty(range));
+                fields.Add(InsertEmpty(range));
                 return fields.ToArray();
             }
 
@@ -87,8 +108,8 @@ namespace StatTag.Models
 
             while (searchRange.Start != searchRange.End)
             {
-                Word.Range nextOpen = this.FindNextOpen(searchRange.Duplicate, fieldOpen);
-                Word.Range nextClose = this.FindNextClose(searchRange.Duplicate, fieldClose);
+                Word.Range nextOpen = FindNextOpen(searchRange.Duplicate, fieldOpen);
+                Word.Range nextClose = FindNextClose(searchRange.Duplicate, fieldClose);
 
                 if (null == nextClose)
                 {
@@ -148,9 +169,9 @@ namespace StatTag.Models
         /// Whether to apply the formatting of the previous <see cref="Word.Field"/> result to the new result.
         /// </param>
         /// <returns>The newly created <see cref="Word.Field"/>.</returns>
-        public Word.Field InsertEmpty(Word.Range range, bool preserveFormatting = false)
+        private static Word.Field InsertEmpty(Word.Range range, bool preserveFormatting = false)
         {
-            Word.Field result = this.AddFieldToRange(range, Word.WdFieldType.wdFieldEmpty, preserveFormatting);
+            Word.Field result = AddFieldToRange(range, Word.WdFieldType.wdFieldEmpty, preserveFormatting);
             return result;
         }
 
@@ -168,7 +189,7 @@ namespace StatTag.Models
         /// </param>
         /// <param name="text">Additional text needed for the <see cref="Word.Field"/>.</param>
         /// <returns>The newly created <see cref="Word.Field"/>.</returns>
-        private Word.Field AddFieldToRange(
+        private static Word.Field AddFieldToRange(
             Word.Range range,
             Word.WdFieldType type,
             bool preserveFormatting = false,
@@ -181,9 +202,9 @@ namespace StatTag.Models
                 preserveFormatting);
         }
 
-        private Word.Range FindNextOpen(Word.Range range, string text)
+        private static Word.Range FindNextOpen(Word.Range range, string text)
         {
-            Word.Find find = this.CreateFind(range, text);
+            Word.Find find = CreateFind(range, text);
             Word.Range result = range.Duplicate;
 
             if (!find.Found)
@@ -195,12 +216,12 @@ namespace StatTag.Models
             return result;
         }
 
-        private Word.Range FindNextClose(Word.Range range, string text)
+        private static Word.Range FindNextClose(Word.Range range, string text)
         {
-            return this.CreateFind(range, text).Found ? range.Duplicate : null;
+            return CreateFind(range, text).Found ? range.Duplicate : null;
         }
 
-        private Word.Find CreateFind(Word.Range range, string text)
+        private static Word.Find CreateFind(Word.Range range, string text)
         {
             Word.Find result = range.Find;
             result.Execute(FindText: text, Forward: true, Wrap: Word.WdFindWrap.wdFindStop);
