@@ -731,24 +731,9 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
-            var version = UIUtility.GetWordMajorVersionNumber();
-            // We currently see issues in 2016 only with the InsertXML approach to creating nested
-            // fields.  InsertXML works in Word 2010 and 2013 however, and since it is faster we
-            // elect to use it there.  There is an unresolved issue that would allow us to use
-            // InsertXML in Word 2016, but when it's solved we will move to that approach.
-            // Likewise, if we can't determine the Word version, we're going to play it safe and
-            // modify the Fields collection directly as well.
-            if (version >= Constants.WordVersion.Word2016 || version == Constants.WordVersion.Unknown)
-            {
-                FieldGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
-                Log("Generated Word fields");
-            }
-            else
-            {
-                var xml = OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
-                Log("Field XML: " + xml);
-                range.InsertXML(xml);                
-            }
+            var xml = OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
+            Log("Field XML: " + xml);
+            range.InsertXML(xml);
             Log("CreateTagField - Finished");
         }
 

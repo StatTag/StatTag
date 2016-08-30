@@ -295,12 +295,12 @@ namespace StatTag.Models
             var bytes = Encoding.Unicode.GetBytes(text);
 
             // Per the Flat OPC specification for OpenXML, the base64-encoded data must be written out in chunks of 76
-            // characters, and not have any leading or trailing spaces.  If we don't do this, it actually works in Word 
-            // 2010 and 2013, but correctly fails in 2016.
-            // Reference:
-            //   https://blogs.msdn.microsoft.com/ericwhite/2008/09/29/the-flat-opc-format/
-            var data = Convert.ToBase64String(bytes).Trim();
-            return string.Join("\r\n", Chunk(data, Base64ChunkSize)).Trim();
+            // characters, and not have any leading or trailing spaces. Reference:  https://blogs.msdn.microsoft.com/ericwhite/2008/09/29/the-flat-opc-format/
+            // HOWEVER - that doesn't work in Word 2016.  After much trial and error, it appears that you DO need to append
+            // \r\n after the base64 encoded data.  This thread of thinking is partially documented at:
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/6d677891-79b9-4218-b881-62cf8bf9aacb/data-limit-for-addin-fields-created-via-insertxml-in-word-2016?forum=vsto
+            var data = Convert.ToBase64String(bytes);
+            return string.Join("\r\n", Chunk(data, Base64ChunkSize)) + "\r\n";
         }
 
         // Derived from: http://stackoverflow.com/questions/1450774/splitting-a-string-into-chunks-of-a-certain-size/1450889#1450889
