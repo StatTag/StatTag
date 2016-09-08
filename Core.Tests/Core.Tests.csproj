@@ -68,6 +68,7 @@
     <Compile Include="Models\CommandResultTests.cs" />
     <Compile Include="Models\TableFormatTests.cs" />
     <Compile Include="Models\FieldAnnotationTests.cs" />
+    <Compile Include="Models\CSVToTableTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Parser\ValueParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />
+    <Compile Include="TestUtil.cs" />
     <Compile Include="Utility\GeneralUtilTests.cs" />
     <Compile Include="Utility\AnnotationUtilTests.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatterTests.cs" />

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.FileIO;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -58,7 +57,7 @@ namespace SAS
             {
                 if (!string.IsNullOrEmpty(result.TableResultPromise))
                 {
-                    result.TableResult = GetTableResult(result.TableResultPromise);
+                    result.TableResult = CSVToTable.GetTableResult(result.TableResultPromise);
                     result.TableResultPromise = null;
                 }
             }
@@ -140,53 +139,6 @@ namespace SAS
         public bool IsReturnable(string command)
         {
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
-        }
-
-        /// <summary>
-        /// Combines the different components of a matrix command into a single structure.
-        /// </summary>
-        /// <param name="tableFilePath"></param>
-        /// <returns></returns>
-        public Table GetTableResult(string tableFilePath)
-        {
-            var table = new Table();
-            if (!File.Exists(tableFilePath))
-            {
-                return table;
-            }
-
-            using (TextFieldParser parser = new TextFieldParser(tableFilePath))
-            {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
-                parser.HasFieldsEnclosedInQuotes = true;
-
-                int rows = 0;
-                int columns = 0;
-                var data = new List<string>();
-                while (!parser.EndOfData)
-                {
-                    rows++;
-                    //Process row
-                    string[] fields = parser.ReadFields();
-                    if (fields != null)
-                    {
-                        columns = Math.Max(columns, fields.Length);
-                        foreach (string field in fields)
-                        {
-                            data.Add(field);
-                        }
-                    }
-                }
-
-                table.RowNames = new List<string>();
-                table.ColumnNames = new List<string>();
-                table.RowSize = rows;
-                table.ColumnSize = columns;
-                table.Data = data.ToArray();
-            }
-
-            return table;
         }
     }
 }
