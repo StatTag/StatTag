@@ -7,7 +7,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Core.Generator
 {
-    public class ValueGenerator : BaseParameterGenerator
+    public class ValueParameterGenerator : BaseParameterGenerator
     {
         public string CreateParameters(Tag tag)
         {

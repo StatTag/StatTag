@@ -21,8 +21,8 @@ namespace StatTag.Controls
 
         public void SetTableFormat(TableFormat tableFormat)
         {
-            chkIncludeColumnNames.Checked = tableFormat.IncludeColumnNames;
-            chkIncludeRowNames.Checked = tableFormat.IncludeRowNames;
+            chkExcludeColumns.Checked = tableFormat.IncludeColumnNames;
+            chkExcludeRows.Checked = tableFormat.IncludeRowNames;
         }
 
         public void SetValueFormat(ValueFormat valueFormat)
@@ -36,8 +36,8 @@ namespace StatTag.Controls
         {
             return new TableFormat()
             {
-                IncludeColumnNames = chkIncludeColumnNames.Checked,
-                IncludeRowNames = chkIncludeRowNames.Checked
+                IncludeColumnNames = chkExcludeColumns.Checked,
+                IncludeRowNames = chkExcludeRows.Checked
             };
         }
 
@@ -52,6 +52,16 @@ namespace StatTag.Controls
                 // through when inserting results into the document.
                 AllowInvalidTypes = true
             };
+        }
+
+        private void chkExcludeRows_CheckedChanged(object sender, EventArgs e)
+        {
+            txtRows.Enabled = chkExcludeRows.Checked;
+        }
+
+        private void chkExcludeColumns_CheckedChanged(object sender, EventArgs e)
+        {
+            txtColumns.Enabled = chkExcludeColumns.Checked;
         }
     }
 }

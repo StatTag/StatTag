@@ -123,12 +123,24 @@ namespace StatTag.Core.Models
 
         public static class TableParameters
         {
+            public const string FilterEnabled = "FilterEnabled";
+            public const string FilterType = "FilterType";
+            public const string FilterValue = "FilterValue";
+
+            // These are deprecated parameters, but the defaults are preserved so we have them
+            // for legacy and migration code.
             public const string ColumnNames = "ColumnNames";
             public const string RowNames = "RowNames";
         }
 
         public static class TableParameterDefaults
         {
+            public const bool FilterEnabled = false;
+            public const string FilterType = "";
+            public const string FilterValue = "";
+
+            // These are deprecated parameters, but the defaults are preserved so we have them
+            // for legacy and migration code.
             public const bool ColumnNames = false;
             public const bool RowNames = false;
         }
@@ -198,6 +210,18 @@ namespace StatTag.Core.Models
             public const int RemoveTags = 2;
             public const int ReAddFile = 3;
             public const int SelectFile = 4;
+        }
+
+        public static class FilterPrefix
+        {
+            public const string Row = "Row";
+            public const string Column = "Col";
+        }
+
+        public static class FilterType
+        {
+            public const string Exclude = "Exclude";
+            public const string Include = "Include";
         }
     }
 }

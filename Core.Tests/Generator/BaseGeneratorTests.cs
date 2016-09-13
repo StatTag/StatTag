@@ -66,7 +66,7 @@ namespace Core.Tests.Generator
             Assert.AreEqual("**>>>ST:Table(Type=\"Default\")", generator.CreateOpenTag(tag));
 
             tag.TableFormat = new TableFormat();
-            Assert.AreEqual("**>>>ST:Table(ColumnNames=False, RowNames=False, Type=\"Default\")", generator.CreateOpenTag(tag));
+            Assert.AreEqual("**>>>ST:Table(Type=\"Default\")", generator.CreateOpenTag(tag));
         }
 
         [TestMethod]
@@ -80,11 +80,11 @@ namespace Core.Tests.Generator
                 TableFormat = new TableFormat()
             };
 
-            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Default\"", generator.CombineValueAndTableParameters(tag));
+            Assert.AreEqual("Type=\"Default\"", generator.CombineValueAndTableParameters(tag));
 
             tag.ValueFormat.FormatType = Constants.ValueFormatType.Numeric;
             tag.ValueFormat.DecimalPlaces = 2;
-            Assert.AreEqual("ColumnNames=False, RowNames=False, Type=\"Numeric\", Decimals=2, Thousands=False", generator.CombineValueAndTableParameters(tag));
+            Assert.AreEqual("Type=\"Numeric\", Decimals=2, Thousands=False", generator.CombineValueAndTableParameters(tag));
         }
     }
 }

@@ -9,8 +9,20 @@ namespace StatTag.Core.Models
 {
     public class TableFormat
     {
+        /// <summary>
+        /// OBSOLETE: Please use row and column filters instead
+        /// </summary>
         public bool IncludeColumnNames { get; set; }
         public bool IncludeRowNames { get; set; }
+
+        public FilterFormat RowFilter { get; set; }
+        public FilterFormat ColumnFilter { get; set; }
+
+        public TableFormat()
+        {
+            RowFilter = new FilterFormat(Constants.FilterPrefix.Row);
+            ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column);
+        }
 
 
         // This is going to start out assuming left to right filling.  In the future

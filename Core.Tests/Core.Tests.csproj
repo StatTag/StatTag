@@ -60,10 +60,10 @@
   <ItemGroup>
     <Compile Include="Generator\BaseGeneratorTests.cs" />
     <Compile Include="Generator\FigureGeneratorTests.cs" />
-    <Compile Include="Generator\TableGeneratorTests.cs" />
+    <Compile Include="Generator\TableParameterGeneratorTests.cs" />
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
-    <Compile Include="Generator\ValueGeneratorTests.cs" />
+    <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
     <Compile Include="Models\AnnotationTests.cs" />
     <Compile Include="Models\CommandResultTests.cs" />
     <Compile Include="Models\TableFormatTests.cs" />
@@ -73,9 +73,9 @@
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
-    <Compile Include="Parser\TableParserTests.cs" />
+    <Compile Include="Parser\TableParameterParserTests.cs" />
     <Compile Include="Parser\SASTests.cs" />
-    <Compile Include="Parser\ValueParserTests.cs" />
+    <Compile Include="Parser\ValueParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />
     <Compile Include="TestUtil.cs" />
