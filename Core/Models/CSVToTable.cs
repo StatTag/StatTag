@@ -66,7 +66,7 @@ namespace StatTag.Core.Models
                 return table;
             }
 
-            using (TextFieldParser parser = new TextFieldParser(tableFilePath))
+            using (TextFieldParser parser = new TextFieldParser(tableFilePath, System.Text.Encoding.Default))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
