@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
+using StatTag.Core.Utility;
 
 namespace Stata
 {
@@ -222,14 +223,14 @@ namespace Stata
         public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
-            var table = new Table(
-                Application.MatrixRowNames(matrixName),
-                Application.MatrixColNames(matrixName),
-                Application.MatrixRowDim(matrixName),
-                Application.MatrixColDim(matrixName),
-                ProcessForMissingValues(Application.MatrixData(matrixName))
-            );
+            var rowNames = (string[])Application.MatrixRowNames(matrixName);
+            var columnNames = Application.MatrixColNames(matrixName);
+            var rowCount = Application.MatrixRowDim(matrixName) + ((rowNames != null && rowNames.Length > 0) ? 1 : 0);
+            var columnCount = Application.MatrixColDim(matrixName) + ((columnNames != null && columnNames.Length > 0) ? 1 : 0);
+            var data = ProcessForMissingValues(Application.MatrixData(matrixName));
 
+            var arrayData = TableUtil.MergeTableVectorsToArray(rowNames, columnNames, data, rowCount, columnCount);
+            var table = new Table(rowCount, columnCount, arrayData);
             return table;
         }
 

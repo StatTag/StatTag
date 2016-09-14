@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using StatTag.Core;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
+using StatTag.Core.Utility;
 
 namespace StatTag.Models
 {
@@ -199,11 +200,10 @@ namespace StatTag.Models
                 return false;
             }
 
-            // Are we changing the display of headers?
-            if (tagUpdatePair.Old.TableFormat.IncludeColumnNames != tagUpdatePair.New.TableFormat.IncludeColumnNames
-                || tagUpdatePair.Old.TableFormat.IncludeRowNames != tagUpdatePair.New.TableFormat.IncludeRowNames)
+            if (!tagUpdatePair.Old.TableFormat.ColumnFilter.Equals(tagUpdatePair.New.TableFormat.ColumnFilter)
+                || !tagUpdatePair.Old.TableFormat.RowFilter.Equals(tagUpdatePair.New.TableFormat.RowFilter))
             {
-                Log("Table dimensions have changed based on header settings");
+                Log("Table dimensions have changed based on filter settings");
                 return true;
             }
 
@@ -502,11 +502,11 @@ namespace StatTag.Models
             if (cellsCount == 0)
             {
                 Log("No cells selected, creating a new table");
-                CreateWordTableForTableResult(selection, table, tag.TableFormat);
+                CreateWordTableForTableResult(selection, table, tag.TableFormat, dimensions);
                 // The table will be the size we need.  Update these tracking variables with the cells and
                 // total size so that we can begin inserting data.
                 cells = GetCells(selection);
-                cellsCount = table.FormattedCells.Length;
+                cellsCount = dimensions[0] * dimensions[1];
             }
             // Our heuristic is that a single cell selected with the selection being the same position most
             // likely means the user has their cursor in a table.  We are going to assume they want us to
@@ -518,7 +518,9 @@ namespace StatTag.Models
                 cellsCount = cells.Count;
             }
 
-            if (table.FormattedCells == null || table.FormattedCells.Length == 0)
+            var displayData = TableUtil.GetDisplayableVector(table.FormattedCells, tag.TableFormat);
+
+            if (displayData == null || displayData.Length == 0)
             {
                 UIUtility.WarningMessageBox("There are no table results to insert.", Logger);
                 return;
@@ -538,9 +540,9 @@ namespace StatTag.Models
             int index = 0;
             foreach (var cell in cells.OfType<Cell>())
             {
-                if (index >= table.FormattedCells.Length)
+                if (index >= displayData.Length)
                 {
-                    Log(string.Format("Index {0} is beyond result cell length of {1}", index, table.FormattedCells.Length));
+                    Log(string.Format("Index {0} is beyond result cell length of {1}", index, displayData.Length));
                     break;
                 }
 
@@ -552,7 +554,7 @@ namespace StatTag.Models
                 var innerTag = new FieldTag(tag, index)
                 {
                     CachedResult =
-                        new List<CommandResult>() {new CommandResult() {ValueResult = table.FormattedCells[index]}}
+                        new List<CommandResult>() { new CommandResult() { ValueResult = displayData[index] } }
                 };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
@@ -561,7 +563,7 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(range);
             }
 
-            WarnOnMismatchedCellCount(cellsCount, table.FormattedCells.Length);
+            WarnOnMismatchedCellCount(cellsCount, displayData.Length);
 
             Marshal.ReleaseComObject(cells);
 
@@ -598,7 +600,8 @@ namespace StatTag.Models
         /// <param name="selection"></param>
         /// <param name="table"></param>
         /// <param name="format"></param>
-        public void CreateWordTableForTableResult(Selection selection, Core.Models.Table table, TableFormat format)
+        /// <param name="dimensions"></param>
+        public void CreateWordTableForTableResult(Selection selection, Core.Models.Table table, TableFormat format, int[] dimensions)
         {
             Log("CreateWordTableForTableResult - Started");
 
@@ -606,8 +609,8 @@ namespace StatTag.Models
             var document = application.ActiveDocument;
             try
             {
-                int rowCount = (format.IncludeColumnNames) ? (table.RowSize + 1) : (table.RowSize);
-                int columnCount = (format.IncludeRowNames) ? (table.ColumnSize + 1) : (table.ColumnSize);
+                int rowCount = dimensions[0];
+                int columnCount = dimensions[1];
 
                 Log(string.Format("Table dimensions r={0}, c={1}", rowCount, columnCount));
 

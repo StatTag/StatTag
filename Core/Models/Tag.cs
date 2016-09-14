@@ -235,6 +235,35 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
+        /// Helper to be used for one particular dimension (row or column)
+        /// </summary>
+        /// <param name="originalDimension"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        private int GetDisplayDimension(int originalDimension, FilterFormat filter)
+        {
+            int dimension = originalDimension;
+            if (filter != null && filter.Enabled)
+            {
+                if (filter.Type != Constants.FilterType.Exclude)
+                {
+                    throw new Exception(string.Format("Currently only the {0} filter type is supported", Constants.FilterType.Exclude));
+                }
+
+                var filterValue = filter.ExpandValue();
+                if (filterValue != null)
+                {
+                    // Take away the number of rows we are filtering out.  If it means we filter out more than we actually
+                    // have, just make it 0.
+                    dimension -= filterValue.Length;
+                    dimension = Math.Max(dimension, 0);
+                }
+            }
+
+            return dimension;
+        }
+
+        /// <summary>
         /// Get the dimensions for the displayable table.  This factors in not only the data, but if column and
         /// row labels are included.
         /// </summary>
@@ -247,16 +276,11 @@ namespace StatTag.Core.Models
             }
 
             var tableData = CachedResult.First().TableResult;
-            var dimensions = new[] { tableData.RowSize, tableData.ColumnSize };
-            if (TableFormat.IncludeColumnNames && tableData.ColumnNames != null)
+            var dimensions = new[]
             {
-                dimensions[Constants.DimensionIndex.Rows]++;
-            }
-
-            if (TableFormat.IncludeRowNames && tableData.RowNames != null)
-            {
-                dimensions[Constants.DimensionIndex.Columns]++;
-            }
+                GetDisplayDimension(tableData.RowSize, TableFormat.RowFilter),
+                GetDisplayDimension(tableData.ColumnSize, TableFormat.ColumnFilter)
+            };
 
             return dimensions;
         }

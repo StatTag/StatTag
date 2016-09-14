@@ -90,18 +90,21 @@ namespace Core.Tests.Models
             {
                 Name = "Test",
                 Type = Constants.TagType.Table,
+                TableFormat = new TableFormat()
+                {
+                    ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
+                    RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = false }
+                },
                 CachedResult = new List<CommandResult>()
                 {
                     new CommandResult()
                     {
                         TableResult = new Table()
                         {
-                            ColumnNames = new List<string>() { "c1", "c2" },
-                            RowNames = new List<string>() { "r1", "r2" },
-                            ColumnSize = 2,
-                            RowSize = 2,
-                            Data = new string[]{ "1.0", "2.0", "3.0", "4.0" },
-                            FormattedCells = new []{ "1.0", "2.0", "3.0", "4.0" }
+                            ColumnSize = 3,
+                            RowSize = 3,
+                            Data = new string[,]{ {"", "c1", "c2"}, {"r1", "1.0", "2.0"}, {"r2", "3.0", "4.0"} },
+                            FormattedCells = new [,]{ {"", "c1", "c2"}, {"r1", "1.0", "2.0"}, {"r2", "3.0", "4.0"} }
                         }
                     }
                 }
@@ -109,10 +112,14 @@ namespace Core.Tests.Models
 
             var fieldTag = new FieldTag(tag, 0);
             Assert.AreEqual(0, fieldTag.TableCellIndex);
-            Assert.AreEqual("1.0", fieldTag.FormattedResult);
+            Assert.AreEqual(string.Empty, fieldTag.FormattedResult);
 
-            fieldTag = new FieldTag(tag, 2);
-            Assert.AreEqual(2, fieldTag.TableCellIndex);
+            fieldTag = new FieldTag(tag, 3);
+            Assert.AreEqual(3, fieldTag.TableCellIndex);
+            Assert.AreEqual("r1", fieldTag.FormattedResult);
+
+            fieldTag = new FieldTag(tag, 7);
+            Assert.AreEqual(7, fieldTag.TableCellIndex);
             Assert.AreEqual("3.0", fieldTag.FormattedResult);
         }
 

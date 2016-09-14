@@ -72,12 +72,12 @@ namespace Core.Tests.Models
             Assert.AreEqual(10, table.RowSize);
             Assert.AreEqual(5, table.ColumnSize);
             Assert.AreEqual((table.RowSize * table.ColumnSize), table.Data.Length);
-            Assert.AreEqual(string.Empty, table.Data[0]);
-            Assert.AreEqual("Frequency", table.Data[1]);
-            Assert.AreEqual(string.Empty, table.Data[2]);
-            Assert.AreEqual(string.Empty, table.Data[3]);
-            Assert.AreEqual(string.Empty, table.Data[4]);
-            Assert.AreEqual("Table of role_name by Status", table.Data[5]);
+            Assert.AreEqual(string.Empty, table.Data[0,0]);
+            Assert.AreEqual("Frequency", table.Data[0,1]);
+            Assert.AreEqual(string.Empty, table.Data[0,2]);
+            Assert.AreEqual(string.Empty, table.Data[0,3]);
+            Assert.AreEqual(string.Empty, table.Data[0,4]);
+            Assert.AreEqual("Table of role_name by Status", table.Data[1,0]);
         }
 
         [TestMethod]
@@ -88,8 +88,8 @@ namespace Core.Tests.Models
             Assert.AreEqual(4, table.RowSize);
             Assert.AreEqual(3, table.ColumnSize);
             Assert.AreEqual((table.RowSize * table.ColumnSize), table.Data.Length);
-            Assert.AreEqual("Status", table.Data.First());
-            Assert.AreEqual("11.54", table.Data.Last());
+            Assert.AreEqual("Status", table.Data[0,0]);
+            Assert.AreEqual("11.54", table.Data[3,2]);
         }
     }
 }
