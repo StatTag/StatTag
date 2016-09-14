@@ -10,9 +10,14 @@ namespace StatTag.Core.Models
     public class TableFormat
     {
         /// <summary>
-        /// OBSOLETE: Please use row and column filters instead
+        /// OBSOLETE: Please use column filters instead
         /// </summary>
+        [Obsolete]
         public bool IncludeColumnNames { get; set; }
+        /// <summary>
+        /// OBSOLETE: Please use row filters instead
+        /// </summary>
+        [Obsolete]
         public bool IncludeRowNames { get; set; }
 
         public FilterFormat RowFilter { get; set; }
@@ -27,50 +32,33 @@ namespace StatTag.Core.Models
 
         // This is going to start out assuming left to right filling.  In the future
         // this will have different fill options.
-        public string[] Format(Table tableData, IValueFormatter valueFormatter = null)
+        public string[,] Format(Table tableData, IValueFormatter valueFormatter = null)
         {
             valueFormatter = valueFormatter ?? new BaseValueFormatter();
 
-            var formattedResults = new List<string>();
-            
+            //var formattedResults = new List<string>();
             if (tableData == null || tableData.Data == null)
             {
-                return formattedResults.ToArray();
+                return null;
             }
 
-            bool canIncludeColumnNames = (IncludeColumnNames && tableData.ColumnNames != null && tableData.ColumnNames.Count > 0);
-            if (canIncludeColumnNames)
-            {
-                formattedResults.AddRange(tableData.ColumnNames);
-            }
+            var applyRowFilter = (RowFilter != null && RowFilter.Enabled &&
+                      RowFilter.Type == Constants.FilterType.Exclude);
+            var applyColumnFilter = (ColumnFilter != null && ColumnFilter.Enabled &&
+                                  ColumnFilter.Type == Constants.FilterType.Exclude);
 
-            bool canIncludeRowNames = (IncludeRowNames && tableData.RowNames != null && tableData.RowNames.Count > 0);
-            for (int rowIndex = 0; rowIndex < tableData.RowSize; rowIndex++)
+            var rowFilterIndices = applyRowFilter ? RowFilter.ExpandValue() : new int[0];
+            var columnFilterIndices = applyColumnFilter ? ColumnFilter.ExpandValue() : new int[0];
+            var formattedResults = new string[tableData.RowSize - rowFilterIndices.Length, tableData.ColumnSize - columnFilterIndices.Length];
+            for (int row = 0; row < tableData.RowSize; row++)
             {
-                if (canIncludeRowNames)
+                for (int column = 0; column < tableData.ColumnSize; column++)
                 {
-                    formattedResults.Add(tableData.RowNames[rowIndex]);
-                }
-
-                for (int columnIndex = 0; columnIndex < tableData.ColumnSize; columnIndex++)
-                {
-                    int index = (rowIndex * tableData.ColumnSize) + columnIndex;
-                    formattedResults.Add(tableData.Data[index]);
+                    formattedResults[row, column] = valueFormatter.Finalize(tableData.Data[row, column]);
                 }
             }
-
-            formattedResults = formattedResults.Select(x => valueFormatter.Finalize(x)).ToList();
-
-            // If we have rows and columns, we want to include a blank first value so
-            // it fits nicely into an N x M table.
-            // Note that we do NOT use the valueFormatter here.  We absolutely want this to
-            // be blank, so we don't touch it.
-            if (canIncludeColumnNames && canIncludeRowNames && formattedResults.Count > 0)
-            {
-                formattedResults.Insert(0, string.Empty);
-            }
-
-            return formattedResults.ToArray();
+            //formattedResults = tableData.Data.Select(x => valueFormatter.Finalize(x)).ToList();
+            return formattedResults;
         }
     }
 }

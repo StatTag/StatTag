@@ -199,11 +199,10 @@ namespace StatTag.Models
                 return false;
             }
 
-            // Are we changing the display of headers?
-            if (tagUpdatePair.Old.TableFormat.IncludeColumnNames != tagUpdatePair.New.TableFormat.IncludeColumnNames
-                || tagUpdatePair.Old.TableFormat.IncludeRowNames != tagUpdatePair.New.TableFormat.IncludeRowNames)
+            if (!tagUpdatePair.Old.TableFormat.ColumnFilter.Equals(tagUpdatePair.New.TableFormat.ColumnFilter)
+                || tagUpdatePair.Old.TableFormat.RowFilter.Equals(tagUpdatePair.New.TableFormat.RowFilter))
             {
-                Log("Table dimensions have changed based on header settings");
+                Log("Table dimensions have changed based on filter settings");
                 return true;
             }
 
@@ -552,7 +551,7 @@ namespace StatTag.Models
                 var innerTag = new FieldTag(tag, index)
                 {
                     CachedResult =
-                        new List<CommandResult>() {new CommandResult() {ValueResult = table.FormattedCells[index]}}
+                        new List<CommandResult>() {new CommandResult() {ValueResult = StatTag.Core.Models.Table.GetDataAtIndex(table.FormattedCells, index)}}
                 };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),

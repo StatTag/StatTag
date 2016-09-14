@@ -21,8 +21,32 @@ namespace StatTag.Controls
 
         public void SetTableFormat(TableFormat tableFormat)
         {
-            chkExcludeColumns.Checked = tableFormat.IncludeColumnNames;
-            chkExcludeRows.Checked = tableFormat.IncludeRowNames;
+            if (tableFormat == null)
+            {
+                return;
+            }
+
+            if (tableFormat.ColumnFilter == null || !tableFormat.ColumnFilter.Enabled)
+            {
+                chkExcludeColumns.Checked = false;
+                txtColumns.Text = Constants.TableParameterDefaults.FilterValue;
+            }
+            else
+            {
+                chkExcludeColumns.Checked = tableFormat.ColumnFilter.Enabled;
+                txtColumns.Text = tableFormat.ColumnFilter.Value;
+            }
+
+            if (tableFormat.RowFilter == null || !tableFormat.RowFilter.Enabled)
+            {
+                chkExcludeRows.Checked = false;
+                txtRows.Text = Constants.TableParameterDefaults.FilterValue;
+            }
+            else
+            {
+                chkExcludeRows.Checked = tableFormat.RowFilter.Enabled;
+                txtRows.Text = tableFormat.RowFilter.Value;
+            }
         }
 
         public void SetValueFormat(ValueFormat valueFormat)
@@ -34,11 +58,14 @@ namespace StatTag.Controls
 
         public TableFormat GetTableFormat()
         {
-            return new TableFormat()
-            {
-                IncludeColumnNames = chkExcludeColumns.Checked,
-                IncludeRowNames = chkExcludeRows.Checked
-            };
+            var tableFormat = new TableFormat();
+            tableFormat.ColumnFilter.Enabled = chkExcludeColumns.Checked;
+            tableFormat.ColumnFilter.Type = Constants.FilterType.Exclude;
+            tableFormat.ColumnFilter.Value = txtColumns.Text;
+            tableFormat.RowFilter.Enabled = chkExcludeRows.Checked;
+            tableFormat.RowFilter.Type = Constants.FilterType.Exclude;
+            tableFormat.RowFilter.Value = txtRows.Text;
+            return tableFormat;
         }
 
         public ValueFormat GetValueFormat()

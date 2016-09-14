@@ -222,13 +222,14 @@ namespace Stata
         public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
-            var table = new Table(
-                Application.MatrixRowNames(matrixName),
-                Application.MatrixColNames(matrixName),
-                Application.MatrixRowDim(matrixName),
-                Application.MatrixColDim(matrixName),
-                ProcessForMissingValues(Application.MatrixData(matrixName))
-            );
+            var table = new Table();
+            //var table = new Table(
+            //    Application.MatrixRowNames(matrixName),
+            //    Application.MatrixColNames(matrixName),
+            //    Application.MatrixRowDim(matrixName),
+            //    Application.MatrixColDim(matrixName),
+            //    ProcessForMissingValues(Application.MatrixData(matrixName))
+            //);
 
             return table;
         }

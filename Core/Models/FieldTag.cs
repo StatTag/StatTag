@@ -139,7 +139,9 @@ namespace StatTag.Core.Models
                     CachedResult = new List<CommandResult>() {
                         new CommandResult()
                         {
-                            ValueResult = (TableCellIndex.Value < table.FormattedCells.Length) ? table.FormattedCells[TableCellIndex.Value] : string.Empty
+                            //ValueResult = (TableCellIndex.Value < table.FormattedCells.Length) ? 
+                            //    table.FormattedCells[TableCellIndex.Value] : string.Empty
+                            ValueResult = Table.GetDataAtIndex(table.FormattedCells, TableCellIndex.Value)
                         } 
                     };
                 }

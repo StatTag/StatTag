@@ -72,18 +72,24 @@ namespace StatTag.Core.Models
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
 
-                int columns = 0;
-                var data = new List<string>();
+                int row = 0;
+                var data = new string[dimensions[0], dimensions[1]];
+                //var data = new List<string>();
                 while (!parser.EndOfData)
                 {
+                    int column = 0;
                     string[] fields = parser.ReadFields();
                     if (fields != null)
                     {
-                        columns = Math.Max(columns, fields.Length);
-                        foreach (string field in fields)
+                        for (int index = 0; index < fields.Length; index++)
                         {
-                            data.Add(field);
+                            data[row, index] = fields[index];
                         }
+                        //columns = Math.Max(columns, fields.Length);
+                        //foreach (string field in fields)
+                        //{
+                        //    data;
+                        //}
                     }
 
                     // If this is an unbalanced row, balance it with empty strings
@@ -91,16 +97,14 @@ namespace StatTag.Core.Models
                     {
                         for (int index = fields.Length; index < dimensions[1]; index++)
                         {
-                            data.Add(string.Empty);
+                            data[row, index] = string.Empty;
                         }
                     }
                 }
 
-                table.RowNames = new List<string>();
-                table.ColumnNames = new List<string>();
                 table.RowSize = dimensions[0];
                 table.ColumnSize = dimensions[1];
-                table.Data = data.ToArray();
+                table.Data = data;
             }
 
             return table;

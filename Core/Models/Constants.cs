@@ -93,6 +93,8 @@ namespace StatTag.Core.Models
         public static class ReservedCharacters
         {
             public const char TagTableCellDelimiter = '|';
+            public const char ListDelimiter = ',';
+            public const char RangeDelimiter = '-';
         }
 
         public static class FieldDetails
