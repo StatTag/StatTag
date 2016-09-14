@@ -85,21 +85,19 @@ namespace StatTag.Core.Models
                         {
                             data[row, index] = fields[index];
                         }
-                        //columns = Math.Max(columns, fields.Length);
-                        //foreach (string field in fields)
-                        //{
-                        //    data;
-                        //}
                     }
 
+                    int fieldsLength = (fields == null ? 0 : fields.Length);
                     // If this is an unbalanced row, balance it with empty strings
-                    if (fields.Length < dimensions[1])
+                    if (fieldsLength < dimensions[1])
                     {
-                        for (int index = fields.Length; index < dimensions[1]; index++)
+                        for (int index = fieldsLength; index < dimensions[1]; index++)
                         {
                             data[row, index] = string.Empty;
                         }
                     }
+
+                    row++;
                 }
 
                 table.RowSize = dimensions[0];

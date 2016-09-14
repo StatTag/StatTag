@@ -9,6 +9,11 @@ namespace StatTag.Core.Parser
 {
     public class TableParameterParser : BaseParameterParser
     {
+        // These are deprecated parameters, but these constants are preserved in this class (instead of in
+        // the Constants class) so we have them for legacy and migration code.
+        private const string ColumnNames = "ColumnNames";
+        private const string RowNames = "RowNames";
+
         public new static void Parse(string tagText, Tag tag)
         {
             tag.TableFormat = new TableFormat();
@@ -31,7 +36,7 @@ namespace StatTag.Core.Parser
             // attribute is there, we are going to convert it into a filter.
             // We are making the assumption that if this is an old tag that the Include attribute was set.  If not, we will
             // assume this is a newer tag and no conversion is necessary.
-            var includeColumnNames = GetBoolParameter(Constants.TableParameters.ColumnNames, tagText);
+            var includeColumnNames = GetBoolParameter(ColumnNames, tagText);
             if (includeColumnNames.HasValue && !includeColumnNames.Value)
             {
                 tag.TableFormat.ColumnFilter.Enabled = true;
@@ -39,7 +44,7 @@ namespace StatTag.Core.Parser
                 tag.TableFormat.ColumnFilter.Value = "1";
             }
 
-            var includeRowNames = GetBoolParameter(Constants.TableParameters.RowNames, tagText);
+            var includeRowNames = GetBoolParameter(RowNames, tagText);
             if (includeRowNames.HasValue && !includeRowNames.Value)
             {
                 tag.TableFormat.RowFilter.Enabled = true;

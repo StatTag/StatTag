@@ -83,6 +83,7 @@
     <Compile Include="TestUtil.cs" />
     <Compile Include="Utility\GeneralUtilTests.cs" />
     <Compile Include="Utility\AnnotationUtilTests.cs" />
+    <Compile Include="Utility\TableUtilTests.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatterTests.cs" />
     <Compile Include="ValueFormatter\StataTests.cs" />
     <Compile Include="ValueFormatter\SASTests.cs" />

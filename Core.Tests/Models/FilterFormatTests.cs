@@ -83,31 +83,31 @@ namespace Core.Tests.Models
             var format = new FilterFormat("Test") { Value = "1" };
             var values = format.ExpandValue();
             Assert.AreEqual(1, values.Length);
-            Assert.AreEqual(1, values[0]);
+            Assert.AreEqual(0, values[0]);
 
             // Throwing in some extra spaces for fun
             format.Value = "  1,3, 5 ";
             values = format.ExpandValue();
             Assert.AreEqual(3, values.Length);
-            Assert.AreEqual(1, values[0]);
-            Assert.AreEqual(3, values[1]);
-            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(0, values[0]);
+            Assert.AreEqual(2, values[1]);
+            Assert.AreEqual(4, values[2]);
 
             // Make sure it will sort the values
             format.Value = "5,1,3";
             values = format.ExpandValue();
             Assert.AreEqual(3, values.Length);
-            Assert.AreEqual(1, values[0]);
-            Assert.AreEqual(3, values[1]);
-            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(0, values[0]);
+            Assert.AreEqual(2, values[1]);
+            Assert.AreEqual(4, values[2]);
 
             // Make sure we remove duplicates
             format.Value = "5,1,3,5,1,3,3,3";
             values = format.ExpandValue();
             Assert.AreEqual(3, values.Length);
-            Assert.AreEqual(1, values[0]);
-            Assert.AreEqual(3, values[1]);
-            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(0, values[0]);
+            Assert.AreEqual(2, values[1]);
+            Assert.AreEqual(4, values[2]);
         }
 
         [TestMethod]
@@ -116,42 +116,42 @@ namespace Core.Tests.Models
             var format = new FilterFormat("Test") {Value = "3-5"};
             var values = format.ExpandValue();
             Assert.AreEqual(3, values.Length);
-            Assert.AreEqual(3, values[0]);
-            Assert.AreEqual(4, values[1]);
-            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(2, values[0]);
+            Assert.AreEqual(3, values[1]);
+            Assert.AreEqual(4, values[2]);
         
             // Flipped range
             format.Value = "5-3";
             values = format.ExpandValue();
             Assert.AreEqual(3, values.Length);
-            Assert.AreEqual(3, values[0]);
-            Assert.AreEqual(4, values[1]);
-            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(2, values[0]);
+            Assert.AreEqual(3, values[1]);
+            Assert.AreEqual(4, values[2]);
 
             // Single value range (we will allow this)
             format.Value = "3-3";
             values = format.ExpandValue();
             Assert.AreEqual(1, values.Length);
-            Assert.AreEqual(3, values[0]);
+            Assert.AreEqual(2, values[0]);
 
             // Multiple ranges, no overlap
             format.Value = "3-4,6-7";
             values = format.ExpandValue();
             Assert.AreEqual(4, values.Length);
-            Assert.AreEqual(3, values[0]);
-            Assert.AreEqual(4, values[1]);
-            Assert.AreEqual(6, values[2]);
-            Assert.AreEqual(7, values[3]);
+            Assert.AreEqual(2, values[0]);
+            Assert.AreEqual(3, values[1]);
+            Assert.AreEqual(5, values[2]);
+            Assert.AreEqual(6, values[3]);
 
             // Multiple ranges, with overlap
             format.Value = "3-6,4-7";
             values = format.ExpandValue();
             Assert.AreEqual(5, values.Length);
-            Assert.AreEqual(3, values[0]);
-            Assert.AreEqual(4, values[1]);
-            Assert.AreEqual(5, values[2]);
-            Assert.AreEqual(6, values[3]);
-            Assert.AreEqual(7, values[4]);
+            Assert.AreEqual(2, values[0]);
+            Assert.AreEqual(3, values[1]);
+            Assert.AreEqual(4, values[2]);
+            Assert.AreEqual(5, values[3]);
+            Assert.AreEqual(6, values[4]);
         }
 
         [TestMethod]
@@ -160,19 +160,19 @@ namespace Core.Tests.Models
             var format = new FilterFormat("Test") {Value = "1,3-5"};
             var values = format.ExpandValue();
             Assert.AreEqual(4, values.Length);
-            Assert.AreEqual(1, values[0]);
-            Assert.AreEqual(3, values[1]);
-            Assert.AreEqual(4, values[2]);
-            Assert.AreEqual(5, values[3]);
+            Assert.AreEqual(0, values[0]);
+            Assert.AreEqual(2, values[1]);
+            Assert.AreEqual(3, values[2]);
+            Assert.AreEqual(4, values[3]);
 
             // Overlap
             format.Value = "3-5, 4, 5-5, 6-3";
             values = format.ExpandValue();
             Assert.AreEqual(4, values.Length);
-            Assert.AreEqual(3, values[0]);
-            Assert.AreEqual(4, values[1]);
-            Assert.AreEqual(5, values[2]);
-            Assert.AreEqual(6, values[3]);
+            Assert.AreEqual(2, values[0]);
+            Assert.AreEqual(3, values[1]);
+            Assert.AreEqual(4, values[2]);
+            Assert.AreEqual(5, values[3]);
         }
     }
 }

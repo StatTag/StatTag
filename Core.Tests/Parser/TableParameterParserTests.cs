@@ -14,8 +14,8 @@ namespace Core.Tests.Parser
             var tag = new Tag();
             TableParameterParser.Parse("Table", tag);
             Assert.AreEqual(Constants.RunFrequency.Always, tag.RunFrequency);
-            Assert.AreEqual(Constants.TableParameterDefaults.ColumnNames, tag.TableFormat.IncludeColumnNames);
-            Assert.AreEqual(Constants.TableParameterDefaults.RowNames, tag.TableFormat.IncludeRowNames);
+            Assert.AreEqual(Constants.TableParameterDefaults.FilterEnabled, tag.TableFormat.ColumnFilter.Enabled);
+            Assert.AreEqual(Constants.TableParameterDefaults.FilterEnabled, tag.TableFormat.RowFilter.Enabled);
         }
 
         [TestMethod]

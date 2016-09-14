@@ -61,11 +61,14 @@ namespace StatTag.Core.Models
                 throw new InvalidDataException(InvalidFilterExceptionMessage);
             }
 
-            return numericValue;
+            // Convert to 0-based index
+            return (numericValue - 1);
         }
 
         /// <summary>
         /// Expand the value string into an array of index values.
+        /// The value string will be expressed as 1-based indices, and this will
+        /// convert them to a unique, sorted list of 0-based indices.
         /// </summary>
         /// <returns></returns>
         public int[] ExpandValue()

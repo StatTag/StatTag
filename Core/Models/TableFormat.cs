@@ -36,20 +36,12 @@ namespace StatTag.Core.Models
         {
             valueFormatter = valueFormatter ?? new BaseValueFormatter();
 
-            //var formattedResults = new List<string>();
             if (tableData == null || tableData.Data == null)
             {
-                return null;
+                return new string[,]{};
             }
 
-            var applyRowFilter = (RowFilter != null && RowFilter.Enabled &&
-                      RowFilter.Type == Constants.FilterType.Exclude);
-            var applyColumnFilter = (ColumnFilter != null && ColumnFilter.Enabled &&
-                                  ColumnFilter.Type == Constants.FilterType.Exclude);
-
-            var rowFilterIndices = applyRowFilter ? RowFilter.ExpandValue() : new int[0];
-            var columnFilterIndices = applyColumnFilter ? ColumnFilter.ExpandValue() : new int[0];
-            var formattedResults = new string[tableData.RowSize - rowFilterIndices.Length, tableData.ColumnSize - columnFilterIndices.Length];
+            var formattedResults = new string[tableData.RowSize, tableData.ColumnSize];
             for (int row = 0; row < tableData.RowSize; row++)
             {
                 for (int column = 0; column < tableData.ColumnSize; column++)
@@ -57,7 +49,6 @@ namespace StatTag.Core.Models
                     formattedResults[row, column] = valueFormatter.Finalize(tableData.Data[row, column]);
                 }
             }
-            //formattedResults = tableData.Data.Select(x => valueFormatter.Finalize(x)).ToList();
             return formattedResults;
         }
     }
