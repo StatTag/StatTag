@@ -9,17 +9,6 @@ namespace StatTag.Core.Models
 {
     public class TableFormat
     {
-        /// <summary>
-        /// OBSOLETE: Please use column filters instead
-        /// </summary>
-        [Obsolete]
-        public bool IncludeColumnNames { get; set; }
-        /// <summary>
-        /// OBSOLETE: Please use row filters instead
-        /// </summary>
-        [Obsolete]
-        public bool IncludeRowNames { get; set; }
-
         public FilterFormat RowFilter { get; set; }
         public FilterFormat ColumnFilter { get; set; }
 
@@ -28,7 +17,6 @@ namespace StatTag.Core.Models
             RowFilter = new FilterFormat(Constants.FilterPrefix.Row);
             ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column);
         }
-
 
         // This is going to start out assuming left to right filling.  In the future
         // this will have different fill options.
@@ -46,6 +34,15 @@ namespace StatTag.Core.Models
             {
                 for (int column = 0; column < tableData.ColumnSize; column++)
                 {
+                    // If we are not filtering, and the first cell is blank, don't finalize it.  We purposely want to
+                    // allow that cell to have an empty string (not an empty placeholder value) to account for the
+                    // intersection of row and column names.
+                    if (row == 0 && column == 0 && !RowFilter.Enabled && !ColumnFilter.Enabled)
+                    {
+                        formattedResults[row, column] = tableData.Data[row, column];
+                        continue;
+                    }
+
                     formattedResults[row, column] = valueFormatter.Finalize(tableData.Data[row, column]);
                 }
             }

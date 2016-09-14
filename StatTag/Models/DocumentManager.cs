@@ -201,7 +201,7 @@ namespace StatTag.Models
             }
 
             if (!tagUpdatePair.Old.TableFormat.ColumnFilter.Equals(tagUpdatePair.New.TableFormat.ColumnFilter)
-                || tagUpdatePair.Old.TableFormat.RowFilter.Equals(tagUpdatePair.New.TableFormat.RowFilter))
+                || !tagUpdatePair.Old.TableFormat.RowFilter.Equals(tagUpdatePair.New.TableFormat.RowFilter))
             {
                 Log("Table dimensions have changed based on filter settings");
                 return true;
@@ -506,7 +506,7 @@ namespace StatTag.Models
                 // The table will be the size we need.  Update these tracking variables with the cells and
                 // total size so that we can begin inserting data.
                 cells = GetCells(selection);
-                cellsCount = dimensions[0] * dimensions[1]; //table.FormattedCells.Length;
+                cellsCount = dimensions[0] * dimensions[1];
             }
             // Our heuristic is that a single cell selected with the selection being the same position most
             // likely means the user has their cursor in a table.  We are going to assume they want us to
@@ -609,8 +609,8 @@ namespace StatTag.Models
             var document = application.ActiveDocument;
             try
             {
-                int rowCount = dimensions[0]; //(format.IncludeColumnNames) ? (table.RowSize + 1) : (table.RowSize);
-                int columnCount = dimensions[1]; //(format.IncludeRowNames) ? (table.ColumnSize + 1) : (table.ColumnSize);
+                int rowCount = dimensions[0];
+                int columnCount = dimensions[1];
 
                 Log(string.Format("Table dimensions r={0}, c={1}", rowCount, columnCount));
 

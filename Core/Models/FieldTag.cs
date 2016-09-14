@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using StatTag.Core.Utility;
 
 namespace StatTag.Core.Models
 {
@@ -136,12 +137,11 @@ namespace StatTag.Core.Models
                 var table = CachedResult.Last().TableResult;
                 if (table != null && table.FormattedCells != null)
                 {
+                    var displayData = TableUtil.GetDisplayableVector(table.FormattedCells, TableFormat);
                     CachedResult = new List<CommandResult>() {
                         new CommandResult()
                         {
-                            //ValueResult = (TableCellIndex.Value < table.FormattedCells.Length) ? 
-                            //    table.FormattedCells[TableCellIndex.Value] : string.Empty
-                            ValueResult = Table.GetDataAtIndex(table.FormattedCells, TableCellIndex.Value)
+                            ValueResult = displayData[TableCellIndex.Value]
                         } 
                     };
                 }
