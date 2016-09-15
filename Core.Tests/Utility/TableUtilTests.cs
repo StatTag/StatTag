@@ -192,5 +192,22 @@ namespace Core.Tests.Utility
             Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, 2, 3, Row3, 4, 5", string.Join(", ", result));
         }
 
+        [TestMethod]
+        public void Format_EnabledFilterWithNoValue()
+        {
+            // Use this to detect for an error situation - the user has somehow specified that a filter should
+            // be enabled, but the filter value is left empty.  We will try to guard against this in most
+            // circumstances, but technically it could show up in execution.
+            var format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = true, Type = "Exclude", Value = "" },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = true, Type = "Exclude", Value = null }
+            };
+            var table = new Table(4, 3,
+                new string[,] { { "", "Col1", "Col2" }, { "Row1", "0", "1" }, { "Row2", "2", "3" }, { "Row3", "4", "5" } });
+            var result = TableUtil.GetDisplayableVector(table.Data, format);
+            Assert.AreEqual(12, result.Length);
+            Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, 2, 3, Row3, 4, 5", string.Join(", ", result));
+        }
     }
 }

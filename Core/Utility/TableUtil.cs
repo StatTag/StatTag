@@ -97,17 +97,22 @@ namespace StatTag.Core.Utility
             var excludeColumnIndices = format.ColumnFilter.ExpandValue();
             var excludeRowIndices = format.RowFilter.ExpandValue();
 
+            var useColumnFilter = format.ColumnFilter.Enabled && excludeColumnIndices != null &&
+                               excludeColumnIndices.Length > 0;
+            var useRowFilter = format.RowFilter.Enabled && excludeRowIndices != null &&
+                               excludeRowIndices.Length > 0;
+
             var dataVector = new List<string>();
             for (int row = 0; row < data.GetLength(0); row++)
             {
-                if (format.RowFilter.Enabled && excludeRowIndices.Contains(row))
+                if (useRowFilter && excludeRowIndices.Contains(row))
                 {
                     continue;
                 }
 
                 for (int column = 0; column < data.GetLength(1); column++)
                 {
-                    if (format.ColumnFilter.Enabled && excludeColumnIndices.Contains(column))
+                    if (useColumnFilter && excludeColumnIndices.Contains(column))
                     {
                         continue;
                     }

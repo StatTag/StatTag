@@ -59,12 +59,19 @@ namespace StatTag.Controls
         public TableFormat GetTableFormat()
         {
             var tableFormat = new TableFormat();
-            tableFormat.ColumnFilter.Enabled = chkExcludeColumns.Checked;
-            tableFormat.ColumnFilter.Type = Constants.FilterType.Exclude;
-            tableFormat.ColumnFilter.Value = txtColumns.Text;
-            tableFormat.RowFilter.Enabled = chkExcludeRows.Checked;
-            tableFormat.RowFilter.Type = Constants.FilterType.Exclude;
-            tableFormat.RowFilter.Value = txtRows.Text;
+            if (chkExcludeColumns.Checked && !string.IsNullOrWhiteSpace(txtColumns.Text))
+            {
+                tableFormat.ColumnFilter.Enabled = chkExcludeColumns.Checked;
+                tableFormat.ColumnFilter.Type = Constants.FilterType.Exclude;
+                tableFormat.ColumnFilter.Value = txtColumns.Text;
+            }
+
+            if (chkExcludeRows.Checked && !string.IsNullOrWhiteSpace(txtRows.Text))
+            {
+                tableFormat.RowFilter.Enabled = chkExcludeRows.Checked; 
+                tableFormat.RowFilter.Type = Constants.FilterType.Exclude;
+                tableFormat.RowFilter.Value = txtRows.Text;
+            }
             return tableFormat;
         }
 
