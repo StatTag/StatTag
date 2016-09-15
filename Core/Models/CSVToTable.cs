@@ -74,7 +74,6 @@ namespace StatTag.Core.Models
 
                 int row = 0;
                 var data = new string[dimensions[0], dimensions[1]];
-                //var data = new List<string>();
                 while (!parser.EndOfData)
                 {
                     int column = 0;

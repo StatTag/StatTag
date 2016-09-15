@@ -64,18 +64,6 @@ namespace StatTag
 
             try
             {
-                // We need to perform this check before proceeding with opening a document.  This is because opening
-                // a document will in turn run the statistical code (if there is some associated), which opens the 
-                // executing stat package.  In other words, if this is below, it will always show an alert.
-                if (Stata.StataAutomation.IsAppRunning())
-                {
-                    LogManager.WriteMessage("Stata appears to be running");
-                    MessageBox.Show(
-                        string.Format("It appears that a copy of Stata is currently running.  StatTag is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use StatTag."),
-                        UIUtility.GetAddInName(),
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-
                 // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
                 // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
                 var document = SafeGetActiveDocument();

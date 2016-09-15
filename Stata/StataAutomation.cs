@@ -40,21 +40,6 @@ namespace Stata
         protected StataParser Parser { get; set; }
         protected List<string> OpenLogs { get; set; } 
 
-        /// <summary>
-        /// The collection of all possible Stata process names.  These are converted to
-        /// lower case here because the comparison we do later depends on conversion to
-        /// lower case.
-        /// </summary>
-        private static readonly List<string> StataProcessNames = new List<string>(new []
-        {
-            "statase-64",
-            "statamp-64",
-            "stata-64",
-            "statase",
-            "statamp",
-            "statase"
-        });
-
         private static class ScalarType
         {
             public const int NotFound = 0;
@@ -69,15 +54,6 @@ namespace Stata
         public StataAutomation()
         {
             Parser = new StataParser();
-        }
-
-        /// <summary>
-        /// Determine if a copy of Stata is running
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsAppRunning()
-        {
-            return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName.ToLower()));
         }
 
         public void Show()
