@@ -235,6 +235,12 @@
     <Compile Include="Controls\ValueProperties.Designer.cs">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\VerticalLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\VerticalLine.Designer.cs">
+      <DependentUpon>VerticalLine.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditTag.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -271,7 +277,7 @@
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />
-    <Compile Include="Models\FieldCreator.cs" />
+    <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\OpenXmlGenerator.cs" />
@@ -325,6 +331,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ValueProperties.resx">
       <DependentUpon>ValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VerticalLine.resx">
+      <DependentUpon>VerticalLine.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditTag.resx">
       <DependentUpon>EditTag.cs</DependentUpon>

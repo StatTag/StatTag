@@ -93,6 +93,8 @@ namespace StatTag.Core.Models
         public static class ReservedCharacters
         {
             public const char TagTableCellDelimiter = '|';
+            public const char ListDelimiter = ',';
+            public const char RangeDelimiter = '-';
         }
 
         public static class FieldDetails
@@ -123,14 +125,16 @@ namespace StatTag.Core.Models
 
         public static class TableParameters
         {
-            public const string ColumnNames = "ColumnNames";
-            public const string RowNames = "RowNames";
+            public const string FilterEnabled = "FilterEnabled";
+            public const string FilterType = "FilterType";
+            public const string FilterValue = "FilterValue";
         }
 
         public static class TableParameterDefaults
         {
-            public const bool ColumnNames = false;
-            public const bool RowNames = false;
+            public const bool FilterEnabled = false;
+            public const string FilterType = "";
+            public const string FilterValue = "";
         }
 
         public static class ValueParameterDefaults
@@ -198,6 +202,18 @@ namespace StatTag.Core.Models
             public const int RemoveTags = 2;
             public const int ReAddFile = 3;
             public const int SelectFile = 4;
+        }
+
+        public static class FilterPrefix
+        {
+            public const string Row = "Row";
+            public const string Column = "Col";
+        }
+
+        public static class FilterType
+        {
+            public const string Exclude = "Exclude";
+            public const string Include = "Include";
         }
     }
 }

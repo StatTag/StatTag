@@ -55,13 +55,39 @@ namespace StatTag
             return new SaveFileDialog();
         }
 
-        public static string GetFileName(string filter, bool isOpenFile = true)
+        public static string GetOpenFileName(string filter)
         {
-            FileDialog openFile = FileDialogFactory(isOpenFile);
-            openFile.Filter = filter;
+            var files = GetOpenFileNames(filter, false);
+            if (files != null && files.Length > 0)
+            {
+                return files.First();
+            }
+
+            return null;
+        }
+
+        public static string[] GetOpenFileNames(string filter, bool allowMultiple = true)
+        {
+            var openFile = new OpenFileDialog
+            {
+                Filter = filter,
+                Multiselect = allowMultiple
+            };
+
             if (DialogResult.OK == openFile.ShowDialog())
             {
-                return openFile.FileName;
+                return openFile.FileNames;
+            }
+
+            return null;
+        }
+
+        public static string GetSaveFileName(string filter)
+        {
+            var dialog = new SaveFileDialog {Filter = filter};
+            if (DialogResult.OK == dialog.ShowDialog())
+            {
+                return dialog.FileName;
             }
 
             return null;

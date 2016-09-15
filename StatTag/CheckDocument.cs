@@ -225,7 +225,7 @@ namespace StatTag
             var value = combo.Value as CodeFileAction;
             if (value != null && value.Action == Constants.CodeFileActionTask.SelectFile)
             {
-                string fileName = UIUtility.GetFileName(Constants.FileFilters.FormatForOpenFileDialog());
+                string fileName = UIUtility.GetOpenFileName(Constants.FileFilters.FormatForOpenFileDialog());
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
                     string package = CodeFile.GuessStatisticalPackage(fileName);

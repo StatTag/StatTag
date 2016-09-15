@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
+using StatTag.Core.Utility;
 
 namespace Stata
 {
@@ -39,21 +40,6 @@ namespace Stata
         protected StataParser Parser { get; set; }
         protected List<string> OpenLogs { get; set; } 
 
-        /// <summary>
-        /// The collection of all possible Stata process names.  These are converted to
-        /// lower case here because the comparison we do later depends on conversion to
-        /// lower case.
-        /// </summary>
-        private static readonly List<string> StataProcessNames = new List<string>(new []
-        {
-            "statase-64",
-            "statamp-64",
-            "stata-64",
-            "statase",
-            "statamp",
-            "statase"
-        });
-
         private static class ScalarType
         {
             public const int NotFound = 0;
@@ -68,15 +54,6 @@ namespace Stata
         public StataAutomation()
         {
             Parser = new StataParser();
-        }
-
-        /// <summary>
-        /// Determine if a copy of Stata is running
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsAppRunning()
-        {
-            return Process.GetProcesses().Any(process => StataProcessNames.Contains(process.ProcessName.ToLower()));
         }
 
         public void Show()
@@ -120,12 +97,6 @@ namespace Stata
         public bool IsReturnable(string command)
         {
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
-        }
-
-        public CommandResult[] CombineAndRunCommands(string[] commands)
-        {
-            string combinedCommand = string.Join("\r\n", commands);
-            return RunCommands(new[] { combinedCommand });
         }
 
         /// <summary>
@@ -228,14 +199,14 @@ namespace Stata
         public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
-            var table = new Table(
-                Application.MatrixRowNames(matrixName),
-                Application.MatrixColNames(matrixName),
-                Application.MatrixRowDim(matrixName),
-                Application.MatrixColDim(matrixName),
-                ProcessForMissingValues(Application.MatrixData(matrixName))
-            );
+            var rowNames = (string[])Application.MatrixRowNames(matrixName);
+            var columnNames = Application.MatrixColNames(matrixName);
+            var rowCount = Application.MatrixRowDim(matrixName) + ((rowNames != null && rowNames.Length > 0) ? 1 : 0);
+            var columnCount = Application.MatrixColDim(matrixName) + ((columnNames != null && columnNames.Length > 0) ? 1 : 0);
+            var data = ProcessForMissingValues(Application.MatrixData(matrixName));
 
+            var arrayData = TableUtil.MergeTableVectorsToArray(rowNames, columnNames, data, rowCount, columnCount);
+            var table = new Table(rowCount, columnCount, arrayData);
             return table;
         }
 
@@ -247,13 +218,13 @@ namespace Stata
         /// will detect missing values and set them to null.</remarks>
         /// <param name="data"></param>
         /// <returns></returns>
-        private double?[] ProcessForMissingValues(double[] data)
+        private string[] ProcessForMissingValues(double[] data)
         {
-            var cleanedData = new double?[data.Length];
+            var cleanedData = new string[data.Length];
             var missingValue = Application.UtilGetStMissingValue();
             for (int index = 0; index < data.Length; index++)
             {
-                cleanedData[index] = (data[index] >= missingValue) ? (double?) null : data[index];
+                cleanedData[index] = (data[index] >= missingValue) ? null : data[index].ToString();
             }
 
             return cleanedData;

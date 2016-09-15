@@ -23,6 +23,8 @@ namespace StatTag.Models
 
         public const int WdUndefined = 9999999;
 
+        public const int Base64ChunkSize = 76;
+
         /// <summary>
         /// Build the formatting properties for the current range.
         /// <remarks>We need to do this because inserting an OpenXML block doesn't preserve any
@@ -133,18 +135,6 @@ namespace StatTag.Models
                     }
                 }
             }
-            //var characters = range.Characters;
-            //for (int index = 1; index <= characters.Count; index++)
-            //{
-            //    var character = characters[index];
-            //    if (character.Font.Size < WdUndefined)
-            //    {
-            //        return character.Font;
-            //    }
-            //    Marshal.ReleaseComObject(character);
-            //}
-
-            //Marshal.ReleaseComObject(characters);
             return null;
         }
 
@@ -262,6 +252,19 @@ namespace StatTag.Models
         /// <returns></returns>
         public static string GenerateField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
+            return GenerateField(range, tagIdentifier, displayValue, tag.Serialize());
+        }
+
+        /// <summary>
+        /// Create a StatTag field (nested Word fields with associated data) in the Open XML format.  This may be inserted directly
+        /// into a Word document via InsertXML.
+        /// </summary>
+        /// <param name="tagIdentifier"></param>
+        /// <param name="displayValue"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string GenerateField(Range range, string tagIdentifier, string displayValue, string data)
+        {
             var result = string.Format(
                 @"<w:p xmlns:w=""http://schemas.microsoft.com/office/word/2003/wordml"">
                     <w:r>
@@ -277,7 +280,7 @@ namespace StatTag.Models
                         <w:fldChar w:fldCharType=""end"" />
                         <w:fldChar w:fldCharType=""end"" />
                     </w:r>
-                </w:p>", Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, Base64EncodeFieldData(tag.Serialize()), GetFormat(range));
+                </w:p>", Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, Base64EncodeFieldData(data), GetFormat(range));
             return result;
         }
 
@@ -290,7 +293,23 @@ namespace StatTag.Models
         {
             // Word expects Unicode to be used.  If not, the data gets garbled when you try to read it back.
             var bytes = Encoding.Unicode.GetBytes(text);
-            return Convert.ToBase64String(bytes);
+
+            // Per the Flat OPC specification for OpenXML, the base64-encoded data must be written out in chunks of 76
+            // characters, and not have any leading or trailing spaces. Reference:  https://blogs.msdn.microsoft.com/ericwhite/2008/09/29/the-flat-opc-format/
+            // HOWEVER - that doesn't work in Word 2016.  After much trial and error, it appears that you DO need to append
+            // \r\n after the base64 encoded data.  This thread of thinking is partially documented at:
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/6d677891-79b9-4218-b881-62cf8bf9aacb/data-limit-for-addin-fields-created-via-insertxml-in-word-2016?forum=vsto
+            var data = Convert.ToBase64String(bytes);
+            return string.Join("\r\n", Chunk(data, Base64ChunkSize)) + "\r\n";
+        }
+
+        // Derived from: http://stackoverflow.com/questions/1450774/splitting-a-string-into-chunks-of-a-certain-size/1450889#1450889
+        public static IEnumerable<string> Chunk(string str, int maxChunkSize)
+        {
+            for (int index = 0; index < str.Length; index += maxChunkSize)
+            {
+                yield return str.Substring(index, Math.Min(maxChunkSize, str.Length - index));
+            }
         }
     }
 }

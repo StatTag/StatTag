@@ -57,24 +57,13 @@ namespace StatTag
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
             LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
             try
             {
-                // We need to perform this check before proceeding with opening a document.  This is because opening
-                // a document will in turn run the statistical code (if there is some associated), which opens the 
-                // executing stat package.  In other words, if this is below, it will always show an alert.
-                if (Stata.StataAutomation.IsAppRunning())
-                {
-                    LogManager.WriteMessage("Stata appears to be running");
-                    MessageBox.Show(
-                        string.Format("It appears that a copy of Stata is currently running.  StatTag is not able to work properly if Stata is already running.\r\nPlease close Stata, or proceed if you don't need to use StatTag."),
-                        UIUtility.GetAddInName(),
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-
                 // When you double-click on a document to open it (and Word is close), the DocumentOpen event isn't called.
                 // We will process the DocumentOpen event when the add-in is initialized, if there is an active document
                 var document = SafeGetActiveDocument();
@@ -128,7 +117,7 @@ namespace StatTag
 
         void Application_NewDocument(Word.Document doc)
         {
-            LogManager.WriteMessage("DocumentOpen - Started");
+            LogManager.WriteMessage("NewDocument - Started");
         }
 
         // Hande initailization when a document is opened.  This may be called multiple times in a single Word session.
@@ -260,6 +249,31 @@ namespace StatTag
         void Application_WindowActivate(Word.Document doc, Word.Window window)
         {
             Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+        }
+
+        /// <summary>
+        /// Produce a logging string that contains information about the user's environment (StatTag, Word and OS)
+        /// </summary>
+        /// <returns></returns>
+        public string GetUserEnvironmentDetails()
+        {
+            string value = String.Empty;
+            try
+            {
+                var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                value = string.Format(
+                    "\r\n***********************\r\n* {0}\r\n*    Full name: {1}\r\n*    Code base: {2}\r\n*    CLR: {3}\r\n* MS Word {4}\r\n*    Build: {5}\r\n*    Is sandboxed: {6}\r\n*    Path: {7}\r\n* Process environment\r\n*    Is 64-bit: {8}\r\n*    Current directory: {9}\r\n* OS\r\n*    Version: {10}\r\n*    Is 64-bit: {11}\r\n***********************",
+                    UIUtility.GetVersionLabel(), executingAssembly.FullName, executingAssembly.CodeBase,
+                    executingAssembly.ImageRuntimeVersion,
+                    Application.Version, Application.Build, Application.IsSandboxed, Application.Path,
+                    Environment.Is64BitProcess, Environment.CurrentDirectory,
+                    Environment.OSVersion.ToString(), Environment.Is64BitOperatingSystem);
+            }
+            catch (Exception exc)
+            {
+                value = string.Format("Error in GetUserEnvironment: {0}", exc.Message);
+            }
+            return value;
         }
 
         #region VSTO generated code

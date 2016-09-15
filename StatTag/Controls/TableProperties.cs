@@ -21,8 +21,32 @@ namespace StatTag.Controls
 
         public void SetTableFormat(TableFormat tableFormat)
         {
-            chkIncludeColumnNames.Checked = tableFormat.IncludeColumnNames;
-            chkIncludeRowNames.Checked = tableFormat.IncludeRowNames;
+            if (tableFormat == null)
+            {
+                return;
+            }
+
+            if (tableFormat.ColumnFilter == null || !tableFormat.ColumnFilter.Enabled)
+            {
+                chkExcludeColumns.Checked = false;
+                txtColumns.Text = Constants.TableParameterDefaults.FilterValue;
+            }
+            else
+            {
+                chkExcludeColumns.Checked = tableFormat.ColumnFilter.Enabled;
+                txtColumns.Text = tableFormat.ColumnFilter.Value;
+            }
+
+            if (tableFormat.RowFilter == null || !tableFormat.RowFilter.Enabled)
+            {
+                chkExcludeRows.Checked = false;
+                txtRows.Text = Constants.TableParameterDefaults.FilterValue;
+            }
+            else
+            {
+                chkExcludeRows.Checked = tableFormat.RowFilter.Enabled;
+                txtRows.Text = tableFormat.RowFilter.Value;
+            }
         }
 
         public void SetValueFormat(ValueFormat valueFormat)
@@ -34,11 +58,21 @@ namespace StatTag.Controls
 
         public TableFormat GetTableFormat()
         {
-            return new TableFormat()
+            var tableFormat = new TableFormat();
+            if (chkExcludeColumns.Checked && !string.IsNullOrWhiteSpace(txtColumns.Text))
             {
-                IncludeColumnNames = chkIncludeColumnNames.Checked,
-                IncludeRowNames = chkIncludeRowNames.Checked
-            };
+                tableFormat.ColumnFilter.Enabled = chkExcludeColumns.Checked;
+                tableFormat.ColumnFilter.Type = Constants.FilterType.Exclude;
+                tableFormat.ColumnFilter.Value = txtColumns.Text;
+            }
+
+            if (chkExcludeRows.Checked && !string.IsNullOrWhiteSpace(txtRows.Text))
+            {
+                tableFormat.RowFilter.Enabled = chkExcludeRows.Checked; 
+                tableFormat.RowFilter.Type = Constants.FilterType.Exclude;
+                tableFormat.RowFilter.Value = txtRows.Text;
+            }
+            return tableFormat;
         }
 
         public ValueFormat GetValueFormat()
@@ -52,6 +86,16 @@ namespace StatTag.Controls
                 // through when inserting results into the document.
                 AllowInvalidTypes = true
             };
+        }
+
+        private void chkExcludeRows_CheckedChanged(object sender, EventArgs e)
+        {
+            txtRows.Enabled = chkExcludeRows.Checked;
+        }
+
+        private void chkExcludeColumns_CheckedChanged(object sender, EventArgs e)
+        {
+            txtColumns.Enabled = chkExcludeColumns.Checked;
         }
     }
 }

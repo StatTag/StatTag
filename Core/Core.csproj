@@ -30,8 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -52,12 +53,14 @@
     <Compile Include="Generator\Stata.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Generator\TableGenerator.cs" />
-    <Compile Include="Generator\ValueGenerator.cs" />
+    <Compile Include="Generator\TableParameterGenerator.cs" />
+    <Compile Include="Generator\ValueParameterGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Interfaces\IResultCommandFormatter.cs" />
     <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Interfaces\IStatAutomation.cs" />
+    <Compile Include="Models\CSVToTable.cs" />
+    <Compile Include="Models\FilterFormat.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />
@@ -82,6 +85,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\GeneralUtil.cs" />
     <Compile Include="Utility\AnnotationUtil.cs" />
+    <Compile Include="Utility\TableUtil.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatter.cs" />
     <Compile Include="ValueFormatter\IValueFormatter.cs" />
     <Compile Include="ValueFormatter\SAS.cs" />

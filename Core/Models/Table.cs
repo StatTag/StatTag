@@ -14,23 +14,31 @@ namespace StatTag.Core.Models
     /// </summary>
     public class Table
     {
-        public List<string> RowNames { get; set; }
-        public List<string> ColumnNames { get; set; }
         public int RowSize { get; set; }
         public int ColumnSize { get; set; }
-        public double?[] Data { get; set; }
-        public string[] FormattedCells { get; set; }
+        public string[,] Data { get; set; }
+
+        /// <summary>
+        /// The formatted cells will be filled for all values in the Data array (meaning, these
+        /// two collections will always be the same size).  If the user chooses to filter out
+        /// rows or columns, they will still be present in this collection.
+        /// </summary>
+        public string[,] FormattedCells { get; set; }
 
         public Table()
         {
-            RowNames = new List<string>();
-            ColumnNames = new List<string>();
         }
 
-        public Table(string[] rowNames, string[] columnNames, int rowSize, int columnSize, double?[] data)
+        public Table(int rowSize, int columnSize, string[,] data)
         {
-            RowNames = (rowNames == null) ? null : new List<string>(rowNames);
-            ColumnNames = (columnNames == null) ? null : new List<string>(columnNames);
+            if ((data == null && (rowSize * columnSize != 0))
+                || (data != null 
+                    && (data.GetLength(0) != rowSize
+                        || data.GetLength(1) != columnSize)))
+            {
+                throw new Exception("The dimensions of the data do not match the row and column dimensions.");
+            }
+
             RowSize = rowSize;
             ColumnSize = columnSize;
             Data = data;
@@ -44,6 +52,25 @@ namespace StatTag.Core.Models
         public bool IsEmpty()
         {
             return Data == null || Data.Length == 0 || RowSize == 0 || ColumnSize == 0;
+        }
+
+
+        /// <summary>
+        /// Our approach has been to sequentially number table cells, so this is used to pull
+        /// out data at the appropriate 2D location.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static string GetDataAtIndex(string[,] data, int index)
+        {
+            if (data == null || index >= data.Length)
+            {
+                return string.Empty;
+            }
+
+            int columns = data.GetLength(1);
+            return data[(index / columns), (index % columns)];
         }
     }
 }

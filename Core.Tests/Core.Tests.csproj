@@ -39,6 +39,10 @@
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -56,25 +60,30 @@
   <ItemGroup>
     <Compile Include="Generator\BaseGeneratorTests.cs" />
     <Compile Include="Generator\FigureGeneratorTests.cs" />
-    <Compile Include="Generator\TableGeneratorTests.cs" />
+    <Compile Include="Generator\TableParameterGeneratorTests.cs" />
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
-    <Compile Include="Generator\ValueGeneratorTests.cs" />
-    <Compile Include="Models\AnnotationTests.cs" />
+    <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
+    <Compile Include="Models\TagTests.cs" />
     <Compile Include="Models\CommandResultTests.cs" />
     <Compile Include="Models\TableFormatTests.cs" />
     <Compile Include="Models\FieldAnnotationTests.cs" />
+    <Compile Include="Models\CSVToTableTests.cs" />
+    <Compile Include="Models\TableTests.cs" />
+    <Compile Include="Models\FilterFormatTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
-    <Compile Include="Parser\TableParserTests.cs" />
+    <Compile Include="Parser\TableParameterParserTests.cs" />
     <Compile Include="Parser\SASTests.cs" />
-    <Compile Include="Parser\ValueParserTests.cs" />
+    <Compile Include="Parser\ValueParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />
+    <Compile Include="TestUtil.cs" />
     <Compile Include="Utility\GeneralUtilTests.cs" />
     <Compile Include="Utility\AnnotationUtilTests.cs" />
+    <Compile Include="Utility\TableUtilTests.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatterTests.cs" />
     <Compile Include="ValueFormatter\StataTests.cs" />
     <Compile Include="ValueFormatter\SASTests.cs" />

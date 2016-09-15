@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Core.Tests.Parser
 {
     [TestClass]
-    public class ValueParserTests
+    public class ValueParameterParserTests
     {
         [TestMethod]
         public void Parse_EmptyParams_Defaults()

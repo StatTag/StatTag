@@ -12,6 +12,9 @@ namespace StatTag.Core.Parser
         private static string FigureCommand = "ods pdf";
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        private static string TableCommand = "ods csv";
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static string MacroIndicator = "&";
 
         public override string CommentCharacter
@@ -78,12 +81,12 @@ namespace StatTag.Core.Parser
 
         public override bool IsTableResult(string command)
         {
-            return false;
+            return TableKeywordRegex.IsMatch(command);
         }
 
         public override string GetTableName(string command)
         {
-            return string.Empty;
+            return MatchRegexReturnGroup(command, TableRegex, 1);
         }
 
         public override List<string> PreProcessContent(List<string> originalContent)

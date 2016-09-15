@@ -260,9 +260,13 @@ namespace Core.Tests.Models
             Assert.IsFalse(tag.HasTableData());
 
             // Actual data
-            var format = new TableFormat() { IncludeColumnNames = false, IncludeRowNames = false };
-            var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2" }, 2, 2,
-                new double?[] { 0.0, 1.0, 2.0, 3.0 });
+            var format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = true, Type = Constants.FilterType.Exclude, Value = "1" },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = true, Type = Constants.FilterType.Exclude, Value = "1" }
+            };
+            var table = new Table(3, 3,
+                new string[,] { {"", "Col1", "Col2"}, {"Row1", "0.0", "1.0"}, {"Row2", "2.0", "3.0"} });
             tag = new Tag()
             {
                 Type = Constants.TagType.Table,
@@ -293,7 +297,21 @@ namespace Core.Tests.Models
             Assert.IsNull(tag.GetTableDisplayDimensions());
 
             // No table data
-            var format = new TableFormat() { IncludeColumnNames = false, IncludeRowNames = false };
+            var format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                }
+            };
             tag = new Tag()
             {
                 Type = Constants.TagType.Table,
@@ -303,35 +321,73 @@ namespace Core.Tests.Models
             Assert.IsNull(tag.GetTableDisplayDimensions());
 
             // Actual data
-            var table = new Table(new[] { "Row1", "Row2" }, new[] { "Col1", "Col2", "Col3" }, 2, 3,
-                new double?[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 });
+            format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                }
+            };
+            var table = new Table(3, 4,
+                new string[,] { { "", "Col1", "Col2", "Col3" }, { "Row1", "0.0", "1.0", "2.0" }, { "Row2", "3.0", "4.0", "5.0" } });
             tag = new Tag()
             {
                 Type = Constants.TagType.Table,
                 TableFormat = format,
                 CachedResult = new List<CommandResult>(new[] { new CommandResult() { TableResult = table } })
             };
+            tag.TableFormat = format;
             var dimensions = tag.GetTableDisplayDimensions();
             Assert.AreEqual(2, dimensions[Constants.DimensionIndex.Rows]);
             Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Columns]);
 
-            tag.TableFormat.IncludeColumnNames = true;
-            tag.TableFormat.IncludeRowNames = false;
-            dimensions = tag.GetTableDisplayDimensions();
-            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
-            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Columns]);
-
-            tag.TableFormat.IncludeColumnNames = true;
-            tag.TableFormat.IncludeRowNames = true;
-            dimensions = tag.GetTableDisplayDimensions();
-            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
-            Assert.AreEqual(4, dimensions[Constants.DimensionIndex.Columns]);
-
-            tag.TableFormat.IncludeColumnNames = false;
-            tag.TableFormat.IncludeRowNames = true;
+            format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                }
+            };
+            tag.TableFormat = format;
             dimensions = tag.GetTableDisplayDimensions();
             Assert.AreEqual(2, dimensions[Constants.DimensionIndex.Rows]);
             Assert.AreEqual(4, dimensions[Constants.DimensionIndex.Columns]);
+
+            format = new TableFormat()
+            {
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = false }
+            };
+            tag.TableFormat = format;
+            dimensions = tag.GetTableDisplayDimensions();
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(4, dimensions[Constants.DimensionIndex.Columns]);
+
+            format = new TableFormat()
+            {
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                {
+                    Enabled = true,
+                    Type = Constants.FilterType.Exclude,
+                    Value = "1"
+                }
+            };
+            tag.TableFormat = format;
+            dimensions = tag.GetTableDisplayDimensions();
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Rows]);
+            Assert.AreEqual(3, dimensions[Constants.DimensionIndex.Columns]);
         }
 
         [TestMethod]

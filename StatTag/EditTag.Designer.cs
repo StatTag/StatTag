@@ -52,6 +52,7 @@
             this.figureProperties = new StatTag.Controls.FigureProperties();
             this.valueProperties = new StatTag.Controls.ValueProperties();
             this.scintilla1 = new ScintillaNET.Scintilla();
+            this.verticalLine1 = new StatTag.Controls.VerticalLine();
             this.pnlType.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -188,6 +189,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlType.BackColor = System.Drawing.Color.White;
             this.pnlType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlType.Controls.Add(this.verticalLine1);
             this.pnlType.Controls.Add(this.lblAllowedCommands);
             this.pnlType.Controls.Add(this.lblInstructionTitle);
             this.pnlType.Controls.Add(this.tableProperties);
@@ -203,9 +205,9 @@
             // 
             this.lblAllowedCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblAllowedCommands.Location = new System.Drawing.Point(397, 44);
+            this.lblAllowedCommands.Location = new System.Drawing.Point(496, 44);
             this.lblAllowedCommands.Name = "lblAllowedCommands";
-            this.lblAllowedCommands.Size = new System.Drawing.Size(267, 60);
+            this.lblAllowedCommands.Size = new System.Drawing.Size(168, 60);
             this.lblAllowedCommands.TabIndex = 4;
             this.lblAllowedCommands.Text = "(None specified)";
             // 
@@ -213,9 +215,9 @@
             // 
             this.lblInstructionTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblInstructionTitle.Location = new System.Drawing.Point(381, 6);
+            this.lblInstructionTitle.Location = new System.Drawing.Point(477, 6);
             this.lblInstructionTitle.Name = "lblInstructionTitle";
-            this.lblInstructionTitle.Size = new System.Drawing.Size(283, 34);
+            this.lblInstructionTitle.Size = new System.Drawing.Size(187, 34);
             this.lblInstructionTitle.TabIndex = 3;
             this.lblInstructionTitle.Text = "The following Stata commands can be used for Value results:\r\n";
             // 
@@ -271,7 +273,7 @@
             this.tableProperties.Location = new System.Drawing.Point(6, 4);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(369, 100);
+            this.tableProperties.Size = new System.Drawing.Size(465, 100);
             this.tableProperties.TabIndex = 2;
             // 
             // figureProperties
@@ -310,6 +312,18 @@
             this.scintilla1.Size = new System.Drawing.Size(751, 390);
             this.scintilla1.TabIndex = 24;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
+            // 
+            // verticalLine1
+            // 
+            this.verticalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.verticalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.verticalLine1.CausesValidation = false;
+            this.verticalLine1.Location = new System.Drawing.Point(466, 4);
+            this.verticalLine1.Margin = new System.Windows.Forms.Padding(0);
+            this.verticalLine1.Name = "verticalLine1";
+            this.verticalLine1.Size = new System.Drawing.Size(12, 101);
+            this.verticalLine1.TabIndex = 32;
             // 
             // EditTag
             // 
@@ -373,5 +387,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lblAllowedCommands;
         private System.Windows.Forms.Label lblInstructionTitle;
+        private Controls.VerticalLine verticalLine1;
     }
 }

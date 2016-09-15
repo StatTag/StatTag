@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,6 +46,23 @@ namespace SAS
             return true;
         }
 
+        /// <summary>
+        /// Iterate through a list of command results and resolve any outstanding
+        /// promises on the results.
+        /// </summary>
+        /// <param name="commandResults">The list of command results</param>
+        private void ResolveCommandPromises(List<CommandResult> commandResults)
+        {
+            foreach (var result in commandResults)
+            {
+                if (!string.IsNullOrEmpty(result.TableResultPromise))
+                {
+                    result.TableResult = CSVToTable.GetTableResult(result.TableResultPromise);
+                    result.TableResultPromise = null;
+                }
+            }
+        }
+
         public CommandResult[] RunCommands(string[] commands)
         {
             var commandResults = new List<CommandResult>();
@@ -57,6 +75,7 @@ namespace SAS
                 }
             }
 
+            ResolveCommandPromises(commandResults);
             return commandResults.ToArray();
         }
 
@@ -107,6 +126,11 @@ namespace SAS
             if (Parser.IsImageExport(command))
             {
                 return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+            }
+
+            if (Parser.IsTableResult(command))
+            {
+                return new CommandResult() { TableResultPromise = Parser.GetTableName(command) };
             }
 
             return null;

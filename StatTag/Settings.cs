@@ -29,7 +29,7 @@ namespace StatTag
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
         {
-            var stataPath = UIUtility.GetFileName(ExecutableFileFilter);
+            var stataPath = UIUtility.GetOpenFileName(ExecutableFileFilter);
             if (!string.IsNullOrWhiteSpace(stataPath))
             {
                 txtStataLocation.Text = stataPath;
@@ -148,7 +148,7 @@ namespace StatTag
 
         private void cmdLogLocation_Click(object sender, EventArgs e)
         {
-            var logPath = UIUtility.GetFileName(LogFileFilter, false);
+            var logPath = UIUtility.GetSaveFileName(LogFileFilter);
             if (!string.IsNullOrWhiteSpace(logPath))
             {
                 txtLogLocation.Text = logPath;

@@ -40,7 +40,7 @@ namespace StatTag.Core.Generator
             {
                 if (tag.Type.Equals(Constants.TagType.Value))
                 {
-                    var valueGenerator = new ValueGenerator();
+                    var valueGenerator = new ValueParameterGenerator();
                     openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Value,
                         Constants.TagTags.ParamStart, valueGenerator.CreateParameters(tag),
                         Constants.TagTags.ParamEnd);
@@ -54,7 +54,7 @@ namespace StatTag.Core.Generator
                 }
                 else if (tag.IsTableTag())
                 {
-                    var tableGenerator = new TableGenerator();
+                    var tableGenerator = new TableParameterGenerator();
                     openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Table,
                         Constants.TagTags.ParamStart, CombineValueAndTableParameters(tag),
                         Constants.TagTags.ParamEnd);
@@ -72,8 +72,8 @@ namespace StatTag.Core.Generator
 
         public string CombineValueAndTableParameters(Tag tag)
         {
-            var tableGenerator = new TableGenerator();
-            var valueGenerator = new ValueGenerator();
+            var tableGenerator = new TableParameterGenerator();
+            var valueGenerator = new ValueParameterGenerator();
             string tableParameters = tableGenerator.CreateParameters(tag);
             string valueParameters = valueGenerator.CreateValueParameters(tag);
             var temp = string.Join(", ", new[] {tableParameters, valueParameters});

@@ -32,7 +32,7 @@ namespace Core.Tests.Models
 
             result.ValueResult = "";
             result.FigureResult = "";
-            result.TableResult = new Table(new [] {"Test"}, new [] {"Test"}, 1, 1, new double?[] { 0.0 });
+            result.TableResult = new Table(1, 1, new string[,] { {"0.0"} });
             Assert.IsFalse(result.IsEmpty());
         }
 
@@ -48,7 +48,7 @@ namespace Core.Tests.Models
 
             result.ValueResult = "";
             result.FigureResult = "";
-            result.TableResult = new Table(new[] { "Test" }, new[] { "Test" }, 1, 1, new double?[] { 0.0 });
+            result.TableResult = new Table(1, 1, new string[,] { { "0.0" } });
             Assert.AreEqual("StatTag.Core.Models.Table", result.ToString());
         }
     }

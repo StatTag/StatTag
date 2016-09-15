@@ -2157,6 +2157,8 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
+		<row><td>AlwaysInstall</td><td>Microsoft_VC120_CRT_x64.05F0B5F5_44A8_3793_976B_A4F17AECF92C</td><td>0</td></row>
+		<row><td>AlwaysInstall</td><td>Microsoft_VC120_CRT_x86.194841A2_D0F2_3B96_9F71_05BA91BEA0FA</td><td>0</td></row>
 	</table>
 
 	<table name="ISFeatureSetupPrerequisites">
@@ -2279,6 +2281,8 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Microsoft_VC120_CRT_x64.05F0B5F5_44A8_3793_976B_A4F17AECF92C</td><td>0</td><td>Visual C++ 12.0 CRT (x64)</td><td/><td/></row>
+		<row><td>Microsoft_VC120_CRT_x86.194841A2_D0F2_3B96_9F71_05BA91BEA0FA</td><td>0</td><td>Visual C++ 12.0 CRT (x86)</td><td/><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -4400,9 +4404,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{7F81C6CA-3933-4DB8-9678-2F83B94333CF}</td><td/></row>
+		<row><td>ProductCode</td><td>{E8CFAF82-BCA0-4FC6-BE42-919B0B3709FA}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>1.1.0</td><td/></row>
+		<row><td>ProductVersion</td><td>1.2.0.4</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4694,7 +4698,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>0.9.1</td><td>1.0.0</td><td>1033</td><td>0</td><td/><td>ISACTIONPROP1</td><td>AM Upgrade</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>0.9.1</td><td>1.2.0.3</td><td>1033</td><td>0</td><td/><td>ISACTIONPROP1</td><td>AM Upgrade</td></row>
 	</table>
 
 	<table name="Verb">

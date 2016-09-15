@@ -1,0 +1,12 @@
+,Frequency
+
+"Table of role_name by Status",,,,
+"role_name(role_name)","Status",,,
+,"Full User Downloaded Software","Never Downloaded Software","Registration Incomplete","Total"
+"Faculty","9","1","1","11"
+"Other","6","0","2","8"
+"Resident/Fellow/Trainee","1","0","0","1"
+"Statistical Analyst","21","0","2","23"
+"Student","7","1","1","9"
+"Total","44","2","6","52"
+
