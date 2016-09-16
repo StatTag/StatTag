@@ -867,12 +867,12 @@ namespace StatTag.Models
             // If the user clicked the "Save and Insert", we will perform the insertion now.
             if (dialog.InsertInDocument)
             {
-                Logger.WriteMessage("Inserting into document after defining tag");
+                Log("Inserting into document after defining tag");
 
                 var tag = FindTag(dialog.Tag.Id);
                 if (tag == null)
                 {
-                    Logger.WriteMessage(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
+                    Log(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
                     return;
                 }
 
@@ -1063,19 +1063,22 @@ namespace StatTag.Models
         {
             if (document == null)
             {
-                Logger.WriteMessage("No document specified, so fetching code file list for active document.");
+                Log("No document specified, so fetching code file list for active document.");
                 document = Globals.ThisAddIn.SafeGetActiveDocument();
             }
             if (document == null)
             {
-                Logger.WriteMessage("Attempted to access code files for a null document.  Returning empty collection.");
+                Log("Attempted to access code files for a null document.  Returning empty collection.");
                 return new List<CodeFile>();
             }
 
             var fullName = document.FullName;
             if (!DocumentCodeFiles.ContainsKey(fullName))
             {
+                Log(string.Format("Code file list for {0} is not yet cached.", fullName));
                 DocumentCodeFiles.Add(fullName, new List<CodeFile>());
+                LoadCodeFileListFromDocument(document);
+                Log(string.Format("Loaded {0} code files from document", DocumentCodeFiles[fullName].Count));
             }
 
             return DocumentCodeFiles[fullName];
@@ -1090,12 +1093,12 @@ namespace StatTag.Models
         {
             if (document == null)
             {
-                Logger.WriteMessage("No document specified, so getting a reference to the active document.");
+                Log("No document specified, so getting a reference to the active document.");
                 document = Globals.ThisAddIn.SafeGetActiveDocument();
             }
             if (document == null)
             {
-                Logger.WriteMessage("Attempted to set the code files for a null document.  Throwing exception.");
+                Log("Attempted to set the code files for a null document.  Throwing exception.");
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
