@@ -1,0 +1,15 @@
+
+v2.0
+ - Compatible with SAS!
+ - Ability to define a filter to exclude rows/columns when inserting tables
+ - Removal of the "Include row/column names" option for tables (replaced by exclusion filter)
+ - Disabled warning if an instance of Stata is running
+ - System information being written to the debug file (if enabled)
+ - Bug fix: Code files unlinked after saving document
+ - Bux fix: Extended ASCII characters (e.g., en dash) not displaying
+ - Bug fix: Code editor not displaying in Windows 10
+ - Bug fix: Tag field metadata not stored properly in Word 2016
+
+
+v1.0
+ - Compatible with Stata!
