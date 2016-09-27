@@ -3780,7 +3780,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.NorthwesternUniversity.com</td><td>0</td><td/><td>967099786</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.stattag.org</td><td>0</td><td/><td>-1532730390</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>967099786</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>StatTag</td><td>0</td><td/><td>-760956019</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>1042514665</td></row>
@@ -4030,7 +4030,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{406211D2-4E87-422C-B327-E0F2A69792C0}</td></row>
 		<row><td>ISUSSignature</td><td>{BFCDC41D-2695-442B-A72E-686AD97B4866}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry,viewAppFiles,viewUI,viewTextMessages</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry,viewAppFiles,viewUI,viewTextMessages,viewRelease</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4338,6 +4338,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S255">ISComments</col>
 		<row><td>ALLUSERS</td><td>2</td><td/></row>
 		<row><td>ARPINSTALLLOCATION</td><td/><td/></row>
+		<row><td>ARPNOMODIFY</td><td>1</td><td/></row>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPSIZE</td><td/><td/></row>
 		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING1##</td><td/></row>
@@ -4404,9 +4405,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{E8CFAF82-BCA0-4FC6-BE42-919B0B3709FA}</td><td/></row>
+		<row><td>ProductCode</td><td>{B45FC963-221B-4C3B-A831-D8022DABF34E}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>1.2.1.0</td><td/></row>
+		<row><td>ProductVersion</td><td>2.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4698,7 +4699,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>0.9.1</td><td>1.2.0.3</td><td>1033</td><td>0</td><td/><td>ISACTIONPROP1</td><td>AM Upgrade</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0</td><td>1.3.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 1.3.0</td></row>
 	</table>
 
 	<table name="Verb">

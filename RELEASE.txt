@@ -10,11 +10,16 @@ The following steps should be taken to release a new version of the software.
 3) Under Organize Your Setup > General Information
   a) Update the Product Version
   b) Regenerate the Product Code
+  c) Change the upgrade path to include the previous version
 4) Change the build configuration to "Release"
 5) Clean and then rebuild the entire solution
 6) Copy the setup file to the shared releases folder
 
 
+
+Notes
+------------------
+The Upgrade Code (which should never be changed) is: {AEC2B59D-045C-4D6D-A4B4-1C87125EA095}
 
 
 
