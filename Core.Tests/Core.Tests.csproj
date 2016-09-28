@@ -75,6 +75,7 @@
     <Compile Include="Models\CSVToTableTests.cs" />
     <Compile Include="Models\TableTests.cs" />
     <Compile Include="Models\FilterFormatTests.cs" />
+    <Compile Include="Models\LogManagerTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />

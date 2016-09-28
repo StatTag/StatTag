@@ -18,11 +18,11 @@ namespace StatTag.Models
         private const string LogLocationKey = "Log Location";
         private const string LogEnabledKey = "Logging Enabled";
 
-        public Properties Properties { get; set; }
+        public Core.Models.Properties Properties { get; set; }
 
         public PropertiesManager()
         {
-            Properties = new Properties();
+            Properties = new Core.Models.Properties();
         }
 
         /// <summary>
