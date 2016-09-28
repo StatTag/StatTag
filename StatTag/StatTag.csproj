@@ -271,12 +271,10 @@
     <Compile Include="ManageTags.Designer.cs">
       <DependentUpon>ManageTags.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
-    <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
     <Compile Include="Models\LogManager.cs" />
@@ -285,7 +283,6 @@
     <Compile Include="Models\PropertiesManager.cs" />
     <Compile Include="Models\ScintillaManager.cs" />
     <Compile Include="Models\StatsManager.cs" />
-    <Compile Include="Models\WindowWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

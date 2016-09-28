@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using Word = Microsoft.Office.Interop.Word;
 
-namespace StatTag.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// static class with rgb color retrieving logic: Microsoft.Office.Interop.Word.WdColor -> System.Drawing.Color

@@ -30,13 +30,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Common.v4.0.Utilities, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Office.Tools.Word, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Office, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +68,7 @@
     <Compile Include="Generator\BaseParameterGenerator.cs" />
     <Compile Include="Generator\FigureGenerator.cs" />
     <Compile Include="Generator\IGenerator.cs" />
+    <Compile Include="Generator\OpenXmlGenerator.cs" />
     <Compile Include="Generator\SAS.cs" />
     <Compile Include="Generator\Stata.cs">
       <SubType>Code</SubType>
@@ -60,7 +80,9 @@
     <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\CSVToTable.cs" />
+    <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FilterFormat.cs" />
+    <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />
@@ -74,6 +96,7 @@
     <Compile Include="Models\TableFormat.cs" />
     <Compile Include="Models\UpdatePair.cs" />
     <Compile Include="Models\ValueFormat.cs" />
+    <Compile Include="Models\WindowWrapper.cs" />
     <Compile Include="Parser\BaseParameterParser.cs" />
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\FigureParameterParser.cs" />

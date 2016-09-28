@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
@@ -63,6 +66,7 @@
     <Compile Include="Generator\TableParameterGeneratorTests.cs" />
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
+    <Compile Include="Generator\OpenXmlGeneratorTests.cs" />
     <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
     <Compile Include="Models\TagTests.cs" />
     <Compile Include="Models\CommandResultTests.cs" />
