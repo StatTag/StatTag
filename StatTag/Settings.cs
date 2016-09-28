@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using StatTag.Core.Models;
 using StatTag.Models;
 
 namespace StatTag
@@ -15,15 +16,17 @@ namespace StatTag
     {
         private const string ExecutableFileFilter = "Application Executable|*.exe";
         private const string LogFileFilter = "Log File|*.log";
+        
+        public Core.Models.Properties Properties { get; set; }
+        private LogManager Logger { get; set; }
 
-        public Models.Properties Properties { get; set; }
-
-        public Settings(Models.Properties properties)
+        public Settings(Core.Models.Properties properties)
         {
             InitializeComponent();
             Properties = properties;
             MinimumSize = Size;
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
         }
 
@@ -128,7 +131,7 @@ namespace StatTag
             Properties.EnableLogging = chkEnableLogging.Checked;
             Properties.LogLocation = txtLogLocation.Text;
 
-            if (Properties.EnableLogging && !LogManager.IsValidLogPath(Properties.LogLocation))
+            if (Properties.EnableLogging && !Logger.IsValidLogPath(Properties.LogLocation))
             {
                 UIUtility.WarningMessageBox("The debug file you have selected appears to be invalid, or you do not have rights to access it.\r\nPlease select a valid path for the debug file, or disable debugging.", null);
                 DialogResult = DialogResult.None;

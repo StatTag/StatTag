@@ -34,5 +34,15 @@ namespace StatTag.Core.Models
         {
             File.WriteAllText(filePath, contents);
         }
+
+        public void AppendAllText(string filePath, string contents)
+        {
+            File.AppendAllText(filePath, contents);
+        }
+
+        public FileStream OpenWrite(string filePath)
+        {
+            return File.OpenWrite(filePath);
+        }
     }
 }

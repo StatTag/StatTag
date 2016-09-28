@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace StatTag.Core.Interfaces
 {
@@ -10,5 +11,7 @@ namespace StatTag.Core.Interfaces
         void Copy(string sourceFile, string destinationFile);
         void WriteAllLines(string filePath, IEnumerable<string> content);
         void WriteAllText(string filePath, string contents);
+        void AppendAllText(string filePath, string contents);
+        FileStream OpenWrite(string filePath);
     }
 }

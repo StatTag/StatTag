@@ -1,23 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StatTag.Core.Interfaces;
 
-namespace StatTag.Models
+namespace StatTag.Core.Models
 {
     public class LogManager
     {
         public bool Enabled { get; set; }
         public string LogFilePath { get; set; }
+        protected IFileHandler FileHandler { get; set; }
+
+        public LogManager(IFileHandler handler = null)
+        {
+            FileHandler = handler ?? new FileHandler();
+        }
 
         /// <summary>
         /// Determine if a given path is accessible and can be opened with write access.
         /// </summary>
         /// <param name="logFilePath">The file path to check</param>
         /// <returns>True if the path is valid, false otherwise.</returns>
-        public static bool IsValidLogPath(string logFilePath)
+        public bool IsValidLogPath(string logFilePath)
         {
             if (string.IsNullOrWhiteSpace(logFilePath))
             {
@@ -28,7 +31,7 @@ namespace StatTag.Models
             try
             {
                 // Check write access
-                stream = File.OpenWrite(logFilePath);
+                stream = FileHandler.OpenWrite(logFilePath);
             }
             catch (Exception exc)
             {
@@ -80,7 +83,7 @@ namespace StatTag.Models
         {
             if (Enabled)
             {
-                File.AppendAllText(LogFilePath, string.Format("{0} - {1}\r\n", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff"), text));
+                FileHandler.AppendAllText(LogFilePath, string.Format("{0} - {1}\r\n", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff"), text));
             }
         }
 
