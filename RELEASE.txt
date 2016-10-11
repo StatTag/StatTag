@@ -2,6 +2,7 @@ RELEASE CHECKLIST
 ------------------
 
 The following steps should be taken to release a new version of the software.
+Note that you NEED TO DO THIS TWICE - each in the x64 and x86 installers.
 1) Increment versions in the following projects:
   a) AnalysisManager
   b) Core
@@ -19,7 +20,7 @@ The following steps should be taken to release a new version of the software.
 
 Notes
 ------------------
-The Upgrade Code (which should never be changed) is: {AEC2B59D-045C-4D6D-A4B4-1C87125EA095}
+The x64 and x86 Upgrade Code (which should never be changed) is: {AEC2B59D-045C-4D6D-A4B4-1C87125EA095}
 
 
 
