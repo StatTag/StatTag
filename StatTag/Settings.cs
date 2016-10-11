@@ -56,6 +56,7 @@ namespace StatTag
             txtStataLocation.Text = Properties.StataLocation;
             chkEnableLogging.Checked = Properties.EnableLogging;
             txtLogLocation.Text = Properties.LogLocation;
+            chkRunCodeOnOpen.Checked = Properties.RunCodeOnOpen;
             
             UpdateLoggingControls();
             UpdateStataControls();
@@ -130,6 +131,7 @@ namespace StatTag
             Properties.StataLocation = txtStataLocation.Text;
             Properties.EnableLogging = chkEnableLogging.Checked;
             Properties.LogLocation = txtLogLocation.Text;
+            Properties.RunCodeOnOpen = chkRunCodeOnOpen.Checked;
 
             if (Properties.EnableLogging && !Logger.IsValidLogPath(Properties.LogLocation))
             {

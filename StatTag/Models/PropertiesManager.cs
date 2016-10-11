@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace StatTag.Models
         private const string StataLocationKey = "Stata Location";
         private const string LogLocationKey = "Log Location";
         private const string LogEnabledKey = "Logging Enabled";
+        private const string RunCodeOnOpenKey = "Autorun Code";
 
         public Core.Models.Properties Properties { get; set; }
 
@@ -39,6 +41,35 @@ namespace StatTag.Models
             key.SetValue(StataLocationKey, Properties.StataLocation, RegistryValueKind.String);
             key.SetValue(LogLocationKey, Properties.LogLocation, RegistryValueKind.String);
             key.SetValue(LogEnabledKey, Properties.EnableLogging, RegistryValueKind.DWord);
+            key.SetValue(RunCodeOnOpenKey, Properties.RunCodeOnOpen, RegistryValueKind.DWord);
+        }
+
+        /// <summary>
+        /// Helper function to decipher a boolean registry value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="registryKey"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private bool GetBooleanValue(RegistryKey key, string registryKey, bool defaultValue = false)
+        {
+            var value = key.GetValue(registryKey, defaultValue);
+            if (value == null)
+            {
+                return defaultValue;
+            }
+
+            if (value is int)
+            {
+                return ((int) value) == 1;
+            }
+
+            if (value is bool)
+            {
+                return ((bool) value);
+            }
+
+            return defaultValue;
         }
 
         /// <summary>
@@ -54,7 +85,8 @@ namespace StatTag.Models
 
             Properties.StataLocation = key.GetValue(StataLocationKey, string.Empty).ToString();
             Properties.LogLocation = key.GetValue(LogLocationKey, string.Empty).ToString();
-            Properties.EnableLogging = ((int) key.GetValue(LogEnabledKey, false)) == 1;
+            Properties.EnableLogging = GetBooleanValue(key, LogEnabledKey);
+            Properties.RunCodeOnOpen = GetBooleanValue(key, RunCodeOnOpenKey);
         }
     }
 }
