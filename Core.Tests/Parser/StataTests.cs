@@ -35,8 +35,9 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsValueDisplay("adisplay"));
             Assert.IsFalse(parser.IsValueDisplay("a display"));
             Assert.IsTrue(parser.IsValueDisplay("display value"));
+            Assert.IsFalse(parser.IsValueDisplay("diplay value"));  // Making sure our optional capture of "s" doesn't cause invalid commands to be accepted
             Assert.IsTrue(parser.IsValueDisplay("di value"));  // Handle abbreviated command
-            Assert.IsFalse(parser.IsValueDisplay("dis value"));  // Handle abbreviated command
+            Assert.IsTrue(parser.IsValueDisplay("dis value"));  // Handle abbreviated command
         }
 
         [TestMethod]
