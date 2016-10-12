@@ -14,7 +14,7 @@ namespace StatTag.Core.Parser
     {
         private static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
-        private static string ValueCommand = "di(?:splay)?";
+        private static string ValueCommand = "di(?:s|splay)?";
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
         private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", ValueCommand));
         private static string GraphCommand = "gr(?:aph)? export";
