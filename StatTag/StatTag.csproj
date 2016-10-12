@@ -135,6 +135,10 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicInterop.0.7.4\lib\net40\DynamicInterop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -363,6 +367,7 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
