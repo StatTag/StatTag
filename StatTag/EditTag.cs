@@ -186,8 +186,7 @@ namespace StatTag
             margin.Cursor = MarginCursor.Arrow;
             var marker = scintilla1.Markers[TagMarker];
             marker.SetBackColor(Color.FromArgb(0, 204, 196, 223));
-            //marker.SetBackColor(Color.DarkSeaGreen);
-            marker.Symbol = MarkerSymbol.Background;
+            marker.Symbol = MarkerSymbol.ExtendedBackground;
 
             if (Tag != null)
             {
@@ -380,82 +379,93 @@ namespace StatTag
             }
         }
 
+        private void scintilla1_LineSelectClick(object sender, MarginClickEventArgs e)
+        {
+            HandleLineClick(e);
+            scintilla1.DirectMessage(2024, new IntPtr(scintilla1.LineFromPosition(e.Position)), IntPtr.Zero);
+        }
+
         private void scintilla1_MarginClick(object sender, MarginClickEventArgs e)
         {
             if (e.Margin == TagMargin)
             {
-                var lineIndex = scintilla1.LineFromPosition(e.Position);
-                var line = scintilla1.Lines[lineIndex];
+                HandleLineClick(e);
+            }
+        }
 
-                // Check to see if there are any existing selections.  If so, we need to determine if the newly selected
-                // row is a neighbor to the existing selection since we only allow continuous ranges.
-                var previousLineIndex = scintilla1.Lines[lineIndex - 1].MarkerPrevious(1 << TagMarker);
-                if (previousLineIndex != -1)
+        private void HandleLineClick(MarginClickEventArgs e)
+        {
+            var lineIndex = scintilla1.LineFromPosition(e.Position);
+            var line = scintilla1.Lines[lineIndex];
+            
+            // Check to see if there are any existing selections.  If so, we need to determine if the newly selected
+            // row is a neighbor to the existing selection since we only allow continuous ranges.
+            var previousLineIndex = scintilla1.Lines[lineIndex - 1].MarkerPrevious(1 << TagMarker);
+            if (previousLineIndex != -1)
+            {
+                if (Math.Abs(lineIndex - previousLineIndex) > 1)
                 {
-                    if (Math.Abs(lineIndex - previousLineIndex) > 1)
+                    if ((e.Modifiers & Keys.Shift) == Keys.Shift)
                     {
-                        if ((e.Modifiers & Keys.Shift) == Keys.Shift)
+                        for (int index = previousLineIndex; index < lineIndex; index++)
                         {
-                            for (int index = previousLineIndex; index < lineIndex; index++)
-                            {
-                                SetLineMarker(scintilla1.Lines[index], true);
-                            }
+                            SetLineMarker(scintilla1.Lines[index], true);
                         }
-                        else
+                    }
+                    else
+                    {
+                        // Deselect everything
+                        while (previousLineIndex > -1)
                         {
-                            // Deselect everything
-                            while (previousLineIndex > -1)
-                            {
-                                SetLineMarker(scintilla1.Lines[previousLineIndex], false);
-                                previousLineIndex =
-                                    scintilla1.Lines[previousLineIndex].MarkerPrevious(1 << TagMarker);
-                            }
+                            SetLineMarker(scintilla1.Lines[previousLineIndex], false);
+                            previousLineIndex =
+                                scintilla1.Lines[previousLineIndex].MarkerPrevious(1 << TagMarker);
                         }
                     }
                 }
-                else
+            }
+            else
+            {
+                var nextLineIndex = scintilla1.Lines[lineIndex + 1].MarkerNext(1 << TagMarker);
+                if (Math.Abs(lineIndex - nextLineIndex) > 1)
                 {
-                    var nextLineIndex = scintilla1.Lines[lineIndex + 1].MarkerNext(1 << TagMarker);
-                    if (Math.Abs(lineIndex - nextLineIndex) > 1)
+                    if ((e.Modifiers & Keys.Shift) == Keys.Shift)
                     {
-                        if ((e.Modifiers & Keys.Shift) == Keys.Shift)
+                        for (int index = nextLineIndex; index > lineIndex; index--)
                         {
-                            for (int index = nextLineIndex; index > lineIndex; index--)
-                            {
-                                SetLineMarker(scintilla1.Lines[index], true);
-                            }
+                            SetLineMarker(scintilla1.Lines[index], true);
                         }
-                        else
+                    }
+                    else
+                    {
+                        // Deselect everything
+                        while (nextLineIndex > -1)
                         {
-                            // Deselect everything
-                            while (nextLineIndex > -1)
-                            {
-                                SetLineMarker(scintilla1.Lines[nextLineIndex], false);
-                                nextLineIndex =
-                                    scintilla1.Lines[nextLineIndex].MarkerNext(1 << TagMarker);
-                            }
+                            SetLineMarker(scintilla1.Lines[nextLineIndex], false);
+                            nextLineIndex =
+                                scintilla1.Lines[nextLineIndex].MarkerNext(1 << TagMarker);
                         }
                     }
                 }
+            }
 
-                // Toggle based on the line's current marker status.
-                SetLineMarker(line, (line.MarkerGet() & TagMask) <= 0);
+            // Toggle based on the line's current marker status.
+            SetLineMarker(line, (line.MarkerGet() & TagMask) <= 0);
 
-                if (codeCheckWorker.IsBusy)
-                {
-                    ReprocessCodeReview = true;
-                    return;
-                }
+            if (codeCheckWorker.IsBusy)
+            {
+                ReprocessCodeReview = true;
+                return;
+            }
 
-                var selectedText = GetSelectedText();
-                if (selectedText.Length == 0)
-                {
-                    SetWarningDisplay(false);
-                }
-                else
-                {
-                    RunWorker(selectedText);
-                }
+            var selectedText = GetSelectedText();
+            if (selectedText.Length == 0)
+            {
+                SetWarningDisplay(false);
+            }
+            else
+            {
+                RunWorker(selectedText);
             }
         }
 

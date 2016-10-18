@@ -922,7 +922,7 @@ namespace StatTag.Models
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to insert the tag output into the Word sdocument.",
+                    "There was an unexpected error when trying to insert the tag output into the Word document.",
                     Logger);
             }
             finally

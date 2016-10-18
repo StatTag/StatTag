@@ -312,6 +312,7 @@
             this.scintilla1.Size = new System.Drawing.Size(751, 390);
             this.scintilla1.TabIndex = 24;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
+            this.scintilla1.LineSelectClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_LineSelectClick);
             // 
             // verticalLine1
             // 

@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
             System.Windows.Forms.TextBox textBox1;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -44,6 +44,19 @@
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
+            // textBox1
+            // 
+            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox1.CausesValidation = false;
+            textBox1.Location = new System.Drawing.Point(28, 82);
+            textBox1.Multiline = true;
+            textBox1.Name = "textBox1";
+            textBox1.ReadOnly = true;
+            textBox1.Size = new System.Drawing.Size(623, 41);
+            textBox1.TabIndex = 21;
+            textBox1.Text = "Welty, L.J., Rasmussen, L.V., & Baldridge, A.S. (2016). StatTag. Chicago, Illinoi" +
+    "s, United States: Galter Health Sciences Library. doi:10.18131/G3K76";
+            // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -55,17 +68,19 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(15, 137);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(636, 266);
+            this.groupBox1.Size = new System.Drawing.Size(704, 282);
             this.groupBox1.TabIndex = 15;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Acknowledgements";
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(10, 229);
+            this.label5.Location = new System.Drawing.Point(10, 243);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(566, 34);
+            this.label5.Size = new System.Drawing.Size(687, 34);
             this.label5.TabIndex = 4;
             this.label5.Text = "* Use of these projects does not imply endorsement of StatTag by the respective p" +
     "roject owners, or endorsement of the use of these projects by Northwestern Unive" +
@@ -77,10 +92,11 @@
             this.label4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(23, 176);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(320, 45);
+            this.label4.Size = new System.Drawing.Size(320, 60);
             this.label4.TabIndex = 3;
             this.label4.Text = "Scintilla - http://www.scintilla.org/\r\nScintillaNET - https://github.com/jacobslu" +
-    "sser/ScintillaNET\r\nJson.NET - http://www.newtonsoft.com/json";
+    "sser/ScintillaNET\r\nJson.NET - http://www.newtonsoft.com/json\r\nSASHarness - https" +
+    "://github.com/cjdinger/SasHarness";
             // 
             // label3
             // 
@@ -100,7 +116,7 @@
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(6, 101);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(623, 48);
+            this.label2.Size = new System.Drawing.Size(691, 48);
             this.label2.TabIndex = 1;
             this.label2.Text = resources.GetString("label2.Text");
             // 
@@ -111,7 +127,7 @@
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(7, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(623, 64);
+            this.label1.Size = new System.Drawing.Size(691, 64);
             this.label1.TabIndex = 0;
             this.label1.Text = resources.GetString("label1.Text");
             // 
@@ -148,31 +164,20 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(287, 428);
+            this.cmdOK.Location = new System.Drawing.Point(321, 445);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
             this.cmdOK.TabIndex = 19;
             this.cmdOK.Text = "Close";
             this.cmdOK.UseVisualStyleBackColor = true;
             // 
-            // textBox1
-            // 
-            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox1.CausesValidation = false;
-            textBox1.Location = new System.Drawing.Point(28, 82);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new System.Drawing.Size(623, 41);
-            textBox1.TabIndex = 21;
-            textBox1.Text = "Welty, L.J., Rasmussen, L.V., & Baldridge, A.S. (2016). StatTag. Chicago, Illinoi" +
-    "s, United States: Galter Health Sciences Library. doi:10.18131/G3K76";
-            // 
             // About
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(660, 461);
+            this.CancelButton = this.cmdOK;
+            this.CausesValidation = false;
+            this.ClientSize = new System.Drawing.Size(728, 478);
             this.Controls.Add(textBox1);
             this.Controls.Add(this.cmdOK);
             this.Controls.Add(this.label6);

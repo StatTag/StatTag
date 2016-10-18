@@ -140,16 +140,26 @@ namespace StatTag
                 {
                     file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
 
-                    try
+                    if (PropertiesManager.Properties.RunCodeOnOpen)
                     {
-                        Globals.ThisAddIn.Application.ScreenUpdating = false;
-                        LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded", file.FilePath, file.Tags.Count));
-                        var results = StatsManager.ExecuteStatPackage(file);
-                        LogManager.WriteMessage(string.Format("Executed the statistical code for file, with success = {0}", results.Success));
+                        try
+                        {
+                            Globals.ThisAddIn.Application.ScreenUpdating = false;
+                            LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded",
+                                file.FilePath, file.Tags.Count));
+                            var results = StatsManager.ExecuteStatPackage(file);
+                            LogManager.WriteMessage(
+                                string.Format("Executed the statistical code for file, with success = {0}",
+                                    results.Success));
+                        }
+                        finally
+                        {
+                            Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        }
                     }
-                    finally
+                    else
                     {
-                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        LogManager.WriteMessage(string.Format("Per user preferences, skipping auto-run of {0}", file.FilePath));
                     }
                 }
             }

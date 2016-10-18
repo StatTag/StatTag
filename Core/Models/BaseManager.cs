@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StatTag.Models
+namespace StatTag.Core.Models
 {
     public class BaseManager
     {
