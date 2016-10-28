@@ -393,6 +393,18 @@
     <None Include="Resources\DeleteTablefromDatabase_270.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
+      <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
+      <Name>RDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.Graphics\RDotNet.Graphics.csproj">
+      <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
+      <Name>RDotNet.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
+      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
+      <Name>RDotNet.NativeLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
       <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>
       <Name>ScintillaNET</Name>
@@ -400,6 +412,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\R\R.csproj">
+      <Project>{1e158613-c109-4d13-8aec-692dce13e762}</Project>
+      <Name>R</Name>
     </ProjectReference>
     <ProjectReference Include="..\SAS\SAS.csproj">
       <Project>{f8a2e797-74d8-4fb3-b65f-2f0fb81033f7}</Project>

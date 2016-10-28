@@ -105,6 +105,7 @@
     <Compile Include="Generator\FigureGenerator.cs" />
     <Compile Include="Generator\IGenerator.cs" />
     <Compile Include="Generator\OpenXmlGenerator.cs" />
+    <Compile Include="Generator\R.cs" />
     <Compile Include="Generator\SAS.cs" />
     <Compile Include="Generator\Stata.cs">
       <SubType>Code</SubType>
@@ -140,6 +141,7 @@
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\FigureParameterParser.cs" />
     <Compile Include="Interfaces\ICodeFileParser.cs" />
+    <Compile Include="Parser\RParser.cs" />
     <Compile Include="Parser\SASParser.cs" />
     <Compile Include="Parser\StataParser.cs" />
     <Compile Include="Parser\TableParameterParser.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="Utility\TableUtil.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatter.cs" />
     <Compile Include="ValueFormatter\IValueFormatter.cs" />
+    <Compile Include="ValueFormatter\R.cs" />
     <Compile Include="ValueFormatter\SAS.cs" />
     <Compile Include="ValueFormatter\Stata.cs" />
   </ItemGroup>
