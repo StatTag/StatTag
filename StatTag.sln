@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RDotNet.Graphics", "..\rdot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RDotNet.NativeLibrary", "..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj", "{2A089A59-0F22-4484-B442-0FE8BDA10879}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicInterop", "..\dynamic-interop-dll\DynamicInterop\DynamicInterop.csproj", "{37E8DF32-0D37-418E-B976-10F4B36A0073}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -321,6 +323,24 @@ Global
 		{2A089A59-0F22-4484-B442-0FE8BDA10879}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
 		{2A089A59-0F22-4484-B442-0FE8BDA10879}.SingleImage|Any CPU.Build.0 = Release|Any CPU
 		{2A089A59-0F22-4484-B442-0FE8BDA10879}.SingleImage|x86.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.CD_ROM|Any CPU.Build.0 = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.CD_ROM|x86.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.DVD-5|x86.ActiveCfg = Debug|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Release|x86.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Signed|Any CPU.Build.0 = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.Signed|x86.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.SingleImage|Any CPU.Build.0 = Release|Any CPU
+		{37E8DF32-0D37-418E-B976-10F4B36A0073}.SingleImage|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

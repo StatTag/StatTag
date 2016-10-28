@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using R;
 using SAS;
 using StatTag.Core;
 using StatTag.Core.Models;
@@ -62,6 +63,8 @@ namespace StatTag.Models
                         return new StataAutomation();
                     case Constants.StatisticalPackages.SAS:
                         return new SASAutomation();
+                    case Constants.StatisticalPackages.R:
+                        return new RAutomation();
                 }
             }
 

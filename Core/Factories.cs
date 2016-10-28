@@ -23,6 +23,8 @@ namespace StatTag.Core
                         return new StataParser();
                     case Constants.StatisticalPackages.SAS:
                         return new SASParser();
+                    case Constants.StatisticalPackages.R:
+                        return new RParser();
                 }
             }
 
@@ -39,6 +41,8 @@ namespace StatTag.Core
                         return new StatTag.Core.Generator.Stata();
                     case Constants.StatisticalPackages.SAS:
                         return new StatTag.Core.Generator.SAS();
+                    case Constants.StatisticalPackages.R:
+                        return new StatTag.Core.Generator.R();
                 }
             }
 
@@ -55,6 +59,8 @@ namespace StatTag.Core
                         return new StatTag.Core.ValueFormatter.Stata();
                     case Constants.StatisticalPackages.SAS:
                         return new StatTag.Core.ValueFormatter.SAS();
+                    case Constants.StatisticalPackages.R:
+                        return new StatTag.Core.ValueFormatter.R();
                 }
             }
 
