@@ -37,22 +37,23 @@ namespace Core.Tests.Generator
         {
             var field = OpenXmlGenerator.GenerateField(null, "test", "1", "2");
             Assert.AreNotEqual(string.Empty, field);
-            const string expectedResponse = @"<w:p xmlns:w=""http://schemas.microsoft.com/office/word/2003/wordml"">
-                    <w:r>
-                        <w:rPr>
-                            
-                        </w:rPr>
-                        <w:fldChar w:fldCharType=""begin"" />
-                        <w:instrText xml:space=""preserve""> MacroButton StatTag 1</w:instrText>
-                        <w:fldChar w:fldCharType=""begin"">
-                            <w:fldData xml:space=""preserve"">MgA=
-</w:fldData>
-                        </w:fldChar>
-                        <w:instrText xml:space=""preserve""> ADDIN test</w:instrText>
-                        <w:fldChar w:fldCharType=""end"" />
-                        <w:fldChar w:fldCharType=""end"" />
-                    </w:r>
-                </w:p>";
+            const string expectedResponse = 
+                "<w:p xmlns:w=\"http://schemas.microsoft.com/office/word/2003/wordml\">\r\n" +
+                "    <w:r>\r\n" +
+                "        <w:rPr>\r\n" +
+                "            \r\n" +
+                "        </w:rPr>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\" />\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> MacroButton StatTag 1</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\">\r\n" +
+                "            <w:fldData xml:space=\"preserve\">MgA=\r\n" +
+                "</w:fldData>\r\n" +
+                "        </w:fldChar>\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> ADDIN test</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "    </w:r>\r\n" +
+                "</w:p>";
 
             Assert.AreEqual(expectedResponse, field);
         }
@@ -65,12 +66,11 @@ namespace Core.Tests.Generator
             MockFontAndRange(font, range);
             var field = OpenXmlGenerator.GenerateField(range.Object, "test", "1", "2");
 
-            const string expectedResponseFragment = @"<w:rPr>
-                            <w:color w:val=""Black"" /><w:rFonts w:ascii=""Arial"" w:h-ansi=""Arial"" w:cs=""Arial""/>
-                    <w:sz w:val=""20""/>
-                        </w:rPr>";
+            const string expectedResponseFragment1 = @"<w:color w:val=""Black"" /><w:rFonts w:ascii=""Arial"" w:h-ansi=""Arial"" w:cs=""Arial""/>";
+            const string expectedResponseFragment2 = @"<w:sz w:val=""20""/>";
         
-            Assert.IsTrue(field.Contains(expectedResponseFragment));
+            Assert.IsTrue(field.Contains(expectedResponseFragment1));
+            Assert.IsTrue(field.Contains(expectedResponseFragment2));
         }
 
         [TestMethod]
