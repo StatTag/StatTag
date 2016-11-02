@@ -11,9 +11,9 @@ namespace StatTag.Core.Parser
 {
     public class RParser : BaseParser
     {
-        private static string ValueCommand = "print";
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\s*\\(\\s*\\w+\\s*\\)", ValueCommand));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s*\\(\\s*(\\w+)\\s*\\)", ValueCommand));
+        private static readonly string[] ValueCommands = new[] { "print.default", "print.noquote", "sprintf", "noquote", "print" };
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*\\w+\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands)));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*(\\w+)\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands)));
 
 
         public override string CommentCharacter
