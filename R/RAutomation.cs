@@ -71,13 +71,17 @@ namespace R
                 return new CommandResult() { ValueResult = GetValueResult(result) };
             }
 
+            if (Parser.IsImageExport(command))
+            {
+                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+            }
 
             return null;
         }
 
         public bool IsReturnable(string command)
         {
-            return true;
+            return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
         public string GetInitializationErrorMessage()

@@ -146,7 +146,7 @@ namespace StatTag
             lblInstructionTitle.Text = string.Format("The following {0} commands may be used for {1} output:",
                 statPackage, TagType);
             var commandList = UIUtility.GetResultCommandList(selectedCodeFile, TagType);
-            lblAllowedCommands.Text = commandList == null ? "(None specified)" : string.Join("\r\n", commandList.GetCommands());
+            lblAllowedCommands.Text = commandList == null ? "(None specified)" : string.Join(", ", commandList.GetCommands());
         }
 
         private void cmdFigure_Click(object sender, EventArgs e)

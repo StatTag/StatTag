@@ -6,13 +6,13 @@ namespace StatTag.Core.Parser
 {
     public class SASParser : BaseParser
     {
-        private static string ValueCommand = "%put";
+        public const string ValueCommand = "%put";
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand), RegexOptions.IgnoreCase);
         private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", ValueCommand), RegexOptions.IgnoreCase);
-        private static string FigureCommand = "ods pdf";
+        public const string FigureCommand = "ods pdf";
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static string TableCommand = "ods csv";
+        public const string TableCommand = "ods csv";
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static string MacroIndicator = "&";

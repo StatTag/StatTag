@@ -11,9 +11,13 @@ namespace StatTag.Core.Parser
 {
     public class RParser : BaseParser
     {
-        private static readonly string[] ValueCommands = new[] { "print.default", "print.noquote", "sprintf", "noquote", "print" };
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*\\w+\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands)));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*(\\w+)\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands)));
+        public static readonly string[] ValueCommands = new[] { "print.default", "print.noquote", "sprintf", "noquote", "print" };
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*\\w+\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*(\\w+)\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
+
+        public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
+        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*?[\\s\\S]*?\\)", string.Join("|", FigureCommands)));
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\s*\\([\\s\\S]*?(?:(?:file=)?[\\\"']([\\s\\S]*?)[\\\"'])[\\s\\S]*?\\)", string.Join("|", FigureCommands)));
 
 
         public override string CommentCharacter
@@ -23,12 +27,12 @@ namespace StatTag.Core.Parser
 
         public override bool IsImageExport(string command)
         {
-            throw new NotImplementedException();
+            return FigureKeywordRegex.IsMatch(command);
         }
 
         public override string GetImageSaveLocation(string command)
         {
-            throw new NotImplementedException();
+            return MatchRegexReturnGroup(command, FigureRegex, 1);
         }
 
         /// <summary>
@@ -55,7 +59,7 @@ namespace StatTag.Core.Parser
 
         public override bool IsTableResult(string command)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public override string GetTableName(string command)

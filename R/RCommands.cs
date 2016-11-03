@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
+using StatTag.Core.Parser;
 
 namespace R
 {
@@ -11,21 +12,17 @@ namespace R
     {
         public class ValueCommands : IResultCommandList
         {
-            public const string Display = "print";
-
             public string[] GetCommands()
             {
-                return new[] { Display };
+                return RParser.ValueCommands;
             }
         }
 
         public class FigureCommands : IResultCommandList
         {
-            public const string GraphExport = "TODO";
-
             public string[] GetCommands()
             {
-                return new[] { GraphExport };
+                return RParser.FigureCommands;
             }
         }
 
