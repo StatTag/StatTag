@@ -120,6 +120,13 @@
   <metadata name="textBox1.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
   </metadata>
+  <data name="label4.Text" xml:space="preserve">
+    <value>Scintilla - http://www.scintilla.org/
+ScintillaNET - https://github.com/jacobslusser/ScintillaNET
+Json.NET - http://www.newtonsoft.com/json
+SASHarness - https://github.com/cjdinger/SasHarness
+R.NET - https://github.com/jmp75/rdotnet</value>
+  </data>
   <data name="label2.Text" xml:space="preserve">
     <value>StatTag was inspired in part by the Stata Automation Report project:
 Lo Magno, G.L. (2013). Sar: Automatic generation of statistical reports using Stata and Microsoft Word for Windows. The Stata Journal, 13(1); 39-64.
