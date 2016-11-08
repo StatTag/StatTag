@@ -59,7 +59,7 @@ namespace StatTag.Core.Parser
 
         public override bool IsTableResult(string command)
         {
-            return false;
+            return true;
         }
 
         public override string GetTableName(string command)

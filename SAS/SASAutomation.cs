@@ -63,7 +63,7 @@ namespace SAS
             }
         }
 
-        public CommandResult[] RunCommands(string[] commands)
+        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             var commandResults = new List<CommandResult>();
             foreach (var command in commands)

@@ -104,7 +104,7 @@ namespace Stata
         /// </summary>
         /// <param name="commands"></param>
         /// <returns></returns>
-        public CommandResult[] RunCommands(string[] commands)
+        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             try
             {

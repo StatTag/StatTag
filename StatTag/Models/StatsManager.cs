@@ -139,7 +139,7 @@ namespace StatTag.Models
                         }
 
 
-                        var results = automation.RunCommands(step.Code.ToArray());
+                        var results = automation.RunCommands(step.Code.ToArray(), step.Tag);
 
                         var tag = Manager.FindTag(step.Tag.Id);
                         if (tag != null)
