@@ -163,7 +163,7 @@ namespace StatTag.Models
            min data.frame lines curve as.integer levels nlevels ceiling sqrt ranef order
            AIC summary str head png tryCatch par mfrow interaction.plot qqnorm qqline";
 
-            var keywords2 = @"TRUE FALSE if else for while in break continue function";
+            var keywords2 = @"TRUE FALSE if else for while in break continue function library require source";
 
             scintilla.SetKeywords(0, keywords);
             scintilla.SetKeywords(1, keywords2);
