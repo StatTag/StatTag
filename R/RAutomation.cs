@@ -88,14 +88,29 @@ namespace R
             return null;
         }
 
+        /// <summary>
+        /// Given a 2D data frame, flatten it into a 1D array that is organized as data by row.
+        /// </summary>
+        /// <param name="dataFrame"></param>
+        /// <returns></returns>
         private string[] FlattenData(DataFrame dataFrame)
         {
-            var data = new List<string>(dataFrame.RowCount*dataFrame.ColumnCount);
+            // Because we can only cast columns (not individual cells), we will go through all columns
+            // first and cast them to characters so things like NA values are represented appropriately.
+            // If we use the default format for these columns/cells, we end up with large negative int
+            // values where NA exists.
+            var castColumns = new List<CharacterVector>();
+            for (int column = 0; column < dataFrame.ColumnCount; column++)
+            {
+                castColumns.Add(dataFrame[column].AsCharacter());
+            }
+
+            var data = new List<string>(dataFrame.RowCount * dataFrame.ColumnCount);
             for (int row = 0; row < dataFrame.RowCount; row++)
             {
                 for (int column = 0; column < dataFrame.ColumnCount; column++)
                 {
-                    data.Add(dataFrame[row, column].ToString());
+                    data.Add(castColumns[column][row]);
                 }
             }
 
@@ -152,10 +167,9 @@ namespace R
             switch (result.Type)
             {
                 case SymbolicExpressionType.NumericVector:
-                    return result.AsNumeric().First().ToString();
                 case SymbolicExpressionType.IntegerVector:
-                    return result.AsInteger().First().ToString();
                 case SymbolicExpressionType.CharacterVector:
+                case SymbolicExpressionType.LogicalVector:
                     return result.AsCharacter().First();
             }
             return null;

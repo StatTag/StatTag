@@ -115,5 +115,21 @@ namespace Core.Tests.Parser
             // If we have two image commands in the same text block, we should only extract the first VALID one (non-greedy matching)
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
         }
+
+        [TestMethod]
+        public void IsTableResult()
+        {
+            // Right now we assume anything could be a table, so IsTableResult will always return true
+            var parser = new RParser();
+            Assert.IsTrue(parser.IsTableResult("doesn't matter what i put here"));
+        }
+
+        [TestMethod]
+        public void GetTableName()
+        {
+            // Same as with IsTableResult we are ignoring finding table names, so this always returns an empty string.
+            var parser = new RParser();
+            Assert.AreEqual(string.Empty, parser.GetTableName("doesn't matter what i put here"));
+        }
     }
 }

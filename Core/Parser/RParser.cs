@@ -64,7 +64,7 @@ namespace StatTag.Core.Parser
 
         public override string GetTableName(string command)
         {
-            throw new NotImplementedException();
+            return string.Empty;
         }
 
         public override List<string> PreProcessContent(List<string> originalContent)
