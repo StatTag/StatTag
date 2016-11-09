@@ -28,7 +28,7 @@ namespace R
 
         public class TableCommands : IResultCommandList
         {
-            public const string MatrixList = "TODO";
+            public const string MatrixList = "(Any command that returns a data frame, matrix, vector or list)";
 
             public string[] GetCommands()
             {
