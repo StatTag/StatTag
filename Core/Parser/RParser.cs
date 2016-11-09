@@ -12,8 +12,8 @@ namespace StatTag.Core.Parser
     public class RParser : BaseParser
     {
         public static readonly string[] ValueCommands = new[] { "print.default", "print.noquote", "sprintf", "noquote", "print" };
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*\\w+\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*(\\w+)\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*[\\S]+?\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*([\\S]+?)\\s*(?:,[\\s\\S]*)?\\)", string.Join("|", ValueCommands.Select(x => x.Replace(".", "\\.")))));
 
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\(\\s*?[\\s\\S]*?\\)", string.Join("|", FigureCommands)));

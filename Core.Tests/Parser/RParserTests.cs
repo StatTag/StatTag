@@ -14,7 +14,10 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsValueDisplay("PRINT(x)"));
             Assert.IsTrue(parser.IsValueDisplay("print(x)"));
             Assert.IsFalse(parser.IsValueDisplay("print()"));
+
+            // This is invalid R, but we will consider it a print statement
             Assert.IsFalse(parser.IsValueDisplay("print(   )"));
+            
             Assert.IsTrue(parser.IsValueDisplay("print(\r\nx\r\n)"));
             Assert.IsTrue(parser.IsValueDisplay("print(x);"));
             Assert.IsFalse(parser.IsValueDisplay("print(x x);"));
@@ -23,6 +26,8 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsValueDisplay("printt (x)"));
             Assert.IsFalse(parser.IsValueDisplay("p print(x)"));
             Assert.IsFalse(parser.IsValueDisplay("print x"));
+            Assert.IsTrue(parser.IsValueDisplay("print(nrow(esoph))"));
+            Assert.IsTrue(parser.IsValueDisplay("print(2+3)"));
 
             // Now test the print command with parameters
             Assert.IsTrue(parser.IsValueDisplay("print(x, digits = 16, quote = TRUE)"));
