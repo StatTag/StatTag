@@ -12,7 +12,7 @@ namespace StatTag.Core.Parser
     /// </summary>
     public sealed class StataParser : BaseParser
     {
-        private static readonly char[] MacroDelimiters = {'`', '\''};
+        public static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         private static string ValueCommand = "di(?:s|splay)?";
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand));
@@ -29,6 +29,8 @@ namespace StatTag.Core.Parser
             new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline),
             new Regex("/\\*.*\\*/\\s?", RegexOptions.Singleline),
         };
+        private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
+
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -92,7 +94,6 @@ namespace StatTag.Core.Parser
         //public string GetLogType(string command)
         public string[] GetLogType(string command)
         {
-            //return MatchRegexReturnGroup(command, LogKeywordRegex, 1);
             return GlobalMatchRegexReturnGroup(command, LogKeywordRegex, 1);
         }
 
@@ -147,6 +148,30 @@ namespace StatTag.Core.Parser
         {
             return GetValueName(command).IndexOfAny(CalculationOperators) != -1;
         }
+
+        /// <summary>
+        /// Given a command string, extract all macros that are present.  This will remove
+        /// macro delimiters from the macro names returned.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public string[] GetMacros(string command)
+        {
+            var macroNames = new List<string>();
+            if (!string.IsNullOrEmpty(command))
+            {
+                var matches = MacroRegex.Matches(command);
+                if (matches.Count > 0)
+                {
+                    for (int index = 0; index < matches.Count; index++)
+                    {
+                        macroNames.Add(matches[index].Groups[1].Value);
+                    }
+                }
+            }
+            return macroNames.ToArray();
+        }
+
 
         /// <summary>
         /// To prepare for use, we need to collapse down some of the text.  This includes:
