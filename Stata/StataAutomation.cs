@@ -142,6 +142,17 @@ namespace Stata
             }
         }
 
+        private string GetMacroValue(string name)
+        {
+            string result = Application.MacroValue(name);
+            // If we get an empty string, try it with the prefix for local macros
+            if (string.IsNullOrEmpty(result))
+            {
+                result = Application.MacroValue(string.Format("{0}{1}", LocalMacroPrefix, name));
+            }
+            return result;
+        }
+
         /// <summary>
         /// Determine the string result for a command that returns a single value.  This includes
         /// macros and scalars.
@@ -168,13 +179,7 @@ namespace Stata
             if (Parser.IsMacroDisplayValue(command))
             {
                 name = Parser.GetMacroValueName(command);
-                string result = Application.MacroValue(name);
-                // If we get an empty string, try it with the prefix for local macros
-                if (string.IsNullOrEmpty(result))
-                {
-                    result = Application.MacroValue(string.Format("{0}{1}", LocalMacroPrefix, name));
-                }
-                return result;
+                return GetMacroValue(name);
             }
 
             name = Parser.GetValueName(command);
@@ -260,10 +265,34 @@ namespace Stata
 
             if (Parser.IsImageExport(command))
             {
-                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+                var imageLocation = Parser.GetImageSaveLocation(command);
+                if (imageLocation.Contains(StataParser.MacroDelimiters[0]))
+                {
+                    var macros = Parser.GetMacros(imageLocation);
+                    foreach (var macro in macros)
+                    {
+                        var result = GetMacroValue(macro);
+                        imageLocation = ReplaceMacroWithValue(imageLocation, macro, result);
+                    }
+                }
+
+                return new CommandResult() { FigureResult = imageLocation };
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Given a macro name that appears in a command string, replace it with its expanded value
+        /// </summary>
+        /// <param name="originalString"></param>
+        /// <param name="macro"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private string ReplaceMacroWithValue(string originalString, string macro, string value)
+        {
+            return originalString.Replace(
+                string.Format("{0}{1}{2}", StataParser.MacroDelimiters[0], macro, StataParser.MacroDelimiters[1]), value);
         }
 
         public void Dispose()
