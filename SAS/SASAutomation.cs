@@ -125,7 +125,21 @@ namespace SAS
 
             if (Parser.IsImageExport(command))
             {
-                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+                // Because of the order in which we get the image location, we may need to
+                // expand the image save location if it has a macro in its name.  An example
+                // of macro expansion would be:
+                //   %let Pathway = C:\Development\Code;
+                //   %put "&Pathway.\Test\";
+                // We will do a simple check (it's not perfect, and we may expand more often than we 
+                // need), but this allows us to keep the code simple while being effective.
+                var imageLocation = Parser.GetImageSaveLocation(command);
+                if (Parser.HasMacroIndicator(imageLocation))
+                {
+                    var expandedLocation = RunCommand("%PUT " + imageLocation + ";");
+                    imageLocation = expandedLocation.ValueResult;
+                }
+                
+                return new CommandResult() { FigureResult = imageLocation };
             }
 
             if (Parser.IsTableResult(command))
