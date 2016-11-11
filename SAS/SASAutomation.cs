@@ -79,6 +79,25 @@ namespace SAS
             return commandResults.ToArray();
         }
 
+
+        private string GetExpandedLocation(string originalLocation)
+        {
+            // Because of the order in which we get locations, we may need to
+            // expand the location if it has a macro in its name.  An example
+            // of macro expansion would be:
+            //   %let Pathway = C:\Development\Code;
+            //   %put "&Pathway.\Test\";
+            // We will do a simple check (it's not perfect, and we may expand more often than we
+            // need), but this allows us to keep the code simple while being effective.
+            if (Parser.HasMacroIndicator(originalLocation))
+            {
+                var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
+                return expandedLocation.ValueResult;
+            }
+
+            return originalLocation;
+        }
+
         /// <summary>
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
@@ -117,20 +136,20 @@ namespace SAS
                 }
             }
 
-            // If we have a value command, we will pull out the last relevant line from the output.
             if (Parser.IsValueDisplay(command))
             {
+                // If we have a value command, we will pull out the last relevant line from the output.
                 return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
             }
 
             if (Parser.IsImageExport(command))
             {
-                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+                return new CommandResult() { FigureResult = GetExpandedLocation(Parser.GetImageSaveLocation(command)) };
             }
 
             if (Parser.IsTableResult(command))
             {
-                return new CommandResult() { TableResultPromise = Parser.GetTableName(command) };
+                return new CommandResult() { TableResultPromise = GetExpandedLocation(Parser.GetTableName(command)) };
             }
 
             return null;

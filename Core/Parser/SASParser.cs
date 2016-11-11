@@ -15,7 +15,7 @@ namespace StatTag.Core.Parser
         private static string TableCommand = "ods csv";
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static string MacroIndicator = "&";
+        public const string MacroIndicator = "&";
 
         public override string CommentCharacter
         {

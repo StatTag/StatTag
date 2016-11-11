@@ -264,5 +264,24 @@ namespace Core.Tests.Parser
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
             Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
+
+
+        [TestMethod]
+        public void GetMacros()
+        {
+            var parser = new StataParser();
+            Assert.AreEqual(0, parser.GetMacros(null).Length);
+            Assert.AreEqual(0, parser.GetMacros(string.Empty).Length);
+            Assert.AreEqual(0, parser.GetMacros("display x").Length);
+
+            var result = parser.GetMacros("display `x'");
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("x", result.First());
+
+            result = parser.GetMacros("display `x'\\`y'");
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual("x", result[0]);
+            Assert.AreEqual("y", result[1]);
+        }
     }
 }
