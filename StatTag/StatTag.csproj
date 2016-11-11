@@ -276,7 +276,6 @@
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
-    <Compile Include="Models\OpenXmlGenerator.cs" />
     <Compile Include="Models\PropertiesManager.cs" />
     <Compile Include="Models\ScintillaManager.cs" />
     <Compile Include="Models\StatsManager.cs" />
