@@ -59,6 +59,32 @@ namespace Core.Tests.Generator
         }
 
         [TestMethod]
+        public void GenerateField_ReservedXMLCharacters()
+        {
+            var field = OpenXmlGenerator.GenerateField(null, "test", "2 is > 1 and < 3", "2");
+            Assert.AreNotEqual(string.Empty, field);
+            const string expectedResponse =
+                "<w:p xmlns:w=\"http://schemas.microsoft.com/office/word/2003/wordml\">\r\n" +
+                "    <w:r>\r\n" +
+                "        <w:rPr>\r\n" +
+                "            \r\n" +
+                "        </w:rPr>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\" />\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> MacroButton StatTag 2 is &gt; 1 and &lt; 3</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\">\r\n" +
+                "            <w:fldData xml:space=\"preserve\">MgA=\r\n" +
+                "</w:fldData>\r\n" +
+                "        </w:fldChar>\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> ADDIN test</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "    </w:r>\r\n" +
+                "</w:p>";
+
+            Assert.AreEqual(expectedResponse, field);
+        }
+
+        [TestMethod]
         public void GenerateField_MockRange_PlainFont()
         {
             var range = new Mock<Microsoft.Office.Interop.Word.Range>();

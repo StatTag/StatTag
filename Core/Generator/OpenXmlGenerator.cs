@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -282,7 +283,7 @@ namespace StatTag.Core.Generator
                 "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
                 "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
                 "    </w:r>\r\n" +
-                "</w:p>", Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, Base64EncodeFieldData(data), GetFormat(range));
+                "</w:p>", Constants.FieldDetails.MacroButtonName, SecurityElement.Escape(displayValue), tagIdentifier, Base64EncodeFieldData(data), GetFormat(range));
             return result;
         }
 
