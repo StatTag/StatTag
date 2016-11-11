@@ -159,7 +159,8 @@ namespace R
 
         public string GetInitializationErrorMessage()
         {
-            throw new NotImplementedException();
+            return "Could not communicate with R.  R may not be fully installed, or be missing some of the automation pieces that StatTag requires.";
+
         }
 
         private string GetValueResult(SymbolicExpression result)

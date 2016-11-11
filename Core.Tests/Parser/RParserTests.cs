@@ -10,64 +10,19 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void IsValueDisplay()
         {
+            // We consider anything to be a candidate value, given how R works, so this is just to
+            // assert it should always return true.
             var parser = new RParser();
-            Assert.IsFalse(parser.IsValueDisplay("PRINT(x)"));
-            Assert.IsTrue(parser.IsValueDisplay("print(x)"));
-            Assert.IsFalse(parser.IsValueDisplay("print()"));
-
-            // This is invalid R, but we will consider it a print statement
-            Assert.IsFalse(parser.IsValueDisplay("print(   )"));
-            
-            Assert.IsTrue(parser.IsValueDisplay("print(\r\nx\r\n)"));
-            Assert.IsTrue(parser.IsValueDisplay("print(x);"));
-            Assert.IsFalse(parser.IsValueDisplay("print(x x);"));
-            Assert.IsTrue(parser.IsValueDisplay("print (x)"));
-            Assert.IsTrue(parser.IsValueDisplay("  print (  x  ) "));
-            Assert.IsFalse(parser.IsValueDisplay("printt (x)"));
-            Assert.IsFalse(parser.IsValueDisplay("p print(x)"));
-            Assert.IsFalse(parser.IsValueDisplay("print x"));
-            Assert.IsTrue(parser.IsValueDisplay("print(nrow(esoph))"));
-            Assert.IsTrue(parser.IsValueDisplay("print(2+3)"));
-
-            // Now test the print command with parameters
-            Assert.IsTrue(parser.IsValueDisplay("print(x, digits = 16, quote = TRUE)"));
-            Assert.IsTrue(parser.IsValueDisplay("print(x,digits=16,quote=TRUE)"));
-            Assert.IsTrue(parser.IsValueDisplay(" print ( x , digits = 16 , quote = TRUE ) "));
-
-            // And test the print command with its other aliases
-            Assert.IsTrue(parser.IsValueDisplay("print.default(x)"));
-            Assert.IsFalse(parser.IsValueDisplay("printsdefault(x)"));
-            Assert.IsTrue(parser.IsValueDisplay("print.default(x,digits=16,quote=TRUE)"));
-            Assert.IsTrue(parser.IsValueDisplay(" print.default ( x , digits = 16 , quote = TRUE ) "));
-            Assert.IsTrue(parser.IsValueDisplay("print.noquote(x)"));
-            Assert.IsFalse(parser.IsValueDisplay("print.noquotes(x)"));
-            Assert.IsTrue(parser.IsValueDisplay("noquote(x)"));
+            Assert.IsTrue(parser.IsValueDisplay("Anything can go here"));
         }
 
         [TestMethod]
         public void GetValueName()
         {
+            // We are unrestrictive on what can be considered a value, so we don't ever return a
+            // value name.  This just asserts it's always an empty string returned.
             var parser = new RParser();
-            Assert.AreEqual("test", parser.GetValueName("print(test)"));
-            Assert.AreEqual("test", parser.GetValueName("print(test);"));
-            Assert.AreEqual("test", parser.GetValueName("print (  test  ) "));
-            Assert.AreEqual("test", parser.GetValueName("print (\r\ntest\r\n  ) "));
-            Assert.AreEqual(string.Empty, parser.GetValueName("PRINT(test)"));
-            Assert.AreEqual(string.Empty, parser.GetValueName("aprint(test);"));
-            Assert.AreEqual("test", parser.GetValueName("print(test)#Test"));
-
-            // Now test the print command with parameters
-            Assert.AreEqual("x", parser.GetValueName("print(x, digits = 16, quote = TRUE)"));
-            Assert.AreEqual("x", parser.GetValueName("print(x,digits=16,quote=TRUE)"));
-            Assert.AreEqual("x", parser.GetValueName(" print ( x , digits = 16 , quote = TRUE ) "));
-
-            // And test the print command with its other aliases
-            Assert.AreEqual("x", parser.GetValueName("print.default(x)"));
-            Assert.AreEqual(string.Empty, parser.GetValueName("printsdefault(x)"));
-            Assert.AreEqual("x", parser.GetValueName("print.default(x,digits=16,quote=TRUE)"));
-            Assert.AreEqual("x", parser.GetValueName(" print.default ( x , digits = 16 , quote = TRUE ) "));
-            Assert.AreEqual("x_noquote", parser.GetValueName("print.noquote(x_noquote)"));
-            Assert.AreEqual("x_noquote", parser.GetValueName("noquote(x_noquote)"));
+            Assert.AreEqual(string.Empty, parser.GetValueName("Anything can go here"));
         }
 
         [TestMethod]

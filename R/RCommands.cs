@@ -14,7 +14,7 @@ namespace R
         {
             public string[] GetCommands()
             {
-                return RParser.ValueCommands;
+                return new[] {"(Any command that returns a value)"};
             }
         }
 
@@ -28,11 +28,9 @@ namespace R
 
         public class TableCommands : IResultCommandList
         {
-            public const string MatrixList = "(Any command that returns a data frame, matrix, vector or list)";
-
             public string[] GetCommands()
             {
-                return new[] { MatrixList };
+                return new[] { "(Any command that returns a data frame, matrix, vector or list)" };
             }
         }
 
