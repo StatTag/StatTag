@@ -74,15 +74,18 @@ namespace R
                 return new CommandResult() { TableResult = GetTableResult(result)};
             }
 
-            // If we have a value command, we will pull out the last relevant line from the output.
-            if (Parser.IsValueDisplay(command))
-            {
-                return new CommandResult() { ValueResult = GetValueResult(result) };
-            }
-
+            // Image comes next, because everything else we will count as a value type.
             if (Parser.IsImageExport(command))
             {
                 return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+            }
+
+            // If we have a value command, we will pull out the last relevant line from the output.
+            // Because we treat every type of output as a possible value result, we are only going
+            // to capture the result if it's flagged as a tag.
+            if (tag != null && tag.Type == Constants.TagType.Value)
+            {
+                return new CommandResult() { ValueResult = GetValueResult(result) };
             }
 
             return null;
@@ -135,6 +138,47 @@ namespace R
                         FlattenData(data), rowCount, columnCount)
                 };
             }
+            else if (result.IsList())
+            {
+                // A list can be a collection of anything, including other vectors.
+                // We will do our best to expand these.  If they are deeply nested
+                // though, it becomes difficult to put these in a table structure in
+                // a Word document.  For now, we'll limit to 2D structures.
+                var list = result.AsList();
+                int maxSize = 0;
+                var data = new List<List<string>>();
+                foreach (var item in list)
+                {
+                    var characterData = item.AsCharacter();
+                    if (characterData == null)
+                    {
+                        data.Add(new List<string>());
+                    }
+                    else
+                    {
+                        var dataAsArray = characterData.Select(x => x.ToString()).ToList();
+                        data.Add(dataAsArray);
+                        maxSize = Math.Max(dataAsArray.Count, maxSize);
+                    }
+                }
+
+                // Build data into a vector
+                var vectorData = new List<string>();
+                for (int row = 0; row < maxSize; row++)
+                {
+                    foreach (var column in data)
+                    {
+                        vectorData.Add(row < column.Count ? column[row] : null);
+                    }
+                }
+                return new Table()
+                {
+                    ColumnSize = data.Count,
+                    RowSize = maxSize,
+                    Data = TableUtil.MergeTableVectorsToArray(
+                        null, list.Names, vectorData.ToArray(), maxSize + 1, data.Count)
+                };
+            }
 
             if (result.Type == SymbolicExpressionType.NumericVector
                 || result.Type == SymbolicExpressionType.IntegerVector
@@ -145,7 +189,7 @@ namespace R
                 return new Table()
                 {
                     ColumnSize = 1, RowSize = data.Length, Data = TableUtil.MergeTableVectorsToArray(
-                    null, result.GetAttributeNames(), data.Select(x => x.ToString()).ToArray(), data.Length, 1)
+                        null, result.GetAttributeNames(), data.Select(x => x.ToString()).ToArray(), data.Length, 1)
                 };
             }
 
@@ -165,13 +209,22 @@ namespace R
 
         private string GetValueResult(SymbolicExpression result)
         {
+            if (result.IsDataFrame())
+            {
+                return result.AsDataFrame()[0].AsCharacter().FirstOrDefault();
+            }
+            else if (result.IsList())
+            {
+                return result.AsList()[0].AsCharacter().FirstOrDefault();
+            }
+
             switch (result.Type)
             {
                 case SymbolicExpressionType.NumericVector:
                 case SymbolicExpressionType.IntegerVector:
                 case SymbolicExpressionType.CharacterVector:
                 case SymbolicExpressionType.LogicalVector:
-                    return result.AsCharacter().First();
+                    return result.AsCharacter().FirstOrDefault();
             }
             return null;
         }

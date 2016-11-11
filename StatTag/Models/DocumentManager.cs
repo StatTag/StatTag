@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using StatTag.Core;
+using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 using StatTag.Core.Utility;
