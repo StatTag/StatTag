@@ -203,7 +203,7 @@ namespace R
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with R.  R may not be fully installed, or be missing some of the automation pieces that StatTag requires.";
+            return "Could not communicate with R.  R may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
 
         }
 
