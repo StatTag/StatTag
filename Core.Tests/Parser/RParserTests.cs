@@ -51,11 +51,13 @@ namespace Core.Tests.Parser
         {
             var parser = new RParser();
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\")"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"))"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\",100,100)"));
             Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width = 100, height=100, \r\n\tfile=\r\n\t\t\"test.png\")"));
             Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(\"test.png\", width=100,height=100)"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png (width=100,height=100,\r\n\t\"test.png\")"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,\"test.png\",height=100)"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,'test.png',height=100)"));
+            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png (width=100,height=100,fi=\r\n\t\"test.png\")"));
+            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
+            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
             Assert.AreEqual("C:\\\\Test\\\\Path with spaces\\\\test.pdf", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("spng(width=100,'test.png',height=100)"));
 

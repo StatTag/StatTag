@@ -77,7 +77,8 @@ namespace R
             // Image comes next, because everything else we will count as a value type.
             if (Parser.IsImageExport(command))
             {
-                return new CommandResult() { FigureResult = Parser.GetImageSaveLocation(command) };
+                var imageLocation = RunCommand(Parser.GetImageSaveLocation(command), new Tag() { Type = Constants.TagType.Value });
+                return new CommandResult() { FigureResult = imageLocation.ValueResult };
             }
 
             // If we have a value command, we will pull out the last relevant line from the output.
