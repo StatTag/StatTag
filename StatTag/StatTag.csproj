@@ -135,9 +135,22 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicInterop.0.7.4\lib\net40\DynamicInterop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RDotNet, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -362,6 +375,7 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
@@ -392,18 +406,6 @@
     <None Include="Resources\DeleteTablefromDatabase_270.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
-      <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
-      <Name>RDotNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\RDotNet.Graphics\RDotNet.Graphics.csproj">
-      <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
-      <Name>RDotNet.Graphics</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
-      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
-      <Name>RDotNet.NativeLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
       <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>
       <Name>ScintillaNET</Name>
