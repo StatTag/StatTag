@@ -50,27 +50,35 @@ namespace Core.Tests.Parser
         public void GetImageSaveLocation()
         {
             var parser = new RParser();
-            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\")"));
-            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"))"));
-            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\",100,100)"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width = 100, height=100, \r\n\tfile=\r\n\t\t\"test.png\")"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(\"test.png\", width=100,height=100)"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png (width=100,height=100,fi=\r\n\t\"test.png\")"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
-            Assert.AreEqual("C:\\\\Test\\\\Path with spaces\\\\test.pdf", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));
+            Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\")"));
+            Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\",100,100)"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width = 100, height=100, \r\n\tfile=\r\n\t\t\"test.png\")"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(\"test.png\", width=100,height=100)"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100, \"test.png\", height=100)")); // First unnamed parameter is file
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png (width=100,height=100,fi=\r\n\t\"test.png\")"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
+            Assert.AreEqual("'test.png'", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
+            Assert.AreEqual("\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\"", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));
+            Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("png(width=100, height=100)")); // Here there is no unnamed parameter or file parameter (this would be an error in R)
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("spng(width=100,'test.png',height=100)"));
 
-            // Some duplication, but verifies each file type works
-            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\")"));
-            Assert.AreEqual("test.wmf", parser.GetImageSaveLocation("win.metafile(\"test.wmf\")"));
-            Assert.AreEqual("test.jpeg", parser.GetImageSaveLocation("jpeg(\"test.jpeg\")"));
-            Assert.AreEqual("test.png", parser.GetImageSaveLocation("png(\"test.png\")"));
-            Assert.AreEqual("test.bmp", parser.GetImageSaveLocation("bmp(\"test.bmp\")"));
-            Assert.AreEqual("test.ps", parser.GetImageSaveLocation("postscript(\"test.ps\")"));
+            // Allow paste command to be used for file name parameter
+            Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"))"));
+            Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(paste(\"test\", \".pdf\"))"));
 
-            // If we have two image commands in the same text block, we should only extract the first VALID one (non-greedy matching)
-            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
+            // Variable names should be allowed for file name parameter too
+            Assert.AreEqual("file_path", parser.GetImageSaveLocation("pdf(file=file_path)"));
+
+            // Some duplication, but verifies each file type works
+            Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\")"));
+            Assert.AreEqual("\"test.wmf\"", parser.GetImageSaveLocation("win.metafile(\"test.wmf\")"));
+            Assert.AreEqual("\"test.jpeg\"", parser.GetImageSaveLocation("jpeg(\"test.jpeg\")"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(\"test.png\")"));
+            Assert.AreEqual("\"test.bmp\"", parser.GetImageSaveLocation("bmp(\"test.bmp\")"));
+            Assert.AreEqual("\"test.ps\"", parser.GetImageSaveLocation("postscript(\"test.ps\")"));
+
+            // If we have two image commands in the same text block, we will get the last valid one
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
         }
 
         [TestMethod]

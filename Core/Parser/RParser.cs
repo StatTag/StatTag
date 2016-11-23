@@ -13,8 +13,9 @@ namespace StatTag.Core.Parser
     public class RParser : BaseParser
     {
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
-        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*?)\\)", string.Join("|", FigureCommands)));
-        private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]*?\\s*\\(.*?\\))|([\\w]+))");
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
+        //private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]*?\\s*\\(.*?\\))|([\\w]+))");
+        private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]+\\s*\\(.+\\))|([^\\(\\)]+?))(?:,|$)\\s*", RegexOptions.Multiline);
         private const char ParameterDelimiter = '=';
         private const char ArgumentDelimiter = ',';
         private const string FileParameterName = "file";
@@ -36,6 +37,14 @@ namespace StatTag.Core.Parser
             public string Value;
         }
 
+        /// <summary>
+        /// This will return the exact parameter that represents the image save location.  This may be an R function (e.g., paste)
+        /// to construct the file path, a variable, or a string literal.  String literals will include enclosing quotes.  This is
+        /// because the output of this method is sent to R as an expression for evaluation.  That way R handles converting everything
+        /// into an exact file path that we can then utilize.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetImageSaveLocation(string command)
         {
             var match = FigureRegex.Match(command);
@@ -45,15 +54,21 @@ namespace StatTag.Core.Parser
                 return string.Empty;
             }
 
-            var arguments = match.Groups[1].Value.Split(ArgumentDelimiter);
-            for (int index = 0; index < arguments.Length; index++)
+            var arguments = match.Groups[1].Value;
+            var matches = FigureParameterRegex.Matches(arguments);
+            if (matches.Count == 0)
             {
-                var components = arguments[index].Split(ParameterDelimiter).Select(x => x.Trim()).ToArray();
+                return string.Empty;
+            }
+
+            for (int index = 0; index < matches.Count; index++)
+            {
+                var paramMatch = matches[index];
                 parameters.Add(new FunctionParam()
                 {
                     Index = index,
-                    Key = (components.Length > 1 ? components[0] : string.Empty),
-                    Value = (components.Length > 1 ? components[1] : components[0]).Replace("\"", "").Replace("'", "")
+                    Key = paramMatch.Groups[1].Value,
+                    Value = (string.IsNullOrWhiteSpace(paramMatch.Groups[2].Value) ? paramMatch.Groups[3].Value : paramMatch.Groups[2].Value)
                 });
             }
 
@@ -78,8 +93,10 @@ namespace StatTag.Core.Parser
                 return matchingArg.Value;
             }
 
-            // Finally position-based matching (1st item)
-            return parameters.First(x => x.Index == 0).Value;
+            // Finally, look for the first unnamed argument.
+            var filteredParameters = parameters.Where(x => string.IsNullOrWhiteSpace(x.Key)).OrderBy(x => x.Index);
+            var firstUnnamed = filteredParameters.FirstOrDefault();
+            return (firstUnnamed == null) ? string.Empty : firstUnnamed.Value;
         }
 
         /// <summary>
