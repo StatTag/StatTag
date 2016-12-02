@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Threading;
 using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -49,6 +52,42 @@ namespace Core.Tests.Models
 
             format.AllowInvalidTypes = true;
             Assert.AreEqual("test", format.Format("test"));
+        }
+
+        [TestMethod]
+        public void Format_Numeric_European()
+        {
+            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
+                var format = new ValueFormat() {FormatType = Constants.ValueFormatType.Numeric};
+                Assert.AreEqual(string.Empty, format.Format("Not a number"));
+                Assert.AreEqual("0", format.Format("0,0"));
+                Assert.AreEqual("1", format.Format("1,11")); // Default numeric format
+                Assert.AreEqual("1235", format.Format("1234,56789")); // Rounds up
+                format.DecimalPlaces = 2;
+                Assert.AreEqual("1234,57", format.Format("1234,56789")); // Rounds up with decimal places
+                format.DecimalPlaces = 10;
+                Assert.AreEqual("1234,5678900000", format.Format("1234,56789")); // Rounds up with decimal places
+
+                format.DecimalPlaces = 0;
+                format.UseThousands = true;
+                Assert.AreEqual("1.234", format.Format("1234"));
+                format.DecimalPlaces = 2;
+                Assert.AreEqual("1.234,57", format.Format("1234,567"));
+                format.DecimalPlaces = 1;
+                Assert.AreEqual("1,0", format.Format("1"));
+                format.DecimalPlaces = 0;
+                Assert.AreEqual("1.234.567.890", format.Format("1234567890"));
+
+                format.AllowInvalidTypes = true;
+                Assert.AreEqual("test", format.Format("test"));
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = currentCulture;
+            }
         }
 
         [TestMethod]
