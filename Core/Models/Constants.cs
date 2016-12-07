@@ -219,12 +219,28 @@ namespace StatTag.Core.Models
         {
             public const string MMDDYYYY = "MM/dd/yyyy";
             public const string MonthDDYYYY = "MMMM dd, yyyy";
+
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    MMDDYYYY, MonthDDYYYY
+                };
+            }
         }
 
         public static class TimeFormats
         {
             public const string HHMM = "HH:mm";
             public const string HHMMSS = "HH:mm:ss";
+
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    HHMM, HHMMSS
+                };
+            }
         }
 
         public static class DimensionIndex
