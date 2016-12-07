@@ -20,11 +20,6 @@ namespace StatTag.Controls
             Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
-        private void CheckChanged(object sender, EventArgs e)
-        {
-            ShowProperties();
-        }
-
         private int PanelTop()
         {
             return pnlNumeric.Top;
@@ -57,6 +52,7 @@ namespace StatTag.Controls
         private void ValueProperties_Load(object sender, EventArgs e)
         {
             cboType.Items.AddRange(Constants.ValueFormatType.GetDisplayList());
+            cboType.SelectedItem = Constants.ValueFormatType.Default;
             ShowProperties();
         }
 
@@ -107,6 +103,7 @@ namespace StatTag.Controls
             {
                 var pctProperties = pnlPercentage.Controls.OfType<PercentageValueProperties>().First();
                 pctProperties.DecimalPlaces = format.DecimalPlaces;
+                pctProperties.UpdateValues();
             }
         }
 

@@ -12,6 +12,15 @@ namespace StatTag.Controls
 {
     public partial class HorizontalLine : UserControl
     {
+        private Color lineColor = Color.LightGray;
+
+        [DefaultValue(typeof(Color), "0xD3D3D3")]
+        public Color LineColor
+        {
+            get { return lineColor; }
+            set { lineColor = value; Invalidate(); }
+        }
+
         public HorizontalLine()
         {
             InitializeComponent();
@@ -24,7 +33,7 @@ namespace StatTag.Controls
             base.OnPaint(e);
 
             // Declare and instantiate a new pen and draw the line
-            var pen = new Pen(Color.Gray, 1.0f);
+            var pen = new Pen(this.LineColor, 1.0f);
             e.Graphics.DrawLine(pen, this.Margin.Left, (this.Height / 2), this.Width - this.Margin.Right, (this.Height / 2));
         }
     }

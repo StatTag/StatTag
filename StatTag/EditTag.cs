@@ -83,58 +83,27 @@ namespace StatTag
             Close();
         }
 
-        private void cmdValue_Click(object sender, EventArgs e)
+        private void UpdateForTypeClick()
         {
-            UpdateForTypeClick(sender as Button);
-        }
-
-        private void SelectTypeButton(Button button)
-        {
-            //button.Left = pnlType.Left - SelectedButtonWidth + 2;
-            button.Width = SelectedButtonWidth;
-            button.BackColor = Color.White;
-            button.Font = SelectedButtonFont;
-        }
-
-        private void UnselectTypeButton(Button button)
-        {
-            //button.Left = pnlType.Left - UnselectedButtonWidth + 2;
-            button.Width = UnselectedButtonWidth;
-            button.BackColor = SystemColors.ButtonFace;
-            button.Font = UnselectedButtonFont;
-        }
-
-        private void UpdateForTypeClick(Button button)
-        {
-            SelectTypeButton(button);
-
-            //if (button == cmdValue)
-            //{
-            //    valueProperties.Visible = true;
-            //    figureProperties.Visible = false;
-            //    tableProperties.Visible = false;
-            //    UnselectTypeButton(cmdFigure);
-            //    UnselectTypeButton(cmdTable);
-            //    TagType = Constants.TagType.Value;
-            //}
-            //else if (button == cmdFigure)
-            //{
-            //    valueProperties.Visible = false;
-            //    figureProperties.Visible = true;
-            //    tableProperties.Visible = false;
-            //    UnselectTypeButton(cmdValue);
-            //    UnselectTypeButton(cmdTable);
-            //    TagType = Constants.TagType.Figure;
-            //}
-            //else if (button == cmdTable)
-            //{
-            //    valueProperties.Visible = false;
-            //    figureProperties.Visible = false;
-            //    tableProperties.Visible = true;
-            //    UnselectTypeButton(cmdValue);
-            //    UnselectTypeButton(cmdFigure);
-            //    TagType = Constants.TagType.Table;
-            //}
+            TagType = cboResultType.SelectedItem.ToString();
+            switch (TagType)
+            {
+                case Constants.TagType.Figure:
+                    figureProperties.Visible = true;
+                    tableProperties.Visible = false;
+                    valueProperties.Visible = false;
+                    break;
+                case Constants.TagType.Table:
+                    tableProperties.Visible = true;
+                    valueProperties.Visible = false;
+                    figureProperties.Visible = false;
+                    break;
+                default:
+                    valueProperties.Visible = true;
+                    tableProperties.Visible = false;
+                    figureProperties.Visible = false;
+                    break;
+            }
 
             SetInstructionText();
         }
@@ -149,22 +118,14 @@ namespace StatTag
             lblAllowedCommands.Text = commandList == null ? "(None specified)" : string.Join(", ", commandList.GetCommands());
         }
 
-        private void cmdFigure_Click(object sender, EventArgs e)
-        {
-            UpdateForTypeClick(sender as Button);
-        }
-
-        private void cmdTable_Click(object sender, EventArgs e)
-        {
-            UpdateForTypeClick(sender as Button);
-        }
-
         private void ManageTag_Load(object sender, EventArgs e)
         {
             OverrideCenterToScreen();
             MinimumSize = Size;
 
-            //UpdateForTypeClick(cmdValue);
+            cboResultType.Items.AddRange(Constants.TagType.GetList());
+            cboResultType.SelectedItem = Constants.TagType.Value;
+            UpdateForTypeClick();
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
@@ -196,7 +157,8 @@ namespace StatTag
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
                 cboRunFrequency.SelectedItem = Tag.RunFrequency;
                 txtName.Text = Tag.Name;
-                TagType = Tag.Type;
+                cboResultType.SelectedItem = Tag.Type;
+                UpdateForTypeClick();
                 LoadCodeFile(Tag.CodeFile);
                 if (Tag.LineStart.HasValue && Tag.LineEnd.HasValue)
                 {
@@ -214,18 +176,18 @@ namespace StatTag
                 switch (TagType)
                 {
                     case Constants.TagType.Value:
-                        //UpdateForTypeClick(cmdValue);
+                        UpdateForTypeClick();
                         valueProperties.SetValueFormat(Tag.ValueFormat);
                         break;
-                //    case Constants.TagType.Figure:
-                //        UpdateForTypeClick(cmdFigure);
-                //        figureProperties.SetFigureFormat(Tag.FigureFormat);
-                //        break;
-                //    case Constants.TagType.Table:
-                //        UpdateForTypeClick(cmdTable);
-                //        tableProperties.SetTableFormat(Tag.TableFormat);
-                //        tableProperties.SetValueFormat(Tag.ValueFormat);
-                //        break;
+                    case Constants.TagType.Figure:
+                        UpdateForTypeClick();
+                        figureProperties.SetFigureFormat(Tag.FigureFormat);
+                        break;
+                    case Constants.TagType.Table:
+                        UpdateForTypeClick();
+                        tableProperties.SetTableFormat(Tag.TableFormat);
+                        tableProperties.SetValueFormat(Tag.ValueFormat);
+                        break;
                 }
             }
             else
@@ -577,20 +539,20 @@ namespace StatTag
                     Tag.ValueFormat = valueProperties.GetValueFormat();
                     break;
                 case Constants.TagType.Figure:
-                    //Tag.FigureFormat = figureProperties.GetFigureFormat();
+                    Tag.FigureFormat = figureProperties.GetFigureFormat();
                     break;
                 case Constants.TagType.Table:
-                    //Tag.TableFormat = tableProperties.GetTableFormat();
-                    //Tag.ValueFormat = tableProperties.GetValueFormat();
+                    Tag.TableFormat = tableProperties.GetTableFormat();
+                    Tag.ValueFormat = tableProperties.GetValueFormat();
                     break;
                 default:
                     throw new NotSupportedException("This tag type is not yet supported");
             }
         }
 
-        private void label6_Click(object sender, EventArgs e)
+        private void cboResultType_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            UpdateForTypeClick();
         }
     }
 }

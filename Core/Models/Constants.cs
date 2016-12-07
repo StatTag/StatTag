@@ -38,6 +38,14 @@ namespace StatTag.Core.Models
             public const string Value = "Value";
             public const string Figure = "Figure";
             public const string Table = "Table";
+            
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    Value, Figure, Table
+                };
+            }
         }
 
         public static class ValueFormatType

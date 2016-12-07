@@ -44,6 +44,7 @@
             this.cboRunFrequency = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.tableProperties = new StatTag.Controls.TableProperties();
             this.horizontalLine1 = new StatTag.Controls.HorizontalLine();
             this.valueProperties = new StatTag.Controls.ValueProperties();
             this.cboResultType = new System.Windows.Forms.ComboBox();
@@ -51,6 +52,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
+            this.figureProperties = new StatTag.Controls.FigureProperties();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -148,7 +150,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAllowedCommands.Location = new System.Drawing.Point(16, 499);
             this.lblAllowedCommands.Name = "lblAllowedCommands";
-            this.lblAllowedCommands.Size = new System.Drawing.Size(280, 64);
+            this.lblAllowedCommands.Size = new System.Drawing.Size(280, 62);
             this.lblAllowedCommands.TabIndex = 4;
             this.lblAllowedCommands.Text = "(None specified)";
             // 
@@ -204,6 +206,8 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.figureProperties);
+            this.panel1.Controls.Add(this.tableProperties);
             this.panel1.Controls.Add(this.horizontalLine1);
             this.panel1.Controls.Add(this.lblAllowedCommands);
             this.panel1.Controls.Add(this.valueProperties);
@@ -219,6 +223,18 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(312, 570);
             this.panel1.TabIndex = 41;
+            // 
+            // tableProperties
+            // 
+            this.tableProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableProperties.Location = new System.Drawing.Point(6, 134);
+            this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.tableProperties.Name = "tableProperties";
+            this.tableProperties.Size = new System.Drawing.Size(293, 201);
+            this.tableProperties.TabIndex = 40;
             // 
             // horizontalLine1
             // 
@@ -237,7 +253,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(6, 138);
+            this.valueProperties.Location = new System.Drawing.Point(6, 134);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
             this.valueProperties.Size = new System.Drawing.Size(293, 135);
@@ -249,14 +265,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboResultType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboResultType.FormattingEnabled = true;
-            this.cboResultType.Items.AddRange(new object[] {
-            "Value",
-            "Figure",
-            "Table"});
             this.cboResultType.Location = new System.Drawing.Point(94, 90);
             this.cboResultType.Name = "cboResultType";
             this.cboResultType.Size = new System.Drawing.Size(205, 25);
             this.cboResultType.TabIndex = 38;
+            this.cboResultType.SelectedIndexChanged += new System.EventHandler(this.cboResultType_SelectedIndexChanged);
             // 
             // label7
             // 
@@ -276,7 +289,6 @@
             this.label6.Size = new System.Drawing.Size(85, 17);
             this.label6.TabIndex = 36;
             this.label6.Text = "Tag Settings";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // scintilla1
             // 
@@ -302,6 +314,14 @@
             this.verticalLine1.Name = "verticalLine1";
             this.verticalLine1.Size = new System.Drawing.Size(10, 570);
             this.verticalLine1.TabIndex = 42;
+            // 
+            // figureProperties
+            // 
+            this.figureProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.figureProperties.Location = new System.Drawing.Point(6, 134);
+            this.figureProperties.Name = "figureProperties";
+            this.figureProperties.Size = new System.Drawing.Size(293, 20);
+            this.figureProperties.TabIndex = 43;
             // 
             // EditTag
             // 
@@ -358,5 +378,7 @@
         private System.Windows.Forms.Label label7;
         private Controls.HorizontalLine horizontalLine1;
         private Controls.VerticalLine verticalLine1;
+        private Controls.TableProperties tableProperties;
+        private Controls.FigureProperties figureProperties;
     }
 }

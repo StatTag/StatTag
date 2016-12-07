@@ -88,6 +88,7 @@
             this.pnlNumeric.Controls.Add(this.numericValueProperties1);
             this.pnlNumeric.Controls.Add(this.horizontalLine1);
             this.pnlNumeric.Location = new System.Drawing.Point(0, 51);
+            this.pnlNumeric.Margin = new System.Windows.Forms.Padding(0);
             this.pnlNumeric.Name = "pnlNumeric";
             this.pnlNumeric.Size = new System.Drawing.Size(268, 94);
             this.pnlNumeric.TabIndex = 8;
@@ -99,6 +100,7 @@
             this.pnlPercentage.Controls.Add(this.percentageValueProperties1);
             this.pnlPercentage.Controls.Add(this.horizontalLine2);
             this.pnlPercentage.Location = new System.Drawing.Point(0, 145);
+            this.pnlPercentage.Margin = new System.Windows.Forms.Padding(0);
             this.pnlPercentage.Name = "pnlPercentage";
             this.pnlPercentage.Size = new System.Drawing.Size(268, 62);
             this.pnlPercentage.TabIndex = 9;
@@ -110,15 +112,19 @@
             this.pnlDateTime.Controls.Add(this.dateTimeValueProperties1);
             this.pnlDateTime.Controls.Add(this.horizontalLine3);
             this.pnlDateTime.Location = new System.Drawing.Point(0, 213);
+            this.pnlDateTime.Margin = new System.Windows.Forms.Padding(0);
             this.pnlDateTime.Name = "pnlDateTime";
-            this.pnlDateTime.Size = new System.Drawing.Size(268, 94);
+            this.pnlDateTime.Size = new System.Drawing.Size(268, 88);
             this.pnlDateTime.TabIndex = 10;
             // 
             // pnlDefault
             // 
+            this.pnlDefault.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlDefault.Controls.Add(this.label3);
             this.pnlDefault.Controls.Add(this.horizontalLine4);
             this.pnlDefault.Location = new System.Drawing.Point(0, 314);
+            this.pnlDefault.Margin = new System.Windows.Forms.Padding(0);
             this.pnlDefault.Name = "pnlDefault";
             this.pnlDefault.Size = new System.Drawing.Size(268, 57);
             this.pnlDefault.TabIndex = 11;
@@ -147,7 +153,7 @@
             // 
             this.dateTimeValueProperties1.DateFormat = "";
             this.dateTimeValueProperties1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dateTimeValueProperties1.Location = new System.Drawing.Point(11, 17);
+            this.dateTimeValueProperties1.Location = new System.Drawing.Point(11, 11);
             this.dateTimeValueProperties1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dateTimeValueProperties1.Name = "dateTimeValueProperties1";
             this.dateTimeValueProperties1.Size = new System.Drawing.Size(254, 76);
@@ -161,7 +167,7 @@
             this.horizontalLine3.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
             this.horizontalLine3.Location = new System.Drawing.Point(0, 0);
             this.horizontalLine3.Name = "horizontalLine3";
-            this.horizontalLine3.Size = new System.Drawing.Size(268, 17);
+            this.horizontalLine3.Size = new System.Drawing.Size(268, 11);
             this.horizontalLine3.TabIndex = 0;
             // 
             // percentageValueProperties1

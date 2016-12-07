@@ -12,6 +12,15 @@ namespace StatTag.Controls
 {
     public partial class VerticalLine : UserControl
     {
+        private Color lineColor = Color.LightGray;
+
+        [DefaultValue(typeof(Color), "0xD3D3D3")]
+        public Color LineColor
+        {
+            get { return lineColor; }
+            set { lineColor = value; Invalidate(); }
+        }
+
         public VerticalLine()
         {
             InitializeComponent();
@@ -24,10 +33,10 @@ namespace StatTag.Controls
             base.OnPaint(e);
 
             // Declare and instantiate a new pen.
-            var pen = new Pen(Color.Gray, 1.0f);
+            var pen = new Pen(this.LineColor, 1.0f);
 
             // Draw an aqua rectangle in the rectangle represented by the control.
-            e.Graphics.DrawLine(pen, (this.Width / 2), 2, (this.Width / 2), this.Height - 2);
+            e.Graphics.DrawLine(pen, (this.Width / 2), this.Margin.Top, (this.Width / 2), this.Height - this.Margin.Bottom);
         }
     }
 }
