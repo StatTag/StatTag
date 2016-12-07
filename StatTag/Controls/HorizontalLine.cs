@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace StatTag.Controls
 {
-    public partial class VerticalLine : UserControl
+    public partial class HorizontalLine : UserControl
     {
         private Color lineColor = Color.LightGray;
 
@@ -21,7 +21,7 @@ namespace StatTag.Controls
             set { lineColor = value; Invalidate(); }
         }
 
-        public VerticalLine()
+        public HorizontalLine()
         {
             InitializeComponent();
             SetStyle(ControlStyles.ResizeRedraw, true);
@@ -32,11 +32,9 @@ namespace StatTag.Controls
             // Call the OnPaint method of the base class.
             base.OnPaint(e);
 
-            // Declare and instantiate a new pen.
+            // Declare and instantiate a new pen and draw the line
             var pen = new Pen(this.LineColor, 1.0f);
-
-            // Draw an aqua rectangle in the rectangle represented by the control.
-            e.Graphics.DrawLine(pen, (this.Width / 2), this.Margin.Top, (this.Width / 2), this.Height - this.Margin.Bottom);
+            e.Graphics.DrawLine(pen, this.Margin.Left, (this.Height / 2), this.Width - this.Margin.Right, (this.Height / 2));
         }
     }
 }
