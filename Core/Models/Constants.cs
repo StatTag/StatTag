@@ -55,39 +55,39 @@ namespace StatTag.Core.Models
             public const string DateTime = "DateTime";
             public const string Percentage = "Percentage";
 
-            public static string[] GetList()
-            {
-                return new[]
-                {
-                    Default, Numeric, Percentage, DateTime
-                };
-            }
+            //public static string[] GetList()
+            //{
+            //    return new[]
+            //    {
+            //        Default, Numeric, Percentage, DateTime
+            //    };
+            //}
 
-            public static string[] GetDisplayList()
-            {
-                return new[]
-                {
-                    Default, Numeric, Percentage, ValueToDisplay(DateTime)
-                };
-            }
+            //public static string[] GetDisplayList()
+            //{
+            //    return new[]
+            //    {
+            //        Default, Numeric, Percentage, ValueToDisplay(DateTime)
+            //    };
+            //}
 
-            public static string DisplayToValue(string display)
-            {
-                return display.Replace("/", "");
-            }
+            //public static string DisplayToValue(string display)
+            //{
+            //    return display.Replace("/", "");
+            //}
 
-            public static string ValueToDisplay(string value)
-            {
-                switch (value)
-                {
-                    case Default: return "Default";
-                    case Numeric: return "Numeric";
-                    case DateTime: return "Date/Time";
-                    case Percentage: return "Percentage";
-                }
+            //public static string ValueToDisplay(string value)
+            //{
+            //    switch (value)
+            //    {
+            //        case Default: return "Default";
+            //        case Numeric: return "Numeric";
+            //        case DateTime: return "Date/Time";
+            //        case Percentage: return "Percentage";
+            //    }
 
-                return string.Empty;
-            }
+            //    return string.Empty;
+            //}
         }
 
         public static class DialogLabels

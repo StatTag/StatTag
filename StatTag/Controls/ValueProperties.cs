@@ -27,10 +27,8 @@ namespace StatTag.Controls
 
         private void ShowProperties()
         {
-            var selectedType = (cboType.SelectedItem ?? Constants.ValueFormatType.Default).ToString();
-            var valueType = Constants.ValueFormatType.DisplayToValue(selectedType);
-
-            switch (valueType)
+            var selectedType = (cboType.SelectedValue ?? Constants.ValueFormatType.Default).ToString();
+            switch (selectedType)
             {
                 case Constants.ValueFormatType.Numeric:
                     HideAllButActivePanel(pnlNumeric);
@@ -51,15 +49,25 @@ namespace StatTag.Controls
 
         private void ValueProperties_Load(object sender, EventArgs e)
         {
-            cboType.Items.AddRange(Constants.ValueFormatType.GetDisplayList());
-            cboType.SelectedItem = Constants.ValueFormatType.Default;
+            var valueFormats = new Dictionary<string, string>
+            {
+                {"Default", Constants.ValueFormatType.Default},
+                {"Numeric", Constants.ValueFormatType.Numeric},
+                {"Percentage", Constants.ValueFormatType.Percentage},
+                {"Date/Time", Constants.ValueFormatType.DateTime}
+            };
+            cboType.DataSource = new BindingSource(valueFormats, null);
+            cboType.DisplayMember = "Key";
+            cboType.ValueMember = "Value";
+
+            cboType.SelectedValue = Constants.ValueFormatType.Default;
             ShowProperties();
         }
 
         public ValueFormat GetValueFormat()
         {
             var format = new ValueFormat();
-            format.FormatType = Constants.ValueFormatType.DisplayToValue(cboType.SelectedItem.ToString());
+            format.FormatType = cboType.SelectedValue.ToString();
             switch (format.FormatType)
             {
                 case Constants.ValueFormatType.Numeric:
@@ -82,7 +90,7 @@ namespace StatTag.Controls
 
         public void SetValueFormat(ValueFormat format)
         {
-            cboType.SelectedItem = Constants.ValueFormatType.ValueToDisplay(format.FormatType);
+            cboType.SelectedValue = format.FormatType;
             ShowProperties();
 
             if (format.FormatType == Constants.ValueFormatType.Numeric)
