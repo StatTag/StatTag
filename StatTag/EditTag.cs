@@ -90,7 +90,7 @@ namespace StatTag
 
         private void SelectTypeButton(Button button)
         {
-            button.Left = pnlType.Left - SelectedButtonWidth + 2;
+            //button.Left = pnlType.Left - SelectedButtonWidth + 2;
             button.Width = SelectedButtonWidth;
             button.BackColor = Color.White;
             button.Font = SelectedButtonFont;
@@ -98,7 +98,7 @@ namespace StatTag
 
         private void UnselectTypeButton(Button button)
         {
-            button.Left = pnlType.Left - UnselectedButtonWidth + 2;
+            //button.Left = pnlType.Left - UnselectedButtonWidth + 2;
             button.Width = UnselectedButtonWidth;
             button.BackColor = SystemColors.ButtonFace;
             button.Font = UnselectedButtonFont;
@@ -108,33 +108,33 @@ namespace StatTag
         {
             SelectTypeButton(button);
 
-            if (button == cmdValue)
-            {
-                valueProperties.Visible = true;
-                figureProperties.Visible = false;
-                tableProperties.Visible = false;
-                UnselectTypeButton(cmdFigure);
-                UnselectTypeButton(cmdTable);
-                TagType = Constants.TagType.Value;
-            }
-            else if (button == cmdFigure)
-            {
-                valueProperties.Visible = false;
-                figureProperties.Visible = true;
-                tableProperties.Visible = false;
-                UnselectTypeButton(cmdValue);
-                UnselectTypeButton(cmdTable);
-                TagType = Constants.TagType.Figure;
-            }
-            else if (button == cmdTable)
-            {
-                valueProperties.Visible = false;
-                figureProperties.Visible = false;
-                tableProperties.Visible = true;
-                UnselectTypeButton(cmdValue);
-                UnselectTypeButton(cmdFigure);
-                TagType = Constants.TagType.Table;
-            }
+            //if (button == cmdValue)
+            //{
+            //    valueProperties.Visible = true;
+            //    figureProperties.Visible = false;
+            //    tableProperties.Visible = false;
+            //    UnselectTypeButton(cmdFigure);
+            //    UnselectTypeButton(cmdTable);
+            //    TagType = Constants.TagType.Value;
+            //}
+            //else if (button == cmdFigure)
+            //{
+            //    valueProperties.Visible = false;
+            //    figureProperties.Visible = true;
+            //    tableProperties.Visible = false;
+            //    UnselectTypeButton(cmdValue);
+            //    UnselectTypeButton(cmdTable);
+            //    TagType = Constants.TagType.Figure;
+            //}
+            //else if (button == cmdTable)
+            //{
+            //    valueProperties.Visible = false;
+            //    figureProperties.Visible = false;
+            //    tableProperties.Visible = true;
+            //    UnselectTypeButton(cmdValue);
+            //    UnselectTypeButton(cmdFigure);
+            //    TagType = Constants.TagType.Table;
+            //}
 
             SetInstructionText();
         }
@@ -164,7 +164,7 @@ namespace StatTag
             OverrideCenterToScreen();
             MinimumSize = Size;
 
-            UpdateForTypeClick(cmdValue);
+            //UpdateForTypeClick(cmdValue);
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
@@ -214,18 +214,18 @@ namespace StatTag
                 switch (TagType)
                 {
                     case Constants.TagType.Value:
-                        UpdateForTypeClick(cmdValue);
+                        //UpdateForTypeClick(cmdValue);
                         valueProperties.SetValueFormat(Tag.ValueFormat);
                         break;
-                    case Constants.TagType.Figure:
-                        UpdateForTypeClick(cmdFigure);
-                        figureProperties.SetFigureFormat(Tag.FigureFormat);
-                        break;
-                    case Constants.TagType.Table:
-                        UpdateForTypeClick(cmdTable);
-                        tableProperties.SetTableFormat(Tag.TableFormat);
-                        tableProperties.SetValueFormat(Tag.ValueFormat);
-                        break;
+                //    case Constants.TagType.Figure:
+                //        UpdateForTypeClick(cmdFigure);
+                //        figureProperties.SetFigureFormat(Tag.FigureFormat);
+                //        break;
+                //    case Constants.TagType.Table:
+                //        UpdateForTypeClick(cmdTable);
+                //        tableProperties.SetTableFormat(Tag.TableFormat);
+                //        tableProperties.SetValueFormat(Tag.ValueFormat);
+                //        break;
                 }
             }
             else
@@ -577,15 +577,20 @@ namespace StatTag
                     Tag.ValueFormat = valueProperties.GetValueFormat();
                     break;
                 case Constants.TagType.Figure:
-                    Tag.FigureFormat = figureProperties.GetFigureFormat();
+                    //Tag.FigureFormat = figureProperties.GetFigureFormat();
                     break;
                 case Constants.TagType.Table:
-                    Tag.TableFormat = tableProperties.GetTableFormat();
-                    Tag.ValueFormat = tableProperties.GetValueFormat();
+                    //Tag.TableFormat = tableProperties.GetTableFormat();
+                    //Tag.ValueFormat = tableProperties.GetValueFormat();
                     break;
                 default:
                     throw new NotSupportedException("This tag type is not yet supported");
             }
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

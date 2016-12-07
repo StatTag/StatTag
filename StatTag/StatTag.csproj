@@ -248,6 +248,12 @@
     <Compile Include="Controls\ValueProperties.Designer.cs">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\HorizontalLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\HorizontalLine.Designer.cs">
+      <DependentUpon>HorizontalLine.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VerticalLine.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -337,6 +343,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ValueProperties.resx">
       <DependentUpon>ValueProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\HorizontalLine.resx">
+      <DependentUpon>HorizontalLine.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VerticalLine.resx">
       <DependentUpon>VerticalLine.cs</DependentUpon>

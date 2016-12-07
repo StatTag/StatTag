@@ -33,8 +33,8 @@
             this.txtRows = new System.Windows.Forms.TextBox();
             this.txtColumns = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.verticalLine1 = new StatTag.Controls.VerticalLine();
             this.numericValueProperties = new StatTag.Controls.NumericValueProperties();
+            this.verticalLine1 = new StatTag.Controls.VerticalLine();
             this.SuspendLayout();
             // 
             // chkExcludeColumns
@@ -88,18 +88,6 @@
             this.label1.Text = "Enter the values or ranges to exclude, separated by commas: (e.g. 1, 3, 8-10)";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // verticalLine1
-            // 
-            this.verticalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.verticalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            this.verticalLine1.CausesValidation = false;
-            this.verticalLine1.Location = new System.Drawing.Point(174, 0);
-            this.verticalLine1.Margin = new System.Windows.Forms.Padding(0);
-            this.verticalLine1.Name = "verticalLine1";
-            this.verticalLine1.Size = new System.Drawing.Size(12, 101);
-            this.verticalLine1.TabIndex = 6;
-            // 
             // numericValueProperties
             // 
             this.numericValueProperties.DecimalPlaces = 0;
@@ -110,6 +98,14 @@
             this.numericValueProperties.Size = new System.Drawing.Size(168, 73);
             this.numericValueProperties.TabIndex = 2;
             this.numericValueProperties.UseThousands = false;
+            // 
+            // verticalLine1
+            // 
+            this.verticalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.verticalLine1.Location = new System.Drawing.Point(168, 0);
+            this.verticalLine1.Name = "verticalLine1";
+            this.verticalLine1.Size = new System.Drawing.Size(23, 98);
+            this.verticalLine1.TabIndex = 6;
             // 
             // TableProperties
             // 

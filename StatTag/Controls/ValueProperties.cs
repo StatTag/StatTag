@@ -25,108 +25,115 @@ namespace StatTag.Controls
             ShowProperties();
         }
 
+        private int PanelTop()
+        {
+            return pnlNumeric.Top;
+        }
+
         private void ShowProperties()
         {
-            for (int index = 0; index < pnlDetails.Controls.Count; index++)
+            var selectedType = (cboType.SelectedItem ?? Constants.ValueFormatType.Default).ToString();
+            var valueType = Constants.ValueFormatType.DisplayToValue(selectedType);
+
+            switch (valueType)
             {
-                pnlDetails.Controls[index].Visible = false;
+                case Constants.ValueFormatType.Numeric:
+                    HideAllButActivePanel(pnlNumeric);
+                    break;
+                case Constants.ValueFormatType.Percentage:
+                    HideAllButActivePanel(pnlPercentage);
+                    break;
+                case Constants.ValueFormatType.DateTime:
+                    HideAllButActivePanel(pnlDateTime);
+                    break;
+                default:
+                    HideAllButActivePanel(pnlDefault);
+                    break;
             }
 
-            Control selectedControl = null;
-            if (radNumeric.Checked)
-            {
-                selectedControl = pnlDetails.Controls.OfType<NumericValueProperties>().FirstOrDefault();
-            }
-            else if (radDateTime.Checked)
-            {
-                selectedControl = pnlDetails.Controls.OfType<DateTimeValueProperties>().FirstOrDefault();
-            }
-            else if (radPercentage.Checked)
-            {
-                selectedControl = pnlDetails.Controls.OfType<PercentageValueProperties>().FirstOrDefault();
-            }
-
-            if (selectedControl != null)
-            {
-                selectedControl.Visible = true;
-            }
+            AdjustUIForVisiblePanel();
         }
 
         private void ValueProperties_Load(object sender, EventArgs e)
         {
-            CreatePropertiesControl<NumericValueProperties>(pnlDetails);
-            CreatePropertiesControl<DateTimeValueProperties>(pnlDetails);
-            CreatePropertiesControl<PercentageValueProperties>(pnlDetails);
+            cboType.Items.AddRange(Constants.ValueFormatType.GetDisplayList());
             ShowProperties();
-        }
-
-        private T CreatePropertiesControl<T>(Panel panel) where T : Control, new()
-        {
-            var control = new T();
-            panel.Controls.Add(control);
-            control.Dock = DockStyle.Fill;
-            return control;
         }
 
         public ValueFormat GetValueFormat()
         {
             var format = new ValueFormat();
-            if (radDefault.Checked)
+            format.FormatType = Constants.ValueFormatType.DisplayToValue(cboType.SelectedItem.ToString());
+            switch (format.FormatType)
             {
-                format.FormatType = Constants.ValueFormatType.Default;
-            }
-            else if (radNumeric.Checked)
-            {
-                var numProperties = pnlDetails.Controls.OfType<NumericValueProperties>().First();
-                format.DecimalPlaces = numProperties.DecimalPlaces;
-                format.UseThousands = numProperties.UseThousands;
-                format.FormatType = Constants.ValueFormatType.Numeric;
-            }
-            else if (radDateTime.Checked)
-            {
-                var dateTimeProperties = pnlDetails.Controls.OfType<DateTimeValueProperties>().First();
-                format.DateFormat = dateTimeProperties.DateFormat;
-                format.TimeFormat = dateTimeProperties.TimeFormat;
-                format.FormatType = Constants.ValueFormatType.DateTime;
-            }
-            else if (radPercentage.Checked)
-            {
-                var pctProperties = pnlDetails.Controls.OfType<PercentageValueProperties>().First();
-                format.DecimalPlaces = pctProperties.DecimalPlaces;
-                format.FormatType = Constants.ValueFormatType.Percentage;
+                case Constants.ValueFormatType.Numeric:
+                    var numProperties = pnlNumeric.Controls.OfType<NumericValueProperties>().First();
+                    format.DecimalPlaces = numProperties.DecimalPlaces;
+                    format.UseThousands = numProperties.UseThousands;
+                    break;
+                case Constants.ValueFormatType.DateTime:
+                    var dateTimeProperties = pnlDateTime.Controls.OfType<DateTimeValueProperties>().First();
+                    format.DateFormat = dateTimeProperties.DateFormat;
+                    format.TimeFormat = dateTimeProperties.TimeFormat;
+                    break;
+                case Constants.ValueFormatType.Percentage:
+                    var pctProperties = pnlPercentage.Controls.OfType<PercentageValueProperties>().First();
+                    format.DecimalPlaces = pctProperties.DecimalPlaces;
+                    break;
             }
             return format;
         }
 
         public void SetValueFormat(ValueFormat format)
         {
-            if (format.FormatType == Constants.ValueFormatType.Default)
+            cboType.SelectedItem = Constants.ValueFormatType.ValueToDisplay(format.FormatType);
+            ShowProperties();
+
+            if (format.FormatType == Constants.ValueFormatType.Numeric)
             {
-                radDefault.Checked = true;
-            }
-            else if (format.FormatType == Constants.ValueFormatType.Numeric)
-            {
-                radNumeric.Checked = true;
-                var numProperties = pnlDetails.Controls.OfType<NumericValueProperties>().First();
+                var numProperties = pnlNumeric.Controls.OfType<NumericValueProperties>().First();
                 numProperties.DecimalPlaces = format.DecimalPlaces;
                 numProperties.UseThousands = format.UseThousands;
                 numProperties.UpdateValues();
             }
             else if (format.FormatType == Constants.ValueFormatType.DateTime)
             {
-                radDateTime.Checked = true;
-                var dateTimeProperties = pnlDetails.Controls.OfType<DateTimeValueProperties>().First();
+                var dateTimeProperties = pnlDateTime.Controls.OfType<DateTimeValueProperties>().First();
                 dateTimeProperties.DateFormat = format.DateFormat;
                 dateTimeProperties.TimeFormat = format.TimeFormat;
                 dateTimeProperties.UpdateValues();
             }
             else if (format.FormatType == Constants.ValueFormatType.Percentage)
             {
-                radPercentage.Checked = true;
-                var pctProperties = pnlDetails.Controls.OfType<PercentageValueProperties>().First();
+                var pctProperties = pnlPercentage.Controls.OfType<PercentageValueProperties>().First();
                 pctProperties.DecimalPlaces = format.DecimalPlaces;
-                pctProperties.UpdateValues();
             }
+        }
+
+        private void HideAllButActivePanel(Panel panel)
+        {
+            pnlDefault.Visible = (panel == pnlDefault);
+            pnlNumeric.Visible = (panel == pnlNumeric);
+            pnlPercentage.Visible = (panel == pnlPercentage);
+            pnlDateTime.Visible = (panel == pnlDateTime);
+        }
+
+        private void AdjustUIForVisiblePanel()
+        {
+            var panels = this.Controls.OfType<Panel>();
+            foreach (var panel in panels)
+            {
+                if (panel.Visible)
+                {
+                    panel.Top = PanelTop();
+                    this.Height = panel.Top + panel.Height + this.Margin.Bottom + this.Margin.Top;
+                }
+            }
+        }
+
+        private void cboType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ShowProperties();
         }
     }
 }
