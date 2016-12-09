@@ -44,6 +44,7 @@
             this.cboRunFrequency = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.figureProperties = new StatTag.Controls.FigureProperties();
             this.tableProperties = new StatTag.Controls.TableProperties();
             this.horizontalLine1 = new StatTag.Controls.HorizontalLine();
             this.valueProperties = new StatTag.Controls.ValueProperties();
@@ -52,7 +53,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
-            this.figureProperties = new StatTag.Controls.FigureProperties();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -224,6 +224,14 @@
             this.panel1.Size = new System.Drawing.Size(312, 570);
             this.panel1.TabIndex = 41;
             // 
+            // figureProperties
+            // 
+            this.figureProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.figureProperties.Location = new System.Drawing.Point(6, 134);
+            this.figureProperties.Name = "figureProperties";
+            this.figureProperties.Size = new System.Drawing.Size(293, 20);
+            this.figureProperties.TabIndex = 43;
+            // 
             // tableProperties
             // 
             this.tableProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -233,7 +241,7 @@
             this.tableProperties.Location = new System.Drawing.Point(6, 134);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(293, 201);
+            this.tableProperties.Size = new System.Drawing.Size(293, 309);
             this.tableProperties.TabIndex = 40;
             // 
             // horizontalLine1
@@ -314,14 +322,6 @@
             this.verticalLine1.Name = "verticalLine1";
             this.verticalLine1.Size = new System.Drawing.Size(10, 570);
             this.verticalLine1.TabIndex = 42;
-            // 
-            // figureProperties
-            // 
-            this.figureProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.figureProperties.Location = new System.Drawing.Point(6, 134);
-            this.figureProperties.Name = "figureProperties";
-            this.figureProperties.Size = new System.Drawing.Size(293, 20);
-            this.figureProperties.TabIndex = 43;
             // 
             // EditTag
             // 
