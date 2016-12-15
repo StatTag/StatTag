@@ -2124,6 +2124,9 @@
 	<table name="ISDependency">
 		<col key="yes" def="S50">ISDependency</col>
 		<col def="I2">Exclude</col>
+		<row><td>SAS.TLB</td><td>1</td></row>
+		<row><td>SASIOMCOMMON.TLB</td><td>1</td></row>
+		<row><td>SASOMAN.DLL</td><td>1</td></row>
 		<row><td>STATASE-64.EXE</td><td>1</td></row>
 	</table>
 
@@ -4409,7 +4412,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{564A5F91-8883-491C-91A1-88F0D9F9AB05}</td><td/></row>
+		<row><td>ProductCode</td><td>{B6496948-C53B-46A0-9379-8961B8383A0F}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
 		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
