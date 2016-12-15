@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
@@ -15,14 +16,14 @@ namespace StatTag.Core.Parser
         public static readonly char[] MacroDelimiters = {'`', '\''};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         public static readonly string[] ValueCommands = { "display", "dis", "di" };
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\b", string.Join("|", ValueCommands)));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})((\\s*\\()|(\\s+))(.*)(?(2)\\))", string.Join("|", ValueCommands)));
-        public static string GraphCommand = "gr(?:aph)? export";
-        private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
-        private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
-        public static string TableCommand = "mat(?:rix)? l(?:ist)?";
-        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:\\r|\\n|$)", TableCommand.Replace(" ", "\\s+")));
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}((\\s*\\()|(\\s+))(.*)(?(2)\\))", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        public static string[] GraphCommands = {"gr(?:aph)? export"};
+        private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(GraphCommands)));
+        private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", FormatCommandListAsNonCapturingGroup(GraphCommands)));
+        public static string[] TableCommands = {"mat(?:rix)? l(?:ist)?"};
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(TableCommands)));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:\\r|\\n|$)", FormatCommandListAsNonCapturingGroup(TableCommands)));
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
         private static readonly Regex[] MultiLineIndicators = new[]
         {

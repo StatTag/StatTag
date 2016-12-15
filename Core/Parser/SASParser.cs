@@ -6,15 +6,15 @@ namespace StatTag.Core.Parser
 {
     public class SASParser : BaseParser
     {
-        public const string ValueCommand = "%put";
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand), RegexOptions.IgnoreCase);
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", ValueCommand), RegexOptions.IgnoreCase);
-        public const string FigureCommand = "ods pdf";
-        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        public const string TableCommand = "ods csv";
-        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        public static readonly string[] ValueCommands = {"%put"};
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(ValueCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})\\s+([^;]*);", string.Join("|", ValueCommands)), RegexOptions.IgnoreCase);
+        public static readonly string[] FigureCommands = {"ods pdf"};
+        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
+        public static readonly string[] TableCommands = {"ods csv"};
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
 
         public override string CommentCharacter

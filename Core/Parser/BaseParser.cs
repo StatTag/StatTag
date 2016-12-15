@@ -61,6 +61,17 @@ namespace StatTag.Core.Parser
             }
         }
 
+        public static string FormatCommandListAsNonCapturingGroup(string[] commands)
+        {
+            if (commands.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            return string.Format("(?:{0})",
+                string.Join("|", commands.Select(x => x.Replace(" ", "\\s+"))));
+        }
+
         public Tag[] Parse(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
             List<Tag> tagsToRun = null)

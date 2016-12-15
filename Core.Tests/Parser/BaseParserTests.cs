@@ -342,5 +342,14 @@ namespace Core.Tests.Parser
             Assert.IsNotNull(results[1].Tag);
             Assert.AreEqual("Test1", results[1].Tag.Name);
         }
+
+        [TestMethod]
+        public void FormatCommandListAsNonCapturingGroup()
+        {
+            Assert.AreEqual(string.Empty, BaseParser.FormatCommandListAsNonCapturingGroup(new string[0]));
+            Assert.AreEqual("(?:test)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] { "test" }));
+            Assert.AreEqual("(?:test\\s+cmd)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] { "test cmd" }));
+            Assert.AreEqual("(?:test1|test2)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] { "test1", "test2" }));
+        }
     }
 }
