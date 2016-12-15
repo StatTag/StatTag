@@ -346,7 +346,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Tag";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditTag_FormClosing);
-            this.Load += new System.EventHandler(this.ManageTag_Load);
+            this.Load += new System.EventHandler(this.EditTag_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);

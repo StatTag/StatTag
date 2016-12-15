@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -17,9 +18,25 @@ namespace StatTag.Models
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and tags.
     /// </summary>
-    public class DocumentManager : BaseManager
+    public class DocumentManager : BaseManager, IDisposable
     {
-        private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
+        public class ManagedCodeFile : IDisposable
+        {
+            public FileSystemWatcher Watcher { get; set; }
+            public CodeFile CodeFile { get; set; }
+            public string LastUpdateChecksum { get; set; }
+
+            public void Dispose()
+            {
+                if (Watcher != null)
+                {
+                    Watcher.EnableRaisingEvents = false;
+                    Watcher.Dispose();
+                }
+            }
+        }
+
+        private Dictionary<string, List<ManagedCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
 
@@ -27,7 +44,7 @@ namespace StatTag.Models
 
         public DocumentManager()
         {
-            DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
+            DocumentCodeFiles = new Dictionary<string, List<ManagedCodeFile>>();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this);
         }
@@ -117,12 +134,12 @@ namespace StatTag.Models
                 if (DocumentVariableExists(variable))
                 {
                     var list = CodeFile.DeserializeList(variable.Value);
-                    DocumentCodeFiles[document.FullName] = list;
+                    RefreshCodeFileListForDocument(document, list);
                     Log(string.Format("Document variable existed, loaded {0} code files", list.Count));
                 }
                 else
                 {
-                    DocumentCodeFiles[document.FullName] = new List<CodeFile>();
+                    DocumentCodeFiles[document.FullName] = new List<ManagedCodeFile>();
                     Log("Document variable does not exist, no code files loaded");
                 }
             }
@@ -1013,8 +1030,9 @@ namespace StatTag.Models
         /// <param name="document"></param>
         public void AddCodeFile(string fileName, Document document = null)
         {
-            var files = GetCodeFileList(document);
-            if (files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
+            //var files = GetCodeFileList(document);
+            var files = GetManagedCodeFileList(document);
+            if (files.Any(x => x.CodeFile.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
             {
                 Log(string.Format("Code file {0} already exists and won't be added again", fileName));
                 return;
@@ -1024,7 +1042,7 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            files.Add(file);
+            files.Add(new ManagedCodeFile() {CodeFile = file, Watcher = CreateCodeFileWatcher(file), LastUpdateChecksum = file.GetChecksumFromFile()});
             Log(string.Format("Added code file {0}", fileName));
         }
 
@@ -1054,13 +1072,71 @@ namespace StatTag.Models
             }
         }
 
+        // Define the event handlers.
+        private void OnChanged(object source, FileSystemEventArgs e)
+        {
+            // Go through all of our managed code files in all open documents.  Any code file that 
+            // matches the path of the changed file will be updated.
+            Log("OnChanged event for code file " + e.FullPath);
+
+
+        }
+
+        private static void OnRenamed(object source, RenamedEventArgs e)
+        {
+            // Specify what is done when a file is renamed.
+            Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
+        }
+
+        /// <summary>
+        /// For a specific code file instance, create a watcher to respond to certain file system events.
+        /// </summary>
+        /// <param name="codeFile"></param>
+        /// <returns></returns>
+        private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
+        {
+            var watcher = new FileSystemWatcher
+            {
+                Path = Path.GetDirectoryName(codeFile.FilePath),
+                Filter = Path.GetFileName(codeFile.FilePath),
+                EnableRaisingEvents = true,
+                NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
+            };
+            watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.Created += new FileSystemEventHandler(OnChanged);
+            watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+
+            return watcher;
+        }
+
+        private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
+        {
+            // If there is no entry for this particular document, we can exist (there's nothing to clean up)
+            if (document == null || !DocumentCodeFiles.ContainsKey(document.FullName))
+            {
+                return;
+            }
+
+            // Shut down and dispose of all the existing managed code files (including their watchers).
+            var existingFiles = DocumentCodeFiles[document.FullName];
+            existingFiles.ForEach(x => x.Dispose());
+
+            // Now set up the new code file list, and subscribe new watchers for them so they are
+            // properly managed
+            var managedFiles = new List<ManagedCodeFile>();
+            files.ForEach(
+                x => managedFiles.Add(new ManagedCodeFile() {CodeFile = x, Watcher = CreateCodeFileWatcher(x), LastUpdateChecksum = x.GetChecksumFromFile()}));
+            DocumentCodeFiles[document.FullName] = managedFiles;
+        }
+
         /// <summary>
         /// Helper accessor to get the list of code files associated with a document.  If the code file list
         /// hasn't been established yet for the document, it will be created and returned.
         /// </summary>
         /// <param name="document"></param>
         /// <returns></returns>
-        public List<CodeFile> GetCodeFileList(Document document = null)
+        public List<ManagedCodeFile> GetManagedCodeFileList(Document document = null)
         {
             if (document == null)
             {
@@ -1070,19 +1146,30 @@ namespace StatTag.Models
             if (document == null)
             {
                 Log("Attempted to access code files for a null document.  Returning empty collection.");
-                return new List<CodeFile>();
+                return new List<ManagedCodeFile>();
             }
 
             var fullName = document.FullName;
             if (!DocumentCodeFiles.ContainsKey(fullName))
             {
                 Log(string.Format("Code file list for {0} is not yet cached.", fullName));
-                DocumentCodeFiles.Add(fullName, new List<CodeFile>());
+                DocumentCodeFiles.Add(fullName, new List<ManagedCodeFile>());
                 LoadCodeFileListFromDocument(document);
                 Log(string.Format("Loaded {0} code files from document", DocumentCodeFiles[fullName].Count));
             }
 
             return DocumentCodeFiles[fullName];
+        }
+
+        public List<CodeFile> GetCodeFileList(Document document = null)
+        {
+            var codeFileList = GetManagedCodeFileList(document);
+            if (codeFileList == null)
+            {
+                return new List<CodeFile>();
+            }
+
+            return codeFileList.Select(x => x.CodeFile).ToList<CodeFile>();
         }
 
         /// <summary>
@@ -1103,7 +1190,21 @@ namespace StatTag.Models
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
-            DocumentCodeFiles[document.FullName] = files;
+            //DocumentCodeFiles[document.FullName] = files;
+            RefreshCodeFileListForDocument(document, files);
+        }
+
+        public void Dispose()
+        {
+            // To help clean things up, go through all of the documents we are managing code files for,
+            // and dispose of those to stop managed objects (e.g., the file system watcher) and clean them up.
+            if (DocumentCodeFiles != null)
+            {
+                foreach (var docFile in DocumentCodeFiles)
+                {
+                    docFile.Value.ForEach(x => x.Dispose());
+                }
+            }
         }
     }
 }

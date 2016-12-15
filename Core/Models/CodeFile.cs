@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using StatTag.Core.Interfaces;
 using Newtonsoft.Json;
 using System;
@@ -51,6 +53,26 @@ namespace StatTag.Core.Models
         {
             Tags = new List<Tag>();
             FileHandler = handler ?? new FileHandler();
+        }
+        
+        public string GetChecksumFromFile()
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(FilePath))
+                {
+                    return Encoding.Default.GetString(md5.ComputeHash(stream));
+                }
+            }
+        }
+
+        public string GetChecksumFromCache()
+        {
+            using (var md5 = MD5.Create())
+            {
+                var data = string.Join("\r\n", Content);
+                return Encoding.Default.GetString(md5.ComputeHash(Encoding.Default.GetBytes(data)));
+            }
         }
 
         public override string ToString()

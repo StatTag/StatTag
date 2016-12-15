@@ -118,7 +118,7 @@ namespace StatTag
             lblAllowedCommands.Text = commandList == null ? "(None specified)" : string.Join(", ", commandList.GetCommands());
         }
 
-        private void ManageTag_Load(object sender, EventArgs e)
+        private void EditTag_Load(object sender, EventArgs e)
         {
             OverrideCenterToScreen();
             MinimumSize = Size;
