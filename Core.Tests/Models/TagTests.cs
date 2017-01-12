@@ -376,8 +376,8 @@ namespace Core.Tests.Models
 
             format = new TableFormat()
             {
-                RowFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
-                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = false },
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column)
                 {
                     Enabled = true,
                     Type = Constants.FilterType.Exclude,
