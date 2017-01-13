@@ -16,6 +16,8 @@ namespace R
 {
     public class RAutomation : IStatAutomation
     {
+        private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
+
         private REngine Engine = null;
         protected RParser Parser { get; set; }
 
@@ -97,7 +99,7 @@ namespace R
         /// </summary>
         /// <param name="dataFrame"></param>
         /// <returns></returns>
-        private string[] FlattenData(DataFrame dataFrame)
+        private string[] FlattenDataFrame(DataFrame dataFrame)
         {
             // Because we can only cast columns (not individual cells), we will go through all columns
             // first and cast them to characters so things like NA values are represented appropriately.
@@ -121,6 +123,85 @@ namespace R
             return data.ToArray();
         }
 
+        /// <summary>
+        /// General function to extract dimension (row/column) names for an R matrix.  This deals with
+        /// the specific of how R packages matrix results, which is different from a data frame.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <param name="rowNames"></param>
+        /// <returns></returns>
+        private string[] GetMatrixDimensionNames(SymbolicExpression exp, bool rowNames)
+        {
+            var attributeName = exp.GetAttributeNames().FirstOrDefault(x => x.Equals(MATRIX_DIMENSION_NAMES_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase));
+            if (attributeName == null)
+            {
+                return null;
+            }
+
+            var dimnames = exp.GetAttribute(attributeName).AsList();
+            if (dimnames == null)
+            {
+                return null;
+            }
+
+            // Per the R specification, the dimnames will contain 0 to 2 vectors that contain
+            // dimension labels.  The first entry is for rows, and the second is for columns.
+            // https://stat.ethz.ch/R-manual/R-devel/library/base/html/matrix.html
+            switch (dimnames.Length)
+            {
+                case 1:
+                    // If we want columns and we only have one dimname entry, we don't have column names.
+                    if (!rowNames)
+                    {
+                        return null;
+                    }
+                    return dimnames[0].AsCharacter().ToArray();
+                case 2:
+                    return dimnames[rowNames ? 0 : 1].AsCharacter().ToArray();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the row names (if they exist) for a matrix.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns>An array of strings containing the row names, or null if not present.</returns>
+        private string[] GetMatrixRowNames(SymbolicExpression exp)
+        {
+            return GetMatrixDimensionNames(exp, true);
+        }
+
+        /// <summary>
+        /// Return the column names (if they exist) for a matrix.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns>An array of strings containing the column names, or null if not present.</returns>
+        private string[] GetMatrixColumnNames(SymbolicExpression exp)
+        {
+            return GetMatrixDimensionNames(exp, false);
+        }
+
+        /// <summary>
+        /// Take the 2D data in a matrix and flatten it to a 1D representation (by row)
+        /// which we use internally in StatTag.
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        private string[] FlattenMatrix(CharacterMatrix matrix)
+        {
+            var data = new List<string>();
+            for (int row = 0; row < matrix.RowCount; row++)
+            {
+                for (int column = 0; column < matrix.ColumnCount; column++)
+                {
+                    data.Add(matrix[row, column]);
+                }
+            }
+            return data.ToArray();
+        }
+
         private Table GetTableResult(SymbolicExpression result)
         {
             // You'll notice that regardless of the type, we convert everything to a string.  This
@@ -136,7 +217,7 @@ namespace R
                 {
                     ColumnSize = columnCount, RowSize = rowCount,
                     Data = TableUtil.MergeTableVectorsToArray(data.RowNames, data.ColumnNames,
-                        FlattenData(data), rowCount, columnCount)
+                        FlattenDataFrame(data), rowCount, columnCount)
                 };
             }
             else if (result.IsList())
@@ -178,6 +259,24 @@ namespace R
                     RowSize = maxSize,
                     Data = TableUtil.MergeTableVectorsToArray(
                         null, list.Names, vectorData.ToArray(), maxSize + 1, data.Count)
+                };
+            }
+            else if (result.IsMatrix())
+            {
+                var matrix = result.AsCharacterMatrix();
+                var rowNames = GetMatrixRowNames(result);
+                var columnNames = GetMatrixColumnNames(result);
+                // Just to note this isn't an error checking columnNames for rowCount and vice-versa.  Remember that
+                // if we have column names, that will take up a row of data.  Likewise, row names are an additional
+                // column.
+                int rowCount = matrix.RowCount + (columnNames == null ? 0 : 1);
+                int columnCount = matrix.ColumnCount + (rowNames == null ? 0 : 1);
+                return new Table()
+                {
+                    ColumnSize = columnCount,
+                    RowSize = rowCount,
+                    Data = TableUtil.MergeTableVectorsToArray(rowNames, columnNames,
+                        FlattenMatrix(matrix), rowCount, columnCount)
                 };
             }
 
