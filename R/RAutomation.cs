@@ -253,12 +253,14 @@ namespace R
                         vectorData.Add(row < column.Count ? column[row] : null);
                     }
                 }
+
+                var rowSize = (list.Names == null || list.Names.Length == 0) ? maxSize : (maxSize + 1);
                 return new Table()
                 {
                     ColumnSize = data.Count,
-                    RowSize = maxSize,
+                    RowSize = rowSize,
                     Data = TableUtil.MergeTableVectorsToArray(
-                        null, list.Names, vectorData.ToArray(), maxSize + 1, data.Count)
+                        null, list.Names, vectorData.ToArray(), rowSize, data.Count)
                 };
             }
             else if (result.IsMatrix())
@@ -289,7 +291,7 @@ namespace R
                 return new Table()
                 {
                     ColumnSize = 1, RowSize = data.Length, Data = TableUtil.MergeTableVectorsToArray(
-                        null, result.GetAttributeNames(), data.Select(x => x.ToString()).ToArray(), data.Length, 1)
+                        null, null, data.Select(x => x.ToString()).ToArray(), data.Length, 1)
                 };
             }
 

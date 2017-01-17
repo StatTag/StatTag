@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Word;
 using R;
 using SAS;
 using StatTag.Core;
@@ -173,6 +174,11 @@ namespace StatTag.Models
                 }
                 catch (Exception exc)
                 {
+                    if (Manager != null && Manager.Logger != null)
+                    {
+                        Manager.Logger.WriteException(exc);
+                    }
+
                     MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return result;
                 }
