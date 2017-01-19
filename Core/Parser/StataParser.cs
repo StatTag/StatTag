@@ -199,17 +199,6 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
-        /// Check to see if a a comment block's indices fall within another block.
-        /// </summary>
-        /// <param name="block1"></param>
-        /// <param name="block2"></param>
-        /// <returns></returns>
-        private bool ContainedBlock(Tuple<int, int> block1, Tuple<int, int> block2)
-        {
-            return (block1.Item1 > block2.Item1 && block1.Item2 < block2.Item2);
-        }
-
-        /// <summary>
         /// Utility method to take a string of Stata code and remove all of the comment blocks that use
         /// /* */ syntax.  This is needed because a regex-based solution did not seem feasible (or advised)
         /// given the type of parsing this requires.
@@ -229,7 +218,7 @@ namespace StatTag.Core.Parser
 
             var startIndices = new Stack<int>();
             startIndices.Push(startIndex);
-            var commentBlocks = new List<Tuple<int, int>>();
+            var commentBlocks = new List<Tuple<int, int, bool>>();
             var nextIndex = IndexOfAnyCommentChar(text, startIndex + 1);
             while (nextIndex >= 0)
             {
@@ -242,7 +231,8 @@ namespace StatTag.Core.Parser
                 {
                     // We found the end of the current comment block.  We add 1 to the nextIndex (as the end index)
                     // to capture the "/" character (since our find just gets "*" from "*/").
-                    commentBlocks.Add(new Tuple<int, int>(startIndices.Pop(), (nextIndex + 1)));
+                    bool isNested = startIndices.Count > 1;
+                    commentBlocks.Add(new Tuple<int, int, bool>(startIndices.Pop(), (nextIndex + 1), isNested));
                 }
                 nextIndex = IndexOfAnyCommentChar(text, nextIndex + 1);
             }
@@ -255,9 +245,9 @@ namespace StatTag.Core.Parser
                 return text;
             }
 
-            // Sort the comment blocks by the starting index (descending order).  That way we can sequentially scan
-            // through and skip any inner comments (applying them would throw off our other indices)
-            commentBlocks.Sort(delegate(Tuple<int, int> x, Tuple<int, int> y)
+            // Sort the comment blocks by the starting index (descending order).  That way we can remove comment blocks
+            // starting at the end and not have to worry about updating string indices.
+            commentBlocks.Sort(delegate(Tuple<int, int, bool> x, Tuple<int, int, bool> y)
             {
                 if (x == null && y == null) { return 0; }
                 if (x == null) { return 1; }
@@ -273,17 +263,7 @@ namespace StatTag.Core.Parser
                 // Our commentBlocks contains all unique comment locations.  Some locations many be nested inside
                 // other comments (not sure why you would, but it could happen!)  We will check to see if we have
                 // some type of inner comment and skip it if that's the case, since the outer one will remove it.
-                bool skip = false;
-                for (int scanAheadIndex = index + 1; scanAheadIndex < commentBlocks.Count; scanAheadIndex++)
-                {
-                    if (ContainedBlock(commentBlocks[index], commentBlocks[scanAheadIndex]))
-                    {
-                        skip = true;
-                        break;
-                    }
-                }
-
-                if (skip)
+                if (commentBlocks[index].Item3)
                 {
                     continue;
                 }
