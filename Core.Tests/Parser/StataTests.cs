@@ -242,7 +242,7 @@ namespace Core.Tests.Parser
                 "*/Third line"
             });
             Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line\r\nSecond line  Third line", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line\r\nSecond line Third line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
 
             testList = new List<string>(new string[]
@@ -252,8 +252,9 @@ namespace Core.Tests.Parser
                 "Third line */"
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
+            // This tests nested comments
             testList = new List<string>(new string[]
             {
                 "First line /*",
@@ -262,7 +263,65 @@ namespace Core.Tests.Parser
                 "Fourth line */"
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // This was in response to an issue reported by a user.  The code file had multiple comments in it, and our regex
+            // was being too greedy and pulling extra code out (until it found the last closing comment indicator)
+            testList = new List<string>(new string[]
+            {
+                "/*First line*/",
+                "Second line",
+                "/*Third line*/",
+                "Fourth line"
+            });
+            Assert.AreEqual(3, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("Second line\r\n\r\nFourth line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/*First line*/",
+                "/*Second line*/ /*More on the same line*/",
+                "/*Third line*/",
+                "Fourth line"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("Fourth line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // This is to test unbalanced comments (missing whitespace near the end so it is treated like
+            // an unending comment.
+            testList = new List<string>(new string[]
+            {
+                "/*First line",
+                "/*Second line*//*More on the same line*/",
+                "/*Third line",
+                "Fourth line*/*/"
+            });
+            Assert.AreEqual(4, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("/*First line\r\n/*Second line*//*More on the same line*/\r\n/*Third line\r\nFourth line*/*/", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/*First line",
+                "/*Second line*/ /*More on the same line*/",
+                "/*Third line",
+                "Fourth line*/ */"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/**/First line"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "First line/**/"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
 
 
