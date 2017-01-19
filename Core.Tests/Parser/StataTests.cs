@@ -324,6 +324,46 @@ namespace Core.Tests.Parser
             Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
 
+        [TestMethod]
+        public void PreProcessContent_TrailingLineComment()
+        {
+            var parser = new StataParser();
+            var testList = new List<string>(new string[]
+            {
+                "First line  // comment",
+                "Second line",
+                "//Third line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line  \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "First line //*Test*/",
+                "Second line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "* //First line",
+                "Second line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("* \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // When we have trailing line comments within comment blocks, we want to make sure at the end of the day
+            // that it's not causing any problems (it shouldn't be).
+            testList = new List<string>(new string[]
+            {
+                "/*",
+                "display 2 // Comment on second line",
+                "*/"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("", string.Join("\r\n", parser.PreProcessContent(testList)));
+        }
 
         [TestMethod]
         public void GetMacros()

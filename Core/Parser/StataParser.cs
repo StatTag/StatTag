@@ -29,6 +29,7 @@ namespace StatTag.Core.Parser
         private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
         private const string CommentStart = "/*";
         private const string CommentEnd = "*/";
+        private static readonly Regex TrailingLineComment = new Regex("(?<!\\*)\\/\\/[^\\r\\n]*");
 
 
         /// <summary>
@@ -290,6 +291,10 @@ namespace StatTag.Core.Parser
 
             var originalText = string.Join("\r\n", originalContent);
             var modifiedText = MultiLineIndicator.Replace(originalText, " ");
+            // Why are we stripping out trailing lines?  There is apparently an issue with the Stata Automation API where having a trailing
+            // comment on a valid line causes that command to fail (e.g.: "sysuse(bpwide)  // comment").  Our workaround is to strip those
+            // comments so users don't have to modify their code.  The issue has been reported to Stata.
+            modifiedText = TrailingLineComment.Replace(modifiedText, "");
             modifiedText = RemoveNestedComments(modifiedText).Trim();
             return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
         }
