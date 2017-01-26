@@ -59,7 +59,7 @@ namespace StatTag
         public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files)
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UnlinkedTags = unlinkedTags;
             DuplicateTags = duplicateTags;

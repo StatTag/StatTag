@@ -22,10 +22,11 @@ namespace StatTag
 
         public Settings(Core.Models.Properties properties)
         {
+            AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
+            UIUtility.ScaleFont(this);
             Properties = properties;
             MinimumSize = Size;
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
         }

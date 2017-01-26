@@ -17,7 +17,6 @@ namespace StatTag.Controls
         public ValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void CheckChanged(object sender, EventArgs e)
@@ -65,6 +64,7 @@ namespace StatTag.Controls
             var control = new T();
             panel.Controls.Add(control);
             control.Dock = DockStyle.Fill;
+            UIUtility.ScaleContainerFont(control);
             return control;
         }
 

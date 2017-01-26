@@ -173,8 +173,7 @@
             // 
             // About
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdOK;
             this.CausesValidation = false;
             this.ClientSize = new System.Drawing.Size(728, 478);
