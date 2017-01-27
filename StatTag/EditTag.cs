@@ -26,12 +26,7 @@ namespace StatTag
         private const uint TagMask = (1 << TagMarker);
         private const string CannotLoadDialogMessage =
             "There was an error trying to load the Tag dialog.";
-
-        public const int SelectedButtonWidth = 83;
-        public const int UnselectedButtonWidth = 70;
-        public readonly Font SelectedButtonFont = DefaultFont;
-        public readonly Font UnselectedButtonFont = DefaultFont;
-
+        
         public DocumentManager Manager { get; set; }
         private Tag OriginalTag { get; set; }
         public Tag Tag { get; set; }
@@ -49,9 +44,6 @@ namespace StatTag
 
                 InitializeComponent();
                 UIUtility.ScaleFont(this);
-                SelectedButtonFont = Font;
-                UnselectedButtonFont = UIUtility.CreateScaledFont(new Font(Font.FontFamily, 8.25f),
-                    this.CreateGraphics());
                 UIUtility.SetDialogTitle(this);
                 cmdSaveAndInsert.Enabled = allowInsertInDocument;
             }
