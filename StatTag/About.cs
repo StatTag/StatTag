@@ -10,11 +10,12 @@ using System.Windows.Forms;
 
 namespace StatTag
 {
-    public partial class About : Form
+    public sealed partial class About : Form
     {
         public About()
         {
             InitializeComponent();
+            UIUtility.ScaleFont(this);
         }
 
         private void About_Load(object sender, EventArgs e)

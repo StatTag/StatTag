@@ -48,9 +48,10 @@ namespace StatTag
                 Manager = manager;
 
                 InitializeComponent();
-                Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+                UIUtility.ScaleFont(this);
                 SelectedButtonFont = Font;
-                UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
+                UnselectedButtonFont = UIUtility.CreateScaledFont(new Font(Font.FontFamily, 8.25f),
+                    this.CreateGraphics());
                 UIUtility.SetDialogTitle(this);
                 cmdSaveAndInsert.Enabled = allowInsertInDocument;
             }

@@ -21,7 +21,7 @@ namespace StatTag
         public SelectOutput(List<CodeFile> files = null)
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             Files = files;
             UIUtility.SetDialogTitle(this);
         }

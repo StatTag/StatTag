@@ -16,7 +16,6 @@ namespace StatTag.Controls
         public DateTimeValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public string DateFormat { get; set; }

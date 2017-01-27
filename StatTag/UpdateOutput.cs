@@ -38,7 +38,7 @@ namespace StatTag
         {
             Tags = tags;
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             UIUtility.SetDialogTitle(this);
         }
 

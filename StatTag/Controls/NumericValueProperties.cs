@@ -18,7 +18,6 @@ namespace StatTag.Controls
         public NumericValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void NumericValueProperties_Load(object sender, EventArgs e)

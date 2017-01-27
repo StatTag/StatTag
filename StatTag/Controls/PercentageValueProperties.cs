@@ -17,7 +17,6 @@ namespace StatTag.Controls
         public PercentageValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private void nudDecimalPlaces_ValueChanged(object sender, EventArgs e)
