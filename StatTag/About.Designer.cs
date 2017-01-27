@@ -139,7 +139,7 @@
             this.lblCopyright.Name = "lblCopyright";
             this.lblCopyright.Size = new System.Drawing.Size(62, 20);
             this.lblCopyright.TabIndex = 17;
-            this.lblCopyright.Text = "(c) 2016";
+            this.lblCopyright.Text = "(c) 2016-2017";
             // 
             // lblVersion
             // 
