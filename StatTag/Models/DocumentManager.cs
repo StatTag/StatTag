@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 using StatTag.Core;
 using StatTag.Core.Generator;
@@ -318,6 +320,51 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Processes all inline shapes within the document, which will include our inserted figures.
+        /// If the shape can be updated, we will process the update.
+        /// </summary>
+        /// <param name="document"></param>
+        private void UpdateVerbatimEntries(Document document)
+        {
+            var controls = document.ContentControls;
+            if (controls == null)
+            {
+                return;
+            }
+
+            int controlCount = controls.Count;
+            for (int index = 1; index <= controlCount; index++)
+            {
+                var control = controls[index];
+                if (control != null)
+                {
+                    if (TagManager.IsStatTagControl(control))
+                    {
+                        // Not to get confusing, but the ContentControl has an identifier field called "Tag".  This
+                        // is NOT an actual StatTag tag, but a short string identifier we use to link to one of our tags.
+                        var tag = TagManager.FindTagByChecksum(control.Tag);
+                        if (tag == null)
+                        {
+                            Log(string.Format("No tag was found for the control with ID: {0}", control.Tag));
+                            continue;
+                        }
+
+                        if (tag.Type != Constants.TagType.Verbatim)
+                        {
+                            Log(string.Format("The tag ({0}) was inserted as verbatim but is now a different type.  We are unable to update it.", tag.Id));
+                        }
+
+                        SetVerbatimControlText(control, tag.FormattedResult);
+                    }
+                    Marshal.ReleaseComObject(control);
+                }
+            }
+
+            Marshal.ReleaseComObject(controls);
+        }
+
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -339,7 +386,7 @@ namespace StatTag.Models
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
-                if (tableDimensionChange)
+                if (tableDimensionChange && tagUpdatePair != null)
                 {
                     Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
                     if (RefreshTableTagFields(tagUpdatePair.New, document))
@@ -350,6 +397,8 @@ namespace StatTag.Models
                 }
 
                 UpdateInlineShapes(document);
+
+                UpdateVerbatimEntries(document);
                 
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
@@ -464,6 +513,77 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(rows);
             Marshal.ReleaseComObject(document);
             return cells;
+        }
+
+        /// <summary>
+        /// Inserts a rich text edit control
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="tag"></param>
+        public void InsertVerbatim(Selection selection, Tag tag)
+        {
+            Log("InsertVerbatim - Started");
+
+            if (tag == null)
+            {
+                Log("Unable to insert the verbatim output because the tag is null");
+                return;
+            }
+
+            var result = tag.CachedResult.FirstOrDefault();
+            if (result != null)
+            {
+                var range = selection.Range;
+                var control = selection.ContentControls.Add(WdContentControlType.wdContentControlRichText, range);
+                SetVerbatimControlText(control, result.VerbatimResult);
+                // Tags are restricted to 64 characters so we have to use a hash instead of the original Id
+                //control.Tag = string.Format("{0}{1}", Constants.FieldDetails.ContentControlPrefix, TagManager.GetMD5Hash(tag.Id));
+                control.Tag = TagManager.GetTagIdHash(tag.Id);
+
+                Marshal.ReleaseComObject(control);
+                Marshal.ReleaseComObject(range);
+            }
+
+            Log("InsertVerbatim - Finished");
+        }
+
+        /// <summary>
+        /// Set the text for a verbatim control and ensure that it is properly formatted.
+        /// </summary>
+        /// <param name="control">The RichTextContentControl to update</param>
+        /// <param name="text">The text to set in the content control</param>
+        private void SetVerbatimControlText(ContentControl control, string text)
+        {
+            Log("SetVerbatimControlText - Started");
+
+            if (control == null)
+            {
+                Log("The control is null, so no changes will be made");
+                return;
+            }
+
+            // Informational check if needed for troubleshooting
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                Log("The verbatim control text is null/empty");
+            }
+
+            control.LockContents = false;
+            control.LockContentControl = false;
+            string formattedText = text.Replace("\n", "\r\n");
+            control.SetPlaceholderText(null, null, formattedText);
+            var ccRange = control.Range;
+            ccRange.Select();
+            ccRange.Font.Name = "Courier New";
+            ccRange.Font.Color = WdColor.wdColorBlack;
+            ccRange.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
+            ccRange.ParagraphFormat.LineUnitAfter = 0;
+            ccRange.ParagraphFormat.LineUnitBefore = 0;
+            control.LockContents = true;
+            control.LockContentControl = false;
+            Marshal.ReleaseComObject(ccRange);
+
+            Log("SetVerbatimControlText - False");
         }
 
         /// <summary>
@@ -700,9 +820,14 @@ namespace StatTag.Models
                     return;
                 }
 
+                if (tag.Type == Constants.TagType.Verbatim)
+                {
+                    Log("Inserting verbatim output");
+                    InsertVerbatim(selection, tag);
+                }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
-                if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
+                else if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
                 {
                     Log("Inserting a new table tag");
                     InsertTable(selection, tag);
@@ -735,6 +860,11 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
+            if (tag.Type == Constants.TagType.Verbatim)
+            {
+                FieldGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
+                return;
+            }
             var xml = OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
             Log("Field XML: " + xml);
             range.InsertXML(xml);
@@ -855,6 +985,18 @@ namespace StatTag.Models
                 var fieldTag = TagManager.GetFieldTag(field);
                 var tag = TagManager.FindTag(fieldTag);
                 EditTag(tag);
+            }
+        }
+
+        public void EditTagControl(ContentControl control)
+        {
+            if (TagManager.IsStatTagControl(control))
+            {
+                var tag = TagManager.FindTagByChecksum(control.Tag);
+                if (tag != null)
+                {
+                    EditTag(tag);                    
+                }
             }
         }
 

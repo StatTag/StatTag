@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Models;
@@ -168,13 +169,13 @@ namespace StatTag.Models
 
             // Fields is a 1-based index
             var files = DocumentManager.GetCodeFileList();
-            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            Log(String.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index {0}", index));
+                    Log(String.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -228,13 +229,13 @@ namespace StatTag.Models
             int fieldsCount = fields.Count;
 
             // Fields is a 1-based index
-            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            Log(String.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index {0}", index));
+                    Log(String.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -297,7 +298,7 @@ namespace StatTag.Models
             // are still linked in a document.
             if (!actions.ContainsKey(tag.CodeFilePath))
             {
-                Log(string.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
+                Log(String.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
                 return;
             }
 
@@ -315,25 +316,25 @@ namespace StatTag.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.Name));
+                    Log(String.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
-                    Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
                     break;
             }
         }
@@ -357,7 +358,7 @@ namespace StatTag.Models
             // are still linked in a document.
             if (!actions.ContainsKey(tag.Id))
             {
-                Log(string.Format("No action is needed for tag {0}", tag.Id));
+                Log(String.Format("No action is needed for tag {0}", tag.Id));
                 return;
             }
 
@@ -375,27 +376,80 @@ namespace StatTag.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.Name));
+                    Log(String.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
-                    Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
                     break;
             }
+        }
+
+        /// <summary>
+        /// Determine if a control appears to be one created and managed by StatTag
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        public bool IsStatTagControl(ContentControl control)
+        {
+            return (control != null
+                && control.Type == WdContentControlType.wdContentControlRichText
+                && !String.IsNullOrWhiteSpace(control.Tag)
+                && control.Tag.StartsWith(Constants.FieldDetails.ContentControlPrefix));
+        }
+
+        /// <summary>
+        /// Utility function to convert a string input into a string representation of a
+        /// MD5 hash.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string GetTagIdHash(string input)
+        {
+            using (var md5Hash = MD5.Create())
+            {
+                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+                var builder = new StringBuilder();
+                builder.Append(Constants.FieldDetails.ContentControlPrefix);
+                foreach (var bt in data)
+                {
+                    builder.Append(bt.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Our verbatim tags use a control that can only have a tag hash/checksum stored (given limits on the
+        /// length of tag the control can have).  This performs the lookup against all known tags.
+        /// </summary>
+        /// <param name="checksum"></param>
+        /// <returns></returns>
+        public Tag FindTagByChecksum(string checksum)
+        {
+            var files = DocumentManager.GetCodeFileList();
+            if (files == null)
+            {
+                Log("Unable to find an tag because the Files collection is null");
+                return null;
+            }
+
+            // TODO: Improve efficiency by pre-calculating hashes.
+            return files.SelectMany(file => file.Tags).FirstOrDefault(tag => GetTagIdHash(tag.Id).Equals(checksum));
         }
     }
 }

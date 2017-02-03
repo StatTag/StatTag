@@ -103,6 +103,7 @@
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
     <Compile Include="Generator\OpenXmlGeneratorTests.cs" />
+    <Compile Include="Generator\VerbatimGeneratorTests.cs" />
     <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
     <Compile Include="Models\TagTests.cs" />
     <Compile Include="Models\CommandResultTests.cs" />

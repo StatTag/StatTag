@@ -286,6 +286,8 @@ namespace StatTag
                             return formatter.FigureResultCommands();
                         case Constants.TagType.Table:
                             return formatter.TableResultCommands();
+                        case Constants.TagType.Verbatim:
+                            return formatter.VerbatimResultCommands();
                     }
                 }
             }

@@ -29,7 +29,7 @@ namespace StatTag
         
         public DocumentManager Manager { get; set; }
         private Tag OriginalTag { get; set; }
-        public Tag Tag { get; set; }
+        public new Tag Tag { get; set; }
         public string CodeText { get; set; }
         public bool InsertInDocument { get; private set; }
 
@@ -88,6 +88,11 @@ namespace StatTag
                     break;
                 case Constants.TagType.Table:
                     tableProperties.Visible = true;
+                    valueProperties.Visible = false;
+                    figureProperties.Visible = false;
+                    break;
+                case Constants.TagType.Verbatim:
+                    tableProperties.Visible = false;
                     valueProperties.Visible = false;
                     figureProperties.Visible = false;
                     break;
@@ -180,6 +185,9 @@ namespace StatTag
                         UpdateForTypeClick();
                         tableProperties.SetTableFormat(Tag.TableFormat);
                         tableProperties.SetValueFormat(Tag.ValueFormat);
+                        break;
+                    case Constants.TagType.Verbatim:
+                        UpdateForTypeClick();
                         break;
                 }
             }
@@ -537,6 +545,8 @@ namespace StatTag
                 case Constants.TagType.Table:
                     Tag.TableFormat = tableProperties.GetTableFormat();
                     Tag.ValueFormat = tableProperties.GetValueFormat();
+                    break;
+                case Constants.TagType.Verbatim:
                     break;
                 default:
                     throw new NotSupportedException("This tag type is not yet supported");

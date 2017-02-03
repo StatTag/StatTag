@@ -16,6 +16,8 @@ namespace SAS
 
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
+        protected List<string> LogCache { get; set; }
+        protected bool LogCacheEnabled { get; set; }
 
         public SASAutomation()
         {
@@ -68,7 +70,24 @@ namespace SAS
             var commandResults = new List<CommandResult>();
             foreach (var command in commands)
             {
-                var result = RunCommand(command);
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagStart(command))
+                {
+                    LogCache = new List<string>();
+                    LogCacheEnabled = true;
+                }
+
+                var result = RunCommand(command, tag);
+
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagEnd(command))
+                {
+                    if (result == null)
+                    {
+                        result = new CommandResult();
+                    }
+                    result.VerbatimResult = string.Join("\r\n", LogCache);
+                    LogCacheEnabled = false;
+                }
+
                 if (result != null && !result.IsEmpty())
                 {
                     commandResults.Add(result);
@@ -102,8 +121,9 @@ namespace SAS
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
+        /// <param name="tag">The tag associated with the command (if applicable)</param>
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
-        public CommandResult RunCommand(string command)
+        public CommandResult RunCommand(string command, Tag tag = null)
         {
             Array carriageControls;
             Array lineTypeArray;
@@ -129,6 +149,12 @@ namespace SAS
             for (int index = 0; index < lineTypes.Length; index++)
             {
                 var line = logLines[index];
+
+                if (LogCacheEnabled)
+                {
+                    LogCache.Add(logLines[index]);
+                }
+
                 if (lineTypes[index] == LanguageServiceLineType.LanguageServiceLineTypeNormal
                     && !string.IsNullOrWhiteSpace(line))
                 {

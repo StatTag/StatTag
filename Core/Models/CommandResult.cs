@@ -11,6 +11,7 @@ namespace StatTag.Core.Models
         public string ValueResult { get; set; }
         public string FigureResult { get; set; }
         public Table TableResult { get; set; }
+        public string VerbatimResult { get; set; }
 
         /// <summary>
         /// Indicates that a promise is made to deliver table data, but that the data may
@@ -30,6 +31,7 @@ namespace StatTag.Core.Models
         {
             return (string.IsNullOrWhiteSpace(ValueResult)
                     && string.IsNullOrWhiteSpace(FigureResult)
+                    && string.IsNullOrWhiteSpace(VerbatimResult)
                     && (TableResult == null || TableResult.IsEmpty())
                     && string.IsNullOrWhiteSpace(TableResultPromise));
         }
@@ -44,6 +46,11 @@ namespace StatTag.Core.Models
             if (!string.IsNullOrWhiteSpace(FigureResult))
             {
                 return FigureResult;
+            }
+
+            if (!string.IsNullOrWhiteSpace(VerbatimResult))
+            {
+                return VerbatimResult;
             }
 
             if (TableResult != null)

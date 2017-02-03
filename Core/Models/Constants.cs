@@ -38,12 +38,13 @@ namespace StatTag.Core.Models
             public const string Value = "Value";
             public const string Figure = "Figure";
             public const string Table = "Table";
+            public const string Verbatim = "Verbatim";
             
             public static string[] GetList()
             {
                 return new[]
                 {
-                    Value, Figure, Table
+                    Value, Figure, Table, Verbatim
                 };
             }
         }
@@ -54,40 +55,6 @@ namespace StatTag.Core.Models
             public const string Numeric = "Numeric";
             public const string DateTime = "DateTime";
             public const string Percentage = "Percentage";
-
-            //public static string[] GetList()
-            //{
-            //    return new[]
-            //    {
-            //        Default, Numeric, Percentage, DateTime
-            //    };
-            //}
-
-            //public static string[] GetDisplayList()
-            //{
-            //    return new[]
-            //    {
-            //        Default, Numeric, Percentage, ValueToDisplay(DateTime)
-            //    };
-            //}
-
-            //public static string DisplayToValue(string display)
-            //{
-            //    return display.Replace("/", "");
-            //}
-
-            //public static string ValueToDisplay(string value)
-            //{
-            //    switch (value)
-            //    {
-            //        case Default: return "Default";
-            //        case Numeric: return "Numeric";
-            //        case DateTime: return "Date/Time";
-            //        case Percentage: return "Percentage";
-            //    }
-
-            //    return string.Empty;
-            //}
         }
 
         public static class DialogLabels
@@ -138,6 +105,7 @@ namespace StatTag.Core.Models
         public static class FieldDetails
         {
             public const string MacroButtonName = "StatTag";
+            public const string ContentControlPrefix = MacroButtonName + ":";
         }
 
         /// <summary>

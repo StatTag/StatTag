@@ -20,6 +20,7 @@ namespace R
 
         private REngine Engine = null;
         protected RParser Parser { get; set; }
+        protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
 
         public RAutomation()
         {
@@ -31,7 +32,7 @@ namespace R
             if (Engine == null)
             {
                 REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
-                Engine = REngine.GetInstance();
+                Engine = REngine.GetInstance(null, true, null, VerbatimLog);
             }
 
             return (Engine != null);
@@ -49,12 +50,24 @@ namespace R
         public StatTag.Core.Models.CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             var commandResults = new List<CommandResult>();
+            bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             foreach (var command in commands)
             {
+                // Start the verbatim logging cache, if that is what the user wants for this output.
+                if (Parser.IsTagStart(command) && isVerbatimTag)
+                {
+                    VerbatimLog.StartCache();
+                }
+
                 var result = RunCommand(command, tag);
-                if (result != null && !result.IsEmpty())
+                if (result != null && !result.IsEmpty() && !isVerbatimTag)
                 {
                     commandResults.Add(result);
+                }
+                else if (Parser.IsTagEnd(command) && isVerbatimTag)
+                {
+                    VerbatimLog.StopCache();
+                    commandResults.Add(new CommandResult() { VerbatimResult = string.Join("", VerbatimLog.GetCache()) });
                 }
             }
 

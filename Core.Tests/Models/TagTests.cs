@@ -233,6 +233,8 @@ namespace Core.Tests.Models
         {
             Assert.IsTrue(new Tag() { Type = Constants.TagType.Table }.IsTableTag());
             Assert.IsFalse(new Tag() { Type = Constants.TagType.Value }.IsTableTag());
+            Assert.IsFalse(new Tag() { Type = Constants.TagType.Verbatim }.IsTableTag());
+            Assert.IsFalse(new Tag() { Type = Constants.TagType.Figure }.IsTableTag());
             Assert.IsFalse(new Tag() { Type = string.Empty }.IsTableTag());
         }
 
