@@ -320,11 +320,12 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Processes all inline shapes within the document, which will include our inserted figures.
-        /// If the shape can be updated, we will process the update.
+        /// Processes all content controls within the document, which may include verbatim output.
+        /// Handles renaming of tags as well, if applicable.
         /// </summary>
-        /// <param name="document"></param>
-        private void UpdateVerbatimEntries(Document document)
+        /// <param name="document">The current document to process</param>
+        /// <param name="tagUpdatePair"></param>
+        private void UpdateVerbatimEntries(Document document, UpdatePair<Tag> tagUpdatePair = null)
         {
             var controls = document.ContentControls;
             if (controls == null)
@@ -352,6 +353,13 @@ namespace StatTag.Models
                         if (tag.Type != Constants.TagType.Verbatim)
                         {
                             Log(string.Format("The tag ({0}) was inserted as verbatim but is now a different type.  We are unable to update it.", tag.Id));
+                        }
+
+                        // If the tag update pair is set, it will be in response to renaming.  Make sure
+                        // we apply the new tag name to the control
+                        if (tagUpdatePair != null && tagUpdatePair.Old.Equals(tag))
+                        {
+                            control.Tag = TagManager.GetTagIdHash(tagUpdatePair.New.Id);
                         }
 
                         SetVerbatimControlText(control, tag.FormattedResult);
@@ -398,7 +406,7 @@ namespace StatTag.Models
 
                 UpdateInlineShapes(document);
 
-                UpdateVerbatimEntries(document);
+                UpdateVerbatimEntries(document, tagUpdatePair);
                 
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
@@ -924,6 +932,11 @@ namespace StatTag.Models
                     {
                         Log("Updating fields after tag table format changed");
                         dialog.Tag.UpdateFormattedTableData();
+                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                    }
+                    else if (dialog.Tag.Id != tag.Id)
+                    {
+                        Log("Updating fields after tag renamed");
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
 
