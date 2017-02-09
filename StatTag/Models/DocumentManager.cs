@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.Office.Core;
 using StatTag.Core;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
@@ -542,10 +543,9 @@ namespace StatTag.Models
             if (result != null)
             {
                 var range = selection.Range;
-                var control = selection.ContentControls.Add(WdContentControlType.wdContentControlRichText, range);
+                var control = selection.ContentControls.Add(WdContentControlType.wdContentControlText, range);
                 SetVerbatimControlText(control, result.VerbatimResult);
                 // Tags are restricted to 64 characters so we have to use a hash instead of the original Id
-                //control.Tag = string.Format("{0}{1}", Constants.FieldDetails.ContentControlPrefix, TagManager.GetMD5Hash(tag.Id));
                 control.Tag = TagManager.GetTagIdHash(tag.Id);
 
                 Marshal.ReleaseComObject(control);

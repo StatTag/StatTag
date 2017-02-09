@@ -407,7 +407,7 @@ namespace StatTag.Models
         public bool IsStatTagControl(ContentControl control)
         {
             return (control != null
-                && control.Type == WdContentControlType.wdContentControlRichText
+                && control.Type == WdContentControlType.wdContentControlText
                 && !String.IsNullOrWhiteSpace(control.Tag)
                 && control.Tag.StartsWith(Constants.FieldDetails.ContentControlPrefix));
         }
