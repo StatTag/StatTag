@@ -19,6 +19,7 @@ namespace StatTag
         {
             public string[] Text;
             public CodeFile File;
+            public bool IsVerbatimTag;
         }
 
         private const int TagMargin = 1;
@@ -302,7 +303,14 @@ namespace StatTag
                 // If the data was not set, we're going to just avoid triggering any errors and
                 // pretend everything went fine.  The thought is that this is an internal glitch,
                 // and users may get annoyed seeing "error" when things are actually fine.
-                e.Result = true;
+                e.Result = false;
+                return;
+            }
+
+            // If the tag is a verbatim tag, we won't do any other checks (anything can be verbatim)
+            if (data.IsVerbatimTag)
+            {
+                e.Result = false;
                 return;
             }
 
@@ -315,6 +323,7 @@ namespace StatTag
                     return;
                 }
 
+                // Returning true means the warning should display
                 e.Result = true;
             }
         }
@@ -435,7 +444,7 @@ namespace StatTag
         private void RunWorker(string[] selectedText)
         {
             var codeFile = cboCodeFiles.SelectedItem as CodeFile;
-            codeCheckWorker.RunWorkerAsync(new ThreadData() {File = codeFile, Text = selectedText});
+            codeCheckWorker.RunWorkerAsync(new ThreadData() { File = codeFile, Text = selectedText, IsVerbatimTag = (TagType == Constants.TagType.Verbatim) });
         }
 
         private string[] GetSelectedText()
