@@ -119,6 +119,29 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void GetLogFile()
+        {
+            var parser = new StataParser();
+            Assert.IsNull(parser.GetLogFile("*log using tmp.txt"));
+            Assert.IsNull(parser.GetLogFile("*cmdlog using tmp.txt"));
+            Assert.IsNull(parser.GetLogFile("  *  log using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("  *  cmdlog using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("l og using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("logs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("cmdlogs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("cmd log using tmp.txt  "));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile("log using tmp.txt"));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile(" log   using   tmp.txt   "));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile("cmdlog using tmp.txt"));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile(" cmdlog   using   tmp.txt   "));
+            ValidateFoundLogs(new[] { "log using 2.txt" }, parser.GetLogFile("log   using   log using 2.txt   "));
+            ValidateFoundLogs(new[] { "log.txt", "cmdlog.txt" }, parser.GetLogFile("log using log.txt\r\ncmdlog using cmdlog.txt"));
+            ValidateFoundLogs(new[] { "log.txt", "cmdlog.txt" }, parser.GetLogFile("cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log.txt" }, parser.GetLogFile("*cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log.txt", "log2.txt" }, parser.GetLogFile("log using log.txt\r\nlog using log2.txt"));
+        }
+
+        [TestMethod]
         public void GetImageSaveLocation()
         {
             var parser = new StataParser();

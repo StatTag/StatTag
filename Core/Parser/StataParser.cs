@@ -24,12 +24,19 @@ namespace StatTag.Core.Parser
         public static string TableCommand = "mat(?:rix)? l(?:ist)?";
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:\\r|\\n|$)", TableCommand.Replace(" ", "\\s+")));
-        private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b", RegexOptions.Multiline);
+        private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
         private static readonly Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
         private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
         private const string CommentStart = "/*";
         private const string CommentEnd = "*/";
         private static readonly Regex TrailingLineComment = new Regex("(?<!\\*)\\/\\/[^\\r\\n]*");
+
+        public class Log
+        {
+            public string LogType { get; set; }
+            public string LogPath { get; set; }
+            public string LiteralLogEntry { get; set; }
+        }
 
         /// <summary>
         /// This is used to test/extract a macro display value.
@@ -94,6 +101,29 @@ namespace StatTag.Core.Parser
         public string[] GetLogType(string command)
         {
             return GlobalMatchRegexReturnGroup(command, LogKeywordRegex, 1);
+        }
+
+        public string[] GetLogFile(string command)
+        {
+            return GlobalMatchRegexReturnGroup(command, LogKeywordRegex, 2);
+        }
+
+        public Log[] GetLogs(string command)
+        {
+            var logs = new List<Log>();
+            var matches = LogKeywordRegex.Matches(command);
+            if (matches.Count == 0)
+            {
+                return null;
+            }
+
+            return
+                matches.OfType<Match>().Select(match => new Log()
+                    {
+                        LogType = match.Groups[1].Value.Trim(),
+                        LogPath = match.Groups[2].Value.Replace("\"", "").Trim(),
+                        LiteralLogEntry = match.Groups[2].Value
+                    }).ToArray();
         }
 
         /// <summary>

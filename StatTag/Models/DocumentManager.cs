@@ -578,7 +578,7 @@ namespace StatTag.Models
 
             control.LockContents = false;
             control.LockContentControl = false;
-            string formattedText = text.Replace("\n", "\r\n");
+            string formattedText = text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
             control.SetPlaceholderText(null, null, formattedText);
             var ccRange = control.Range;
             ccRange.Select();

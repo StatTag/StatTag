@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.InteropServices;
@@ -26,6 +27,12 @@ namespace Stata
 
         public const string DisablePagingCommand = "set more off";
 
+        public const string StatTagVerbatimLogName = "__stattag_verbatim_log_tmp.log";
+        //public const string StatTagVerbatimLogCommand = "log using \"" + StatTagVerbatimLogName + "\", text replace";
+        public const string StatTagVerbatimLogIdentifier = "stattag-verbatim";
+
+        public const string EndLoggingCommand = "log close";
+
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
@@ -38,7 +45,8 @@ namespace Stata
 
         protected stata.StataOLEApp Application { get; set; }
         protected StataParser Parser { get; set; }
-        protected List<string> OpenLogs { get; set; } 
+        protected List<StataParser.Log> OpenLogs { get; set; }
+        protected bool IsTrackingVerbatim { get; set; }
 
         private static class ScalarType
         {
@@ -76,7 +84,7 @@ namespace Stata
         {
             try
             {
-                OpenLogs = new List<string>();
+                OpenLogs = new List<StataParser.Log>();
                 Application = new stata.StataOLEApp();
                 Application.DoCommand(DisablePagingCommand);
                 Show();
@@ -99,6 +107,24 @@ namespace Stata
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
+        private void EnsureLoggingForVerbatim(Tag tag)
+        {
+            // If there is no open log, we will start one
+            if (OpenLogs.Find(x => x.LogType.Equals("log", StringComparison.CurrentCultureIgnoreCase)) == null)
+            {
+                string verbatimLogFile = StatTagVerbatimLogName;
+                if (tag.CodeFile != null && !string.IsNullOrWhiteSpace(tag.CodeFile.FilePath))
+                {
+                    verbatimLogFile = Path.Combine(Path.GetDirectoryName(tag.CodeFile.FilePath),
+                        StatTagVerbatimLogName);
+                }
+                RunCommand(string.Format("log using \"{0}\", text replace", verbatimLogFile));
+                // We use a special identifier so we know it is a StatTag initiated log during processing, and that
+                // it can be closed.  Otherwise we may confuse it with a log the user started.
+                OpenLogs.Add(new StataParser.Log() { LogType = StatTagVerbatimLogIdentifier, LogPath = verbatimLogFile });
+            }
+        }
+
         /// <summary>
         /// Run a collection of commands and provide all applicable results.
         /// </summary>
@@ -109,17 +135,75 @@ namespace Stata
             try
             {
                 var commandResults = new List<CommandResult>();
+                IsTrackingVerbatim = (tag != null && tag.Type == Constants.TagType.Verbatim);
+                string startingVerbatimCommand = string.Empty;   // Tracks in the log where we begin pulling verbatim output from
                 foreach (var command in commands)
                 {
                     if (Parser.IsStartingLog(command))
                     {
-                        OpenLogs.AddRange(Parser.GetLogType(command));
+                        OpenLogs.AddRange(Parser.GetLogs(command));
                     }
 
+                    // Ensure logging is taking place if the user has identified this as verbatim output.
+                    if (Parser.IsTagStart(command) && IsTrackingVerbatim)
+                    {
+                        startingVerbatimCommand = command;
+                        EnsureLoggingForVerbatim(tag);
+                    }
+
+                    // Perform execution of the command
                     var result = RunCommand(command);
-                    if (result != null && !result.IsEmpty())
+
+                    // Handle the result normally unless we are in the middle of a verbatim tag.  In that case,
+                    // the logging should be enabled at this point and closing it out will be handled later when
+                    // the verbatim tag ends.
+                    if (result != null && !result.IsEmpty() && !IsTrackingVerbatim)
                     {
                         commandResults.Add(result);
+                    }
+                    else if (Parser.IsTagEnd(command) && IsTrackingVerbatim)
+                    {
+                        // Log management can get tricky.  If the user has established their own log file as part of their do file, we have
+                        // to manage closing and reopening the log when we need to access content.  Otherwise Stata will keep the log file
+                        // locked and we can't access it.
+                        StataParser.Log logToRead = null;
+                        var verbatimLog = OpenLogs.Find(x => x.LogType.Equals(StatTagVerbatimLogIdentifier,
+                            StringComparison.CurrentCultureIgnoreCase));
+                        var regularLog = OpenLogs.Find(x => x.LogType.Equals("log",
+                            StringComparison.CurrentCultureIgnoreCase));
+                        if (verbatimLog != null)
+                        {
+                            RunCommand(string.Format(EndLoggingCommand));
+                            logToRead = verbatimLog;
+                        }
+                        else if (regularLog != null)
+                        {
+                            logToRead = regularLog;
+                            RunCommand(EndLoggingCommand);
+                        }
+
+                        // If we don't have a log for some reason, just continue on (with no verbatim output).
+                        if (logToRead == null)
+                        {
+                            continue;
+                        }
+
+                        // Pull the text and parse out the relevant lines that we want
+                        var verbatimOutput = CreateVerbatimOutputFromLog(logToRead, startingVerbatimCommand, command);
+                        commandResults.Add(new CommandResult() { VerbatimResult = verbatimOutput });
+
+                        // Now that we have the output, we have to perform some cleanup for the log.  If we have a verbatim
+                        // log that we created, we will clean it up.  Otherwise we need to re-enable the logging for the
+                        // user-defined log.
+                        if (verbatimLog != null)
+                        {
+                            OpenLogs.Remove(verbatimLog);
+                            File.Delete(verbatimLog.LogPath);
+                        }
+                        else
+                        {
+                            RunCommand(string.Format("log using \"{0}\"", logToRead.LogPath));
+                        }
                     }
                 }
 
@@ -132,16 +216,55 @@ namespace Stata
                 // open.
                 foreach (var openLog in OpenLogs)
                 {
-                    RunCommand(string.Format("{0} close", openLog));
+                    // We have a special log type identifier we use for tracking verbatim output.  The Replace call
+                    // for each log command is a cheat to make sure that type is converted to log (instead of if/elses).
+                    RunCommand(string.Format("{0} close", openLog.LogType.Replace(StatTagVerbatimLogIdentifier, "log")));
                 }
 
-                // Since we have closed all logs, clear the list we were tracking.
+                // Since we should now have closed all logs, clear the list we were tracking.
                 OpenLogs.Clear();
+
+                IsTrackingVerbatim = false;
 
                 throw exc;
             }
         }
 
+        /// <summary>
+        /// Given an internal reference that StatTag maintains to a log file, pull out the relevant log lines (excluding
+        /// the commands that would be written there too).  This returns a string with newlines represented as \r\n.s
+        /// </summary>
+        /// <param name="logToRead"></param>
+        /// <param name="startingVerbatimCommand"></param>
+        /// <param name="endingVerbatimCommand"></param>
+        /// <returns></returns>
+        private string CreateVerbatimOutputFromLog(StataParser.Log logToRead, string startingVerbatimCommand, string endingVerbatimCommand)
+        {
+            var text = File.ReadAllText(logToRead.LogPath).Replace("\r\n", "\r");
+            int startIndex = text.IndexOf(startingVerbatimCommand, StringComparison.CurrentCulture);
+            int endIndex = text.IndexOf(endingVerbatimCommand, startIndex, StringComparison.CurrentCulture);
+            if (startIndex == -1 || endIndex == -1)
+            {
+                return text;
+            }
+
+            int additionalOffset = 1;
+            startIndex += startingVerbatimCommand.Length + additionalOffset;
+            if (text[startIndex] == '\r')
+            {
+                additionalOffset++;
+                startIndex++;
+            }
+            var substring = text.Substring(startIndex, endIndex - startIndex - additionalOffset).TrimEnd('\r').Split(new char[] { '\r' });
+            var finalLines = substring.Where(line => !line.StartsWith(". ")).ToList();
+            return string.Join("\r\n", finalLines);
+        }
+
+        /// <summary>
+        /// Given a macro name, retrieve the value
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private string GetMacroValue(string name)
         {
             string result = Application.MacroValue(name);
@@ -242,14 +365,17 @@ namespace Stata
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
         public CommandResult RunCommand(string command)
         {
-            if (Parser.IsValueDisplay(command))
+            if (!IsTrackingVerbatim)
             {
-                return new CommandResult() { ValueResult = GetDisplayResult(command)};
-            }
+                if (Parser.IsValueDisplay(command))
+                {
+                    return new CommandResult() { ValueResult = GetDisplayResult(command) };
+                }
 
-            if (Parser.IsTableResult(command))
-            {
-                return new CommandResult() { TableResult = GetTableResult(command) };
+                if (Parser.IsTableResult(command))
+                {
+                    return new CommandResult() { TableResult = GetTableResult(command) };
+                }
             }
 
             int returnCode = Application.DoCommandAsync(command);
@@ -263,7 +389,7 @@ namespace Stata
                 Thread.Sleep(100);
             }
 
-            if (Parser.IsImageExport(command))
+            if (Parser.IsImageExport(command) && !IsTrackingVerbatim)
             {
                 var imageLocation = Parser.GetImageSaveLocation(command);
                 if (imageLocation.Contains(StataParser.MacroDelimiters[0]))
