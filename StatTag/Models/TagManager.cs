@@ -400,62 +400,16 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Determine if a control appears to be one created and managed by StatTag
+        /// Is this possibly a StatTag shape?  This is somewhat of a weak check as we are just
+        /// able to look for the presence of a name field, but if it can reduce overhead in
+        /// processing shapes we'll take it.
         /// </summary>
-        /// <param name="control"></param>
+        /// <param name="shape"></param>
         /// <returns></returns>
-        public bool IsStatTagControl(ContentControl control)
-        {
-            return (control != null
-                && control.Type == WdContentControlType.wdContentControlText
-                && !String.IsNullOrWhiteSpace(control.Tag)
-                && control.Tag.StartsWith(Constants.FieldDetails.ContentControlPrefix));
-        }
-
         public bool IsStatTagShape(Shape shape)
         {
             return (shape != null
                     && !String.IsNullOrWhiteSpace(shape.Name));
-        }
-
-        /// <summary>
-        /// Utility function to convert a string input into a string representation of a
-        /// MD5 hash.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string GetTagIdHash(string input)
-        {
-            using (var md5Hash = MD5.Create())
-            {
-                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
-                var builder = new StringBuilder();
-                builder.Append(Constants.FieldDetails.ContentControlPrefix);
-                foreach (var bt in data)
-                {
-                    builder.Append(bt.ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-
-        /// <summary>
-        /// Our verbatim tags use a control that can only have a tag hash/checksum stored (given limits on the
-        /// length of tag the control can have).  This performs the lookup against all known tags.
-        /// </summary>
-        /// <param name="checksum"></param>
-        /// <returns></returns>
-        public Tag FindTagByChecksum(string checksum)
-        {
-            var files = DocumentManager.GetCodeFileList();
-            if (files == null)
-            {
-                Log("Unable to find an tag because the Files collection is null");
-                return null;
-            }
-
-            // TODO: Improve efficiency by pre-calculating hashes.
-            return files.SelectMany(file => file.Tags).FirstOrDefault(tag => GetTagIdHash(tag.Id).Equals(checksum));
         }
     }
 }

@@ -105,7 +105,6 @@ namespace StatTag.Core.Models
         public static class FieldDetails
         {
             public const string MacroButtonName = "StatTag";
-            public const string ContentControlPrefix = MacroButtonName + ":";
         }
 
         /// <summary>
