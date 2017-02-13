@@ -412,6 +412,12 @@ namespace StatTag.Models
                 && control.Tag.StartsWith(Constants.FieldDetails.ContentControlPrefix));
         }
 
+        public bool IsStatTagShape(Shape shape)
+        {
+            return (shape != null
+                    && !String.IsNullOrWhiteSpace(shape.Name));
+        }
+
         /// <summary>
         /// Utility function to convert a string input into a string representation of a
         /// MD5 hash.

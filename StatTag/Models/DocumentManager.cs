@@ -328,26 +328,24 @@ namespace StatTag.Models
         /// <param name="tagUpdatePair"></param>
         private void UpdateVerbatimEntries(Document document, UpdatePair<Tag> tagUpdatePair = null)
         {
-            var controls = document.ContentControls;
-            if (controls == null)
+            var shapes = document.Shapes;
+            if (shapes == null)
             {
                 return;
             }
 
-            int controlCount = controls.Count;
-            for (int index = 1; index <= controlCount; index++)
+            int shapeCount = shapes.Count;
+            for (int index = 1; index <= shapeCount; index++)
             {
-                var control = controls[index];
-                if (control != null)
+                var shape = shapes[index];
+                if (shape != null)
                 {
-                    if (TagManager.IsStatTagControl(control))
+                    if (TagManager.IsStatTagShape(shape))
                     {
-                        // Not to get confusing, but the ContentControl has an identifier field called "Tag".  This
-                        // is NOT an actual StatTag tag, but a short string identifier we use to link to one of our tags.
-                        var tag = TagManager.FindTagByChecksum(control.Tag);
+                        var tag = TagManager.FindTag(shape.Name);
                         if (tag == null)
                         {
-                            Log(string.Format("No tag was found for the control with ID: {0}", control.Tag));
+                            Log(string.Format("No tag was found for the control with ID: {0}", shape.Name));
                             continue;
                         }
 
@@ -360,16 +358,59 @@ namespace StatTag.Models
                         // we apply the new tag name to the control
                         if (tagUpdatePair != null && tagUpdatePair.Old.Equals(tag))
                         {
-                            control.Tag = TagManager.GetTagIdHash(tagUpdatePair.New.Id);
+                            shape.Name = tagUpdatePair.New.Id;
                         }
 
-                        SetVerbatimControlText(control, tag.FormattedResult);
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult;
                     }
-                    Marshal.ReleaseComObject(control);
+                    Marshal.ReleaseComObject(shape);
                 }
             }
 
-            Marshal.ReleaseComObject(controls);
+            Marshal.ReleaseComObject(shapes);
+
+            //var controls = document.ContentControls;
+            //if (controls == null)
+            //{
+            //    return;
+            //}
+
+            //int controlCount = controls.Count;
+            //for (int index = 1; index <= controlCount; index++)
+            //{
+            //    var control = controls[index];
+            //    if (control != null)
+            //    {
+            //        if (TagManager.IsStatTagControl(control))
+            //        {
+            //            // Not to get confusing, but the ContentControl has an identifier field called "Tag".  This
+            //            // is NOT an actual StatTag tag, but a short string identifier we use to link to one of our tags.
+            //            var tag = TagManager.FindTagByChecksum(control.Tag);
+            //            if (tag == null)
+            //            {
+            //                Log(string.Format("No tag was found for the control with ID: {0}", control.Tag));
+            //                continue;
+            //            }
+
+            //            if (tag.Type != Constants.TagType.Verbatim)
+            //            {
+            //                Log(string.Format("The tag ({0}) was inserted as verbatim but is now a different type.  We are unable to update it.", tag.Id));
+            //            }
+
+            //            // If the tag update pair is set, it will be in response to renaming.  Make sure
+            //            // we apply the new tag name to the control
+            //            if (tagUpdatePair != null && tagUpdatePair.Old.Equals(tag))
+            //            {
+            //                control.Tag = TagManager.GetTagIdHash(tagUpdatePair.New.Id);
+            //            }
+
+            //            SetVerbatimControlText(control, tag.FormattedResult);
+            //        }
+            //        Marshal.ReleaseComObject(control);
+            //    }
+            //}
+
+            //Marshal.ReleaseComObject(controls);
         }
 
 
@@ -543,12 +584,32 @@ namespace StatTag.Models
             if (result != null)
             {
                 var range = selection.Range;
-                var control = selection.ContentControls.Add(WdContentControlType.wdContentControlText, range);
-                SetVerbatimControlText(control, result.VerbatimResult);
-                // Tags are restricted to 64 characters so we have to use a hash instead of the original Id
-                control.Tag = TagManager.GetTagIdHash(tag.Id);
+                //var control = selection.ContentControls.Add(WdContentControlType.wdContentControlText, range);
+                //SetVerbatimControlText(control, result.VerbatimResult);
+                //// Tags are restricted to 64 characters so we have to use a hash instead of the original Id
+                //control.Tag = TagManager.GetTagIdHash(tag.Id);
 
-                Marshal.ReleaseComObject(control);
+                //Marshal.ReleaseComObject(control);
+
+                var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 100, 100,
+                    range);
+                var textFrame = shape.TextFrame;
+                textFrame.TextRange.Text = result.VerbatimResult;
+                textFrame.AutoSize = -1;
+                textFrame.WordWrap = 0;
+                shape.Line.Visible = MsoTriState.msoFalse;
+                textFrame.TextRange.Font.Name = "Courier New";
+                textFrame.TextRange.Font.Size = 9.0f;
+                textFrame.TextRange.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
+                textFrame.TextRange.ParagraphFormat.SpaceAfter = 0;
+                textFrame.TextRange.ParagraphFormat.SpaceBefore = 0;
+                shape.WrapFormat.Type = WdWrapType.wdWrapInline;
+                shape.Name = tag.Id; //TagManager.GetTagIdHash(tag.Id);
+                //var inlineShape = shape.ConvertToInlineShape();
+                //inlineShape.AlternativeText = TagManager.GetTagIdHash(tag.Id);
+
+                Marshal.ReleaseComObject(textFrame);
+                Marshal.ReleaseComObject(shape);
                 Marshal.ReleaseComObject(range);
             }
 
@@ -1009,6 +1070,18 @@ namespace StatTag.Models
                 if (tag != null)
                 {
                     EditTag(tag);                    
+                }
+            }
+        }
+
+        public void EditTagShape(Microsoft.Office.Interop.Word.Shape shape)
+        {
+            if (TagManager.IsStatTagShape(shape))
+            {
+                var tag = TagManager.FindTag(shape.Name);
+                if (tag != null)
+                {
+                    EditTag(tag);
                 }
             }
         }

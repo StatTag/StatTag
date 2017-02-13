@@ -225,6 +225,7 @@ namespace StatTag
             var selection = Application.Selection;
             var fields = selection.Fields;
             var control = selection.ParentContentControl;
+            var shape = selection.ShapeRange;
 
             try
             {
@@ -244,6 +245,10 @@ namespace StatTag
                     var tag = control.Tag;
                     DocumentManager.EditTagControl(control);
                 }
+                else if (shape != null && shape.Count > 0)
+                {
+                    DocumentManager.EditTagShape(shape[1]);
+                }
             }
             catch (Exception exc)
             {
@@ -261,6 +266,10 @@ namespace StatTag
                 if (control != null)
                 {
                     Marshal.ReleaseComObject(control);
+                }
+                if (shape != null)
+                {
+                    Marshal.ReleaseComObject(shape);
                 }
                 Marshal.ReleaseComObject(selection);
             }
