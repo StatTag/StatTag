@@ -212,6 +212,38 @@ namespace StatTag
             thread.Start();
         }
 
+        private Word.ShapeRange SafeGetShapeRange(Word.Selection selection)
+        {
+            Word.ShapeRange shape = null;
+            try
+            {
+                shape = selection.ShapeRange;
+            }
+            catch
+            {
+                // This is a safe wrapper function, so we are eating the exception
+                shape = null;
+            }
+
+            return shape;
+        }
+
+        private Word.Fields SafeGetFields(Word.Selection selection)
+        {
+            Word.Fields fields = null;
+            try
+            {
+                fields = selection.Fields;
+            }
+            catch
+            {
+                // This is a safe wrapper function, so we are eating the exception
+                fields = null;
+            }
+
+            return fields;
+        }
+
         /// <summary>
         /// Special handler called by us to allow the event queue to be processed before we try responding to
         /// a double-click message.  This allows us to simulate an AfterDoubleClick event.
@@ -223,8 +255,8 @@ namespace StatTag
             Thread.Sleep(100);
 
             var selection = Application.Selection;
-            var fields = selection.Fields;
-            var shape = selection.ShapeRange;
+            var fields = SafeGetFields(selection);
+            var shape = SafeGetShapeRange(selection);
 
             try
             {
@@ -256,7 +288,10 @@ namespace StatTag
             }
             finally
             {
-                Marshal.ReleaseComObject(fields);
+                if (fields != null)
+                {
+                    Marshal.ReleaseComObject(fields);
+                }
                 if (shape != null)
                 {
                     Marshal.ReleaseComObject(shape);
