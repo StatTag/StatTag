@@ -36,6 +36,7 @@ namespace StatTag
 
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
+        private bool AllowInsertInDocument { get; set; }
 
         public EditTag(bool allowInsertInDocument, DocumentManager manager = null)
         {
@@ -46,7 +47,8 @@ namespace StatTag
                 InitializeComponent();
                 UIUtility.ScaleFont(this);
                 UIUtility.SetDialogTitle(this);
-                cmdSaveAndInsert.Enabled = allowInsertInDocument;
+                AllowInsertInDocument = allowInsertInDocument;
+                RefreshButtons();
             }
             catch (Exception exc)
             {
@@ -208,6 +210,11 @@ namespace StatTag
 
                 // Default the default run frequency to "Default" (by default)
                 cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                txtName.Focus();
             }
         }
 
@@ -565,6 +572,18 @@ namespace StatTag
         private void cboResultType_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateForTypeClick();
+        }
+
+        private void RefreshButtons()
+        {
+            var saveEnabled = !(string.IsNullOrWhiteSpace(txtName.Text));
+            cmdOK.Enabled = saveEnabled;
+            cmdSaveAndInsert.Enabled = saveEnabled && AllowInsertInDocument;
+        }
+
+        private void txtName_TextChanged(object sender, EventArgs e)
+        {
+            RefreshButtons();
         }
     }
 }
