@@ -124,8 +124,8 @@ namespace StatTag
             OverrideCenterToScreen();
             MinimumSize = Size;
 
-            cboResultType.Items.AddRange(Constants.TagType.GetList());
-            cboResultType.SelectedItem = Constants.TagType.Value;
+            cboResultType.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.TagType.GetList()));
+            cboResultType.SelectedItem = Constants.TagType.Verbatim;
             UpdateForTypeClick();
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
