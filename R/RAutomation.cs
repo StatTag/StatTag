@@ -47,8 +47,12 @@ namespace R
             //}
         }
 
+        
         public StatTag.Core.Models.CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
+
+            commands = Parser.CollapseMultiLineCommands(commands);
+
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             foreach (var command in commands)

@@ -149,6 +149,7 @@
     <Compile Include="Parser\ValueParameterParser.cs" />
     <Compile Include="Parser\VerbatimParameterParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CodeParserUtil.cs" />
     <Compile Include="Utility\GeneralUtil.cs" />
     <Compile Include="Utility\AnnotationUtil.cs" />
     <Compile Include="Utility\TableUtil.cs" />

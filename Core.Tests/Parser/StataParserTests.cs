@@ -8,7 +8,7 @@ using StatTag.Core.Parser;
 namespace Core.Tests.Parser
 {
     [TestClass]
-    public class StataTests
+    public class StataParserTests
     {
         [TestMethod]
         public void IsImageExport()
