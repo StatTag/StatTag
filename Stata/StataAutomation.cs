@@ -327,15 +327,30 @@ namespace Stata
         public Table GetTableResult(string command)
         {
             var matrixName = Parser.GetTableName(command);
-            var rowNames = (string[])Application.MatrixRowNames(matrixName);
-            var columnNames = Application.MatrixColNames(matrixName);
-            var rowCount = Application.MatrixRowDim(matrixName) + ((rowNames != null && rowNames.Length > 0) ? 1 : 0);
-            var columnCount = Application.MatrixColDim(matrixName) + ((columnNames != null && columnNames.Length > 0) ? 1 : 0);
-            var data = ProcessForMissingValues(Application.MatrixData(matrixName));
+            try
+            {
+                // If a matrix is not created (because of an error in naming in the code, or because the code may have
+                // failed to run), trying to access the API Matrix* functions will thrown an exception.  We need to catch
+                // that and provide a more informative error message.
+                var rowNames = (string[]) Application.MatrixRowNames(matrixName);
+                var columnNames = Application.MatrixColNames(matrixName);
+                var rowCount = Application.MatrixRowDim(matrixName) +
+                               ((rowNames != null && rowNames.Length > 0) ? 1 : 0);
+                var columnCount = Application.MatrixColDim(matrixName) +
+                                  ((columnNames != null && columnNames.Length > 0) ? 1 : 0);
+                var data = ProcessForMissingValues(Application.MatrixData(matrixName));
 
-            var arrayData = TableUtil.MergeTableVectorsToArray(rowNames, columnNames, data, rowCount, columnCount);
-            var table = new Table(rowCount, columnCount, arrayData);
-            return table;
+                var arrayData = TableUtil.MergeTableVectorsToArray(rowNames, columnNames, data, rowCount, columnCount);
+                var table = new Table(rowCount, columnCount, arrayData);
+                return table;
+            }
+            catch (Exception exc)
+            {
+                throw new Exception(
+                    string.Format(
+                        "There was an error accessing the matrix '{0}'.\r\n\r\nThis is most often caused when the Stata do file that generates the matrix fails to run in StatTag.  Please verify that your code runs from Stata itself, and if so report this to StatTag@northwestern.edu",
+                        matrixName), exc);
+            }
         }
 
         /// <summary>
