@@ -50,8 +50,16 @@ namespace R
         
         public StatTag.Core.Models.CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
-
-            commands = Parser.CollapseMultiLineCommands(commands);
+            // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
+            // the R engine at once.  Otherwise we have to worry about collapsing commands, function definitions, etc.
+            if (tag == null)
+            {
+                commands = new[] { string.Join("\r\n", commands) };
+            }
+            else
+            {
+                commands = Parser.CollapseMultiLineCommands(commands);
+            }
 
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
