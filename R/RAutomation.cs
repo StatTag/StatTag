@@ -31,8 +31,16 @@ namespace R
         {
             if (Engine == null)
             {
-                REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
-                Engine = REngine.GetInstance(null, true, null, VerbatimLog);
+                try
+                {
+                    REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
+                    Engine = REngine.GetInstance(null, true, null, VerbatimLog);
+                }
+                catch
+                {
+                    Engine = null;
+                    return false;
+                }
             }
 
             return (Engine != null);
