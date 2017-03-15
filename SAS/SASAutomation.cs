@@ -85,7 +85,9 @@ namespace SAS
                     {
                         result = new CommandResult();
                     }
-                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace('ƒ', '-');
+                    // SAS writes out some unicode character as a horizontal delimiter.  It looks awful.  We're going to take
+                    // the liberty of replacing it with a dash.
+                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace("\u0192", "-");
                     LogCacheEnabled = false;
                 }
 
