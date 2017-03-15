@@ -15,10 +15,6 @@ namespace SAS
     {
         private const string DisplayMacroValueCommand = "%PUT";
 
-        //private const string GetWorkDirectoryCommand = "proc options option=work; run;";
-        //private const string StartVerbatimCaptureCommand = "ods listing;";
-        //private const string StopVerbatimCaptureCommand = "ods listing close;";
-
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
         protected List<string> LogCache { get; set; }
@@ -73,12 +69,6 @@ namespace SAS
         public CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             var commandResults = new List<CommandResult>();
-
-            //if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagStart(commands.First()))
-            //{
-            //    commands = new [] { string.Join("\r\n", commands) };
-            //}
-
             foreach (var command in commands)
             {
                 if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagStart(command))
@@ -95,7 +85,7 @@ namespace SAS
                     {
                         result = new CommandResult();
                     }
-                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace('ƒ', '-');s
+                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace('ƒ', '-');
                     LogCacheEnabled = false;
                 }
 
@@ -128,29 +118,6 @@ namespace SAS
             return originalLocation;
         }
 
-        //private string GetWorkPath()
-        //{
-        //    // For reasons that elude me, the only way to get this properly initialized is to explicitly access the following
-        //    // enum values.  Otherwise, the call to GetOptions throws an exception, stating the enum cannot be loaded.
-        //    var dataType = SAS.OptionServiceDataType.OptionServiceDataTypeString;
-        //    var getError = SAS.OptionServiceGetError.OptionServiceGetErrorNone;
-
-        //    // We need to use the C# Array class here, not the usual primitive array ([]) types.  This is so the arrays can
-        //    // be passed appropriately to the underlying COM call.
-        //    var options = Array.CreateInstance(typeof(string), 1);
-        //    options.SetValue("work", 0);
-        //    var types = Array.CreateInstance(typeof(string), 1);
-        //    var isPortable = Array.CreateInstance(typeof(string), 1);
-        //    var isStartupOnly = Array.CreateInstance(typeof(string), 1);
-        //    var values = Array.CreateInstance(typeof(string), 1);
-        //    var errorIndices = Array.CreateInstance(typeof(string), 1);
-        //    var errorCodes = Array.CreateInstance(typeof(string), 1);
-        //    var errorMessages = Array.CreateInstance(typeof(string), 1);
-        //    var optionService = Server.Workspace.Utilities.OptionService;
-        //    optionService.GetOptions(ref options, out types, out isPortable, out isStartupOnly, out values, out errorIndices, out errorCodes, out errorMessages);
-        //    return values.OfType<string>().FirstOrDefault();
-        //}
-
         /// <summary>
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
@@ -178,24 +145,6 @@ namespace SAS
             // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
             // will dump out a bunch of extra output when we run, including blank Normal lines.
             var relevantLines = new List<string>();
-            //var lineTypes = lineTypeArray.OfType<LanguageServiceLineType>().ToArray();
-            //var logLines = logLineArray.OfType<string>().ToArray();
-            //for (int index = 0; index < lineTypes.Length; index++)
-            //{
-            //    var line = logLines[index];
-
-            //    if (LogCacheEnabled)
-            //    {
-            //        LogCache.Add(logLines[index]);
-            //    }
-
-            //    if (lineTypes[index] == LanguageServiceLineType.LanguageServiceLineTypeNormal
-            //        && !string.IsNullOrWhiteSpace(line))
-            //    {
-            //        relevantLines.Add(line);
-            //    }
-            //}
-
             do
             {
                 Server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
@@ -260,43 +209,6 @@ namespace SAS
 
             return null;
         }
-
-        ///// <summary>
-        ///// Collect the results of a job from the SAS server
-        ///// </summary>
-        //private void FetchResults()
-        //{
-        //    bool hasErrors = false, hasWarnings = false;
-
-        //    // when code is complete, update the log viewer
-        //    Array carriage, lineTypes, lines;
-        //    do
-        //    {
-        //        Server.Workspace.LanguageService.FlushLogLines(1000,
-        //            out carriage,
-        //            out lineTypes,
-        //            out lines);
-        //        for (int i = 0; i < lines.GetLength(0); i++)
-        //        {
-        //            SAS.LanguageServiceLineType pre =
-        //                (SAS.LanguageServiceLineType)lineTypes.GetValue(i);
-        //        }
-
-        //    }
-        //    while (lines != null && lines.Length > 0);
-
-        //    // and update the Listing viewer
-        //    do
-        //    {
-        //        Server.Workspace.LanguageService.FlushListLines(1000, out carriage, out lineTypes, out lines);
-        //        if (lines.GetLength(0) > 0)
-        //        {
-        //            int n = 1 + 2;
-        //        }
-        //    }
-        //    while (lines != null && lines.Length > 0);
-
-        //}
 
         public bool IsReturnable(string command)
         {
