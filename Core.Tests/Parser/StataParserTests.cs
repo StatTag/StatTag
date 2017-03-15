@@ -50,6 +50,10 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsMacroDisplayValue("  display   `x'   "));
             Assert.IsFalse(parser.IsMacroDisplayValue("display 'x'"));
             Assert.IsFalse(parser.IsMacroDisplayValue("display `'"));
+
+            // Global macro values
+            Assert.IsTrue(parser.IsMacroDisplayValue("  display   $x   "));
+            Assert.IsFalse(parser.IsMacroDisplayValue("display $ x"));
         }
 
         [TestMethod]
@@ -188,6 +192,15 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display(5*2+(7*8))"));
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5*2"));
             Assert.IsFalse(parser.IsCalculatedDisplayValue("display r[n]"));
+
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 00005"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5."));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 0.3059"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display .3059"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5e-10"));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("display 5test"));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("display 5,000"));
         }
 
         [TestMethod]

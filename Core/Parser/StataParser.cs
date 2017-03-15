@@ -14,7 +14,7 @@ namespace StatTag.Core.Parser
     /// </summary>
     public sealed class StataParser : BaseParser
     {
-        public static readonly char[] MacroDelimiters = {'`', '\''};
+        public static readonly char[] MacroDelimiters = {'`', '\'', '$'};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         public static readonly string[] ValueCommands = { "display", "dis", "di" };
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\b", string.Join("|", ValueCommands)));
@@ -44,7 +44,15 @@ namespace StatTag.Core.Parser
         /// <remarks>It assumes the rest of the display command has been extracted, 
         /// and only the value name remains.</remarks>
         /// </summary>
-        private static readonly Regex MacroValueRegex = new Regex("^\\s*`(.+)'");
+        private static readonly Regex MacroValueRegex = new Regex("^\\s*(?:`(.+)'|\\$([\\S]+))");
+
+        /// <summary>
+        /// Determine if a string represents a numeric constant.  Used when testing display
+        /// value results to determine appropriate processing.
+        /// <remarks>It assumes the rest of the display command has been extracted, 
+        /// and only the value name remains.</remarks>
+        /// </summary>
+        private static readonly Regex NumericConstantRegex = new Regex("^(\\d*)(\\.)?(\\d+)?(e-?(0|[1-9]\\d*))?$", RegexOptions.Multiline);
 
         public override string CommentCharacter
         {
@@ -176,7 +184,10 @@ namespace StatTag.Core.Parser
 
         public bool IsCalculatedDisplayValue(string command)
         {
-            return GetValueName(command).IndexOfAny(CalculationOperators) != -1;
+            var valueName = GetValueName(command);
+            return !string.IsNullOrWhiteSpace(valueName) &&
+                (valueName.IndexOfAny(CalculationOperators) != -1
+                || NumericConstantRegex.IsMatch(valueName));
         }
 
         /// <summary>
