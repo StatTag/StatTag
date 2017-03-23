@@ -11,10 +11,10 @@ namespace StatTag.Core.Parser
         private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", ValueCommand), RegexOptions.IgnoreCase);
         public const string FigureCommand = "ods pdf";
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         public const string TableCommand = "ods csv";
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
 
         public override string CommentCharacter
