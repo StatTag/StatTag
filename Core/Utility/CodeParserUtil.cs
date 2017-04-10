@@ -9,7 +9,7 @@ namespace StatTag.Core.Utility
 {
     public class CodeParserUtil
     {
-        private static readonly Regex TrailingLineComment = new Regex("(?<!\\*)\\/\\/[^\\r\\n]*");
+        private static readonly Regex TrailingLineComment = new Regex("(?<![\\*\"'])\\/\\/[^\\r\\n]*");
 
         /// <summary>
         /// Takes trailing comments and strips them from the input string.  This accounts for newlines so that

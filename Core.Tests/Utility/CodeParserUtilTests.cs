@@ -23,6 +23,10 @@ namespace Core.Tests.Utility
             test = "First line //    blah\r\nSecond line // blah \r\nThird line //blah";
             result = CodeParserUtil.StripTrailingComments(test);
             Assert.AreEqual("First line \r\nSecond line \r\nThird line ", result);
+
+            test = "First line //    blah\r\nsome_cmd(\"//unc/path\") // blah \r\nThird line //blah";
+            result = CodeParserUtil.StripTrailingComments(test);
+            Assert.AreEqual("First line \r\nsome_cmd(\"//unc/path\") \r\nThird line ", result);
         }
     }
 }
