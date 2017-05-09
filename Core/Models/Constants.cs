@@ -14,7 +14,7 @@ namespace StatTag.Core.Models
             {
                 return new[]
                 {
-                    Stata, R, SAS
+                    Stata, SAS, R
                 };
             }
         }
@@ -38,6 +38,15 @@ namespace StatTag.Core.Models
             public const string Value = "Value";
             public const string Figure = "Figure";
             public const string Table = "Table";
+            public const string Verbatim = "Verbatim";
+            
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    Value, Figure, Table, Verbatim
+                };
+            }
         }
 
         public static class ValueFormatType
@@ -69,13 +78,9 @@ namespace StatTag.Core.Models
 
             public static string FormatForOpenFileDialog()
             {
-                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-                    SupportedLabel, string.Join(";", new string[] { StataFilter, SASFilter}),
-                    StataLabel, StataFilter, SASLabel, SASFilter, AllLabel, AllFilter);
-
-                //TODO: Add R
-                //return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-                //    StataLabel, StataFilter, RLabel, RFilter, SASLabel, SASFilter, AllLabel, AllFilter);
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}",
+                    SupportedLabel, string.Join(";", new string[] { StataFilter, SASFilter, RFilter }),
+                    StataLabel, StataFilter, SASLabel, SASFilter, RLabel, RFilter, AllLabel, AllFilter);
             }
         }
 
@@ -146,7 +151,7 @@ namespace StatTag.Core.Models
         {
             public const string Stata = "*";
             public const string SAS = "*";
-            //public const string R = "*";
+            public const string R = "#";
         }
 
         public static class CodeFileCommentSuffix
@@ -181,12 +186,28 @@ namespace StatTag.Core.Models
         {
             public const string MMDDYYYY = "MM/dd/yyyy";
             public const string MonthDDYYYY = "MMMM dd, yyyy";
+
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    MMDDYYYY, MonthDDYYYY
+                };
+            }
         }
 
         public static class TimeFormats
         {
             public const string HHMM = "HH:mm";
             public const string HHMMSS = "HH:mm:ss";
+
+            public static string[] GetList()
+            {
+                return new[]
+                {
+                    HHMM, HHMMSS
+                };
+            }
         }
 
         public static class DimensionIndex

@@ -70,6 +70,40 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods\r\npdf\r\nfile\r\n=\"test.pdf\"\r\n;"));
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\" test.pdf \";")); // Trims the response
             Assert.AreEqual("", parser.GetImageSaveLocation("ods pdfd file = \"test.pdf\";"));
+
+            // Testing to ensure single-quotes work as well as double-quotes
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file='test.pdf';"));
+
+            // Our regex is kind of dumb... this will pass, but it is invalid in SAS
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file='test.pdf\";"));
+            Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\"test.pdf';"));
+        }
+
+        [TestMethod]
+        public void GetTableName()
+        {
+            var parser = new SASParser();
+            Assert.AreEqual("", parser.GetTableName("ods csv file=\"\";"));
+            Assert.AreEqual("", parser.GetTableName("ods csv file=\"test.csv\"")); // It won't match because there is no semicolon
+            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file = \"test.csv\";"));
+            Assert.AreEqual("", parser.GetTableName("ods csv file=test.csv;")); // It won't match because there are no quotes
+            Assert.AreEqual("test.csv", parser.GetTableName("   ods    csv    file   =   \"test.csv\" ;"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ods csv\r\n   file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ods\r\ncsv\r\nfile\r\n=\"test.csv\"\r\n;"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\" test.csv \";")); // Trims the response
+            Assert.AreEqual("", parser.GetTableName("ods csvd file = \"test.csv\";"));
+
+            // Testing to ensure single-quotes work as well as double-quotes
+            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv';"));
+
+            // Our regex is kind of dumb... this will pass, but it is invalid in SAS
+            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv';"));
+
+            // Case shouldn't matter
+            Assert.AreEqual("TEST.CSV", parser.GetTableName("ODS CSV FILE=\"TEST.CSV\";"));
         }
 
         [TestMethod]

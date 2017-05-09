@@ -39,7 +39,7 @@
             this.nudDecimalPlaces.Location = new System.Drawing.Point(107, 4);
             this.nudDecimalPlaces.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.nudDecimalPlaces.Name = "nudDecimalPlaces";
-            this.nudDecimalPlaces.Size = new System.Drawing.Size(50, 25);
+            this.nudDecimalPlaces.Size = new System.Drawing.Size(73, 25);
             this.nudDecimalPlaces.TabIndex = 0;
             this.nudDecimalPlaces.Value = new decimal(new int[] {
             2,
@@ -60,17 +60,16 @@
             // chkThousandSeparator
             // 
             this.chkThousandSeparator.AutoSize = true;
-            this.chkThousandSeparator.Location = new System.Drawing.Point(6, 39);
+            this.chkThousandSeparator.Location = new System.Drawing.Point(6, 36);
             this.chkThousandSeparator.Name = "chkThousandSeparator";
-            this.chkThousandSeparator.Size = new System.Drawing.Size(157, 21);
+            this.chkThousandSeparator.Size = new System.Drawing.Size(174, 21);
             this.chkThousandSeparator.TabIndex = 2;
-            this.chkThousandSeparator.Text = "Use 1000 separator (,)";
+            this.chkThousandSeparator.Text = "Use thousands separator";
             this.chkThousandSeparator.UseVisualStyleBackColor = true;
             this.chkThousandSeparator.CheckedChanged += new System.EventHandler(this.chkThousandSeparator_CheckedChanged);
             // 
             // NumericValueProperties
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.chkThousandSeparator);
             this.Controls.Add(this.label1);
@@ -78,7 +77,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "NumericValueProperties";
-            this.Size = new System.Drawing.Size(234, 73);
+            this.Size = new System.Drawing.Size(188, 63);
             this.Load += new System.EventHandler(this.NumericValueProperties_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nudDecimalPlaces)).EndInit();
             this.ResumeLayout(false);

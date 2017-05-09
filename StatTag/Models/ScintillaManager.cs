@@ -151,10 +151,22 @@ namespace StatTag.Models
             scintilla.Styles[Style.R.Default].ForeColor = Color.Black;
             scintilla.Styles[Style.R.Comment].ForeColor = Color.FromArgb(0x00, 0x7F, 0x00);
             scintilla.Styles[Style.R.Comment].Italic = true;
-            scintilla.Styles[Style.R.Number].ForeColor = Color.FromArgb(0x00, 0x7F, 0x7F);
-            scintilla.Styles[Style.R.String].ForeColor = Color.FromArgb(0x7F, 0x00, 0x7F);
+            scintilla.Styles[Style.R.Number].ForeColor = Color.Black;
+            scintilla.Styles[Style.R.String].ForeColor = Color.FromArgb(0xA3, 0x15, 0x15);
             scintilla.Styles[Style.R.Operator].Bold = true;
-            scintilla.Styles[Style.R.KWord].ForeColor = Color.FromArgb(0x00, 0x7F, 0x7F);
+            scintilla.Styles[Style.R.KWord].ForeColor = Color.FromArgb(0x00, 0x00, 0x7F);
+            scintilla.Styles[Style.R.BaseKWord].ForeColor = Color.FromArgb(0x00, 0x00, 0x7F);
+            scintilla.Styles[Style.R.OtherKWord].ForeColor = Color.FromArgb(0x00, 0x00, 0x7F);
+
+            var keywords = @"commandArgs detach length dev.off stop lm library predict lmer 
+           plot print display anova read.table read.csv complete.cases dim attach as.numeric seq max 
+           min data.frame lines curve as.integer levels nlevels ceiling sqrt ranef order
+           AIC summary str head png tryCatch par mfrow interaction.plot qqnorm qqline";
+
+            var keywords2 = @"TRUE FALSE if else for while in break continue function library require source";
+
+            scintilla.SetKeywords(0, keywords);
+            scintilla.SetKeywords(1, keywords2);
 
             scintilla.ViewWhitespace = WhitespaceMode.Invisible;
         }

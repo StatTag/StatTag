@@ -8,7 +8,7 @@ using StatTag.Core.Parser;
 namespace Core.Tests.Parser
 {
     [TestClass]
-    public class StataTests
+    public class StataParserTests
     {
         [TestMethod]
         public void IsImageExport()
@@ -50,6 +50,10 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsMacroDisplayValue("  display   `x'   "));
             Assert.IsFalse(parser.IsMacroDisplayValue("display 'x'"));
             Assert.IsFalse(parser.IsMacroDisplayValue("display `'"));
+
+            // Global macro values
+            Assert.IsTrue(parser.IsMacroDisplayValue("  display   $x   "));
+            Assert.IsFalse(parser.IsMacroDisplayValue("display $ x"));
         }
 
         [TestMethod]
@@ -119,6 +123,29 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void GetLogFile()
+        {
+            var parser = new StataParser();
+            Assert.IsNull(parser.GetLogFile("*log using tmp.txt"));
+            Assert.IsNull(parser.GetLogFile("*cmdlog using tmp.txt"));
+            Assert.IsNull(parser.GetLogFile("  *  log using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("  *  cmdlog using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("l og using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("logs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("cmdlogs using tmp.txt  "));
+            Assert.IsNull(parser.GetLogFile("cmd log using tmp.txt  "));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile("log using tmp.txt"));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile(" log   using   tmp.txt   "));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile("cmdlog using tmp.txt"));
+            ValidateFoundLogs(new[] { "tmp.txt" }, parser.GetLogFile(" cmdlog   using   tmp.txt   "));
+            ValidateFoundLogs(new[] { "log using 2.txt" }, parser.GetLogFile("log   using   log using 2.txt   "));
+            ValidateFoundLogs(new[] { "log.txt", "cmdlog.txt" }, parser.GetLogFile("log using log.txt\r\ncmdlog using cmdlog.txt"));
+            ValidateFoundLogs(new[] { "log.txt", "cmdlog.txt" }, parser.GetLogFile("cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log.txt" }, parser.GetLogFile("*cmdlog using cmdlog.txt\r\nlog using log.txt"));
+            ValidateFoundLogs(new[] { "log.txt", "log2.txt" }, parser.GetLogFile("log using log.txt\r\nlog using log2.txt"));
+        }
+
+        [TestMethod]
         public void GetImageSaveLocation()
         {
             var parser = new StataParser();
@@ -165,6 +192,15 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display(5*2+(7*8))"));
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5*2"));
             Assert.IsFalse(parser.IsCalculatedDisplayValue("display r[n]"));
+
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 00005"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5."));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 0.3059"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display .3059"));
+            Assert.IsTrue(parser.IsCalculatedDisplayValue("display 5e-10"));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("display 5test"));
+            Assert.IsFalse(parser.IsCalculatedDisplayValue("display 5,000"));
         }
 
         [TestMethod]
@@ -242,7 +278,7 @@ namespace Core.Tests.Parser
                 "*/Third line"
             });
             Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line\r\nSecond line  Third line", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line\r\nSecond line Third line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
 
             testList = new List<string>(new string[]
@@ -252,8 +288,9 @@ namespace Core.Tests.Parser
                 "Third line */"
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
+            // This tests nested comments
             testList = new List<string>(new string[]
             {
                 "First line /*",
@@ -262,9 +299,107 @@ namespace Core.Tests.Parser
                 "Fourth line */"
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line  ", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // This was in response to an issue reported by a user.  The code file had multiple comments in it, and our regex
+            // was being too greedy and pulling extra code out (until it found the last closing comment indicator)
+            testList = new List<string>(new string[]
+            {
+                "/*First line*/",
+                "Second line",
+                "/*Third line*/",
+                "Fourth line"
+            });
+            Assert.AreEqual(3, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("Second line\r\n\r\nFourth line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/*First line*/",
+                "/*Second line*/ /*More on the same line*/",
+                "/*Third line*/",
+                "Fourth line"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("Fourth line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // This is to test unbalanced comments (missing whitespace near the end so it is treated like
+            // an unending comment.
+            testList = new List<string>(new string[]
+            {
+                "/*First line",
+                "/*Second line*//*More on the same line*/",
+                "/*Third line",
+                "Fourth line*/*/"
+            });
+            Assert.AreEqual(4, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("/*First line\r\n/*Second line*//*More on the same line*/\r\n/*Third line\r\nFourth line*/*/", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/*First line",
+                "/*Second line*/ /*More on the same line*/",
+                "/*Third line",
+                "Fourth line*/ */"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "/**/First line"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "First line/**/"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
 
+        [TestMethod]
+        public void PreProcessContent_TrailingLineComment()
+        {
+            var parser = new StataParser();
+            var testList = new List<string>(new string[]
+            {
+                "First line  // comment",
+                "Second line",
+                "//Third line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line  \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "First line //*Test*/",
+                "Second line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("First line \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            testList = new List<string>(new string[]
+            {
+                "* //First line",
+                "Second line"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("* \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // When we have trailing line comments within comment blocks, we want to make sure at the end of the day
+            // that it's not causing any problems (it shouldn't be).
+            testList = new List<string>(new string[]
+            {
+                "/*",
+                "display 2 // Comment on second line",
+                "*/"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("", string.Join("\r\n", parser.PreProcessContent(testList)));
+        }
 
         [TestMethod]
         public void GetMacros()

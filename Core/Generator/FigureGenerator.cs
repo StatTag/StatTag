@@ -11,7 +11,7 @@ namespace StatTag.Core.Generator
     {
         public string CreateParameters(Tag tag)
         {
-            // Putting in StringBuilder, assumin more params will be added
+            // Putting in StringBuilder, assuming more params will be added
             var builder = new StringBuilder();
             builder.Append(GetLabelParameter(tag));
             builder.Append(GetRunFrequencyParameter(tag));

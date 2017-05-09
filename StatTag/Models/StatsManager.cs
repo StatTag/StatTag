@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Word;
+using R;
 using SAS;
 using StatTag.Core;
 using StatTag.Core.Models;
@@ -62,6 +64,8 @@ namespace StatTag.Models
                         return new StataAutomation();
                     case Constants.StatisticalPackages.SAS:
                         return new SASAutomation();
+                    case Constants.StatisticalPackages.R:
+                        return new RAutomation();
                 }
             }
 
@@ -136,7 +140,7 @@ namespace StatTag.Models
                         }
 
 
-                        var results = automation.RunCommands(step.Code.ToArray());
+                        var results = automation.RunCommands(step.Code.ToArray(), step.Tag);
 
                         var tag = Manager.FindTag(step.Tag.Id);
                         if (tag != null)
@@ -144,8 +148,10 @@ namespace StatTag.Models
                             var resultList = new List<CommandResult>(results);
 
                             // Determine if we had a cached list, and if so if the results have changed.
-                            bool resultsChanged = (tag.CachedResult != null &&
-                                                   !resultList.SequenceEqual(tag.CachedResult));
+                            // If the cached list is null, we will always try to refresh.
+                            bool resultsChanged = (tag.CachedResult == null) ||
+                                                    (tag.CachedResult != null &&
+                                                       !resultList.SequenceEqual(tag.CachedResult));
                             tag.CachedResult = resultList;
 
                             // If the results did change, we need to sweep the document and update all of the results
@@ -170,6 +176,11 @@ namespace StatTag.Models
                 }
                 catch (Exception exc)
                 {
+                    if (Manager != null && Manager.Logger != null)
+                    {
+                        Manager.Logger.WriteException(exc);
+                    }
+
                     MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return result;
                 }

@@ -24,7 +24,7 @@ namespace StatTag
         public ManageTags(DocumentManager manager)
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             Manager = manager;
             UIUtility.SetDialogTitle(this);

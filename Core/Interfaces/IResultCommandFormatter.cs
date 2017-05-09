@@ -11,5 +11,6 @@ namespace StatTag.Core.Interfaces
         IResultCommandList ValueResultCommands();
         IResultCommandList FigureResultCommands();
         IResultCommandList TableResultCommands();
+        IResultCommandList VerbatimResultCommands();
     }
 }

@@ -200,7 +200,7 @@ namespace StatTag
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
-                    "There was an unexpected error when tring to update values in your document.",
+                    "There was an unexpected error when trying to update values in your document.",
                     LogManager);
             }
             finally

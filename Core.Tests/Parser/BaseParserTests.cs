@@ -342,5 +342,41 @@ namespace Core.Tests.Parser
             Assert.IsNotNull(results[1].Tag);
             Assert.AreEqual("Test1", results[1].Tag.Name);
         }
+
+        [TestMethod]
+        public void IsTagStart()
+        {
+            var parser = new StubParser();
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
+            {
+                "**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "declare value",
+                "**<<<",
+            }));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            Assert.IsTrue(parser.IsTagStart(mock.Object.Content[0]));
+            Assert.IsFalse(parser.IsTagStart(mock.Object.Content[1]));
+            Assert.IsFalse(parser.IsTagStart(mock.Object.Content[2]));
+        }
+
+        [TestMethod]
+        public void IsTagEnd()
+        {
+            var parser = new StubParser();
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
+            {
+                "**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",
+                "declare value",
+                "**<<<",
+            }));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[0]));
+            Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[1]));
+            Assert.IsTrue(parser.IsTagEnd(mock.Object.Content[2]));
+        }
     }
 }

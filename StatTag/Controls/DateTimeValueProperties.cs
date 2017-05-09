@@ -16,7 +16,6 @@ namespace StatTag.Controls
         public DateTimeValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public string DateFormat { get; set; }
@@ -36,37 +35,22 @@ namespace StatTag.Controls
 
         private void DateTimeValueProperties_Load(object sender, EventArgs e)
         {
-            var dateFormats = new Dictionary<string, string>
-            {
-                { "", "" },
-                { "03/14/2001", Constants.DateFormats.MMDDYYYY },
-                { "March 14, 2001", Constants.DateFormats.MonthDDYYYY },
-            };
-            cboDate.DataSource = new BindingSource(dateFormats, null);
-            cboDate.DisplayMember = "Key";
-            cboDate.ValueMember = "Value";
-
-            var timeFormats = new Dictionary<string, string>
-            {
-                {"", ""},
-                {"19:30", Constants.TimeFormats.HHMM},
-                {"19:30:50", Constants.TimeFormats.HHMMSS}
-            };
-            cboTime.DataSource = new BindingSource(dateFormats, null);
-            cboTime.DisplayMember = "Key";
-            cboTime.ValueMember = "Value";
+            cboDate.Items.AddRange(Constants.DateFormats.GetList());
+            cboDate.SelectedIndex = 0;
+            cboTime.Items.AddRange(Constants.TimeFormats.GetList());
+            cboTime.SelectedIndex = 0;
 
             UpdateValues();
         }
 
         private void UpdateDate()
         {
-            DateFormat = (cboDate.Enabled ? cboDate.SelectedValue as string : string.Empty);
+            DateFormat = (cboDate.Enabled ? cboDate.SelectedItem as string : string.Empty);
         }
 
         private void UpdateTime()
         {
-            TimeFormat = (cboTime.Enabled ? cboTime.SelectedValue as string : string.Empty);
+            TimeFormat = (cboTime.Enabled ? cboTime.SelectedItem as string : string.Empty);
         }
 
         private void cboDate_SelectedIndexChanged(object sender, EventArgs e)
@@ -83,13 +67,13 @@ namespace StatTag.Controls
         {
             if (!string.IsNullOrWhiteSpace(DateFormat))
             {
-                cboDate.SelectedValue = DateFormat;
+                cboDate.SelectedItem = DateFormat;
                 chkShowDate.Checked = true;
             }
 
             if (!string.IsNullOrWhiteSpace(TimeFormat))
             {
-                cboTime.SelectedValue = TimeFormat;
+                cboTime.SelectedItem = TimeFormat;
                 chkShowTime.Checked = true;
             }
         }

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -268,21 +269,21 @@ namespace StatTag.Core.Generator
         public static string GenerateField(Range range, string tagIdentifier, string displayValue, string data)
         {
             var result = string.Format(
-                @"<w:p xmlns:w=""http://schemas.microsoft.com/office/word/2003/wordml"">
-                    <w:r>
-                        <w:rPr>
-                            {4}
-                        </w:rPr>
-                        <w:fldChar w:fldCharType=""begin"" />
-                        <w:instrText xml:space=""preserve""> MacroButton {0} {1}</w:instrText>
-                        <w:fldChar w:fldCharType=""begin"">
-                            <w:fldData xml:space=""preserve"">{3}</w:fldData>
-                        </w:fldChar>
-                        <w:instrText xml:space=""preserve""> ADDIN {2}</w:instrText>
-                        <w:fldChar w:fldCharType=""end"" />
-                        <w:fldChar w:fldCharType=""end"" />
-                    </w:r>
-                </w:p>", Constants.FieldDetails.MacroButtonName, displayValue, tagIdentifier, Base64EncodeFieldData(data), GetFormat(range));
+                "<w:p xmlns:w=\"http://schemas.microsoft.com/office/word/2003/wordml\">\r\n" +
+                "    <w:r>\r\n" +
+                "        <w:rPr>\r\n" +
+                "            {4}\r\n" +
+                "        </w:rPr>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\" />\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> MacroButton {0} {1}</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"begin\">\r\n" +
+                "            <w:fldData xml:space=\"preserve\">{3}</w:fldData>\r\n" +
+                "        </w:fldChar>\r\n" +
+                "        <w:instrText xml:space=\"preserve\"> ADDIN {2}</w:instrText>\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "        <w:fldChar w:fldCharType=\"end\" />\r\n" +
+                "    </w:r>\r\n" +
+                "</w:p>", Constants.FieldDetails.MacroButtonName, SecurityElement.Escape(displayValue), tagIdentifier, Base64EncodeFieldData(data), GetFormat(range));
             return result;
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
@@ -16,6 +17,8 @@ namespace SAS
 
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
+        protected List<string> LogCache { get; set; }
+        protected bool LogCacheEnabled { get; set; }
 
         public SASAutomation()
         {
@@ -24,7 +27,7 @@ namespace SAS
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with SAS.  SAS may not be fully installed, or be missing some of the automation pieces that StatTag requires.";
+            return "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
         }
 
         public void Dispose()
@@ -63,12 +66,31 @@ namespace SAS
             }
         }
 
-        public CommandResult[] RunCommands(string[] commands)
+        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             var commandResults = new List<CommandResult>();
             foreach (var command in commands)
             {
-                var result = RunCommand(command);
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagStart(command))
+                {
+                    LogCache = new List<string>();
+                    LogCacheEnabled = true;
+                }
+
+                var result = RunCommand(command, tag);
+
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagEnd(command))
+                {
+                    if (result == null)
+                    {
+                        result = new CommandResult();
+                    }
+                    // SAS writes out some unicode character as a horizontal delimiter.  It looks awful.  We're going to take
+                    // the liberty of replacing it with a dash.
+                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace("\u0192", "-");
+                    LogCacheEnabled = false;
+                }
+
                 if (result != null && !result.IsEmpty())
                 {
                     commandResults.Add(result);
@@ -102,8 +124,9 @@ namespace SAS
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
+        /// <param name="tag">The tag associated with the command (if applicable)</param>
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
-        public CommandResult RunCommand(string command)
+        public CommandResult RunCommand(string command, Tag tag = null)
         {
             Array carriageControls;
             Array lineTypeArray;
@@ -114,26 +137,60 @@ namespace SAS
             // These calls need to be made because they cause SAS to initialize internal structures that
             // are used when FlushLogLines is called.  Even though we're not really doing anything with these
             // values, don't remove these calls.
-            SAS.LanguageServiceCarriageControl carriageControl = new SAS.LanguageServiceCarriageControl();
-            SAS.LanguageServiceLineType lineType = new SAS.LanguageServiceLineType();
+            SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+            SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
 
-            Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
-                out logLineArray);
+            //Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
+            //    out logLineArray);
 
             // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
             // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
             // will dump out a bunch of extra output when we run, including blank Normal lines.
             var relevantLines = new List<string>();
-            var lineTypes = lineTypeArray.OfType<LanguageServiceLineType>().ToArray();
-            var logLines = logLineArray.OfType<string>().ToArray();
-            for (int index = 0; index < lineTypes.Length; index++)
+            do
             {
-                var line = logLines[index];
-                if (lineTypes[index] == LanguageServiceLineType.LanguageServiceLineTypeNormal
-                    && !string.IsNullOrWhiteSpace(line))
+                Server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                for (int index = 0; index < logLineArray.GetLength(0); index++)
                 {
-                    relevantLines.Add(line);
+                    var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                    var line = (string)logLineArray.GetValue(index);
+                    if (lineType == LanguageServiceLineType.LanguageServiceLineTypeNormal
+                        && !string.IsNullOrWhiteSpace(line))
+                    {
+                        relevantLines.Add(line);
+                    }
                 }
+
+            }
+            while (logLineArray != null && logLineArray.Length > 0);
+
+            // Process the listing, even if we aren't going to use the output (it's only relevant when collecting
+            // verbatim results).  This way we know that it's appropriately flushed when it comes time to use it for
+            // verbatim tags.
+            do
+            {
+                Server.Workspace.LanguageService.FlushListLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                if (LogCacheEnabled)
+                {
+                    for (int index = 0; index < logLineArray.GetLength(0); index++)
+                    {
+                        var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                        var line = (string)logLineArray.GetValue(index);
+                        // For verbatim we skip titles, but leave everything else.
+                        if (lineType != LanguageServiceLineType.LanguageServiceLineTypeTitle)
+                        {
+                            LogCache.Add(line);
+                        }
+                    }                    
+                }
+            }
+            while (logLineArray != null && logLineArray.Length > 0);
+
+            // If we're doing verbatim output, don't bother continuing down and trying
+            // to otherwise process the commands.
+            if (tag != null && tag.Type == Constants.TagType.Verbatim)
+            {
+                return null;
             }
 
             if (Parser.IsValueDisplay(command))

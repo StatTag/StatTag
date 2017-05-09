@@ -59,7 +59,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.label4);
@@ -68,17 +69,17 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(15, 137);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(704, 282);
+            this.groupBox1.Size = new System.Drawing.Size(704, 297);
             this.groupBox1.TabIndex = 15;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Acknowledgements";
             // 
             // label5
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(10, 243);
+            this.label5.Location = new System.Drawing.Point(10, 258);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(687, 34);
             this.label5.TabIndex = 4;
@@ -88,15 +89,15 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(23, 176);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(320, 60);
+            this.label4.Size = new System.Drawing.Size(320, 75);
             this.label4.TabIndex = 3;
-            this.label4.Text = "Scintilla - http://www.scintilla.org/\r\nScintillaNET - https://github.com/jacobslu" +
-    "sser/ScintillaNET\r\nJson.NET - http://www.newtonsoft.com/json\r\nSASHarness - https" +
-    "://github.com/cjdinger/SasHarness";
+            this.label4.Text = resources.GetString("label4.Text");
             // 
             // label3
             // 
@@ -164,7 +165,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(321, 445);
+            this.cmdOK.Location = new System.Drawing.Point(321, 460);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
             this.cmdOK.TabIndex = 19;
@@ -177,7 +178,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdOK;
             this.CausesValidation = false;
-            this.ClientSize = new System.Drawing.Size(728, 478);
+            this.ClientSize = new System.Drawing.Size(728, 493);
             this.Controls.Add(textBox1);
             this.Controls.Add(this.cmdOK);
             this.Controls.Add(this.label6);
@@ -194,7 +195,6 @@
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

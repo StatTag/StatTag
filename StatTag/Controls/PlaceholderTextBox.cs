@@ -44,7 +44,6 @@ namespace StatTag.Controls
         public PlaceholderTextBox()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
             textBox.Text = PlaceholderText;
             IsPlaceholderShown = true;
         }

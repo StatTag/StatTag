@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
+using StatTag.Core.Parser;
 
 namespace SAS
 {
@@ -11,31 +12,33 @@ namespace SAS
     {
         public class ValueCommands : IResultCommandList
         {
-            public const string Display = "%put";
-
             public string[] GetCommands()
             {
-                return new[] { Display };
+                return new[] { SASParser.ValueCommand };
             }
         }
 
         public class FigureCommands : IResultCommandList
         {
-            public const string GraphExport = "ODS PDF";
-
             public string[] GetCommands()
             {
-                return new[] { GraphExport };
+                return new[] { SASParser.FigureCommand.ToUpper() };
             }
         }
 
         public class TableCommands : IResultCommandList
         {
-            public const string MatrixList = "ODS CSV";
-
             public string[] GetCommands()
             {
-                return new[] { MatrixList };
+                return new[] { SASParser.TableCommand.ToUpper() };
+            }
+        }
+
+        public class VerbatimCommands : IResultCommandList
+        {
+            public string[] GetCommands()
+            {
+                return new[] { "(Any command)" };
             }
         }
 
@@ -52,6 +55,11 @@ namespace SAS
         public IResultCommandList TableResultCommands()
         {
             return new TableCommands();
+        }
+
+        public IResultCommandList VerbatimResultCommands()
+        {
+            return new VerbatimCommands();
         }
     }
 }

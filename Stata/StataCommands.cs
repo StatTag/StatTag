@@ -1,41 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
+using StatTag.Core.Parser;
 
 namespace Stata
 {
     public class StataCommands : IResultCommandFormatter
     {
+        private static string CleanUpRegex(string value)
+        {
+            return value.Replace("(?:", "[").Replace(")?", "]");
+        }
+
         public class ValueCommands : IResultCommandList
         {
-            public const string Display = "display";
-
             public string[] GetCommands()
             {
-                return new [] { Display };
+                return StataParser.ValueCommands;
             }
         }
 
         public class FigureCommands : IResultCommandList
         {
-            public const string GraphExport = "graph export";
-
             public string[] GetCommands()
             {
-                return new[] { GraphExport };
+                return new[] { CleanUpRegex(StataParser.GraphCommand) };
             }
         }
 
         public class TableCommands : IResultCommandList
         {
-            public const string MatrixList = "matrix list";
-
             public string[] GetCommands()
             {
-                return new[] { MatrixList };
+                return new[] { CleanUpRegex(StataParser.TableCommand) };
+            }
+        }
+
+        public class VerbatimCommands : IResultCommandList
+        {
+            public string[] GetCommands()
+            {
+                return new[] { "(Any command)" };
             }
         }
 
@@ -52,6 +61,11 @@ namespace Stata
         public IResultCommandList TableResultCommands()
         {
             return new TableCommands();
+        }
+
+        public IResultCommandList VerbatimResultCommands()
+        {
+            return new VerbatimCommands();
         }
     }
 }

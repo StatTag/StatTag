@@ -233,6 +233,8 @@ namespace Core.Tests.Models
         {
             Assert.IsTrue(new Tag() { Type = Constants.TagType.Table }.IsTableTag());
             Assert.IsFalse(new Tag() { Type = Constants.TagType.Value }.IsTableTag());
+            Assert.IsFalse(new Tag() { Type = Constants.TagType.Verbatim }.IsTableTag());
+            Assert.IsFalse(new Tag() { Type = Constants.TagType.Figure }.IsTableTag());
             Assert.IsFalse(new Tag() { Type = string.Empty }.IsTableTag());
         }
 
@@ -376,8 +378,8 @@ namespace Core.Tests.Models
 
             format = new TableFormat()
             {
-                RowFilter = new FilterFormat(Constants.FilterPrefix.Column) { Enabled = false },
-                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Row)
+                RowFilter = new FilterFormat(Constants.FilterPrefix.Row) { Enabled = false },
+                ColumnFilter = new FilterFormat(Constants.FilterPrefix.Column)
                 {
                     Enabled = true,
                     Type = Constants.FilterType.Exclude,

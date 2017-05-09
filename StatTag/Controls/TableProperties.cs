@@ -16,7 +16,6 @@ namespace StatTag.Controls
         public TableProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public void SetTableFormat(TableFormat tableFormat)
@@ -51,9 +50,7 @@ namespace StatTag.Controls
 
         public void SetValueFormat(ValueFormat valueFormat)
         {
-            numericValueProperties.UseThousands = valueFormat.UseThousands;
-            numericValueProperties.DecimalPlaces = valueFormat.DecimalPlaces;
-            numericValueProperties.UpdateValues();
+            valueProperties1.SetValueFormat(valueFormat);
         }
 
         public TableFormat GetTableFormat()
@@ -77,15 +74,11 @@ namespace StatTag.Controls
 
         public ValueFormat GetValueFormat()
         {
-            return new ValueFormat()
-            {
-                FormatType = Constants.ValueFormatType.Numeric,
-                UseThousands = numericValueProperties.UseThousands,
-                DecimalPlaces = numericValueProperties.DecimalPlaces,
-                // Tables will have rows and columns, and so we will allow non-numeric types to flow
-                // through when inserting results into the document.
-                AllowInvalidTypes = true
-            };
+            var valueFormat = valueProperties1.GetValueFormat();
+            // Tables will have rows and columns, and so we will allow non-numeric types to flow
+            // through when inserting results into the document.
+            valueFormat.AllowInvalidTypes = true;
+            return valueFormat;
         }
 
         private void chkExcludeRows_CheckedChanged(object sender, EventArgs e)

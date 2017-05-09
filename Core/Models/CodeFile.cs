@@ -15,6 +15,7 @@ namespace StatTag.Core.Models
     /// </summary>
     public class CodeFile
     {
+        [JsonIgnore]  // Even though this is private, we want to ensure it never gets serialized
         private List<string> ContentCache = null;
 
         public string StatisticalPackage { get; set; }

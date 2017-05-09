@@ -5,8 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
+using Microsoft.Office.Core;
 using StatTag.Core;
+using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 using StatTag.Core.Utility;
@@ -317,6 +321,57 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Processes all content controls within the document, which may include verbatim output.
+        /// Handles renaming of tags as well, if applicable.
+        /// </summary>
+        /// <param name="document">The current document to process</param>
+        /// <param name="tagUpdatePair"></param>
+        private void UpdateVerbatimEntries(Document document, UpdatePair<Tag> tagUpdatePair = null)
+        {
+            var shapes = document.Shapes;
+            if (shapes == null)
+            {
+                return;
+            }
+
+            int shapeCount = shapes.Count;
+            for (int index = 1; index <= shapeCount; index++)
+            {
+                var shape = shapes[index];
+                if (shape != null)
+                {
+                    if (TagManager.IsStatTagShape(shape))
+                    {
+                        var tag = TagManager.FindTag(shape.Name);
+                        if (tag == null)
+                        {
+                            Log(string.Format("No tag was found for the control with ID: {0}", shape.Name));
+                            continue;
+                        }
+
+                        if (tag.Type != Constants.TagType.Verbatim)
+                        {
+                            Log(string.Format("The tag ({0}) was inserted as verbatim but is now a different type.  We are unable to update it.", tag.Id));
+                        }
+
+                        // If the tag update pair is set, it will be in response to renaming.  Make sure
+                        // we apply the new tag name to the control
+                        if (tagUpdatePair != null && tagUpdatePair.Old.Equals(tag))
+                        {
+                            shape.Name = tagUpdatePair.New.Id;
+                        }
+
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult;
+                    }
+                    Marshal.ReleaseComObject(shape);
+                }
+            }
+
+            Marshal.ReleaseComObject(shapes);
+        }
+
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -338,7 +393,7 @@ namespace StatTag.Models
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
-                if (tableDimensionChange)
+                if (tableDimensionChange && tagUpdatePair != null)
                 {
                     Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
                     if (RefreshTableTagFields(tagUpdatePair.New, document))
@@ -349,6 +404,8 @@ namespace StatTag.Models
                 }
 
                 UpdateInlineShapes(document);
+
+                UpdateVerbatimEntries(document, tagUpdatePair);
                 
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
@@ -463,6 +520,47 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(rows);
             Marshal.ReleaseComObject(document);
             return cells;
+        }
+
+        /// <summary>
+        /// Inserts a rich text edit control
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="tag"></param>
+        public void InsertVerbatim(Selection selection, Tag tag)
+        {
+            Log("InsertVerbatim - Started");
+
+            if (tag == null)
+            {
+                Log("Unable to insert the verbatim output because the tag is null");
+                return;
+            }
+
+            var result = tag.CachedResult.FirstOrDefault();
+            if (result != null)
+            {
+                var range = selection.Range;
+                var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 100, 100, range);
+                var textFrame = shape.TextFrame;
+                textFrame.TextRange.Text = result.VerbatimResult;
+                textFrame.AutoSize = -1;
+                textFrame.WordWrap = 0;
+                shape.Line.Visible = MsoTriState.msoFalse;
+                textFrame.TextRange.Font.Name = "Courier New";
+                textFrame.TextRange.Font.Size = 9.0f;
+                textFrame.TextRange.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
+                textFrame.TextRange.ParagraphFormat.SpaceAfter = 0;
+                textFrame.TextRange.ParagraphFormat.SpaceBefore = 0;
+                shape.WrapFormat.Type = WdWrapType.wdWrapInline;
+                shape.Name = tag.Id;
+
+                Marshal.ReleaseComObject(textFrame);
+                Marshal.ReleaseComObject(shape);
+                Marshal.ReleaseComObject(range);
+            }
+
+            Log("InsertVerbatim - Finished");
         }
 
         /// <summary>
@@ -658,7 +756,6 @@ namespace StatTag.Models
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
         /// <param name="tag"></param>
-
         public void InsertField(Tag tag)
         {
             Log("InsertField for Tag");
@@ -699,9 +796,14 @@ namespace StatTag.Models
                     return;
                 }
 
+                if (tag.Type == Constants.TagType.Verbatim)
+                {
+                    Log("Inserting verbatim output");
+                    InsertVerbatim(selection, tag);
+                }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
-                if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
+                else if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
                 {
                     Log("Inserting a new table tag");
                     InsertTable(selection, tag);
@@ -734,6 +836,11 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
+            if (tag.Type == Constants.TagType.Verbatim)
+            {
+                FieldGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
+                return;
+            }
             var xml = OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
             Log("Field XML: " + xml);
             range.InsertXML(xml);
@@ -795,6 +902,11 @@ namespace StatTag.Models
                         dialog.Tag.UpdateFormattedTableData();
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
+                    else if (dialog.Tag.Id != tag.Id)
+                    {
+                        Log("Updating fields after tag renamed");
+                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                    }
 
                     SaveEditedTag(dialog, tag);
                     Log("EditTag - Finished (action)");
@@ -854,6 +966,18 @@ namespace StatTag.Models
                 var fieldTag = TagManager.GetFieldTag(field);
                 var tag = TagManager.FindTag(fieldTag);
                 EditTag(tag);
+            }
+        }
+
+        public void EditTagShape(Microsoft.Office.Interop.Word.Shape shape)
+        {
+            if (TagManager.IsStatTagShape(shape))
+            {
+                var tag = TagManager.FindTag(shape.Name);
+                if (tag != null)
+                {
+                    EditTag(tag);
+                }
             }
         }
 
