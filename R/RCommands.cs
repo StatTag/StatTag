@@ -34,6 +34,14 @@ namespace R
             }
         }
 
+        public class VerbatimCommands : IResultCommandList
+        {
+            public string[] GetCommands()
+            {
+                return new[] { "(Any command)" };
+            }
+        }
+
         public IResultCommandList ValueResultCommands()
         {
             return new ValueCommands();
@@ -47,6 +55,11 @@ namespace R
         public IResultCommandList TableResultCommands()
         {
             return new TableCommands();
+        }
+
+        public IResultCommandList VerbatimResultCommands()
+        {
+            return new VerbatimCommands();
         }
     }
 }

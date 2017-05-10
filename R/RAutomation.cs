@@ -16,8 +16,11 @@ namespace R
 {
     public class RAutomation : IStatAutomation
     {
+        private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
+
         private REngine Engine = null;
         protected RParser Parser { get; set; }
+        protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
 
         public RAutomation()
         {
@@ -28,8 +31,16 @@ namespace R
         {
             if (Engine == null)
             {
-                REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
-                Engine = REngine.GetInstance();
+                try
+                {
+                    REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
+                    Engine = REngine.GetInstance(null, true, null, VerbatimLog);
+                }
+                catch
+                {
+                    Engine = null;
+                    return false;
+                }
             }
 
             return (Engine != null);
@@ -44,15 +55,39 @@ namespace R
             //}
         }
 
+        
         public StatTag.Core.Models.CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
+            // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
+            // the R engine at once.  Otherwise we have to worry about collapsing commands, function definitions, etc.
+            if (tag == null)
+            {
+                commands = new[] { string.Join("\r\n", commands) };
+            }
+            else
+            {
+                commands = Parser.CollapseMultiLineCommands(commands);
+            }
+
             var commandResults = new List<CommandResult>();
+            bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             foreach (var command in commands)
             {
+                // Start the verbatim logging cache, if that is what the user wants for this output.
+                if (Parser.IsTagStart(command) && isVerbatimTag)
+                {
+                    VerbatimLog.StartCache();
+                }
+
                 var result = RunCommand(command, tag);
-                if (result != null && !result.IsEmpty())
+                if (result != null && !result.IsEmpty() && !isVerbatimTag)
                 {
                     commandResults.Add(result);
+                }
+                else if (Parser.IsTagEnd(command) && isVerbatimTag)
+                {
+                    VerbatimLog.StopCache();
+                    commandResults.Add(new CommandResult() { VerbatimResult = string.Join("", VerbatimLog.GetCache()) });
                 }
             }
 
@@ -97,7 +132,7 @@ namespace R
         /// </summary>
         /// <param name="dataFrame"></param>
         /// <returns></returns>
-        private string[] FlattenData(DataFrame dataFrame)
+        private string[] FlattenDataFrame(DataFrame dataFrame)
         {
             // Because we can only cast columns (not individual cells), we will go through all columns
             // first and cast them to characters so things like NA values are represented appropriately.
@@ -121,6 +156,85 @@ namespace R
             return data.ToArray();
         }
 
+        /// <summary>
+        /// General function to extract dimension (row/column) names for an R matrix.  This deals with
+        /// the specific of how R packages matrix results, which is different from a data frame.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <param name="rowNames"></param>
+        /// <returns></returns>
+        private string[] GetMatrixDimensionNames(SymbolicExpression exp, bool rowNames)
+        {
+            var attributeName = exp.GetAttributeNames().FirstOrDefault(x => x.Equals(MATRIX_DIMENSION_NAMES_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase));
+            if (attributeName == null)
+            {
+                return null;
+            }
+
+            var dimnames = exp.GetAttribute(attributeName).AsList();
+            if (dimnames == null)
+            {
+                return null;
+            }
+
+            // Per the R specification, the dimnames will contain 0 to 2 vectors that contain
+            // dimension labels.  The first entry is for rows, and the second is for columns.
+            // https://stat.ethz.ch/R-manual/R-devel/library/base/html/matrix.html
+            switch (dimnames.Length)
+            {
+                case 1:
+                    // If we want columns and we only have one dimname entry, we don't have column names.
+                    if (!rowNames)
+                    {
+                        return null;
+                    }
+                    return dimnames[0].AsCharacter().ToArray();
+                case 2:
+                    return dimnames[rowNames ? 0 : 1].AsCharacter().ToArray();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the row names (if they exist) for a matrix.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns>An array of strings containing the row names, or null if not present.</returns>
+        private string[] GetMatrixRowNames(SymbolicExpression exp)
+        {
+            return GetMatrixDimensionNames(exp, true);
+        }
+
+        /// <summary>
+        /// Return the column names (if they exist) for a matrix.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns>An array of strings containing the column names, or null if not present.</returns>
+        private string[] GetMatrixColumnNames(SymbolicExpression exp)
+        {
+            return GetMatrixDimensionNames(exp, false);
+        }
+
+        /// <summary>
+        /// Take the 2D data in a matrix and flatten it to a 1D representation (by row)
+        /// which we use internally in StatTag.
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        private string[] FlattenMatrix(CharacterMatrix matrix)
+        {
+            var data = new List<string>();
+            for (int row = 0; row < matrix.RowCount; row++)
+            {
+                for (int column = 0; column < matrix.ColumnCount; column++)
+                {
+                    data.Add(matrix[row, column]);
+                }
+            }
+            return data.ToArray();
+        }
+
         private Table GetTableResult(SymbolicExpression result)
         {
             // You'll notice that regardless of the type, we convert everything to a string.  This
@@ -136,7 +250,7 @@ namespace R
                 {
                     ColumnSize = columnCount, RowSize = rowCount,
                     Data = TableUtil.MergeTableVectorsToArray(data.RowNames, data.ColumnNames,
-                        FlattenData(data), rowCount, columnCount)
+                        FlattenDataFrame(data), rowCount, columnCount)
                 };
             }
             else if (result.IsList())
@@ -172,12 +286,32 @@ namespace R
                         vectorData.Add(row < column.Count ? column[row] : null);
                     }
                 }
+
+                var rowSize = (list.Names == null || list.Names.Length == 0) ? maxSize : (maxSize + 1);
                 return new Table()
                 {
                     ColumnSize = data.Count,
-                    RowSize = maxSize,
+                    RowSize = rowSize,
                     Data = TableUtil.MergeTableVectorsToArray(
-                        null, list.Names, vectorData.ToArray(), maxSize + 1, data.Count)
+                        null, list.Names, vectorData.ToArray(), rowSize, data.Count)
+                };
+            }
+            else if (result.IsMatrix())
+            {
+                var matrix = result.AsCharacterMatrix();
+                var rowNames = GetMatrixRowNames(result);
+                var columnNames = GetMatrixColumnNames(result);
+                // Just to note this isn't an error checking columnNames for rowCount and vice-versa.  Remember that
+                // if we have column names, that will take up a row of data.  Likewise, row names are an additional
+                // column.
+                int rowCount = matrix.RowCount + (columnNames == null ? 0 : 1);
+                int columnCount = matrix.ColumnCount + (rowNames == null ? 0 : 1);
+                return new Table()
+                {
+                    ColumnSize = columnCount,
+                    RowSize = rowCount,
+                    Data = TableUtil.MergeTableVectorsToArray(rowNames, columnNames,
+                        FlattenMatrix(matrix), rowCount, columnCount)
                 };
             }
 
@@ -190,7 +324,7 @@ namespace R
                 return new Table()
                 {
                     ColumnSize = 1, RowSize = data.Length, Data = TableUtil.MergeTableVectorsToArray(
-                        null, result.GetAttributeNames(), data.Select(x => x.ToString()).ToArray(), data.Length, 1)
+                        null, null, data.Select(x => x.ToString()).ToArray(), data.Length, 1)
                 };
             }
 

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
+using StatTag.Core.Utility;
 
 namespace StatTag.Core.Parser
 {
@@ -141,9 +142,72 @@ namespace StatTag.Core.Parser
             return string.Empty;
         }
 
+        /// <summary>
+        /// To ensure the R API gets the full command, we need to collapse multi-line commands.
+        /// This assumes trailing comments have been stripped already.
+        /// </summary>
+        /// <param name="originalContent">An array of command lines</param>
+        /// <returns>An array of commands with multi-line commands on a single line.  The size will be &lt;= the size of originalContent</returns>
+        public string[] CollapseMultiLineCommands(string[] originalContent)
+        {
+            var originalText = string.Join("\r\n", originalContent);
+            var modifiedText = originalText;
+            int openCount = 0;
+            int closedCount = 0;
+            int currentStart = -1;
+            int currentEnd = -1;
+
+            // Find opening paren, if any exists.
+            var next = modifiedText.IndexOf("(", StringComparison.CurrentCultureIgnoreCase);
+            while (next > -1)
+            {
+                if (modifiedText[next] == '(')
+                {
+                    openCount++;
+
+                    if (openCount == 1)
+                    {
+                        currentStart = next;
+                    }
+                }
+                else
+                {
+                    closedCount++;
+                    currentEnd = next;
+                }
+
+                // Do we have a balanced match?  If so, we will take this range and clear out newlines.
+                if (openCount == closedCount)
+                {
+                    openCount = 0;
+                    closedCount = 0;
+
+                    // Re-compose the string.  Note that we independently replace \r and \n with a space.  This allows us
+                    // to 1) handle different line endings, and 2) preserve indices so we don't have to account for shrinking
+                    // strings.
+                    modifiedText = modifiedText.Substring(0, currentStart) +
+                                   modifiedText.Substring(currentStart, (currentEnd - currentStart))
+                                       .Replace("\r", " ")
+                                       .Replace("\n", " ") + modifiedText.Substring(currentEnd);
+                }
+
+                next = modifiedText.IndexOfAny(new[] { '(', ')' }, next + 1);
+            }
+            return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToArray();
+        }
+
         public override List<string> PreProcessContent(List<string> originalContent)
         {
-            return originalContent;
+            if (originalContent == null || originalContent.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            var originalText = string.Join("\r\n", originalContent);
+
+            var modifiedText = CodeParserUtil.StripTrailingComments(originalText);
+            // Ensure all multi-line function calls are collapsed
+            return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
         }
     }
 }

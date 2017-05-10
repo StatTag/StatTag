@@ -70,6 +70,17 @@ namespace Core.Tests.Generator
         }
 
         [TestMethod]
+        public void CreateOpenTag_Verbatim()
+        {
+            var generator = new StubGenerator();
+            var tag = new Tag()
+            {
+                Type = Constants.TagType.Verbatim
+            };
+            Assert.AreEqual("**>>>ST:Verbatim()", generator.CreateOpenTag(tag));
+        }
+
+        [TestMethod]
         public void CombineValueAndTableParameters()
         {
             var generator = new StubGenerator();

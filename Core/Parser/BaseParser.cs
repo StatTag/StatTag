@@ -131,6 +131,18 @@ namespace StatTag.Core.Parser
             return tags.ToArray();
         }
 
+        public bool IsTagStart(string line)
+        {
+            var match = StartTagRegEx.Match(line);
+            return (match.Success);
+        }
+
+        public bool IsTagEnd(string line)
+        {
+            var match = EndTagRegEx.Match(line);
+            return (match.Success);
+        }
+
         public List<ExecutionStep> GetExecutionSteps(CodeFile file,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
             List<Tag> tagsToRun = null)
@@ -236,6 +248,11 @@ namespace StatTag.Core.Parser
                 tag.Type = Constants.TagType.Table;
                 TableParameterParser.Parse(tagText, tag);
                 ValueParameterParser.Parse(tagText, tag);
+            }
+            else if (tagText.StartsWith(Constants.TagType.Verbatim))
+            {
+                tag.Type = Constants.TagType.Verbatim;
+                VerbatimParameterParser.Parse(tagText, tag);
             }
             else
             {

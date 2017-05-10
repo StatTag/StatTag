@@ -16,7 +16,6 @@ namespace StatTag.Controls
         public FigureProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public void SetFigureFormat(FigureFormat figureFormat)

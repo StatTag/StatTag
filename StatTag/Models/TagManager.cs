@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Models;
@@ -168,13 +169,13 @@ namespace StatTag.Models
 
             // Fields is a 1-based index
             var files = DocumentManager.GetCodeFileList();
-            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            Log(String.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index {0}", index));
+                    Log(String.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -228,13 +229,13 @@ namespace StatTag.Models
             int fieldsCount = fields.Count;
 
             // Fields is a 1-based index
-            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            Log(String.Format("Preparing to process {0} fields", fieldsCount));
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
                 {
-                    Log(string.Format("Null field detected at index {0}", index));
+                    Log(String.Format("Null field detected at index {0}", index));
                     continue;
                 }
 
@@ -297,7 +298,7 @@ namespace StatTag.Models
             // are still linked in a document.
             if (!actions.ContainsKey(tag.CodeFilePath))
             {
-                Log(string.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
+                Log(String.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
                 return;
             }
 
@@ -315,25 +316,25 @@ namespace StatTag.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.Name));
+                    Log(String.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
-                    Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
                     break;
             }
         }
@@ -357,7 +358,7 @@ namespace StatTag.Models
             // are still linked in a document.
             if (!actions.ContainsKey(tag.Id))
             {
-                Log(string.Format("No action is needed for tag {0}", tag.Id));
+                Log(String.Format("No action is needed for tag {0}", tag.Id));
                 return;
             }
 
@@ -375,27 +376,40 @@ namespace StatTag.Models
             switch (action.Action)
             {
                 case Constants.CodeFileActionTask.ChangeFile:
-                    Log(string.Format("Changing tag {0} from {1} to {2}",
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
                         tag.Name, tag.CodeFilePath, codeFile.FilePath));
                     tag.CodeFile = codeFile;
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     UpdateTagFieldData(field, tag);
                     break;
                 case Constants.CodeFileActionTask.RemoveTags:
-                    Log(string.Format("Removing {0}", tag.Name));
+                    Log(String.Format("Removing {0}", tag.Name));
                     field.Select();
                     var application = Globals.ThisAddIn.Application;
                     application.Selection.Text = Constants.Placeholders.RemovedField;
                     application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
                     break;
                 case Constants.CodeFileActionTask.ReAddFile:
-                    Log(string.Format("Linking code file {0}", tag.CodeFilePath));
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
                     DocumentManager.AddCodeFile(tag.CodeFilePath);
                     break;
                 default:
-                    Log(string.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
                     break;
             }
+        }
+
+        /// <summary>
+        /// Is this possibly a StatTag shape?  This is somewhat of a weak check as we are just
+        /// able to look for the presence of a name field, but if it can reduce overhead in
+        /// processing shapes we'll take it.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        public bool IsStatTagShape(Shape shape)
+        {
+            return (shape != null
+                    && !String.IsNullOrWhiteSpace(shape.Name));
         }
     }
 }

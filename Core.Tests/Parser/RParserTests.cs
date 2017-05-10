@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StatTag.Core.Parser;
 
@@ -95,6 +96,120 @@ namespace Core.Tests.Parser
             // Same as with IsTableResult we are ignoring finding table names, so this always returns an empty string.
             var parser = new RParser();
             Assert.AreEqual(string.Empty, parser.GetTableName("doesn't matter what i put here"));
+        }
+
+        [TestMethod]
+        public void CollapseMultiLineCommands()
+        {
+            var parser = new RParser();
+
+            // No commands to collapse
+            var text = new string[]
+            {
+                "line 1",
+                "line 2",
+                "line 3"
+            };
+
+            var modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(3, modifiedText.Length);
+
+
+            // Simple multiline and single line combined
+            text = new string[]
+            {
+                "cmd(",
+                "  param",
+                ")",
+                "cmd2()"
+            };
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(2, modifiedText.Length);
+            Assert.AreEqual("cmd(    param  )", modifiedText[0]);
+            Assert.AreEqual("cmd2()", modifiedText[1]);
+
+            // Nested multiline
+            text = new string[]
+            {
+                "cmd(",
+                "\tparam(tmp(), (",
+                ")))"
+            };
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("cmd(  \tparam(tmp(), (  )))", modifiedText[0]);
+
+            // Nested and unbalanced (not enough closing parens)
+            text = new string[]
+            {
+                "cmd(",
+                "\tparam(tmp(), (",
+                "))"
+            };
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(3, modifiedText.Length);
+
+            // Parens at the bounds
+            text = new string[]
+            {
+                "()"
+            };
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual(text[0], modifiedText[0]);
+
+            // Unbalanced (not enough opening parens)
+            text = new string[]
+            {
+                "cmd(",
+                "))"
+            };
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("cmd(  ))", modifiedText[0]);
+        }
+
+        [TestMethod]
+        public void PreProcessContent()
+        {
+            var parser = new RParser();
+
+            // No comments to remove
+            var text = new List<string>()
+            {
+                "line 1",
+                "line 2",
+                "line 3"
+            };
+            var modifiedText = parser.PreProcessContent(text);
+            Assert.AreEqual(text.Count, modifiedText.Count);
+            for (int index = 0; index < text.Count; index++)
+            {
+                Assert.AreEqual(text[index], modifiedText[index]);   
+            }
+
+
+            text = new List<string>()
+            {
+                "line 1 // comment",
+                "line 2",
+                "line 3"
+            };
+            modifiedText = parser.PreProcessContent(text);
+            Assert.AreEqual(text.Count, modifiedText.Count);
+            Assert.AreEqual("line 1 ", modifiedText[0]);
+
+            text = new List<string>()
+            {
+                "line 1 // comment",
+                "hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") // comment 2",
+                "line 3 // comment 3"
+            };
+            modifiedText = parser.PreProcessContent(text);
+            Assert.AreEqual(text.Count, modifiedText.Count);
+            Assert.AreEqual("line 1 ", modifiedText[0]);
+            Assert.AreEqual("hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") ", modifiedText[1]);
+            Assert.AreEqual("line 3 ", modifiedText[2]);
         }
     }
 }

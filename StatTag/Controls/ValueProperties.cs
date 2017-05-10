@@ -17,7 +17,6 @@ namespace StatTag.Controls
         public ValueProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         private int PanelTop()
@@ -59,7 +58,6 @@ namespace StatTag.Controls
             cboType.DataSource = new BindingSource(valueFormats, null);
             cboType.DisplayMember = "Key";
             cboType.ValueMember = "Value";
-
             cboType.SelectedValue = Constants.ValueFormatType.Default;
             ShowProperties();
         }

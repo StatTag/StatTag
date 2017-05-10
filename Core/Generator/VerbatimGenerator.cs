@@ -7,11 +7,10 @@ using StatTag.Core.Models;
 
 namespace StatTag.Core.Generator
 {
-    public class FigureGenerator : BaseParameterGenerator
+    public class VerbatimGenerator : BaseParameterGenerator
     {
         public string CreateParameters(Tag tag)
         {
-            // Putting in StringBuilder, assuming more params will be added
             var builder = new StringBuilder();
             builder.Append(GetLabelParameter(tag));
             builder.Append(GetRunFrequencyParameter(tag));

@@ -34,6 +34,14 @@ namespace SAS
             }
         }
 
+        public class VerbatimCommands : IResultCommandList
+        {
+            public string[] GetCommands()
+            {
+                return new[] { "(Any command)" };
+            }
+        }
+
         public IResultCommandList ValueResultCommands()
         {
             return new ValueCommands();
@@ -47,6 +55,11 @@ namespace SAS
         public IResultCommandList TableResultCommands()
         {
             return new TableCommands();
+        }
+
+        public IResultCommandList VerbatimResultCommands()
+        {
+            return new VerbatimCommands();
         }
     }
 }

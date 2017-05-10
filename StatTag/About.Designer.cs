@@ -195,7 +195,6 @@
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

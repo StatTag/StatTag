@@ -11,7 +11,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Northwestern University, Feinberg School of Medicine")]
 [assembly: AssemblyProduct("StatTag")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyCopyright("Copyright © 2016-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,4 +35,3 @@ using System.Security;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("3.0.0.0")]
 [assembly: AssemblyFileVersion("3.0.0.0")]
-
