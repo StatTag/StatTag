@@ -113,7 +113,7 @@
     <Compile Include="Models\TableTests.cs" />
     <Compile Include="Models\FilterFormatTests.cs" />
     <Compile Include="Models\LogManagerTests.cs" />
-    <Compile Include="Models\UnitTest1.cs" />
+    <Compile Include="Models\DocumentMetadataTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataParserTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />

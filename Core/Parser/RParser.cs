@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Office.Interop.Word;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Utility;
@@ -17,9 +18,10 @@ namespace StatTag.Core.Parser
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
         //private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]*?\\s*\\(.*?\\))|([\\w]+))");
         private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]+\\s*\\(.+\\))|([^\\(\\)]+?))(?:,|$)\\s*", RegexOptions.Multiline);
-        private const char ParameterDelimiter = '=';
+        private const char KeyValueDelimiter = '=';
         private const char ArgumentDelimiter = ',';
-        private const string FileParameterName = "file";
+        private const char CommandDelimiter = ';';
+        private const string FileParameterName = "filename";
 
         public override string CommentCharacter
         {
@@ -39,6 +41,114 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
+        /// Split apart a string containing the function parameters into individual parameter components.  These may be
+        /// named or unnamed parameters, so the positional index is important.
+        /// </summary>
+        /// <remarks>This method assumes we have stripped away the outer function call, and that all we have left are the
+        /// actual parameters sent to that function call.  We need to account for a few things:
+        /// 1. Named parameters (e.g., a = b)
+        /// 2. Functions as parameters (e.g., max(c))
+        /// 3. String parameters with parameter list-related characters in them (e.g., "my, test.pdf")</remarks>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        private List<FunctionParam> ParseFunctionParameters(string arguments)
+        {
+            // Move along the sequence of characters until we reach a delimiter (",") or the end of the string
+            int parameterIndex = 0;
+            bool isInQuote = false;
+            int functionCounter = 0;
+            bool isInFunction = false;
+            int parameterStartIndex = 0;
+            int? parameterNameDelimiterIndex = null;
+            int doubleQuoteCounter = 0;
+            int singleQuoteCounter = 0;
+            bool isNamedParameter = false;
+            bool noState = true; // Set at the beginning, just to track we haven't done any other tracking
+            var parameters = new List<FunctionParam>();
+            for (int index = 0; index < arguments.Length; index++)
+            {
+                char argChar = arguments[index];
+                if (argChar == '\'')
+                {
+                    isInQuote = true;
+                    singleQuoteCounter++;
+                    if (singleQuoteCounter%2 == 0)
+                    {
+                        // We have closed out the single quote.  If we are not also in a double
+                        // quote sequence, we can reset our quote tracker.
+                        if (doubleQuoteCounter == 0)
+                        {
+                            isInQuote = false;
+                        }
+
+                    }
+                }
+                else if (argChar == '"')
+                {
+                    isInQuote = true;
+                    doubleQuoteCounter++;
+                    if (doubleQuoteCounter%2 == 0)
+                    {
+                        // We have closed out the double quote.  If we are not also in a single
+                        // quote sequence, we can reset our quote tracker.
+                        if (singleQuoteCounter == 0)
+                        {
+                            isInQuote = false;
+                        }
+                    }
+                }
+                else if (argChar == '(')
+                {
+                    functionCounter++;
+                    isInFunction = true;
+                }
+                else if (isInFunction && argChar == ')')
+                {
+                    functionCounter--;
+                    isInFunction = (functionCounter != 0);
+                }
+
+                // If we are in a quote or in a function, we are not going to allow processing other characters (since they
+                // should be treated as literal characters).
+                if (isInQuote) // || isInFunction)
+                {
+                    continue;
+                }
+                
+                if (argChar == KeyValueDelimiter)
+                {
+                    isNamedParameter = true;
+                    parameterNameDelimiterIndex = index;
+                }
+                // Don't allow the argument delimiter to be processed if we are in the middle of a function, since we want
+                // to keep that function in its entirety as a parameter for the image command.
+                else if (((!isInFunction) && argChar == ArgumentDelimiter) || argChar == CommandDelimiter || index == (arguments.Length - 1))
+                {
+                    int valueEndIndex = (index == (arguments.Length - 1)) ? arguments.Length : index;
+                    int valueStartIndex = (isNamedParameter ? (parameterNameDelimiterIndex.Value + 1) : parameterStartIndex);
+
+                    // We're at an ending sequence, and we need to close out what we've been tracking.
+                    parameters.Add(new FunctionParam()
+                    {
+                        Index = parameterIndex,
+                        Key = (isNamedParameter ? arguments.Substring(parameterStartIndex, (parameterNameDelimiterIndex.Value - parameterStartIndex)) : "").Trim(),
+                        Value = arguments.Substring(valueStartIndex, (valueEndIndex - valueStartIndex)).Trim()
+                    });
+
+                    // Reset our state, since we are going to begin on a new parameter (or be done)
+                    isNamedParameter = false;
+                    doubleQuoteCounter = 0;
+                    singleQuoteCounter = 0;
+                    parameterStartIndex = index + 1;
+                    parameterNameDelimiterIndex = null;
+                    parameterIndex++;
+                }
+            }
+
+            return parameters;
+        } 
+
+        /// <summary>
         /// This will return the exact parameter that represents the image save location.  This may be an R function (e.g., paste)
         /// to construct the file path, a variable, or a string literal.  String literals will include enclosing quotes.  This is
         /// because the output of this method is sent to R as an expression for evaluation.  That way R handles converting everything
@@ -48,30 +158,49 @@ namespace StatTag.Core.Parser
         /// <returns></returns>
         public override string GetImageSaveLocation(string command)
         {
-            var match = FigureRegex.Match(command);
-            var parameters = new List<FunctionParam>();
-            if (!match.Success)
+            // In order to account for a command string that actually has multiple commands embedded in it, we want to find the right
+            // fragment that has the image command.  We will take the first one we find.
+            Match match = null;
+            var commandLines = command.Split(CommandDelimiter);
+            foreach (var commandLine in commandLines)
+            {
+                match = FigureRegex.Match(commandLine);
+                if (match.Success)
+                {
+                    break;
+                }
+            }
+
+            if (match == null || !match.Success)
             {
                 return string.Empty;
             }
+
+            //var match = FigureRegex.Match(command);
+            //var parameters = new List<FunctionParam>();
+            //if (!match.Success)
+            //{
+            //    return string.Empty;
+            //}
 
             var arguments = match.Groups[1].Value;
-            var matches = FigureParameterRegex.Matches(arguments);
-            if (matches.Count == 0)
-            {
-                return string.Empty;
-            }
+            var parameters = ParseFunctionParameters(arguments);
+            //var matches = FigureParameterRegex.Matches(arguments);
+            //if (matches.Count == 0)
+            //{
+            //    return string.Empty;
+            //}
 
-            for (int index = 0; index < matches.Count; index++)
-            {
-                var paramMatch = matches[index];
-                parameters.Add(new FunctionParam()
-                {
-                    Index = index,
-                    Key = paramMatch.Groups[1].Value,
-                    Value = (string.IsNullOrWhiteSpace(paramMatch.Groups[2].Value) ? paramMatch.Groups[3].Value : paramMatch.Groups[2].Value)
-                });
-            }
+            //for (int index = 0; index < matches.Count; index++)
+            //{
+            //    var paramMatch = matches[index];
+            //    parameters.Add(new FunctionParam()
+            //    {
+            //        Index = index,
+            //        Key = paramMatch.Groups[1].Value,
+            //        Value = (string.IsNullOrWhiteSpace(paramMatch.Groups[2].Value) ? paramMatch.Groups[3].Value : paramMatch.Groups[2].Value)
+            //    });
+            //}
 
             // Follow R's approach to argument matching (http://adv-r.had.co.nz/Functions.html#function-arguments)
             // First, look for exact name (perfect matching)
