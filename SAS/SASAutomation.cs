@@ -30,6 +30,11 @@ namespace SAS
             return "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
         }
 
+        public void Hide()
+        {
+            // Since the UI is not shown, no action is needed here.
+        }
+
         public void Dispose()
         {
             if (Server != null)

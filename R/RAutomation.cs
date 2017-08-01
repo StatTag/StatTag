@@ -342,6 +342,11 @@ namespace R
 
         }
 
+        public void Hide()
+        {
+            // Since the UI is not shown, no action is needed here.
+        }
+
         private string GetValueResult(SymbolicExpression result)
         {
             if (result.IsDataFrame())

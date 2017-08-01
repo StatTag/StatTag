@@ -9,5 +9,6 @@ namespace StatTag.Core.Interfaces
         CommandResult[] RunCommands(string[] commands, Tag tag = null);
         bool IsReturnable(string command);
         string GetInitializationErrorMessage();
+        void Hide();
     }
 }

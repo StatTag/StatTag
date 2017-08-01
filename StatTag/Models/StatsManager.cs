@@ -181,6 +181,15 @@ namespace StatTag.Models
                         Manager.Logger.WriteException(exc);
                     }
 
+                    // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's
+                    // done to avoid any UI artifacts in Word.
+                    automation.Hide();
+                    if (!Globals.ThisAddIn.Application.ScreenUpdating)
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        Globals.ThisAddIn.Application.ScreenRefresh();
+                    }
+
                     MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return result;
                 }
