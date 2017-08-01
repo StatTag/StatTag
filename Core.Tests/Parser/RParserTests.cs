@@ -58,6 +58,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(\"test.png\", width=100,height=100)"));
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100, \"test.png\", height=100)")); // First unnamed parameter is file
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png (width=100,height=100,fi=\r\n\t\"test.png\")"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png (width=100,height=100,FILE=\r\n\t\"test.png\")")); // Check capitalization is ignored
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
             Assert.AreEqual("'test.png'", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
             Assert.AreEqual("\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\"", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));

@@ -16,8 +16,6 @@ namespace StatTag.Core.Parser
     {
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
-        //private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]*?\\s*\\(.*?\\))|([\\w]+))");
-        private static readonly Regex FigureParameterRegex = new Regex("(?:([\\w]*?)\\s*=\\s*)?(?:([\\w]+\\s*\\(.+\\))|([^\\(\\)]+?))(?:,|$)\\s*", RegexOptions.Multiline);
         private const char KeyValueDelimiter = '=';
         private const char ArgumentDelimiter = ',';
         private const char CommandDelimiter = ';';
@@ -48,7 +46,8 @@ namespace StatTag.Core.Parser
         /// actual parameters sent to that function call.  We need to account for a few things:
         /// 1. Named parameters (e.g., a = b)
         /// 2. Functions as parameters (e.g., max(c))
-        /// 3. String parameters with parameter list-related characters in them (e.g., "my, test.pdf")</remarks>
+        /// 3. String parameters with parameter list-related characters in them (e.g., "my, test.pdf")
+        /// 4. Combinations of 1-3</remarks>
         /// <param name="arguments"></param>
         /// <returns></returns>
         private List<FunctionParam> ParseFunctionParameters(string arguments)
@@ -110,7 +109,7 @@ namespace StatTag.Core.Parser
 
                 // If we are in a quote or in a function, we are not going to allow processing other characters (since they
                 // should be treated as literal characters).
-                if (isInQuote) // || isInFunction)
+                if (isInQuote)
                 {
                     continue;
                 }
@@ -171,36 +170,15 @@ namespace StatTag.Core.Parser
                 }
             }
 
+            // If there was no successful match, there's no known image command that we should try to process so we'll exit
+            // and return an empty string.
             if (match == null || !match.Success)
             {
                 return string.Empty;
             }
 
-            //var match = FigureRegex.Match(command);
-            //var parameters = new List<FunctionParam>();
-            //if (!match.Success)
-            //{
-            //    return string.Empty;
-            //}
-
             var arguments = match.Groups[1].Value;
             var parameters = ParseFunctionParameters(arguments);
-            //var matches = FigureParameterRegex.Matches(arguments);
-            //if (matches.Count == 0)
-            //{
-            //    return string.Empty;
-            //}
-
-            //for (int index = 0; index < matches.Count; index++)
-            //{
-            //    var paramMatch = matches[index];
-            //    parameters.Add(new FunctionParam()
-            //    {
-            //        Index = index,
-            //        Key = paramMatch.Groups[1].Value,
-            //        Value = (string.IsNullOrWhiteSpace(paramMatch.Groups[2].Value) ? paramMatch.Groups[3].Value : paramMatch.Groups[2].Value)
-            //    });
-            //}
 
             // Follow R's approach to argument matching (http://adv-r.had.co.nz/Functions.html#function-arguments)
             // First, look for exact name (perfect matching)
