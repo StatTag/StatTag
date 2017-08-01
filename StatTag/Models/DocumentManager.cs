@@ -27,6 +27,7 @@ namespace StatTag.Models
         public StatsManager StatsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
+        public const string MetadataAttribute = "StatTag Metadata";
 
         public DocumentManager()
         {
@@ -55,10 +56,62 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Creates a document metadata container that will hold information about the StatTag environment
+        /// used to create the Word document.
+        /// </summary>
+        /// <returns></returns>
+        protected DocumentMetadata CreateDocumentMetadata()
+        {
+            var metadata = new DocumentMetadata()
+            {
+                StatTagVersion = UIUtility.GetVersionLabel()
+            };
+            return metadata;
+        }
+
+        /// <summary>
+        /// Saves associated metadata about StatTag to the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        public void SaveMetadataToDocument(Document document)
+        {
+            Log("SaveMetadataToDocument - Started");
+
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                var attribute = CreateDocumentMetadata().Serialize();
+                if (!DocumentVariableExists(variable))
+                {
+                    Log(string.Format("Metadata variable does not exist.  Adding attribute value of {0}", attribute));
+                    variables.Add(MetadataAttribute, attribute);
+                }
+                else
+                {
+                    Log(string.Format("Metadata variable already exists.  Updating attribute value to {0}", attribute));
+                    variable.Value = attribute;
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+
+
+            // Historically we just saved the code file list.  Starting in v3.1 we save more metadata, so the original
+            // call to save the code file list is just called afterwards.
+            SaveCodeFileListToDocument(document);
+
+            Log("SaveMetadataToDocument - Finished");
+        }
+
+        /// <summary>
         /// Save the referenced code files to the current Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void SaveCodeFileListToDocument(Document document)
+        protected void SaveCodeFileListToDocument(Document document)
         {
             Log("SaveCodeFileListToDocument - Started");
 
@@ -106,10 +159,46 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Loads associated metadata about StatTag from the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        public void LoadMetadataFromDocument(Document document)
+        {
+            Log("LoadMetadataFromDocument - Started");
+            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
+            // we just read it and log it so we know a little more about the document.
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                if (DocumentVariableExists(variable))
+                {
+                    var metadata = DocumentMetadata.Deserialize(variable.Value);
+                    Log(string.Format("Document created with {0}", metadata.StatTagVersion));
+                }
+                else
+                {
+                    Log("No StatTag metadata contained in document");
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+            
+            // Historically we just had the code file list in the document properties, so we call the old load
+            // function to help with backwards compatibility for documents created prior to v3.1, without having
+            // to migrate document properties.
+            LoadCodeFileListFromDocument(document);
+            Log("LoadMetadataFromDocument - Finished");
+        }
+
+        /// <summary>
         /// Load the list of associated Code Files from a Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void LoadCodeFileListFromDocument(Document document)
+        protected void LoadCodeFileListFromDocument(Document document)
         {
             Log("LoadCodeFileListFromDocument - Started");
 
