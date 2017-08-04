@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.IO;
 using System.Linq;
+using StatTag.Controls;
 using StatTag.Core;
 using StatTag.Core.Models;
 using System;
@@ -12,12 +14,6 @@ namespace StatTag
 {
     public sealed partial class LoadAnalysisCode : Form
     {
-        private const int CheckColumn = 0;
-        private const int StatPackageColumn = 1;
-        private const int FilePathColumn = 2;
-        private const int FileEditColumn = 3;
-        private const int DetailsColumn = 4;
-
         public List<CodeFile> Files { get; set; }
         public DocumentManager Manager { get; set; }
 
@@ -33,7 +29,6 @@ namespace StatTag
 
         private void LoadAnalysisCode_Load(object sender, EventArgs e)
         {
-            colStatPackage.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.StatisticalPackages.GetList()));
             if (Files != null)
             {
                 foreach (var file in Files)
@@ -57,28 +52,73 @@ namespace StatTag
             }
         }
 
-        private CodeFile AddItem(CodeFile file)
+        /// <summary>
+        /// Helper to add a new code file to our managed collections
+        /// </summary>
+        /// <param name="file">The code file to add to our managed collections</param>
+        private void AddItem(CodeFile file)
         {
-            int index = dgvItems.Rows.Add(new object[] { false, file.StatisticalPackage, file.FilePath, Constants.DialogLabels.Elipsis, Constants.DialogLabels.Details });
-            dgvItems.Rows[index].Tag = file;
-            return file;
+            var entry = new CodeFileEntry
+            {
+                CodeFile = file,
+                Width = pnlCodeFiles.Width - pnlCodeFiles.Margin.Left - pnlCodeFiles.Margin.Right - 2,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
+            };
+            entry.CodeFileClick += codeFile_Click;
+            entry.CodeFileDoubleClick += codeFile_DoubleClick;
+            pnlCodeFiles.Controls.Add(entry);
+        }
+
+        /// <summary>
+        /// Helper method to deselect all code files in the list
+        /// </summary>
+        private void UnselectAllCodeFiles()
+        {
+            foreach (var codeFile in pnlCodeFiles.Controls.OfType<CodeFileEntry>())
+            {
+                codeFile.Selected = false;
+            }
+        }
+
+        /// <summary>
+        /// Responds to a code file entry being clicked in our panel (list)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void codeFile_Click(object sender, EventArgs e)
+        {
+            if (Control.ModifierKeys != Keys.Alt)
+            {
+                UnselectAllCodeFiles();
+            }
+
+            (sender as CodeFileEntry).Selected = true;
+        }
+
+        /// <summary>
+        /// Responds to a code file entry being double-clicked in our panel (list)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void codeFile_DoubleClick(object sender, EventArgs e)
+        {
+            var selectedEntry = sender as CodeFileEntry;
+            if (selectedEntry != null)
+            {
+                selectedEntry.Selected = true;
+                EditFilePath(selectedEntry);
+            }
         }
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
-            dgvItems.CurrentCell = null;
-
-            // Save off the values that may already be cached for an tag.
-            //var existingTags = Manager.GetTags().Select(a => new Tag(a)).ToList();
-
             var files = new List<CodeFile>();
-            for (int index = 0; index < dgvItems.Rows.Count; index++)
+            foreach (var codeFileEntry in pnlCodeFiles.Controls.OfType<CodeFileEntry>())
             {
-                var item = dgvItems.Rows[index];
-                var file = new CodeFile
+                var file = new CodeFile()
                 {
-                    FilePath = item.Cells[FilePathColumn].Value.ToString(),
-                    StatisticalPackage = (item.Cells[StatPackageColumn].Value == null ? string.Empty : item.Cells[StatPackageColumn].Value.ToString())
+                    FilePath = codeFileEntry.CodeFile.FilePath,
+                    StatisticalPackage = CodeFile.GuessStatisticalPackage(codeFileEntry.CodeFile.FilePath)
                 };
                 file.LoadTagsFromContent();
                 files.Add(file);
@@ -92,42 +132,53 @@ namespace StatTag
 
         private void cmdRemove_Click(object sender, EventArgs e)
         {
-            UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            var selectedEntries = pnlCodeFiles.Controls.OfType<CodeFileEntry>().Where(x => x.Selected).ToList();
+            foreach (var entry in selectedEntries)
+            {
+                 pnlCodeFiles.Controls.Remove(entry);
+            }
+            UpdateCodeFileList();
         }
 
-        private void EditFilePath(int rowIndex)
+        /// <summary>
+        /// Helper method to manage the action of attempting to change a code file's location.  It will handle
+        /// the UI aspects as well as updating the code file data if it is changed.
+        /// </summary>
+        /// <param name="entry"></param>
+        private void EditFilePath(CodeFileEntry entry)
         {
             string fileName = UIUtility.GetOpenFileName(Constants.FileFilters.FormatForOpenFileDialog());
             if (!string.IsNullOrWhiteSpace(fileName))
             {
-                dgvItems.Rows[rowIndex].Cells[FilePathColumn].Value = fileName;
-            }   
-        }
-
-        private void dgvItems_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == FileEditColumn)
-            {
-                EditFilePath(e.RowIndex);
-            }
-            else if (e.ColumnIndex == DetailsColumn)
-            {
-                //var file = dgvItems.Rows[e.RowIndex].Tag as CodeFile;
-                //if (file != null)
-                //{
-                //    file.LoadTagsFromContent();
-                //    var dialog = new ManageTags(new List<CodeFile>(new []{ file }));
-                //    if (DialogResult.OK == dialog.ShowDialog())
-                //    {
-                        
-                //    }
-                //}
+                var file = new CodeFile {FilePath = fileName};
+                entry.CodeFile = file;
             }
         }
 
-        private void dgvItems_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        /// <summary>
+        /// Perform necessary visual updates to the code file list
+        /// </summary>
+        private void UpdateCodeFileList()
         {
-            EditFilePath(e.RowIndex);
+            foreach (var item in pnlCodeFiles.Controls.OfType<CodeFileEntry>())
+            {
+                item.Index = pnlCodeFiles.Controls.GetChildIndex(item, false);
+            }
+        }
+
+        private void pnlCodeFiles_ControlAdded(object sender, ControlEventArgs e)
+        {
+            UpdateCodeFileList();
+        }
+
+        private void pnlCodeFiles_ControlRemoved(object sender, ControlEventArgs e)
+        {
+            UpdateCodeFileList();
+        }
+
+        private void pnlCodeFiles_Click(object sender, EventArgs e)
+        {
+            UnselectAllCodeFiles();
         }
     }
 }

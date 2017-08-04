@@ -18,7 +18,7 @@ namespace StatTag
 {
     public static class UIUtility
     {
-        public static IEnumerable<object> RemoveSelectedItems(DataGridView dgvItems, int checkColumn)
+        public static IEnumerable<object> RemoveCheckedItems(DataGridView dgvItems, int checkColumn)
         {
             if (dgvItems == null)
             {

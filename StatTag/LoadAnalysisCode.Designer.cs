@@ -32,14 +32,8 @@
             this.cmdOK = new System.Windows.Forms.Button();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdAdd = new System.Windows.Forms.Button();
-            this.dgvItems = new System.Windows.Forms.DataGridView();
-            this.colSelect = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colStatPackage = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.colType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colFile = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
             this.cmdRemove = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
+            this.pnlCodeFiles = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // label1
@@ -55,7 +49,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(179, 299);
+            this.cmdOK.Location = new System.Drawing.Point(139, 296);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(87, 25);
@@ -68,7 +62,7 @@
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(414, 299);
+            this.cmdCancel.Location = new System.Drawing.Point(293, 296);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(87, 25);
@@ -78,116 +72,54 @@
             // 
             // cmdAdd
             // 
-            this.cmdAdd.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAdd.Location = new System.Drawing.Point(237, 243);
+            this.cmdAdd.Location = new System.Drawing.Point(20, 245);
             this.cmdAdd.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(98, 25);
             this.cmdAdd.TabIndex = 0;
-            this.cmdAdd.Text = "Add File";
+            this.cmdAdd.Text = "Add";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
-            // dgvItems
-            // 
-            this.dgvItems.AllowUserToAddRows = false;
-            this.dgvItems.AllowUserToDeleteRows = false;
-            this.dgvItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvItems.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvItems.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.dgvItems.CausesValidation = false;
-            this.dgvItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvItems.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colSelect,
-            this.colStatPackage,
-            this.colType,
-            this.colFile,
-            this.colEdit});
-            this.dgvItems.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvItems.Location = new System.Drawing.Point(18, 38);
-            this.dgvItems.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.dgvItems.Name = "dgvItems";
-            this.dgvItems.RowHeadersVisible = false;
-            this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvItems.Size = new System.Drawing.Size(649, 197);
-            this.dgvItems.TabIndex = 4;
-            this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
-            this.dgvItems.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentDoubleClick);
-            // 
-            // colSelect
-            // 
-            this.colSelect.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colSelect.FalseValue = "false";
-            this.colSelect.FillWeight = 46.79266F;
-            this.colSelect.HeaderText = "";
-            this.colSelect.MinimumWidth = 20;
-            this.colSelect.Name = "colSelect";
-            this.colSelect.TrueValue = "true";
-            this.colSelect.Width = 20;
-            // 
-            // colStatPackage
-            // 
-            this.colStatPackage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colStatPackage.FillWeight = 71.06599F;
-            this.colStatPackage.HeaderText = "Run In";
-            this.colStatPackage.MinimumWidth = 80;
-            this.colStatPackage.Name = "colStatPackage";
-            this.colStatPackage.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.colStatPackage.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.colStatPackage.Width = 80;
-            // 
-            // colType
-            // 
-            this.colType.FillWeight = 140.9901F;
-            this.colType.HeaderText = "File";
-            this.colType.Name = "colType";
-            this.colType.ReadOnly = true;
-            // 
-            // colFile
-            // 
-            this.colFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.colFile.HeaderText = "";
-            this.colFile.MinimumWidth = 25;
-            this.colFile.Name = "colFile";
-            this.colFile.Width = 25;
-            // 
-            // colEdit
-            // 
-            this.colEdit.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.colEdit.FillWeight = 109.3506F;
-            this.colEdit.HeaderText = "";
-            this.colEdit.MinimumWidth = 50;
-            this.colEdit.Name = "colEdit";
-            this.colEdit.ReadOnly = true;
-            this.colEdit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.colEdit.Text = "Edit";
-            this.colEdit.Visible = false;
-            this.colEdit.Width = 50;
-            // 
             // cmdRemove
             // 
-            this.cmdRemove.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmdRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdRemove.Location = new System.Drawing.Point(341, 243);
+            this.cmdRemove.Location = new System.Drawing.Point(124, 245);
             this.cmdRemove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(103, 25);
             this.cmdRemove.TabIndex = 5;
-            this.cmdRemove.Text = "Remove File(s)";
+            this.cmdRemove.Text = "Remove";
             this.cmdRemove.UseVisualStyleBackColor = true;
             this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
+            // 
+            // pnlCodeFiles
+            // 
+            this.pnlCodeFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlCodeFiles.AutoScroll = true;
+            this.pnlCodeFiles.BackColor = System.Drawing.Color.White;
+            this.pnlCodeFiles.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlCodeFiles.Location = new System.Drawing.Point(20, 37);
+            this.pnlCodeFiles.Name = "pnlCodeFiles";
+            this.pnlCodeFiles.Size = new System.Drawing.Size(486, 201);
+            this.pnlCodeFiles.TabIndex = 6;
+            this.pnlCodeFiles.Click += new System.EventHandler(this.pnlCodeFiles_Click);
+            this.pnlCodeFiles.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.pnlCodeFiles_ControlAdded);
+            this.pnlCodeFiles.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.pnlCodeFiles_ControlRemoved);
             // 
             // LoadAnalysisCode
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(681, 337);
+            this.ClientSize = new System.Drawing.Size(518, 334);
+            this.Controls.Add(this.pnlCodeFiles);
             this.Controls.Add(this.cmdRemove);
-            this.Controls.Add(this.dgvItems);
             this.Controls.Add(this.cmdAdd);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.cmdOK);
@@ -200,7 +132,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Manage Code Files";
             this.Load += new System.EventHandler(this.LoadAnalysisCode_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -212,12 +143,7 @@
         private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdAdd;
-        private System.Windows.Forms.DataGridView dgvItems;
         private System.Windows.Forms.Button cmdRemove;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colSelect;
-        private System.Windows.Forms.DataGridViewComboBoxColumn colStatPackage;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colType;
-        private System.Windows.Forms.DataGridViewButtonColumn colFile;
-        private System.Windows.Forms.DataGridViewButtonColumn colEdit;
+        private System.Windows.Forms.FlowLayoutPanel pnlCodeFiles;
     }
 }
