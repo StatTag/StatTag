@@ -53,11 +53,21 @@ namespace StatTag
         }
 
         /// <summary>
-        /// Helper to add a new code file to our managed collections
+        /// Helper to add a new code file to our managed collections, if it doesn't already exist.
         /// </summary>
         /// <param name="file">The code file to add to our managed collections</param>
         private void AddItem(CodeFile file)
         {
+            // If we already have this code file (determined by the path), we will not add it again.
+            if (pnlCodeFiles.Controls.OfType<CodeFileEntry>()
+                .Any(
+                    x =>
+                        x.CodeFile != null &&
+                        x.CodeFile.FilePath.Equals(file.FilePath, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                return;
+            }
+
             var entry = new CodeFileEntry
             {
                 CodeFile = file,
