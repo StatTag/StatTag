@@ -39,6 +39,17 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void LoadTagsFromContent_InvalidFilePath()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(false);  // Mock this to always say the file path is invalid
+
+            var codeFile = new CodeFile(mock.Object);
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(0, codeFile.Tags.Count);
+        }
+
+        [TestMethod]
         public void LoadTagsFromContent_UnknownType()
         {
             var mock = new Mock<IFileHandler>();
@@ -48,8 +59,9 @@ namespace Core.Tests.Models
                     "some code here",
                     "**<<<"
                 });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
-            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata, };
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata, FilePath = "Test.do" };
             codeFile.LoadTagsFromContent();
             Assert.AreEqual(0, codeFile.Tags.Count);
         }
@@ -64,8 +76,9 @@ namespace Core.Tests.Models
                     "some code here",
                     "**<<<"
                 });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
-            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata, FilePath="Test.do" };
             codeFile.LoadTagsFromContent();
             Assert.AreEqual(1, codeFile.Tags.Count);
             Assert.AreEqual(Constants.TagType.Value, codeFile.Tags[0].Type);
@@ -82,8 +95,9 @@ namespace Core.Tests.Models
                     "some code here",
                     "**<<<"
                 });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
-            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata, FilePath = "Test.do" };
             codeFile.LoadTagsFromContent();
             codeFile.Tags[0].CachedResult = new List<CommandResult>(new[]
             {
@@ -153,6 +167,36 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Save_NullContent()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(false);  // Mock this to always say the file path is invalid
+
+            var codeFile = new CodeFile(mock.Object) {FilePath = "Test.do"};
+            codeFile.LoadTagsFromContent();
+            codeFile.Save();
+            mock.Verify(file => file.WriteAllLines(It.IsAny<string>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+        }
+
+        [TestMethod]
+        public void Save_ValidContents()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+                {
+                    "**>>>ST:Test(Type=\"Default\")",
+                    "some code here",
+                    "**<<<"
+                });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);  // Mock this to always say the file path is valid
+
+            var codeFile = new CodeFile(mock.Object) { FilePath = "Test.do" };
+            codeFile.LoadTagsFromContent();
+            codeFile.Save();
+            mock.Verify(file => file.WriteAllLines(It.IsAny<string>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+        }
+
+        [TestMethod]
         public void ContentCache_Load()
         {
             var mock = new Mock<IFileHandler>();
@@ -162,6 +206,7 @@ namespace Core.Tests.Models
                     "some code here",
                     "**<<<"
                 });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             var content = codeFile.Content;
@@ -222,6 +267,7 @@ namespace Core.Tests.Models
                     "fourth line",
                     "fifth line",
                 });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             var tag = new Tag()
@@ -295,6 +341,7 @@ namespace Core.Tests.Models
                 "fourth line",
                 "fifth line",
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
             codeFile.LoadTagsFromContent();
@@ -333,6 +380,7 @@ namespace Core.Tests.Models
                 "fourth line",
                 "fifth line",
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
             codeFile.LoadTagsFromContent();
@@ -430,6 +478,7 @@ namespace Core.Tests.Models
                 "**<<<",
                 "fourth line"
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             codeFile.LoadTagsFromContent();
@@ -466,6 +515,7 @@ namespace Core.Tests.Models
                 "**<<<",
                 "fourth line"
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             codeFile.LoadTagsFromContent();
@@ -496,7 +546,8 @@ namespace Core.Tests.Models
         {
             var mock = new Mock<IFileHandler>();
             mock.Setup(file => file.WriteAllLines(It.IsAny<string>(), It.IsAny<IEnumerable<string>>())).Verifiable();
-            var codeFile = new CodeFile(mock.Object);
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+            var codeFile = new CodeFile(mock.Object) { FilePath = "Test.do" };
             codeFile.Save();
             mock.Verify();
         }
@@ -517,6 +568,7 @@ namespace Core.Tests.Models
                 "fourth line",
                 "fifth line",
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
             codeFile.LoadTagsFromContent();
@@ -548,6 +600,7 @@ namespace Core.Tests.Models
                 "fourth line",
                 "fifth line",
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.Stata };
             codeFile.LoadTagsFromContent();
@@ -571,6 +624,7 @@ namespace Core.Tests.Models
                 "second line",
                 "**<<<"
             });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
 
             var codeFile = new CodeFile(mock.Object);
             codeFile.StatisticalPackage = Constants.StatisticalPackages.Stata;
@@ -628,6 +682,37 @@ namespace Core.Tests.Models
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(2, result[codeFile.Tags[0]].Count);
             Assert.AreEqual(1, result[codeFile.Tags[1]].Count);
+        }
+
+        [TestMethod]
+        public void IsValid_Empty()
+        {
+            var codeFile = new CodeFile();
+            Assert.IsFalse(codeFile.IsValid());
+        }
+
+        [TestMethod]
+        public void IsValid_NonExistent()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(false);
+            var codeFile = new CodeFile(mock.Object)
+            {
+                FilePath = "TestFile.r"
+            };
+            Assert.IsFalse(codeFile.IsValid());
+        }
+
+        [TestMethod]
+        public void IsValid_ValidPath()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+            var codeFile = new CodeFile(mock.Object)
+            {
+                FilePath = "TestFile.r"
+            };
+            Assert.IsTrue(codeFile.IsValid());
         }
     }
 }

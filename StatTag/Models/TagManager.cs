@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -167,9 +168,14 @@ namespace StatTag.Models
             var fields = document.Fields;
             int fieldsCount = fields.Count;
 
-            // Fields is a 1-based index
-            var files = DocumentManager.GetCodeFileList();
+            // When checking unlinked tags, we will look to see what tags are present in
+            // linked code files.  Because a code file may be linked but no longer exist, we
+            // need to filter down our list of files to only include those that are found at
+            // the specified path.
+            var files = DocumentManager.GetCodeFileList().Where(x => File.Exists(x.FilePath)).ToList();
+            
             Log(String.Format("Preparing to process {0} fields", fieldsCount));
+            // Fields is a 1-based index
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
@@ -194,7 +200,11 @@ namespace StatTag.Models
                     continue;
                 }
 
-                if (!files.Any(x => x.FilePath.Equals(tag.CodeFilePath)))
+                // If the file associated with the tag is not in our known list of code files, or if the code file is linked
+                // and we just can't find the tag identifier anymore (e.g., if it was deleted from the code file without us
+                // knowing), we track the tag as being unlinked.
+                bool fileLinked = files.Any(x => x.FilePath.Equals(tag.CodeFilePath));
+                if (!fileLinked || (fileLinked && !(files.First(x => x.FilePath.Equals(tag.CodeFilePath)).Tags.Any(x => x.Id.Equals(tag.Id)))))
                 {
                     if (!results.ContainsKey(tag.CodeFilePath))
                     {
