@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeFileEntry));
+            StatTag.Controls.HorizontalLine horizontalLine1;
             this.lblFileName = new System.Windows.Forms.Label();
             this.lblFilePath = new System.Windows.Forms.Label();
             this.imgR = new System.Windows.Forms.PictureBox();
             this.imgSAS = new System.Windows.Forms.PictureBox();
             this.imgStata = new System.Windows.Forms.PictureBox();
             this.imgWarning = new System.Windows.Forms.PictureBox();
+            horizontalLine1 = new StatTag.Controls.HorizontalLine();
             ((System.ComponentModel.ISupportInitialize)(this.imgR)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgSAS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).BeginInit();
@@ -69,6 +71,7 @@
             // 
             // imgR
             // 
+            this.imgR.BackColor = System.Drawing.Color.Transparent;
             this.imgR.Image = ((System.Drawing.Image)(resources.GetObject("imgR.Image")));
             this.imgR.Location = new System.Drawing.Point(0, 4);
             this.imgR.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -82,6 +85,7 @@
             // 
             // imgSAS
             // 
+            this.imgSAS.BackColor = System.Drawing.Color.Transparent;
             this.imgSAS.Image = ((System.Drawing.Image)(resources.GetObject("imgSAS.Image")));
             this.imgSAS.Location = new System.Drawing.Point(0, 4);
             this.imgSAS.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -95,6 +99,7 @@
             // 
             // imgStata
             // 
+            this.imgStata.BackColor = System.Drawing.Color.Transparent;
             this.imgStata.Image = ((System.Drawing.Image)(resources.GetObject("imgStata.Image")));
             this.imgStata.Location = new System.Drawing.Point(0, 4);
             this.imgStata.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -109,6 +114,7 @@
             // imgWarning
             // 
             this.imgWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.imgWarning.BackColor = System.Drawing.Color.Transparent;
             this.imgWarning.Image = ((System.Drawing.Image)(resources.GetObject("imgWarning.Image")));
             this.imgWarning.Location = new System.Drawing.Point(415, 2);
             this.imgWarning.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -118,12 +124,26 @@
             this.imgWarning.TabIndex = 5;
             this.imgWarning.TabStop = false;
             this.imgWarning.Visible = false;
+            this.imgWarning.Click += new System.EventHandler(this.CodeFileEntry_Click);
+            this.imgWarning.DoubleClick += new System.EventHandler(this.CodeFileEntry_DoubleClick);
+            // 
+            // horizontalLine1
+            // 
+            horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            horizontalLine1.Location = new System.Drawing.Point(-2, 43);
+            horizontalLine1.Margin = new System.Windows.Forms.Padding(0);
+            horizontalLine1.Name = "horizontalLine1";
+            horizontalLine1.Size = new System.Drawing.Size(437, 3);
+            horizontalLine1.TabIndex = 6;
             // 
             // CodeFileEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(horizontalLine1);
             this.Controls.Add(this.imgWarning);
             this.Controls.Add(this.imgStata);
             this.Controls.Add(this.imgSAS);

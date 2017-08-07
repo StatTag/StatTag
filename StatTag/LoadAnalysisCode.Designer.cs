@@ -79,7 +79,7 @@
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(98, 25);
             this.cmdAdd.TabIndex = 0;
-            this.cmdAdd.Text = "Add";
+            this.cmdAdd.Text = "Add...";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 

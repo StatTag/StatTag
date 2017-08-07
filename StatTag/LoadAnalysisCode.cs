@@ -88,6 +88,7 @@ namespace StatTag
             {
                 codeFile.Selected = false;
             }
+            UpdateRemoveButton();
         }
 
         /// <summary>
@@ -103,6 +104,7 @@ namespace StatTag
             }
 
             (sender as CodeFileEntry).Selected = true;
+            UpdateRemoveButton();
         }
 
         /// <summary>
@@ -174,6 +176,7 @@ namespace StatTag
             {
                 item.Index = pnlCodeFiles.Controls.GetChildIndex(item, false);
             }
+            UpdateRemoveButton();
         }
 
         private void pnlCodeFiles_ControlAdded(object sender, ControlEventArgs e)
@@ -189,6 +192,11 @@ namespace StatTag
         private void pnlCodeFiles_Click(object sender, EventArgs e)
         {
             UnselectAllCodeFiles();
+        }
+
+        private void UpdateRemoveButton()
+        {
+            cmdRemove.Enabled = pnlCodeFiles.Controls.OfType<CodeFileEntry>().Any(x => x.Selected);
         }
     }
 }
