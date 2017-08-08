@@ -153,6 +153,68 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Look at all of the tags in the document, and identify which code files are being used.  Then
+        /// determine from that list and all of the code files linked to the document which code files are
+        /// not actually being used at this time.
+        /// <remarks>Just because a code file is not being used does not mean there is a problem with it.  A 
+        /// user may have linked a code file and not yet inserted a tag, but plans to.</remarks>
+        /// </summary>
+        /// <returns></returns>
+        public List<CodeFile> FindUnusedCodeFiles()
+        {
+            Log("FindUnusedCodeFiles - Started");
+            var results = new List<CodeFile>();
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            var fields = document.Fields;
+            int fieldsCount = fields.Count;
+            var usedFiles = new List<string>();
+
+            Log(String.Format("Preparing to process {0} fields", fieldsCount));
+            // Fields is a 1-based index
+            for (int index = fieldsCount; index >= 1; index--)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(String.Format("Null field detected at index {0}", index));
+                    continue;
+                }
+
+                if (!IsStatTagField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing StatTag field");
+                var tag = GetFieldTag(field);
+                if (tag == null)
+                {
+                    Log("The field tag is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                if (!usedFiles.Contains(tag.CodeFilePath))
+                {
+                    usedFiles.Add(tag.CodeFilePath);
+                }
+                Marshal.ReleaseComObject(field);
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            var unusedFiles = DocumentManager.GetCodeFileList().Where(x => !usedFiles.Contains(x.FilePath)).ToList();
+            Log(string.Format("Found {0} unused files", unusedFiles.Count));
+
+            Log("FindUnusedCodeFiles - Finished");
+            return unusedFiles;
+        }
+
+        /// <summary>
         /// Search the active Word document and find all inserted tags.  Determine if the tag's
         /// code file is linked to this document, and report those that are not.
         /// </summary>

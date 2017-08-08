@@ -1165,7 +1165,7 @@ namespace StatTag.Models
             var dialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates);
+                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates, dialog.UnlinkedAffectedCodeFiles);
                 UpdateRenamedTags(dialog.DuplicateTagUpdates);
             }
         }
@@ -1196,9 +1196,11 @@ namespace StatTag.Models
         /// if you want to perform actions on individual tags.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions)
+        /// <param name="unlinkedAffectedCodeFiles"></param>
+        public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
+            ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
         }
 
         /// <summary>
@@ -1212,9 +1214,34 @@ namespace StatTag.Models
         /// if you want to process all tags in a code file with a single action.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions)
+        /// <param name="unlinkedAffectedCodeFiles"></param>
+        public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
+            ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+        }
+
+        /// <summary>
+        /// Given a list of code files that have been unlinked from certain tags, determine if they can be
+        /// fully removed from the list of code files associated with the document.
+        /// </summary>
+        /// <param name="unlinkedAffectedCodeFiles">The list of code files that have been unlinked from one or more tags</param>
+        public void ProcessUnlinkedCodeFiles(List<string> unlinkedAffectedCodeFiles)
+        {
+            // If we replaced a code file, we are going to check to see if all references to that old code file are gone.
+            // If so, we can remove the code file reference from the document, so a potentially unused (or invalid)
+            // code file reference doesn't get carried aong.
+            var unusedFiles = TagManager.FindUnusedCodeFiles();
+            if (unusedFiles != null && unusedFiles.Count > 0)
+            {
+                var filesToRemove = unlinkedAffectedCodeFiles.Intersect(unusedFiles.Select(x => x.FilePath)).ToList();
+                if (filesToRemove.Any())
+                {
+                    var codeFiles = GetCodeFileList();
+                    var updatedCodeFileList = codeFiles.Where(x => !filesToRemove.Contains(x.FilePath)).ToList();
+                    SetCodeFileList(updatedCodeFileList);
+                }
+            }
         }
 
         /// <summary>

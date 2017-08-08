@@ -81,7 +81,7 @@ namespace StatTag
 
         private void UpdateForTypeClick()
         {
-            TagType = cboResultType.SelectedItem.ToString();
+            TagType = (cboResultType.SelectedItem == null ? null : cboResultType.SelectedItem.ToString());
             switch (TagType)
             {
                 case Constants.TagType.Figure:

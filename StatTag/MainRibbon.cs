@@ -82,7 +82,7 @@ namespace StatTag
                         var linkDialog = new LinkCodeFiles(unlinkedResults, loadDialog.Files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
-                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);
+                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates, linkDialog.UnlinkedAffectedCodeFiles);
                         }
                     }
 
