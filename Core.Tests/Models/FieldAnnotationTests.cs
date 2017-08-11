@@ -51,13 +51,15 @@ namespace Core.Tests.Models
         [TestMethod]
         public void Constructor_TagWithFieldTag()
         {
+            var codeFile = new CodeFile() { FilePath = "Test.do" };
             var tag = new Tag()
             {
                 Name = "Test",
-                Type = Constants.TagType.Table
+                Type = Constants.TagType.Table,
+                CodeFile = codeFile
             };
 
-            var fieldTag = new FieldTag() { CodeFilePath = "Test.do", TableCellIndex = 10};
+            var fieldTag = new FieldTag() { TableCellIndex = 10 };
             var newFieldTag = new FieldTag(tag, fieldTag);
             Assert.AreEqual(tag.Name, newFieldTag.Name);
             Assert.AreEqual(tag.Type, newFieldTag.Type);

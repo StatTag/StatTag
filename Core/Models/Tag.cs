@@ -42,7 +42,10 @@ namespace StatTag.Core.Models
 
             set
             {
-                if (CodeFile == null)
+                // If the code file doesn't exist, we will only allocate it if the code file
+                // path is not a null or empty string.  This maintains expected behavior where
+                // the code file isn't allocated until it has an actual path.
+                if (CodeFile == null && !string.IsNullOrEmpty(value))
                 {
                     CodeFile = new CodeFile() { FilePath = value };
                 }
