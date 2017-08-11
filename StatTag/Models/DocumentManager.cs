@@ -637,7 +637,13 @@ namespace StatTag.Models
             if (result != null)
             {
                 var range = selection.Range;
-                var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 100, 100, range);
+                // When creating the textbox with the range as the anchor (last parameter), we need to be sure to
+                // specify the right top/left starting position based on the selection's position relative to the page.
+                // Otherwise the verbatim control always shows up at the top (at least in Word 2016, this doesn't seem
+                // to be an issue in Word 2010).
+                var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal,
+                    (float)selection.Information[WdInformation.wdHorizontalPositionRelativeToPage],
+                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage], 100, 100, range);
                 var textFrame = shape.TextFrame;
                 textFrame.TextRange.Text = result.VerbatimResult;
                 textFrame.AutoSize = -1;
