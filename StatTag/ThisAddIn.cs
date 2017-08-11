@@ -60,6 +60,7 @@ namespace StatTag
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
+            DocumentManager.TagManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
             try
