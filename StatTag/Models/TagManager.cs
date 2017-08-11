@@ -32,6 +32,7 @@ namespace StatTag.Models
         public TagManager(DocumentManager manager)
         {
             DocumentManager = manager;
+            Logger = (DocumentManager == null ? null : DocumentManager.Logger);
         }
 
         /// <summary>
@@ -215,6 +216,31 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Create a stub tag and code file based on the name in the shape.  These just have the bare
+        /// minimum file and name references so we can use them in existing methods.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        public Tag CreatePlaceholderTagFromShape(Shape shape)
+        {
+            var nameParts = shape.Name.Split(new[] { Tag.IdentifierDelimiter }, StringSplitOptions.None);
+            if (nameParts.Length != 2)
+            {
+                Log(string.Format("The shape name ({0}), when split, is not exactly 2 parts.  Currently StatTag is not equipped to process these results.", shape.Name));
+                return null;
+            }
+
+            var codeFile = new CodeFile() { FilePath = nameParts[1] };
+            var tag = new Tag()
+            {
+                Name = nameParts[0],
+                Type = Constants.TagType.Verbatim,
+                CodeFile = codeFile
+            };
+            return tag;
+        }
+
+        /// <summary>
         /// Search the active Word document and find all inserted tags.  Determine if the tag's
         /// code file is linked to this document, and report those that are not.
         /// </summary>
@@ -278,6 +304,52 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(field);
             }
 
+
+            var shapes = document.Shapes;
+            int shapesCount = shapes.Count;
+            Log(String.Format("Preparing to process {0} shapes", shapesCount));
+            // Shapes is a 1-based index
+            for (int index = shapesCount; index >= 1; index--)
+            {
+                var shape = shapes[index];
+                if (shape == null)
+                {
+                    Log(String.Format("Null shape detected at index {0}", index));
+                    continue;
+                }
+
+                if (!IsStatTagShape(shape))
+                {
+                    Marshal.ReleaseComObject(shape);
+                    continue;
+                }
+
+                Log("Processing StatTag shape");
+                var tag = CreatePlaceholderTagFromShape(shape);
+                if (tag == null)
+                {
+                    Marshal.ReleaseComObject(shape);
+                    Marshal.ReleaseComObject(document);
+                    throw new NullReferenceException(
+                        "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
+                }
+
+                // If the file associated with the tag is not in our known list of code files, or if the code file is linked
+                // and we just can't find the tag identifier anymore (e.g., if it was deleted from the code file without us
+                // knowing), we track the tag as being unlinked.
+                bool fileLinked = files.Any(x => x.FilePath.Equals(tag.CodeFilePath));
+                if (!fileLinked || (fileLinked && !(files.First(x => x.FilePath.Equals(tag.CodeFilePath)).Tags.Any(x => x.Id.Equals(tag.Id)))))
+                {
+                    if (!results.ContainsKey(tag.CodeFilePath))
+                    {
+                        results.Add(tag.CodeFilePath, new List<Tag>());
+                    }
+
+                    results[tag.CodeFilePath].Add(tag);
+                }
+                Marshal.ReleaseComObject(shape);
+            }
+
             Marshal.ReleaseComObject(document);
 
             Log("FindAllUnlinkedTags - Finished");
@@ -337,6 +409,75 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// A generic method that will iterate over the shapes in the active document, and apply a function to
+        /// each StatTag shape.
+        /// </summary>
+        /// <param name="function">The function to apply to each relevant shape</param>
+        /// <param name="configuration">A set of configuration information specific to the function</param>
+        public void ProcessStatTagShapes(Action<Shape, Tag, object> function, object configuration)
+        {
+            Log("ProcessStatTagShapes - Started");
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            var shapes = document.Shapes;
+            int shapesCount = shapes.Count;
+
+            // Shapes is a 1-based index
+            Log(String.Format("Preparing to process {0} shapes", shapesCount));
+            for (int index = shapesCount; index >= 1; index--)
+            {
+                var shape = shapes[index];
+                if (shape == null)
+                {
+                    Log(String.Format("Null shape detected at index {0}", index));
+                    continue;
+                }
+
+                if (!IsStatTagShape(shape))
+                {
+                    Log("The shape tag does not have a name, and so isn't considered a StatTag shape");
+                    Marshal.ReleaseComObject(shape);
+                    continue;
+                }
+
+                Log("Processing StatTag shape");
+                var tag = CreatePlaceholderTagFromShape(shape);
+                if (tag == null)
+                {
+                    Marshal.ReleaseComObject(shape);
+                    Marshal.ReleaseComObject(document);
+                    throw new NullReferenceException(
+                        "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
+                }
+
+                function(shape, tag, configuration);
+
+                Marshal.ReleaseComObject(shape);
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            Log("ProcessStatTagShapes - Finished");
+        }
+
+        /// <summary>
+        /// Update the tag identifier associated with a verbatim field (a Shape in Word)
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="tag"></param>
+        public void UpdateShapeTagReference(Shape shape, Tag tag)
+        {
+            if (shape == null || !IsStatTagShape(shape))
+            {
+                return;
+            }
+
+            shape.Name = tag.Id;
+        }
+
+        /// <summary>
         /// Update the tag data in a field.
         /// </summary>
         /// <remarks>Assumes that the field parameter is known to be an tag field</remarks>
@@ -359,29 +500,13 @@ namespace StatTag.Models
         /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
         public void UpdateUnlinkedTagsByCodeFile(Field field, FieldTag tag, object configuration)
         {
+            if (!CheckAction(tag.CodeFilePath, configuration))
+            {
+                return;
+            }
+
             var actions = configuration as Dictionary<string, CodeFileAction>;
-            if (actions == null)
-            {
-                Log("The list of actions to perform is null or of the wrong type");
-                return;
-            }
-
-            // If there is no action specified for this field, we will exit.  This should happen when we have fields that
-            // are still linked in a document.
-            if (!actions.ContainsKey(tag.CodeFilePath))
-            {
-                Log(String.Format("No action is needed for tag in file {0}", tag.CodeFilePath));
-                return;
-            }
-
-            // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
-            // with doing anything.
             var action = actions[tag.CodeFilePath];
-            if (action == null)
-            {
-                Log("No action was specified - exiting");
-                return;
-            }
 
             // Apply the appropriate action to this field, based on what the user specified.
             var codeFile = action.Parameter as CodeFile;
@@ -412,6 +537,128 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Given a shape and its tag, update it to link to a new code file
+        /// </summary>
+        /// <param name="shape">The document Shape that contains the tag</param>
+        /// <param name="tag">The tag that will be updated</param>
+        /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
+        public void UpdateUnlinkedShapesByCodeFile(Shape shape, Tag tag, object configuration)
+        {
+            if (!CheckAction(tag.CodeFilePath, configuration))
+            {
+                return;
+            }
+
+            var actions = configuration as Dictionary<string, CodeFileAction>;
+            var action = actions[tag.CodeFilePath];
+
+            // Apply the appropriate action to this field, based on what the user specified.
+            var codeFile = action.Parameter as CodeFile;
+            switch (action.Action)
+            {
+                case Constants.CodeFileActionTask.ChangeFile:
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
+                        tag.Name, tag.CodeFilePath, codeFile.FilePath));
+                    tag.CodeFile = codeFile;
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
+                    var actualTag = FindTag(tag.Id);  // Try to load the real tag reference now from the loaded code file
+                    tag = (actualTag ?? tag);
+                    UpdateShapeTagReference(shape, tag);
+                    break;
+                case Constants.CodeFileActionTask.RemoveTags:
+                    Log(String.Format("Removing {0}", tag.Name));
+                    shape.Select();
+                    var application = Globals.ThisAddIn.Application;
+                    application.Selection.Text = Constants.Placeholders.RemovedField;
+                    application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
+                    break;
+                case Constants.CodeFileActionTask.ReAddFile:
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
+                    break;
+                default:
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to check that an action to perform is valid.  This reduces code duplication in a few of our
+        /// other methods.
+        /// </summary>
+        /// <param name="identifier">The identifier used to uniquely identify the action to perform</param>
+        /// <param name="configuration">A generic object parameter that is expected to be cast as a Dictionary&lt;string, CodeFileAction&gt;</param>
+        /// <returns>true if all checks pass, and false otherwise.</returns>
+        private bool CheckAction(string identifier, object configuration)
+        {
+            var actions = configuration as Dictionary<string, CodeFileAction>;
+            if (actions == null)
+            {
+                Log("The list of actions to perform is null or of the wrong type");
+                return false;
+            }
+
+            // If there is no action specified for this field, we will exit.  This should happen when we have fields that
+            // are still linked in a document.
+            if (!actions.ContainsKey(identifier))
+            {
+                Log(String.Format("No action is needed for tag identified by {0}", identifier));
+                return false;
+            }
+
+            // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
+            // with doing anything.
+            var action = actions[identifier];
+            if (action == null)
+            {
+                Log("No action was specified - exiting");
+                return false;
+            }
+
+            return true;
+        }
+
+        public void UpdateUnlinkedShapesByTag(Shape shape, Tag tag, object configuration)
+        {
+            if (!CheckAction(tag.Id, configuration))
+            {
+                return;
+            }
+
+            var actions = configuration as Dictionary<string, CodeFileAction>;
+            var action = actions[tag.Id];
+
+            // Apply the appropriate action to this shape, based on what the user specified.
+            var codeFile = action.Parameter as CodeFile;
+            switch (action.Action)
+            {
+                case Constants.CodeFileActionTask.ChangeFile:
+                    Log(String.Format("Changing tag {0} from {1} to {2}",
+                        tag.Name, tag.CodeFilePath, codeFile.FilePath));
+                    tag.CodeFile = codeFile;
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
+                    var actualTag = FindTag(tag.Id);  // Try to load the real tag reference now from the loaded code file
+                    tag = (actualTag ?? tag);
+                    UpdateShapeTagReference(shape, tag);
+                    break;
+                case Constants.CodeFileActionTask.RemoveTags:
+                    Log(String.Format("Removing {0}", tag.Name));
+                    shape.Select();
+                    var application = Globals.ThisAddIn.Application;
+                    application.Selection.Text = Constants.Placeholders.RemovedField;
+                    application.Selection.Range.HighlightColorIndex = WdColorIndex.wdYellow;
+                    break;
+                case Constants.CodeFileActionTask.ReAddFile:
+                    Log(String.Format("Linking code file {0}", tag.CodeFilePath));
+                    DocumentManager.AddCodeFile(tag.CodeFilePath);
+                    break;
+                default:
+                    Log(String.Format("The action task of {0} is not known and will be skipped", action.Action));
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Given a field and its tag, update it to link to a new code file
         /// </summary>
         /// <param name="field">The document Field that contains the tag</param>
@@ -419,29 +666,13 @@ namespace StatTag.Models
         /// <param name="configuration">A collection of the actions to apply (of type Dictionary&lt;string, CodeFileAction&gt;)</param>
         public void UpdateUnlinkedTagsByTag(Field field, FieldTag tag, object configuration)
         {
+            if (!CheckAction(tag.Id, configuration))
+            {
+                return;
+            }
+
             var actions = configuration as Dictionary<string, CodeFileAction>;
-            if (actions == null)
-            {
-                Log("The list of actions to perform is null or of the wrong type");
-                return;
-            }
-
-            // If there is no action specified for this field, we will exit.  This should happen when we have fields that
-            // are still linked in a document.
-            if (!actions.ContainsKey(tag.Id))
-            {
-                Log(String.Format("No action is needed for tag {0}", tag.Id));
-                return;
-            }
-
-            // Make sure that the action is actually defined.  If no action was specified by the user, we can't continue
-            // with doing anything.
             var action = actions[tag.Id];
-            if (action == null)
-            {
-                Log("No action was specified - exiting");
-                return;
-            }
 
             // Apply the appropriate action to this field, based on what the user specified.
             var codeFile = action.Parameter as CodeFile;
@@ -481,7 +712,8 @@ namespace StatTag.Models
         public bool IsStatTagShape(Shape shape)
         {
             return (shape != null
-                    && !String.IsNullOrWhiteSpace(shape.Name));
+                    && !string.IsNullOrWhiteSpace(shape.Name)
+                    && shape.Name.Contains(Tag.IdentifierDelimiter));
         }
     }
 }

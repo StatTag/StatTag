@@ -1207,6 +1207,7 @@ namespace StatTag.Models
         public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
+            TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByCodeFile, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
         }
 
@@ -1225,6 +1226,7 @@ namespace StatTag.Models
         public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
+            TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByTag, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
         }
 
