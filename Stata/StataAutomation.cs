@@ -248,15 +248,44 @@ namespace Stata
                 return text;
             }
 
-            int additionalOffset = 1;
-            startIndex += startingVerbatimCommand.Length + additionalOffset;
-            if (text[startIndex] == '\r')
-            {
-                additionalOffset++;
-                startIndex++;
-            }
-            var substring = text.Substring(startIndex, endIndex - startIndex - additionalOffset).TrimEnd('\r').Split(new char[] { '\r' });
+            startIndex += startingVerbatimCommand.Length + 1;
+            var substring = text.Substring(startIndex, endIndex - startIndex).Trim().Split(new char[] { '\r' });
+            // Lines prefixed with ". " are from Stata to echo our commands and can be removed.  Note that we sometimes end
+            // up with a line that is just a period - this is a ". " line that got trimmed and can be removed (but we only
+            // do that if it is the last line)
             var finalLines = substring.Where(line => !line.StartsWith(". ")).ToList();
+            if (finalLines.Count > 0 && finalLines.Last().Equals("."))
+            {
+                finalLines = finalLines.Take(finalLines.Count - 1).ToList();
+            }
+
+            // Go through the lines until we find the first non-whitespace line.  That's what we will use as the first actual line in the verbatim
+            // results.  If that removes everything, we'll return a single blank line.
+            var firstIndex = -1;
+            for (int index = 0; index < finalLines.Count; index++)
+            {
+                if (!string.IsNullOrWhiteSpace(finalLines[index]))
+                {
+                    firstIndex = index;
+                    break;
+                }
+            }
+
+            // Now go through and find the last non-whitespace line.  That's the extent that we'll pull out for the verbatim results.
+            var lastIndex = finalLines.Count - 1;
+            for (int index = lastIndex; index >= 0; index--)
+            {
+                if (!string.IsNullOrWhiteSpace(finalLines[index]))
+                {
+                    lastIndex = index;
+                    break;
+                }
+            }
+
+            // Order matters here -we're going to Take first to remove the ending blank lines, then remove
+            // the starting blank lines via Skip (just so we don't have to recalculate the Take count after
+            // we Skip a set number of lines).
+            finalLines = finalLines.Take(lastIndex + 1).Skip(firstIndex).ToList();
             return string.Join("\r\n", finalLines);
         }
 
