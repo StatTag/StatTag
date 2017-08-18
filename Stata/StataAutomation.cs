@@ -261,7 +261,7 @@ namespace Stata
 
             // Go through the lines until we find the first non-whitespace line.  That's what we will use as the first actual line in the verbatim
             // results.  If that removes everything, we'll return a single blank line.
-            var firstIndex = -1;
+            var firstIndex = 0;
             for (int index = 0; index < finalLines.Count; index++)
             {
                 if (!string.IsNullOrWhiteSpace(finalLines[index]))
