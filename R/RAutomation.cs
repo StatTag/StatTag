@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -113,6 +114,21 @@ namespace R
             if (Parser.IsImageExport(command))
             {
                 var imageLocation = RunCommand(Parser.GetImageSaveLocation(command), new Tag() { Type = Constants.TagType.Value });
+                if (Parser.IsRelativePath(imageLocation.ValueResult))
+                {
+                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                    var workingDirResult = RunCommand("getwd()", new Tag() {Type = Constants.TagType.Value});
+                    if (workingDirResult != null)
+                    {
+                        var path = workingDirResult.ValueResult;
+                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation.ValueResult));
+                        if (File.Exists(correctedPath))
+                        {
+                            imageLocation.ValueResult = correctedPath;
+                        }
+                    }
+                }
                 return new CommandResult() { FigureResult = imageLocation.ValueResult };
             }
 
