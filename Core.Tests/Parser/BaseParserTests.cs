@@ -385,5 +385,21 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[1]));
             Assert.IsTrue(parser.IsTagEnd(mock.Object.Content[2]));
         }
+
+        [TestMethod]
+        public void IsRelativePath()
+        {
+            var parser = new StubParser();
+            Assert.IsFalse(parser.IsRelativePath("C:\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("  C:\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("C:/test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("\\\\test\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("//test/test.pdf"));
+
+            Assert.IsTrue(parser.IsRelativePath(" test\\test.pdf  "));
+            Assert.IsTrue(parser.IsRelativePath(".\\test\\test.pdf"));
+            Assert.IsTrue(parser.IsRelativePath("./test/test.pdf"));
+            Assert.IsTrue(parser.IsRelativePath("test.pdf"));
+        }
     }
 }
