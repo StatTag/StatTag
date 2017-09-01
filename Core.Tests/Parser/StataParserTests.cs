@@ -224,6 +224,8 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetTableName("mat list test"));
             Assert.AreEqual("test", parser.GetTableName("mat l test"));
             Assert.AreEqual("r(coefs)", parser.GetTableName("mat l r(coefs)"));
+            Assert.AreEqual("test", parser.GetTableName("mat l test, format(%5.0g)"));
+            Assert.AreEqual("r(coefs)", parser.GetTableName("matrix list r(coefs), format(%5.0g)"));
             Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
             Assert.AreEqual("B", parser.GetTableName("matrix list B\r\n\r\n*Some comments following"));
         }
