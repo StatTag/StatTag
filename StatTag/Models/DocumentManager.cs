@@ -1145,6 +1145,10 @@ namespace StatTag.Models
                     UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
                 }
             }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, Logger);
+            }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
