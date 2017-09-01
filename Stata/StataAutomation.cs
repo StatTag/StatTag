@@ -450,6 +450,8 @@ namespace Stata
 
             if (Parser.IsImageExport(command) && !IsTrackingVerbatim)
             {
+                // If the image location is not a macro, and it appears to be a relative path, translate it into a fully
+                // qualified path based on Stata's current environment.
                 var imageLocation = Parser.GetImageSaveLocation(command);
                 if (imageLocation.Contains(StataParser.MacroDelimiters[0]))
                 {
@@ -458,6 +460,21 @@ namespace Stata
                     {
                         var result = GetMacroValue(macro);
                         imageLocation = ReplaceMacroWithValue(imageLocation, macro, result);
+                    }
+                }
+                else if (Parser.IsRelativePath(imageLocation))
+                {
+                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                    var results = RunCommands(new string[] { "local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'" });
+                    if (results != null && results.Length > 0)
+                    {
+                        var path = results.First().ValueResult;
+                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation));
+                        if (File.Exists(correctedPath))
+                        {
+                            imageLocation = correctedPath;
+                        }
                     }
                 }
 
