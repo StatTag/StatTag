@@ -183,6 +183,11 @@ namespace StatTag.Core.Parser
 
         public bool IsCalculatedDisplayValue(string command)
         {
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                return false;
+            }
+
             var valueName = GetValueName(command);
             return !string.IsNullOrWhiteSpace(valueName) &&
                 (valueName.IndexOfAny(CalculationOperators) != -1

@@ -186,6 +186,7 @@ namespace Core.Tests.Parser
         public void IsCalculatedDisplayValue()
         {
             var parser = new StataParser();
+            Assert.IsFalse(parser.IsCalculatedDisplayValue(null));
             Assert.IsFalse(parser.IsCalculatedDisplayValue(""));
             Assert.IsFalse(parser.IsCalculatedDisplayValue("2*3"));
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display (5*2)"));
