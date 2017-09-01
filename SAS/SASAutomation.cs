@@ -121,6 +121,21 @@ namespace SAS
                 var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
                 return expandedLocation.ValueResult;
             }
+            else if (Parser.IsRelativePath(originalLocation))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var results = RunCommands(new string[] { "filename dummy '.';", "%let __stattag_pwd=%sysfunc(pathname(dummy));", "%put &__stattag_pwd; RUN;" });
+                if (results != null && results.Length > 0)
+                {
+                    var path = results.First().ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, originalLocation));
+                    if (File.Exists(correctedPath))
+                    {
+                        originalLocation = correctedPath;
+                    }
+                }
+            }
 
             return originalLocation;
         }
