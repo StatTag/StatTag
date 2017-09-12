@@ -114,5 +114,14 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.HasMacroIndicator("%test"));
             Assert.IsFalse(parser.HasMacroIndicator("test"));
         }
+
+        [TestMethod]
+        public void HasFunctionIndicator()
+        {
+            var parser = new SASParser();
+            Assert.IsFalse(parser.HasFunctionIndicator("&test"));
+            Assert.IsTrue(parser.HasFunctionIndicator("%test"));
+            Assert.IsFalse(parser.HasFunctionIndicator("test"));
+        }
     }
 }

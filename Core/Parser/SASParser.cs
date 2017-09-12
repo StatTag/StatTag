@@ -16,6 +16,7 @@ namespace StatTag.Core.Parser
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
+        public const string FunctionIndicator = "%";
 
         public override string CommentCharacter
         {
@@ -55,6 +56,18 @@ namespace StatTag.Core.Parser
         public bool HasMacroIndicator(string command)
         {
             return command.Contains(MacroIndicator);
+        }
+
+        /// <summary>
+        /// Determine if a command has character(s) that indicate a function call may
+        /// be included within.  This is primarily intended for use when a filename
+        /// is used and we need to resolve the path to a literal value.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool HasFunctionIndicator(string command)
+        {
+            return command.ToUpper().Contains(FunctionIndicator);
         }
 
         /// <summary>

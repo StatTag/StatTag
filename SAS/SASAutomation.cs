@@ -116,12 +116,19 @@ namespace SAS
             //   %put "&Pathway.\Test\";
             // We will do a simple check (it's not perfect, and we may expand more often than we
             // need), but this allows us to keep the code simple while being effective.
-            if (Parser.HasMacroIndicator(originalLocation))
+            if (Parser.HasMacroIndicator(originalLocation) || Parser.HasFunctionIndicator(originalLocation))
             {
                 var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
-                return expandedLocation.ValueResult;
+                if (expandedLocation != null)
+                {
+                    originalLocation = expandedLocation.ValueResult;
+                }
             }
-            else if (Parser.IsRelativePath(originalLocation))
+            
+            // If a macro expansion has taken place, we should still check to see if it resulted
+            // in a relative path (instead of assuming all macro expansions result in a fully
+            // qualiifed path).
+            if (Parser.IsRelativePath(originalLocation))
             {
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
