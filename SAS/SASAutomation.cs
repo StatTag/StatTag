@@ -14,6 +14,7 @@ namespace SAS
     public class SASAutomation : IStatAutomation
     {
         private const string DisplayMacroValueCommand = "%PUT";
+        private const string CloseAllODS = "ods _ALL_ CLOSE;";
 
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
@@ -51,6 +52,12 @@ namespace SAS
                 UseLocal = true
             };
             Server.Connect();
+
+            // To protect against blank PDFs being created in different situations (mostly around
+            // when and how we are executing code and how SAS works when submitting code as a 
+            // batch), we will explicitly close all ODS before the execution begins.
+            RunCommand(CloseAllODS);
+
             return true;
         }
 

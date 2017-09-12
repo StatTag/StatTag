@@ -114,7 +114,6 @@ namespace StatTag.Models
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
                     var steps = parser.GetExecutionSteps(file, filterMode, tagsToRun);
-                    //foreach (var step in steps)
                     for (int index = 0; index < steps.Count; index++)
                     {
                         var step = steps[index];
