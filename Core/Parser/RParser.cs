@@ -114,7 +114,7 @@ namespace StatTag.Core.Parser
                     continue;
                 }
                 
-                if (argChar == KeyValueDelimiter)
+                if (argChar == KeyValueDelimiter && !isInFunction)
                 {
                     isNamedParameter = true;
                     parameterNameDelimiterIndex = index;

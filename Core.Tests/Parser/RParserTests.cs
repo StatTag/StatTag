@@ -71,6 +71,9 @@ namespace Core.Tests.Parser
             Assert.AreEqual("paste(\"test\", paste(\".\", \"pdf\"))", parser.GetImageSaveLocation("pdf(file=paste(\"test\", paste(\".\", \"pdf\")))"));
             Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(paste(\"test\", \".pdf\"))"));
             Assert.AreEqual("paste(\"test\", paste(\".\", \"pdf\"))", parser.GetImageSaveLocation("pdf(paste(\"test\", paste(\".\", \"pdf\")))"));
+            // This checks to make sure we ignore named parameters within a function call.  When we are looking for named parameters of the pdf call, the named parameters
+            // in the inner path call should be ignored as named parameters.
+            Assert.AreEqual("paste(Path,\"RExampleFigure.pdf\",sep=\"\")", parser.GetImageSaveLocation("pdf(paste(Path,\"RExampleFigure.pdf\",sep=\"\"))"));
 
             // Variable names should be allowed for file name parameter too
             Assert.AreEqual("file_path", parser.GetImageSaveLocation("pdf(file=file_path)"));
