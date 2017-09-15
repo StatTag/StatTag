@@ -344,5 +344,16 @@ namespace StatTag.Core.Parser
             modifiedText = RemoveNestedComments(modifiedText).Trim();
             return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
         }
+
+        /// <summary>
+        /// Perform a check to see if a command contains a saved result embedded within it.  These
+        /// are represented as commands that Stata executes, as opposed to being named values.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsSavedResultCommand(string command)
+        {
+            return command.Contains("c(") || command.Contains("r(") || command.Contains("e(");
+        }
     }
 }

@@ -62,6 +62,23 @@ namespace SAS
         }
 
         /// <summary>
+        /// Initialization steps to take before a code file is executed.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public bool InitializeForCodeFile(CodeFile file)
+        {
+            if (file == null)
+            {
+                return false;
+            }
+
+            var path = Path.GetDirectoryName(file.FilePath);
+            RunCommand(string.Format("x 'cd {0}'", path));
+            return true;
+        }
+
+        /// <summary>
         /// Iterate through a list of command results and resolve any outstanding
         /// promises on the results.
         /// </summary>

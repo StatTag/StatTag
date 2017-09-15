@@ -98,6 +98,23 @@ namespace Stata
         }
 
         /// <summary>
+        /// Initialization steps to take before a code file is executed.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public bool InitializeForCodeFile(CodeFile file)
+        {
+            if (file == null)
+            {
+                return false;
+            }
+
+            var path = Path.GetDirectoryName(file.FilePath);
+            RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
+            return true;
+        }
+
+        /// <summary>
         /// Determine if a command is one that would return a result of some sort.
         /// </summary>
         /// <param name="command">The command to evaluate</param>
@@ -301,6 +318,14 @@ namespace Stata
             if (string.IsNullOrEmpty(result))
             {
                 result = Application.MacroValue(string.Format("{0}{1}", LocalMacroPrefix, name));
+            }
+
+            // Nothing yet?  Stata lets you put saved results into a macro, which are actual commands
+            // and not anything named.  Our last attempt is to see if that might be the case, and then
+            // pull out the value.
+            if (string.IsNullOrEmpty(result) && Parser.IsSavedResultCommand(name))
+            {
+                result = Application.StReturnString(name);
             }
             return result;
         }

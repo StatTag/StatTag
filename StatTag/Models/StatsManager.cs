@@ -104,6 +104,11 @@ namespace StatTag.Models
                     return result;
                 }
 
+                if (!automation.InitializeForCodeFile(file))
+                {
+                    MessageBox.Show(string.Format("There was an error preparing the code file ({0}) to be run.  If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.", file.FilePath), UIUtility.GetAddInName());
+                }
+
                 var parser = Factories.GetParser(file);
                 if (parser == null)
                 {

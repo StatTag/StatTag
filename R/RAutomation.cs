@@ -47,6 +47,23 @@ namespace R
             return (Engine != null);
         }
 
+        /// <summary>
+        /// Initialization steps to take before a code file is executed.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public bool InitializeForCodeFile(CodeFile file)
+        {
+            if (file == null)
+            {
+                return false;
+            }
+
+            var path = Path.GetDirectoryName(file.FilePath);
+            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
+            return true;
+        }
+
         public void Dispose()
         {
             //if (Engine != null)

@@ -421,5 +421,16 @@ namespace Core.Tests.Parser
             Assert.AreEqual("x", result[0]);
             Assert.AreEqual("y", result[1]);
         }
+
+        [TestMethod]
+        public void IsSavedResultCommand()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.IsSavedResultCommand(" c(pwd) "));
+            Assert.IsTrue(parser.IsSavedResultCommand("e(N)"));
+            Assert.IsTrue(parser.IsSavedResultCommand("r(N)"));
+            Assert.IsFalse(parser.IsSavedResultCommand("p(N)"));
+            Assert.IsFalse(parser.IsSavedResultCommand("c ( N ) "));  // This is not valid in Stata because of the space between c and (
+        }
     }
 }
