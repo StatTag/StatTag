@@ -353,6 +353,7 @@ namespace StatTag.Core.Parser
         /// <returns></returns>
         public bool IsSavedResultCommand(string command)
         {
+            // Note that Stata is case-sensitive for these commands.
             return command.Contains("c(") || command.Contains("r(") || command.Contains("e(");
         }
     }

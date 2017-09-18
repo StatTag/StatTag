@@ -80,7 +80,7 @@ namespace Stata
             }
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             try
             {
@@ -88,8 +88,18 @@ namespace Stata
                 Application = new stata.StataOLEApp();
                 Application.DoCommand(DisablePagingCommand);
                 Show();
+
+                // Set the working directory to the location of the code file, if it is provided.
+                if (file != null)
+                {
+                    var path = Path.GetDirectoryName(file.FilePath);
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
+                    }
+                }
             }
-            catch (COMException comExc)
+            catch (Exception exc)
             {
                 return false;
             }
@@ -97,22 +107,6 @@ namespace Stata
             return true;
         }
 
-        /// <summary>
-        /// Initialization steps to take before a code file is executed.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public bool InitializeForCodeFile(CodeFile file)
-        {
-            if (file == null)
-            {
-                return false;
-            }
-
-            var path = Path.GetDirectoryName(file.FilePath);
-            RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
-            return true;
-        }
 
         /// <summary>
         /// Determine if a command is one that would return a result of some sort.

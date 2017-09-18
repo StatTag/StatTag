@@ -44,7 +44,7 @@ namespace SAS
             }
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             //TODO Do we want to allow remote connections, or just localhost?
             Server = new SasServer()
@@ -58,23 +58,16 @@ namespace SAS
             // batch), we will explicitly close all ODS before the execution begins.
             RunCommand(CloseAllODS);
 
-            return true;
-        }
-
-        /// <summary>
-        /// Initialization steps to take before a code file is executed.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public bool InitializeForCodeFile(CodeFile file)
-        {
-            if (file == null)
+            // Set the working directory to the location of the code file, if it is provided.
+            if (file != null)
             {
-                return false;
+                var path = Path.GetDirectoryName(file.FilePath);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    RunCommand(string.Format("x 'cd {0}'", path));
+                }
             }
 
-            var path = Path.GetDirectoryName(file.FilePath);
-            RunCommand(string.Format("x 'cd {0}'", path));
             return true;
         }
 

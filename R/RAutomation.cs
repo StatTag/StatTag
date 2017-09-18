@@ -28,7 +28,7 @@ namespace R
             Parser = new RParser();
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             if (Engine == null)
             {
@@ -44,24 +44,18 @@ namespace R
                 }
             }
 
-            return (Engine != null);
-        }
-
-        /// <summary>
-        /// Initialization steps to take before a code file is executed.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public bool InitializeForCodeFile(CodeFile file)
-        {
-            if (file == null)
+            // Set the working directory to the location of the code file, if it is provided and the
+            // R engine has been initialized.
+            if (Engine != null && file != null)
             {
-                return false;
+                var path = Path.GetDirectoryName(file.FilePath);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
+                }
             }
 
-            var path = Path.GetDirectoryName(file.FilePath);
-            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
-            return true;
+            return (Engine != null);
         }
 
         public void Dispose()
