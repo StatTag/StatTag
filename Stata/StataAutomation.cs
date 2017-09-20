@@ -37,10 +37,23 @@ namespace Stata
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
 
+        public StatPackageState State { get; set; }
+
         public string GetInitializationErrorMessage()
         {
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
+
             return
-                "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+                "We were able to connect to Stata and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
         }
 
         protected stata.StataOLEApp Application { get; set; }
@@ -62,6 +75,7 @@ namespace Stata
         public StataAutomation()
         {
             Parser = new StataParser();
+            State = new StatPackageState();
         }
 
         public void Show()
@@ -89,6 +103,8 @@ namespace Stata
                 Application.DoCommand(DisablePagingCommand);
                 Show();
 
+                State.EngineConnected = true;
+
                 // Set the working directory to the location of the code file, if it is provided.
                 if (file != null)
                 {
@@ -96,6 +112,7 @@ namespace Stata
                     if (!string.IsNullOrEmpty(path))
                     {
                         RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
+                        State.WorkingDirectorySet = true;
                     }
                 }
             }
