@@ -166,6 +166,8 @@ namespace SAS
                 {
                     originalLocation = expandedLocation.ValueResult;
                 }
+
+                originalLocation = originalLocation.Replace("\"", "");
             }
             
             // If a macro expansion has taken place, we should still check to see if it resulted

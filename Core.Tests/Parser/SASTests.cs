@@ -104,6 +104,10 @@ namespace Core.Tests.Parser
 
             // Case shouldn't matter
             Assert.AreEqual("TEST.CSV", parser.GetTableName("ODS CSV FILE=\"TEST.CSV\";"));
+
+            // Test with path set - variable and constant
+            Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableName("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
+            Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableName("ODS CSV path=&outpath file=\"Test.csv\";"));
         }
 
         [TestMethod]
@@ -122,6 +126,19 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.HasFunctionIndicator("&test"));
             Assert.IsTrue(parser.HasFunctionIndicator("%test"));
             Assert.IsFalse(parser.HasFunctionIndicator("test"));
+        }
+
+        [TestMethod]
+        public void GetPathParameter()
+        {
+            var parser = new SASParser();
+            Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv path=\"C:\\test\\\" file=\"tmp.txt\" ;"));
+            Assert.AreEqual("&outpath", parser.GetPathParameter("ods csv path = &outpath file=\"test.csv\" ;"));
+            Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv path = \"C:\\test\\\" file=\"tmp.csv\" ;"));
+            Assert.AreEqual("&outpath", parser.GetPathParameter("ods csv file=\"test.csv\" path=&outpath;"));
+            Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"C:\\test\\\";"));
+            Assert.IsNull(parser.GetPathParameter("ods csv file=\"tmp.csv\";"));
+            Assert.AreEqual("", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"\";"));
         }
     }
 }
