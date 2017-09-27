@@ -105,11 +105,12 @@ namespace Stata
 
                 State.EngineConnected = true;
 
-                // Set the working directory to the location of the code file, if it is provided.
+                // Set the working directory to the location of the code file, if it is provided and
+                // it isn't a UNC path.
                 if (file != null)
                 {
                     var path = Path.GetDirectoryName(file.FilePath);
-                    if (!string.IsNullOrEmpty(path))
+                    if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
                     {
                         RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
                         State.WorkingDirectorySet = true;

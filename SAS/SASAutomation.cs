@@ -77,11 +77,12 @@ namespace SAS
                 // batch), we will explicitly close all ODS before the execution begins.
                 RunCommand(CloseAllODS);
 
-                // Set the working directory to the location of the code file, if it is provided.
+                // Set the working directory to the location of the code file, if it is provided and
+                // isn't a UNC path.
                 if (file != null)
                 {
                     var path = Path.GetDirectoryName(file.FilePath);
-                    if (!string.IsNullOrEmpty(path))
+                    if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
                     {
                         RunCommand(string.Format("data _null_; call system('cd \"{0}\"'); run;", path));
                         State.WorkingDirectorySet = true;
