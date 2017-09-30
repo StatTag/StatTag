@@ -19,6 +19,8 @@ namespace R
     {
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
 
+        public StatPackageState State { get; set; }
+
         private REngine Engine = null;
         protected RParser Parser { get; set; }
         protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
@@ -26,9 +28,10 @@ namespace R
         public RAutomation()
         {
             Parser = new RParser();
+            State = new StatPackageState();
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             if (Engine == null)
             {
@@ -36,6 +39,20 @@ namespace R
                 {
                     REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
                     Engine = REngine.GetInstance(null, true, null, VerbatimLog);
+
+                    State.EngineConnected = (Engine != null);
+
+                    // Set the working directory to the location of the code file, if it is provided and the
+                    // R engine has been initialized.
+                    if (Engine != null && file != null)
+                    {
+                        var path = Path.GetDirectoryName(file.FilePath);
+                        if (!string.IsNullOrEmpty(path))
+                        {
+                            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
+                            State.WorkingDirectorySet = true;
+                        }
+                    }
                 }
                 catch
                 {
@@ -45,23 +62,6 @@ namespace R
             }
 
             return (Engine != null);
-        }
-
-        /// <summary>
-        /// Initialization steps to take before a code file is executed.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public bool InitializeForCodeFile(CodeFile file)
-        {
-            if (file == null)
-            {
-                return false;
-            }
-
-            var path = Path.GetDirectoryName(file.FilePath);
-            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
-            return true;
         }
 
         public void Dispose()
@@ -371,8 +371,19 @@ namespace R
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with R.  R may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with R.  R may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
 
+            return
+                "We were able to connect to R and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
         }
 
         public void Hide()

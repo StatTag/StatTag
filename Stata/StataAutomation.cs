@@ -37,10 +37,23 @@ namespace Stata
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
 
+        public StatPackageState State { get; set; }
+
         public string GetInitializationErrorMessage()
         {
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
+
             return
-                "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+                "We were able to connect to Stata and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
         }
 
         protected stata.StataOLEApp Application { get; set; }
@@ -62,6 +75,7 @@ namespace Stata
         public StataAutomation()
         {
             Parser = new StataParser();
+            State = new StatPackageState();
         }
 
         public void Show()
@@ -80,7 +94,7 @@ namespace Stata
             }
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             try
             {
@@ -88,8 +102,22 @@ namespace Stata
                 Application = new stata.StataOLEApp();
                 Application.DoCommand(DisablePagingCommand);
                 Show();
+
+                State.EngineConnected = true;
+
+                // Set the working directory to the location of the code file, if it is provided and
+                // it isn't a UNC path.
+                if (file != null)
+                {
+                    var path = Path.GetDirectoryName(file.FilePath);
+                    if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
+                    {
+                        RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
+                        State.WorkingDirectorySet = true;
+                    }
+                }
             }
-            catch (COMException comExc)
+            catch (Exception exc)
             {
                 return false;
             }
@@ -97,22 +125,6 @@ namespace Stata
             return true;
         }
 
-        /// <summary>
-        /// Initialization steps to take before a code file is executed.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public bool InitializeForCodeFile(CodeFile file)
-        {
-            if (file == null)
-            {
-                return false;
-            }
-
-            var path = Path.GetDirectoryName(file.FilePath);
-            RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
-            return true;
-        }
 
         /// <summary>
         /// Determine if a command is one that would return a result of some sort.

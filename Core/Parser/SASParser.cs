@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using StatTag.Core.Models;
 
@@ -14,7 +15,8 @@ namespace StatTag.Core.Parser
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
         public static readonly string[] TableCommands = {"ods csv"};
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex PathCaptureRegex = new Regex("\\bpath\\s*=\\s*(?:([&].+?\\b)|(?:[\"'](.*?)[\"']))[\\S\\s]*?;", RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
         public const string FunctionIndicator = "%";
 
@@ -99,12 +101,52 @@ namespace StatTag.Core.Parser
 
         public override string GetTableName(string command)
         {
-            return MatchRegexReturnGroup(command, TableRegex, 1);
+            string file = MatchRegexReturnGroup(command, TableRegex, 1);
+
+            // Check to see if a path parameter was provided as well.  If not, we will
+            // stop and return the file parameter.
+            string path = GetPathParameter(command);
+            if (string.IsNullOrEmpty(path))
+            {
+                return file;
+            }
+
+            if (path.Contains(MacroIndicator))
+            {
+                return string.Format("{0}.\\{1}", path, file);
+            }
+
+            return Path.Combine(path, file);
         }
 
         public override List<string> PreProcessContent(List<string> originalContent)
         {
             return originalContent;
+        }
+
+        /// <summary>
+        /// Retrieve the value of a PATH parameter in a command, if it exists.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>Null if no PATH parameter exists, otherwise the value of the match (which can be an empty string)</returns>
+        public string GetPathParameter(string command)
+        {
+            var match = PathCaptureRegex.Match(command);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            if (match.Groups[1].Success)
+            {
+                return match.Groups[1].Value;
+            }
+            else if (match.Groups[2].Success)
+            {
+                return match.Groups[2].Value;
+            }
+
+            return string.Empty;
         }
     }
 }
