@@ -21,30 +21,6 @@ namespace StatTag.Core.Models
     {
         public int? TableCellIndex { get; set; }
 
-        /// <summary>
-        /// Shortcut to the file path of the CodeFile.  This is used for serialization.
-        /// </summary>
-        public string CodeFilePath
-        {
-            get
-            {
-                if (CodeFile != null)
-                {
-                    return CodeFile.FilePath;
-                }
-
-                return string.Empty;
-            }
-
-            set
-            {
-                if (CodeFile == null)
-                {
-                    CodeFile = new CodeFile() { FilePath = value };
-                }
-            }
-        }
-
         public FieldTag()
             : base()
         {
@@ -68,7 +44,6 @@ namespace StatTag.Core.Models
             : base(tag ?? fieldTag)
         {
             TableCellIndex = fieldTag.TableCellIndex;
-            CodeFilePath = fieldTag.CodeFilePath;
             SetCachedValue();
         }
 
@@ -138,12 +113,24 @@ namespace StatTag.Core.Models
                 if (table != null && table.FormattedCells != null)
                 {
                     var displayData = TableUtil.GetDisplayableVector(table.FormattedCells, TableFormat);
-                    CachedResult = new List<CommandResult>() {
-                        new CommandResult()
+                    // If the index we want to pull from does not match the display data collection's length,
+                    // it's possible the table was resized in the last run, or some other unexpected condition.
+                    // We are going to throw an exception with additional details.
+                    if (TableCellIndex.Value >= displayData.Length)
+                    {
+                        throw new StatTagUserException(string.Format("This tag's index for table results ({0}) exceeds the total size of the table data ({1}).\r\n\r\nIf the dimensions of the table have changed since you inserted it, you should delete the table in Word and insert it again.",
+                            TableCellIndex.Value, displayData.Length));
+                    }
+                    else
+                    {
+                        CachedResult = new List<CommandResult>()
                         {
-                            ValueResult = displayData[TableCellIndex.Value]
-                        } 
-                    };
+                            new CommandResult()
+                            {
+                                ValueResult = displayData[TableCellIndex.Value]
+                            }
+                        };
+                    }
                 }
             }
         }

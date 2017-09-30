@@ -7,6 +7,7 @@ The following steps should be taken to release a new version of the software.
   b) Core
   c) Stata
   d) SAS
+  e) R
 2) Reload the OfficeAddInSetup-x86 project
   a) Under Organize Your Setup > General Information
     i) Update the Product Version

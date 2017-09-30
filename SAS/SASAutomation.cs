@@ -14,20 +14,42 @@ namespace SAS
     public class SASAutomation : IStatAutomation
     {
         private const string DisplayMacroValueCommand = "%PUT";
+        private const string CloseAllODS = "ODS _ALL_ CLOSE; ODS NORESULTS; ODS LISTING;";
+        //private const string CloseAllODS = "ODS NORESULTS;";
 
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
         protected List<string> LogCache { get; set; }
         protected bool LogCacheEnabled { get; set; }
 
+        public StatPackageState State { get; set; }
+
         public SASAutomation()
         {
             Parser = new SASParser();
+            State = new StatPackageState();
         }
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
+
+            return
+                "We were able to connect to SAS and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+        }
+
+        public void Hide()
+        {
+            // Since the UI is not shown, no action is needed here.
         }
 
         public void Dispose()
@@ -38,14 +60,41 @@ namespace SAS
             }
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
-            //TODO Do we want to allow remote connections, or just localhost?
-            Server = new SasServer()
+            try
             {
-                UseLocal = true
-            };
-            Server.Connect();
+                //TODO Do we want to allow remote connections, or just localhost?
+                Server = new SasServer()
+                {
+                    UseLocal = true
+                };
+                Server.Connect();
+                State.EngineConnected = true;
+
+                // To protect against blank PDFs being created in different situations (mostly around
+                // when and how we are executing code and how SAS works when submitting code as a 
+                // batch), we will explicitly close all ODS before the execution begins.
+                RunCommand(CloseAllODS);
+
+                // Set the working directory to the location of the code file, if it is provided and
+                // isn't a UNC path.
+                if (file != null)
+                {
+                    var path = Path.GetDirectoryName(file.FilePath);
+                    if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
+                    {
+                        RunCommand(string.Format("data _null_; call system('cd \"{0}\"'); run;", path));
+                        State.WorkingDirectorySet = true;
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Server = null;
+                return false;
+            }
+
             return true;
         }
 
@@ -111,10 +160,34 @@ namespace SAS
             //   %put "&Pathway.\Test\";
             // We will do a simple check (it's not perfect, and we may expand more often than we
             // need), but this allows us to keep the code simple while being effective.
-            if (Parser.HasMacroIndicator(originalLocation))
+            if (Parser.HasMacroIndicator(originalLocation) || Parser.HasFunctionIndicator(originalLocation))
             {
                 var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
-                return expandedLocation.ValueResult;
+                if (expandedLocation != null)
+                {
+                    originalLocation = expandedLocation.ValueResult;
+                }
+
+                originalLocation = originalLocation.Replace("\"", "");
+            }
+            
+            // If a macro expansion has taken place, we should still check to see if it resulted
+            // in a relative path (instead of assuming all macro expansions result in a fully
+            // qualiifed path).
+            if (Parser.IsRelativePath(originalLocation))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var results = RunCommands(new string[] { "filename dummy '.';", "%let __stattag_pwd=%sysfunc(pathname(dummy));", "%put &__stattag_pwd; RUN;" });
+                if (results != null && results.Length > 0)
+                {
+                    var path = results.First().ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, originalLocation));
+                    if (File.Exists(correctedPath))
+                    {
+                        originalLocation = correctedPath;
+                    }
+                }
             }
 
             return originalLocation;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.Office.Interop.Word;
 using StatTag.Core.Models;
 using StatTag.Core.Utility;
 
@@ -17,14 +16,14 @@ namespace StatTag.Core.Parser
         public static readonly char[] MacroDelimiters = {'`', '\'', '$'};
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         public static readonly string[] ValueCommands = { "display", "dis", "di" };
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\b", string.Join("|", ValueCommands)));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})((\\s*\\()|(\\s+))(.*)(?(2)\\))", string.Join("|", ValueCommands)));
-        public static string GraphCommand = "gr(?:aph)? export";
-        private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", GraphCommand.Replace(" ", "\\s+")));
-        private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", GraphCommand.Replace(" ", "\\s+")));
-        public static string TableCommand = "mat(?:rix)? l(?:ist)?";
-        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", TableCommand.Replace(" ", "\\s+")));
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:\\r|\\n|$)", TableCommand.Replace(" ", "\\s+")));
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\b", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})((\\s*\\()|(\\s+))(.*)(?(2)\\))", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        public static readonly string[] GraphCommands = {"gr(?:aph)? export"};
+        private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(GraphCommands)));
+        private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", FormatCommandListAsNonCapturingGroup(GraphCommands)));
+        public static readonly string[] TableCommands = {"mat(?:rix)? l(?:ist)?"};
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(TableCommands)));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:,|\\r|\\n|$)", FormatCommandListAsNonCapturingGroup(TableCommands)));
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
         private static readonly Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
         private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
@@ -184,6 +183,11 @@ namespace StatTag.Core.Parser
 
         public bool IsCalculatedDisplayValue(string command)
         {
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                return false;
+            }
+
             var valueName = GetValueName(command);
             return !string.IsNullOrWhiteSpace(valueName) &&
                 (valueName.IndexOfAny(CalculationOperators) != -1
@@ -339,6 +343,18 @@ namespace StatTag.Core.Parser
             modifiedText = CodeParserUtil.StripTrailingComments(modifiedText);
             modifiedText = RemoveNestedComments(modifiedText).Trim();
             return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
+        }
+
+        /// <summary>
+        /// Perform a check to see if a command contains a saved result embedded within it.  These
+        /// are represented as commands that Stata executes, as opposed to being named values.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsSavedResultCommand(string command)
+        {
+            // Note that Stata is case-sensitive for these commands.
+            return command.Contains("c(") || command.Contains("r(") || command.Contains("e(");
         }
     }
 }

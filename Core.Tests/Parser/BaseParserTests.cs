@@ -344,6 +344,13 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void FormatCommandListAsNonCapturingGroup()
+        {
+            Assert.AreEqual(string.Empty, BaseParser.FormatCommandListAsNonCapturingGroup(new string[0]));
+            Assert.AreEqual("(?:test)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] {"test"}));
+            Assert.AreEqual("(?:test\\s+cmd)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] {"test cmd"}));
+            Assert.AreEqual("(?:test1|test2)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] {"test1", "test2"}));
+        }
         public void IsTagStart()
         {
             var parser = new StubParser();
@@ -377,6 +384,22 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[0]));
             Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[1]));
             Assert.IsTrue(parser.IsTagEnd(mock.Object.Content[2]));
+        }
+
+        [TestMethod]
+        public void IsRelativePath()
+        {
+            var parser = new StubParser();
+            Assert.IsFalse(parser.IsRelativePath("C:\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("  C:\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("C:/test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("\\\\test\\test.pdf"));
+            Assert.IsFalse(parser.IsRelativePath("//test/test.pdf"));
+
+            Assert.IsTrue(parser.IsRelativePath(" test\\test.pdf  "));
+            Assert.IsTrue(parser.IsRelativePath(".\\test\\test.pdf"));
+            Assert.IsTrue(parser.IsRelativePath("./test/test.pdf"));
+            Assert.IsTrue(parser.IsRelativePath("test.pdf"));
         }
     }
 }

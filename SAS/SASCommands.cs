@@ -14,7 +14,7 @@ namespace SAS
         {
             public string[] GetCommands()
             {
-                return new[] { SASParser.ValueCommand };
+                return SASParser.ValueCommands;
             }
         }
 
@@ -22,7 +22,7 @@ namespace SAS
         {
             public string[] GetCommands()
             {
-                return new[] { SASParser.FigureCommand.ToUpper() };
+                return SASParser.FigureCommands.Select(x => x.ToUpper()).ToArray();
             }
         }
 
@@ -30,7 +30,7 @@ namespace SAS
         {
             public string[] GetCommands()
             {
-                return new[] { SASParser.TableCommand.ToUpper() };
+                return SASParser.TableCommands.Select(x => x.ToUpper()).ToArray();
             }
         }
 

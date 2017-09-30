@@ -60,6 +60,7 @@ namespace StatTag
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
+            DocumentManager.TagManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
             try
@@ -101,18 +102,18 @@ namespace StatTag
         /// <param name="cancel"></param>
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
-            LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
+            LogManager.WriteMessage("DocumentBeforeSave - preparing to save document properties");
 
             try
             {
-                DocumentManager.SaveCodeFileListToDocument(doc);
+                DocumentManager.SaveMetadataToDocument(doc);
             }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your StatTag data may not be saved.", LogManager);
             }
 
-            LogManager.WriteMessage("DocumentBeforeSave - code files saved");
+            LogManager.WriteMessage("DocumentBeforeSave - properties saved");
         }
 
         void Application_NewDocument(Word.Document doc)
@@ -124,7 +125,7 @@ namespace StatTag
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            DocumentManager.LoadCodeFileListFromDocument(doc);
+            DocumentManager.LoadMetadataFromDocument(doc);
             var files = DocumentManager.GetCodeFileList(doc);
             LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 

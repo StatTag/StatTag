@@ -119,11 +119,14 @@
     <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\CSVToTable.cs" />
+    <Compile Include="Models\DocumentMetadata.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FilterFormat.cs" />
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\RGBColorConverter.cs" />
+    <Compile Include="Models\StatPackageState.cs" />
+    <Compile Include="Models\StatTagUserException.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />

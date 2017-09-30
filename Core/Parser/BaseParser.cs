@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -59,6 +60,30 @@ namespace StatTag.Core.Parser
             {
                 EndTagRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.TagTags.EndTag, Constants.TagTags.TagPrefix), RegexOptions.Singleline);
             }
+        }
+
+        public static string FormatCommandListAsNonCapturingGroup(string[] commands)
+        {
+            if (commands.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            return string.Format("(?:{0})",
+                string.Join("|", commands.Select(x => x.Replace(" ", "\\s+"))));
+        }
+
+        /// <summary>
+        /// Determine if the file path appears to be relative.  This will consider multiple pathing
+        /// styles allowed across statistical packages (e.g., C://test.pdf is allowed in R).
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public bool IsRelativePath(string filePath)
+        {
+            // The reason we're just wrapping this Path call with another function is in the event we need
+            // to expand this method in the future to have more complex logic.
+            return !Path.IsPathRooted(filePath.Trim());
         }
 
         public Tag[] Parse(CodeFile file,

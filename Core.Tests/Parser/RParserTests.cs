@@ -38,6 +38,7 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsImageExport("pngs('test.png')"));
             Assert.IsFalse(parser.IsImageExport("pn('test.png')"));
             Assert.IsTrue(parser.IsImageExport("png\r\n(\r\n\"test.png\"\r\n)\r\n"));
+            Assert.IsTrue(parser.IsImageExport("png('test, file.png')"));
 
             Assert.IsTrue(parser.IsImageExport("pdf('test.pdf')"));
             Assert.IsTrue(parser.IsImageExport("win.metafile('test.wmf')"));
@@ -57,15 +58,22 @@ namespace Core.Tests.Parser
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(\"test.png\", width=100,height=100)"));
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100, \"test.png\", height=100)")); // First unnamed parameter is file
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png (width=100,height=100,fi=\r\n\t\"test.png\")"));
+            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png (width=100,height=100,FILE=\r\n\t\"test.png\")")); // Check capitalization is ignored
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
             Assert.AreEqual("'test.png'", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
             Assert.AreEqual("\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\"", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("png(width=100, height=100)")); // Here there is no unnamed parameter or file parameter (this would be an error in R)
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("spng(width=100,'test.png',height=100)"));
+            Assert.AreEqual("\"test, file.png\"", parser.GetImageSaveLocation("png(width = 100, height=100, filename=\"test, file.png\")"));
 
-            // Allow paste command to be used for file name parameter
+            // Allow paste command to be used for file name parameter.  Make sure nested functions are processed correctly too.
             Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"))"));
+            Assert.AreEqual("paste(\"test\", paste(\".\", \"pdf\"))", parser.GetImageSaveLocation("pdf(file=paste(\"test\", paste(\".\", \"pdf\")))"));
             Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(paste(\"test\", \".pdf\"))"));
+            Assert.AreEqual("paste(\"test\", paste(\".\", \"pdf\"))", parser.GetImageSaveLocation("pdf(paste(\"test\", paste(\".\", \"pdf\")))"));
+            // This checks to make sure we ignore named parameters within a function call.  When we are looking for named parameters of the pdf call, the named parameters
+            // in the inner path call should be ignored as named parameters.
+            Assert.AreEqual("paste(Path,\"RExampleFigure.pdf\",sep=\"\")", parser.GetImageSaveLocation("pdf(paste(Path,\"RExampleFigure.pdf\",sep=\"\"))"));
 
             // Variable names should be allowed for file name parameter too
             Assert.AreEqual("file_path", parser.GetImageSaveLocation("pdf(file=file_path)"));
@@ -78,8 +86,8 @@ namespace Core.Tests.Parser
             Assert.AreEqual("\"test.bmp\"", parser.GetImageSaveLocation("bmp(\"test.bmp\")"));
             Assert.AreEqual("\"test.ps\"", parser.GetImageSaveLocation("postscript(\"test.ps\")"));
 
-            // If we have two image commands in the same text block, we will get the last valid one
-            Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
+            // If we have two image commands in the same text block, we will get the first one
+            Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
         }
 
         [TestMethod]

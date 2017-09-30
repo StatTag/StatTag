@@ -28,7 +28,7 @@ namespace Stata
         {
             public string[] GetCommands()
             {
-                return new[] { CleanUpRegex(StataParser.GraphCommand) };
+                return StataParser.GraphCommands.Select(CleanUpRegex).ToArray();
             }
         }
 
@@ -36,7 +36,7 @@ namespace Stata
         {
             public string[] GetCommands()
             {
-                return new[] { CleanUpRegex(StataParser.TableCommand) };
+                return StataParser.TableCommands.Select(CleanUpRegex).ToArray();
             }
         }
 

@@ -98,7 +98,7 @@ namespace StatTag.Models
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
             using (var automation = GetStatAutomation(file))
             {
-                if (!automation.Initialize())
+                if (!automation.Initialize(file))
                 {
                     MessageBox.Show(automation.GetInitializationErrorMessage(), UIUtility.GetAddInName());
                     return result;
@@ -114,7 +114,6 @@ namespace StatTag.Models
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
                     var steps = parser.GetExecutionSteps(file, filterMode, tagsToRun);
-                    //foreach (var step in steps)
                     for (int index = 0; index < steps.Count; index++)
                     {
                         var step = steps[index];
@@ -179,6 +178,15 @@ namespace StatTag.Models
                     if (Manager != null && Manager.Logger != null)
                     {
                         Manager.Logger.WriteException(exc);
+                    }
+
+                    // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's
+                    // done to avoid any UI artifacts in Word.
+                    automation.Hide();
+                    if (!Globals.ThisAddIn.Application.ScreenUpdating)
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        Globals.ThisAddIn.Application.ScreenRefresh();
                     }
 
                     MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);

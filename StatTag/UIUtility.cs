@@ -18,7 +18,7 @@ namespace StatTag
 {
     public static class UIUtility
     {
-        public static IEnumerable<object> RemoveSelectedItems(DataGridView dgvItems, int checkColumn)
+        public static IEnumerable<object> RemoveCheckedItems(DataGridView dgvItems, int checkColumn)
         {
             if (dgvItems == null)
             {
@@ -101,8 +101,9 @@ namespace StatTag
 
         public static string GetVersionLabel()
         {
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            return string.Format("{0} v{1}.{2}.{3}", GetAddInName(), version.Major, version.Minor, version.Build);
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            return string.Format("{0} v{1}", GetAddInName(),
+                GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyFileVersionAttribute)));
         }
 
         public static void WarningMessageBox(string text, LogManager logger)

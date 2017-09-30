@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace R
     {
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
 
+        public StatPackageState State { get; set; }
+
         private REngine Engine = null;
         protected RParser Parser { get; set; }
         protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
@@ -25,9 +28,10 @@ namespace R
         public RAutomation()
         {
             Parser = new RParser();
+            State = new StatPackageState();
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
             if (Engine == null)
             {
@@ -35,6 +39,20 @@ namespace R
                 {
                     REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
                     Engine = REngine.GetInstance(null, true, null, VerbatimLog);
+
+                    State.EngineConnected = (Engine != null);
+
+                    // Set the working directory to the location of the code file, if it is provided and the
+                    // R engine has been initialized.
+                    if (Engine != null && file != null)
+                    {
+                        var path = Path.GetDirectoryName(file.FilePath);
+                        if (!string.IsNullOrEmpty(path))
+                        {
+                            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
+                            State.WorkingDirectorySet = true;
+                        }
+                    }
                 }
                 catch
                 {
@@ -113,6 +131,21 @@ namespace R
             if (Parser.IsImageExport(command))
             {
                 var imageLocation = RunCommand(Parser.GetImageSaveLocation(command), new Tag() { Type = Constants.TagType.Value });
+                if (Parser.IsRelativePath(imageLocation.ValueResult))
+                {
+                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                    var workingDirResult = RunCommand("getwd()", new Tag() {Type = Constants.TagType.Value});
+                    if (workingDirResult != null)
+                    {
+                        var path = workingDirResult.ValueResult;
+                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation.ValueResult));
+                        if (File.Exists(correctedPath))
+                        {
+                            imageLocation.ValueResult = correctedPath;
+                        }
+                    }
+                }
                 return new CommandResult() { FigureResult = imageLocation.ValueResult };
             }
 
@@ -338,8 +371,24 @@ namespace R
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with R.  R may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with R.  R may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
 
+            return
+                "We were able to connect to R and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+        }
+
+        public void Hide()
+        {
+            // Since the UI is not shown, no action is needed here.
         }
 
         private string GetValueResult(SymbolicExpression result)

@@ -186,6 +186,7 @@ namespace Core.Tests.Parser
         public void IsCalculatedDisplayValue()
         {
             var parser = new StataParser();
+            Assert.IsFalse(parser.IsCalculatedDisplayValue(null));
             Assert.IsFalse(parser.IsCalculatedDisplayValue(""));
             Assert.IsFalse(parser.IsCalculatedDisplayValue("2*3"));
             Assert.IsTrue(parser.IsCalculatedDisplayValue("display (5*2)"));
@@ -223,6 +224,8 @@ namespace Core.Tests.Parser
             Assert.AreEqual("test", parser.GetTableName("mat list test"));
             Assert.AreEqual("test", parser.GetTableName("mat l test"));
             Assert.AreEqual("r(coefs)", parser.GetTableName("mat l r(coefs)"));
+            Assert.AreEqual("test", parser.GetTableName("mat l test, format(%5.0g)"));
+            Assert.AreEqual("r(coefs)", parser.GetTableName("matrix list r(coefs), format(%5.0g)"));
             Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
             Assert.AreEqual("B", parser.GetTableName("matrix list B\r\n\r\n*Some comments following"));
         }
@@ -417,6 +420,17 @@ namespace Core.Tests.Parser
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("x", result[0]);
             Assert.AreEqual("y", result[1]);
+        }
+
+        [TestMethod]
+        public void IsSavedResultCommand()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.IsSavedResultCommand(" c(pwd) "));
+            Assert.IsTrue(parser.IsSavedResultCommand("e(N)"));
+            Assert.IsTrue(parser.IsSavedResultCommand("r(N)"));
+            Assert.IsFalse(parser.IsSavedResultCommand("p(N)"));
+            Assert.IsFalse(parser.IsSavedResultCommand("c ( N ) "));  // This is not valid in Stata because of the space between c and (
         }
     }
 }
