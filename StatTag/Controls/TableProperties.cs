@@ -16,7 +16,6 @@ namespace StatTag.Controls
         public TableProperties()
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
         }
 
         public void SetTableFormat(TableFormat tableFormat)

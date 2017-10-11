@@ -6,7 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
+using Microsoft.Office.Core;
 using StatTag.Core;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
@@ -41,6 +44,7 @@ namespace StatTag.Models
         public StatsManager StatsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
+        public const string MetadataAttribute = "StatTag Metadata";
 
         public DocumentManager()
         {
@@ -69,10 +73,62 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Creates a document metadata container that will hold information about the StatTag environment
+        /// used to create the Word document.
+        /// </summary>
+        /// <returns></returns>
+        protected DocumentMetadata CreateDocumentMetadata()
+        {
+            var metadata = new DocumentMetadata()
+            {
+                StatTagVersion = UIUtility.GetVersionLabel()
+            };
+            return metadata;
+        }
+
+        /// <summary>
+        /// Saves associated metadata about StatTag to the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        public void SaveMetadataToDocument(Document document)
+        {
+            Log("SaveMetadataToDocument - Started");
+
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                var attribute = CreateDocumentMetadata().Serialize();
+                if (!DocumentVariableExists(variable))
+                {
+                    Log(string.Format("Metadata variable does not exist.  Adding attribute value of {0}", attribute));
+                    variables.Add(MetadataAttribute, attribute);
+                }
+                else
+                {
+                    Log(string.Format("Metadata variable already exists.  Updating attribute value to {0}", attribute));
+                    variable.Value = attribute;
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+
+
+            // Historically we just saved the code file list.  Starting in v3.1 we save more metadata, so the original
+            // call to save the code file list is just called afterwards.
+            SaveCodeFileListToDocument(document);
+
+            Log("SaveMetadataToDocument - Finished");
+        }
+
+        /// <summary>
         /// Save the referenced code files to the current Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void SaveCodeFileListToDocument(Document document)
+        protected void SaveCodeFileListToDocument(Document document)
         {
             Log("SaveCodeFileListToDocument - Started");
 
@@ -120,10 +176,46 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Loads associated metadata about StatTag from the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        public void LoadMetadataFromDocument(Document document)
+        {
+            Log("LoadMetadataFromDocument - Started");
+            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
+            // we just read it and log it so we know a little more about the document.
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                if (DocumentVariableExists(variable))
+                {
+                    var metadata = DocumentMetadata.Deserialize(variable.Value);
+                    Log(string.Format("Document created with {0}", metadata.StatTagVersion));
+                }
+                else
+                {
+                    Log("No StatTag metadata contained in document");
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+            
+            // Historically we just had the code file list in the document properties, so we call the old load
+            // function to help with backwards compatibility for documents created prior to v3.1, without having
+            // to migrate document properties.
+            LoadCodeFileListFromDocument(document);
+            Log("LoadMetadataFromDocument - Finished");
+        }
+
+        /// <summary>
         /// Load the list of associated Code Files from a Word document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        public void LoadCodeFileListFromDocument(Document document)
+        protected void LoadCodeFileListFromDocument(Document document)
         {
             Log("LoadCodeFileListFromDocument - Started");
 
@@ -174,7 +266,20 @@ namespace StatTag.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
 
-            string fileName = tag.CachedResult.First().FigureResult;
+            string originalFileName = tag.CachedResult.First().FigureResult;
+            // Because different statistical packages let you format file paths different ways (e.g., R will
+            // let you use C:/test/test.pdf), we will convert the path to a standard Windows format before
+            // we use it.  This maybe should be done when the path is set in the tag, but for now I thought
+            // we should preserve the original value that was generated by the statistical code.
+            string fileName = Path.GetFullPath(originalFileName);
+            Log(string.Format("Normalized path {0} to {1}", originalFileName, fileName));
+
+            if (!File.Exists(fileName))
+            {
+                Log(string.Format("Could not find file at {0}", fileName));
+                throw new StatTagUserException(string.Format("The figure you created could not be found at {0}.\r\n\r\nPlease ensure that the figure is being created by your statistical program.  If it is, and you are using relative paths for the figure output, please try changing your statistical code to provide the full path to the figure.", fileName));
+            }
+
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 Log(string.Format("Inserting a PDF image - {0}", fileName));
@@ -335,6 +440,57 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Processes all content controls within the document, which may include verbatim output.
+        /// Handles renaming of tags as well, if applicable.
+        /// </summary>
+        /// <param name="document">The current document to process</param>
+        /// <param name="tagUpdatePair"></param>
+        private void UpdateVerbatimEntries(Document document, UpdatePair<Tag> tagUpdatePair = null)
+        {
+            var shapes = document.Shapes;
+            if (shapes == null)
+            {
+                return;
+            }
+
+            int shapeCount = shapes.Count;
+            for (int index = 1; index <= shapeCount; index++)
+            {
+                var shape = shapes[index];
+                if (shape != null)
+                {
+                    if (TagManager.IsStatTagShape(shape))
+                    {
+                        var tag = TagManager.FindTag(shape.Name);
+                        if (tag == null)
+                        {
+                            Log(string.Format("No tag was found for the control with ID: {0}", shape.Name));
+                            continue;
+                        }
+
+                        if (tag.Type != Constants.TagType.Verbatim)
+                        {
+                            Log(string.Format("The tag ({0}) was inserted as verbatim but is now a different type.  We are unable to update it.", tag.Id));
+                        }
+
+                        // If the tag update pair is set, it will be in response to renaming.  Make sure
+                        // we apply the new tag name to the control
+                        if (tagUpdatePair != null && tagUpdatePair.Old.Equals(tag))
+                        {
+                            shape.Name = tagUpdatePair.New.Id;
+                        }
+
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult;
+                    }
+                    Marshal.ReleaseComObject(shape);
+                }
+            }
+
+            Marshal.ReleaseComObject(shapes);
+        }
+
+
+        /// <summary>
         /// Update all of the field values in the current document.
         /// <remarks>This does not invoke a statistical package to recalculate values, it assumes
         /// that has already been done.  Instead it just updates the displayed text of a field
@@ -356,7 +512,7 @@ namespace StatTag.Models
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
-                if (tableDimensionChange)
+                if (tableDimensionChange && tagUpdatePair != null)
                 {
                     Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
                     if (RefreshTableTagFields(tagUpdatePair.New, document))
@@ -367,6 +523,8 @@ namespace StatTag.Models
                 }
 
                 UpdateInlineShapes(document);
+
+                UpdateVerbatimEntries(document, tagUpdatePair);
                 
                 var fields = document.Fields;
                 int fieldsCount = fields.Count;
@@ -481,6 +639,53 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(rows);
             Marshal.ReleaseComObject(document);
             return cells;
+        }
+
+        /// <summary>
+        /// Inserts a rich text edit control
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <param name="tag"></param>
+        public void InsertVerbatim(Selection selection, Tag tag)
+        {
+            Log("InsertVerbatim - Started");
+
+            if (tag == null)
+            {
+                Log("Unable to insert the verbatim output because the tag is null");
+                return;
+            }
+
+            var result = tag.CachedResult.FirstOrDefault();
+            if (result != null)
+            {
+                var range = selection.Range;
+                // When creating the textbox with the range as the anchor (last parameter), we need to be sure to
+                // specify the right top/left starting position based on the selection's position relative to the page.
+                // Otherwise the verbatim control always shows up at the top (at least in Word 2016, this doesn't seem
+                // to be an issue in Word 2010).
+                var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal,
+                    (float)selection.Information[WdInformation.wdHorizontalPositionRelativeToPage],
+                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage], 100, 100, range);
+                var textFrame = shape.TextFrame;
+                textFrame.TextRange.Text = result.VerbatimResult;
+                textFrame.AutoSize = -1;
+                textFrame.WordWrap = 0;
+                shape.Line.Visible = MsoTriState.msoFalse;
+                textFrame.TextRange.Font.Name = "Courier New";
+                textFrame.TextRange.Font.Size = 9.0f;
+                textFrame.TextRange.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
+                textFrame.TextRange.ParagraphFormat.SpaceAfter = 0;
+                textFrame.TextRange.ParagraphFormat.SpaceBefore = 0;
+                shape.WrapFormat.Type = WdWrapType.wdWrapInline;
+                shape.Name = tag.Id;
+
+                Marshal.ReleaseComObject(textFrame);
+                Marshal.ReleaseComObject(shape);
+                Marshal.ReleaseComObject(range);
+            }
+
+            Log("InsertVerbatim - Finished");
         }
 
         /// <summary>
@@ -676,7 +881,6 @@ namespace StatTag.Models
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
         /// <param name="tag"></param>
-
         public void InsertField(Tag tag)
         {
             Log("InsertField for Tag");
@@ -717,9 +921,14 @@ namespace StatTag.Models
                     return;
                 }
 
+                if (tag.Type == Constants.TagType.Verbatim)
+                {
+                    Log("Inserting verbatim output");
+                    InsertVerbatim(selection, tag);
+                }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
-                if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
+                else if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
                 {
                     Log("Inserting a new table tag");
                     InsertTable(selection, tag);
@@ -752,6 +961,11 @@ namespace StatTag.Models
         protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
         {
             Log("CreateTagField - Started");
+            if (tag.Type == Constants.TagType.Verbatim)
+            {
+                FieldGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
+                return;
+            }
             var xml = OpenXmlGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
             Log("Field XML: " + xml);
             range.InsertXML(xml);
@@ -813,6 +1027,11 @@ namespace StatTag.Models
                         dialog.Tag.UpdateFormattedTableData();
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
+                    else if (dialog.Tag.Id != tag.Id)
+                    {
+                        Log("Updating fields after tag renamed");
+                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                    }
 
                     SaveEditedTag(dialog, tag);
                     Log("EditTag - Finished (action)");
@@ -872,6 +1091,18 @@ namespace StatTag.Models
                 var fieldTag = TagManager.GetFieldTag(field);
                 var tag = TagManager.FindTag(fieldTag);
                 EditTag(tag);
+            }
+        }
+
+        public void EditTagShape(Microsoft.Office.Interop.Word.Shape shape)
+        {
+            if (TagManager.IsStatTagShape(shape))
+            {
+                var tag = TagManager.FindTag(shape.Name);
+                if (tag != null)
+                {
+                    EditTag(tag);
+                }
             }
         }
 
@@ -937,6 +1168,10 @@ namespace StatTag.Models
                     UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
                 }
             }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, Logger);
+            }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
@@ -970,7 +1205,7 @@ namespace StatTag.Models
             var dialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
             if (DialogResult.OK == dialog.ShowDialog())
             {
-                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates);
+                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates, dialog.UnlinkedAffectedCodeFiles);
                 UpdateRenamedTags(dialog.DuplicateTagUpdates);
             }
         }
@@ -1001,9 +1236,12 @@ namespace StatTag.Models
         /// if you want to perform actions on individual tags.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions)
+        /// <param name="unlinkedAffectedCodeFiles"></param>
+        public void UpdateUnlinkedTagsByCodeFile(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
+            TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByCodeFile, actions);
+            ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
         }
 
         /// <summary>
@@ -1017,9 +1255,35 @@ namespace StatTag.Models
         /// if you want to process all tags in a code file with a single action.
         /// </remarks>
         /// <param name="actions"></param>
-        public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions)
+        /// <param name="unlinkedAffectedCodeFiles"></param>
+        public void UpdateUnlinkedTagsByTag(Dictionary<string, CodeFileAction> actions, List<string> unlinkedAffectedCodeFiles)
         {
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
+            TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByTag, actions);
+            ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+        }
+
+        /// <summary>
+        /// Given a list of code files that have been unlinked from certain tags, determine if they can be
+        /// fully removed from the list of code files associated with the document.
+        /// </summary>
+        /// <param name="unlinkedAffectedCodeFiles">The list of code files that have been unlinked from one or more tags</param>
+        public void ProcessUnlinkedCodeFiles(List<string> unlinkedAffectedCodeFiles)
+        {
+            // If we replaced a code file, we are going to check to see if all references to that old code file are gone.
+            // If so, we can remove the code file reference from the document, so a potentially unused (or invalid)
+            // code file reference doesn't get carried aong.
+            var unusedFiles = TagManager.FindUnusedCodeFiles();
+            if (unusedFiles != null && unusedFiles.Count > 0)
+            {
+                var filesToRemove = unlinkedAffectedCodeFiles.Intersect(unusedFiles.Select(x => x.FilePath)).ToList();
+                if (filesToRemove.Any())
+                {
+                    var codeFiles = GetCodeFileList();
+                    var updatedCodeFileList = codeFiles.Where(x => !filesToRemove.Contains(x.FilePath)).ToList();
+                    SetCodeFileList(updatedCodeFileList);
+                }
+            }
         }
 
         /// <summary>

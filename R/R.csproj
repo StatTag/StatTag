@@ -30,18 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicInterop.0.7.4\lib\net40\DynamicInterop.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="RDotNet, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="RDotNet.NativeLibrary, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -55,15 +43,29 @@
     <Compile Include="RAutomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RCommands.cs" />
+    <Compile Include="VerbatimDevice.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dynamic-interop-dll\DynamicInterop\DynamicInterop.csproj">
+      <Project>{37e8df32-0d37-418e-b976-10f4b36a0073}</Project>
+      <Name>DynamicInterop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
+      <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
+      <Name>RDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.Graphics\RDotNet.Graphics.csproj">
+      <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
+      <Name>RDotNet.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
+      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
+      <Name>RDotNet.NativeLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,6 +13,8 @@ namespace StatTag.Core.Models
     /// </summary>
     public class Tag
     {
+        public const string IdentifierDelimiter = "--";
+
         [JsonIgnore]
         public CodeFile CodeFile { get; set; }
         public string Type { get; set; }
@@ -23,11 +25,38 @@ namespace StatTag.Core.Models
         public TableFormat TableFormat { get; set; }
         public List<CommandResult> CachedResult { get; set; }
 
+        /// <summary>
+        /// Shortcut to the file path of the CodeFile.  This is used for serialization.
+        /// </summary>
+        public string CodeFilePath
+        {
+            get
+            {
+                if (CodeFile != null)
+                {
+                    return CodeFile.FilePath;
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                // If the code file doesn't exist, we will only allocate it if the code file
+                // path is not a null or empty string.  This maintains expected behavior where
+                // the code file isn't allocated until it has an actual path.
+                if (CodeFile == null && !string.IsNullOrEmpty(value))
+                {
+                    CodeFile = new CodeFile() { FilePath = value };
+                }
+            }
+        }
+
         public string Id
         {
             get
             {
-                return string.Format("{0}--{1}", Name, (CodeFile == null ? string.Empty : CodeFile.FilePath));
+                return string.Format("{0}{1}{2}", Name, IdentifierDelimiter, (CodeFile == null ? string.Empty : CodeFile.FilePath));
             }
         }
 
@@ -95,6 +124,7 @@ namespace StatTag.Core.Models
             LineStart = tag.LineStart;
             LineEnd = tag.LineEnd;
             CachedResult = tag.CachedResult;
+            CodeFilePath = tag.CodeFilePath;
         }
 
         /// <summary>

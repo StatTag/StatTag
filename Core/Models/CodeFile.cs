@@ -17,6 +17,7 @@ namespace StatTag.Core.Models
     /// </summary>
     public class CodeFile
     {
+        [JsonIgnore]  // Even though this is private, we want to ensure it never gets serialized
         private List<string> ContentCache = null;
 
         public string StatisticalPackage { get; set; }
@@ -97,12 +98,29 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
+        /// Determine if this is a valid code file
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValid()
+        {
+            return (!string.IsNullOrWhiteSpace(FilePath) & FileHandler.Exists(FilePath));
+        }
+
+        /// <summary>
         /// Return the contents of the CodeFile
         /// </summary>
         /// <returns></returns>
         public virtual List<string> LoadFileContent()
         {
-            RefreshContent();
+            if (!FileHandler.Exists(FilePath))
+            {
+                ContentCache = null;
+            }
+            else
+            {
+                RefreshContent();
+            }
+            
             return ContentCache;
         }
 
@@ -179,7 +197,10 @@ namespace StatTag.Core.Models
         /// </summary>
         public void Save()
         {
-            FileHandler.WriteAllLines(FilePath, Content);
+            if (FilePath != null && Content != null)
+            {
+                FileHandler.WriteAllLines(FilePath, Content);
+            }
         }
 
         /// <summary>

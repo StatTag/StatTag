@@ -19,6 +19,7 @@ namespace StatTag
         {
             public string[] Text;
             public CodeFile File;
+            public bool IsVerbatimTag;
         }
 
         private const int TagMargin = 1;
@@ -26,20 +27,16 @@ namespace StatTag
         private const uint TagMask = (1 << TagMarker);
         private const string CannotLoadDialogMessage =
             "There was an error trying to load the Tag dialog.";
-
-        public const int SelectedButtonWidth = 83;
-        public const int UnselectedButtonWidth = 70;
-        public readonly Font SelectedButtonFont = DefaultFont;
-        public readonly Font UnselectedButtonFont = DefaultFont;
-
+        
         public DocumentManager Manager { get; set; }
         private Tag OriginalTag { get; set; }
-        public Tag Tag { get; set; }
+        public new Tag Tag { get; set; }
         public string CodeText { get; set; }
         public bool InsertInDocument { get; private set; }
 
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
+        private bool AllowInsertInDocument { get; set; }
 
         public EditTag(bool allowInsertInDocument, DocumentManager manager = null)
         {
@@ -48,11 +45,10 @@ namespace StatTag
                 Manager = manager;
 
                 InitializeComponent();
-                Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
-                SelectedButtonFont = Font;
-                UnselectedButtonFont = new Font(Font.FontFamily, 8.25f);
+                UIUtility.ScaleFont(this);
                 UIUtility.SetDialogTitle(this);
-                cmdSaveAndInsert.Enabled = allowInsertInDocument;
+                AllowInsertInDocument = allowInsertInDocument;
+                RefreshButtons();
             }
             catch (Exception exc)
             {
@@ -85,7 +81,7 @@ namespace StatTag
 
         private void UpdateForTypeClick()
         {
-            TagType = cboResultType.SelectedItem.ToString();
+            TagType = (cboResultType.SelectedItem == null ? null : cboResultType.SelectedItem.ToString());
             switch (TagType)
             {
                 case Constants.TagType.Figure:
@@ -95,6 +91,11 @@ namespace StatTag
                     break;
                 case Constants.TagType.Table:
                     tableProperties.Visible = true;
+                    valueProperties.Visible = false;
+                    figureProperties.Visible = false;
+                    break;
+                case Constants.TagType.Verbatim:
+                    tableProperties.Visible = false;
                     valueProperties.Visible = false;
                     figureProperties.Visible = false;
                     break;
@@ -123,8 +124,8 @@ namespace StatTag
             OverrideCenterToScreen();
             MinimumSize = Size;
 
-            cboResultType.Items.AddRange(Constants.TagType.GetList());
-            cboResultType.SelectedItem = Constants.TagType.Value;
+            cboResultType.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.TagType.GetList()));
+            cboResultType.SelectedItem = Constants.TagType.Verbatim;
             UpdateForTypeClick();
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
@@ -188,6 +189,9 @@ namespace StatTag
                         tableProperties.SetTableFormat(Tag.TableFormat);
                         tableProperties.SetValueFormat(Tag.ValueFormat);
                         break;
+                    case Constants.TagType.Verbatim:
+                        UpdateForTypeClick();
+                        break;
                 }
             }
             else
@@ -206,6 +210,11 @@ namespace StatTag
 
                 // Default the default run frequency to "Default" (by default)
                 cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                txtName.Focus();
             }
         }
 
@@ -301,7 +310,14 @@ namespace StatTag
                 // If the data was not set, we're going to just avoid triggering any errors and
                 // pretend everything went fine.  The thought is that this is an internal glitch,
                 // and users may get annoyed seeing "error" when things are actually fine.
-                e.Result = true;
+                e.Result = false;
+                return;
+            }
+
+            // If the tag is a verbatim tag, we won't do any other checks (anything can be verbatim)
+            if (data.IsVerbatimTag)
+            {
+                e.Result = false;
                 return;
             }
 
@@ -314,6 +330,7 @@ namespace StatTag
                     return;
                 }
 
+                // Returning true means the warning should display
                 e.Result = true;
             }
         }
@@ -434,7 +451,7 @@ namespace StatTag
         private void RunWorker(string[] selectedText)
         {
             var codeFile = cboCodeFiles.SelectedItem as CodeFile;
-            codeCheckWorker.RunWorkerAsync(new ThreadData() {File = codeFile, Text = selectedText});
+            codeCheckWorker.RunWorkerAsync(new ThreadData() { File = codeFile, Text = selectedText, IsVerbatimTag = (TagType == Constants.TagType.Verbatim) });
         }
 
         private string[] GetSelectedText()
@@ -545,6 +562,8 @@ namespace StatTag
                     Tag.TableFormat = tableProperties.GetTableFormat();
                     Tag.ValueFormat = tableProperties.GetValueFormat();
                     break;
+                case Constants.TagType.Verbatim:
+                    break;
                 default:
                     throw new NotSupportedException("This tag type is not yet supported");
             }
@@ -553,6 +572,18 @@ namespace StatTag
         private void cboResultType_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateForTypeClick();
+        }
+
+        private void RefreshButtons()
+        {
+            var saveEnabled = !(string.IsNullOrWhiteSpace(txtName.Text));
+            cmdOK.Enabled = saveEnabled;
+            cmdSaveAndInsert.Enabled = saveEnabled && AllowInsertInDocument;
+        }
+
+        private void txtName_TextChanged(object sender, EventArgs e)
+        {
+            RefreshButtons();
         }
     }
 }

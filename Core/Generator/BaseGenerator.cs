@@ -59,6 +59,13 @@ namespace StatTag.Core.Generator
                         Constants.TagTags.ParamStart, CombineValueAndTableParameters(tag),
                         Constants.TagTags.ParamEnd);
                 }
+                else if (tag.Type.Equals(Constants.TagType.Verbatim))
+                {
+                    var verbatimGenerator = new VerbatimGenerator();
+                    openBase += string.Format("{0}{1}{2}{3}", Constants.TagType.Verbatim,
+                        Constants.TagTags.ParamStart, verbatimGenerator.CreateParameters(tag),
+                        Constants.TagTags.ParamEnd);
+                }
                 else
                 {
                     throw new Exception("Unsupported tag type");

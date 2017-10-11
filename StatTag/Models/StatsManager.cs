@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Word;
 using R;
 using SAS;
 using StatTag.Core;
@@ -97,7 +98,7 @@ namespace StatTag.Models
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
             using (var automation = GetStatAutomation(file))
             {
-                if (!automation.Initialize())
+                if (!automation.Initialize(file))
                 {
                     MessageBox.Show(automation.GetInitializationErrorMessage(), UIUtility.GetAddInName());
                     return result;
@@ -113,7 +114,6 @@ namespace StatTag.Models
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
                     var steps = parser.GetExecutionSteps(file, filterMode, tagsToRun);
-                    //foreach (var step in steps)
                     for (int index = 0; index < steps.Count; index++)
                     {
                         var step = steps[index];
@@ -147,8 +147,10 @@ namespace StatTag.Models
                             var resultList = new List<CommandResult>(results);
 
                             // Determine if we had a cached list, and if so if the results have changed.
-                            bool resultsChanged = (tag.CachedResult != null &&
-                                                   !resultList.SequenceEqual(tag.CachedResult));
+                            // If the cached list is null, we will always try to refresh.
+                            bool resultsChanged = (tag.CachedResult == null) ||
+                                                    (tag.CachedResult != null &&
+                                                       !resultList.SequenceEqual(tag.CachedResult));
                             tag.CachedResult = resultList;
 
                             // If the results did change, we need to sweep the document and update all of the results
@@ -173,6 +175,20 @@ namespace StatTag.Models
                 }
                 catch (Exception exc)
                 {
+                    if (Manager != null && Manager.Logger != null)
+                    {
+                        Manager.Logger.WriteException(exc);
+                    }
+
+                    // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's
+                    // done to avoid any UI artifacts in Word.
+                    automation.Hide();
+                    if (!Globals.ThisAddIn.Application.ScreenUpdating)
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        Globals.ThisAddIn.Application.ScreenRefresh();
+                    }
+
                     MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return result;
                 }

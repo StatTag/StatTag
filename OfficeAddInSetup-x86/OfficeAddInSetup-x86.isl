@@ -343,10 +343,12 @@
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
 		<row><td>Core.Primary_output</td><td>{C834205A-DDEE-48D0-97FD-FFA46C5F8CDE}</td><td>INSTALLDIR</td><td>2</td><td/><td>core.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>DynamicInterop.Primary_output</td><td>{0E782640-307A-4421-9034-F993839F66C9}</td><td>INSTALLDIR</td><td>2</td><td/><td>dynamicinterop.primary_outpu</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td>{D62D35C2-88B4-4A60-BAB1-0A940D52D307}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td>{727489CE-79B0-4CEC-A828-1C6202C015EA}</td><td>ProgramFiles64Folder</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT2</td><td>{EA3A6F0E-A54B-4DC3-B8A3-6C944328CB77}</td><td>X86</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td>{BA8730F7-B5C2-4AD2-B872-78F902338AA9}</td><td>X64</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>R.Primary_output</td><td>{542029AA-1093-40EC-855A-7C2673E76ED4}</td><td>INSTALLDIR</td><td>2</td><td/><td>r.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SAS.Primary_output</td><td>{097B20B2-6128-4084-8049-8C2FE438E3BD}</td><td>INSTALLDIR</td><td>2</td><td/><td>sas.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SciLexer.dll</td><td>{CB81218B-1095-4881-BD39-1D7FBC55DD59}</td><td>X86</td><td>2</td><td/><td>scilexer.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SciLexer.dll1</td><td>{DD040F83-C7BB-4346-BB74-E99B5BA783B2}</td><td>X64</td><td>2</td><td/><td>scilexer.dll1</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1062,10 +1064,12 @@
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
 		<row><td>INSTALLDIR</td><td>Core.Primary_output</td></row>
+		<row><td>INSTALLDIR</td><td>DynamicInterop.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT2</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT3</td></row>
+		<row><td>INSTALLDIR</td><td>R.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>SAS.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>SciLexer.dll</td></row>
 		<row><td>INSTALLDIR</td><td>SciLexer.dll1</td></row>
@@ -1893,10 +1897,12 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
 		<row><td>AlwaysInstall</td><td>Core.Primary_output</td></row>
+		<row><td>AlwaysInstall</td><td>DynamicInterop.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT2</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT3</td></row>
+		<row><td>AlwaysInstall</td><td>R.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>SAS.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>SciLexer.dll</td></row>
 		<row><td>AlwaysInstall</td><td>SciLexer.dll1</td></row>
@@ -1917,7 +1923,9 @@
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
 		<row><td>core.primary_output</td><td>Core.Primary_output</td><td>Core.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Core&gt;|Built</td><td>3</td><td/></row>
+		<row><td>dynamicinterop.primary_outpu</td><td>DynamicInterop.Primary_output</td><td>DynamicInterop.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;DynamicInterop&gt;|Built</td><td>3</td><td/></row>
 		<row><td>license</td><td>ISX_DEFAULTCOMPONENT</td><td>LICENSE</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\LICENSE</td><td>1</td><td/></row>
+		<row><td>r.primary_output</td><td>R.Primary_output</td><td>R.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;R&gt;|Built</td><td>3</td><td/></row>
 		<row><td>sas.primary_output</td><td>SAS.Primary_output</td><td>SAS.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;SAS&gt;|Built</td><td>3</td><td/></row>
 		<row><td>scilexer.dll</td><td>SciLexer.dll</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x86\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
@@ -2070,10 +2078,12 @@
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
 		<row><td>Core.Primary_output</td><td/><td/><td>_44E9E718_6013_453D_B755_732E3BB4D780_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>DynamicInterop.Primary_output</td><td/><td/><td>_B627489E_4972_49E7_B483_AAF8E5245203_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td/><td/><td>_034497B7_7EEB_4C17_8C6C_6B5ADB6C69F4_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td/><td/><td>_5AC9FE7D_89FC_4825_856B_D3F588D21C29_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT2</td><td/><td/><td>_F96A1602_D5EF_47F0_80D6_593203144809_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td/><td/><td>_E1FCB837_FDF6_4C6B_AAD1_0A03FABEBF57_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>R.Primary_output</td><td/><td/><td>_3485F8BE_C9E2_4167_81F8_A83B2F16964D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SAS.Primary_output</td><td/><td/><td>_97248F94_6A01_44B2_8E9E_7DD9373FF7CA_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SciLexer.dll</td><td/><td/><td>_6EDBF4D0_B725_4E8F_BE9D_D9448C9DC114_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SciLexer.dll1</td><td/><td/><td>_35A32B77_A9CC_440B_8320_317A170EE781_FILTER</td><td/><td/><td/><td/></row>
@@ -2125,6 +2135,9 @@
 	<table name="ISDependency">
 		<col key="yes" def="S50">ISDependency</col>
 		<col def="I2">Exclude</col>
+		<row><td>SAS.TLB</td><td>1</td></row>
+		<row><td>SASIOMCOMMON.TLB</td><td>1</td></row>
+		<row><td>SASOMAN.DLL</td><td>1</td></row>
 		<row><td>STATASE-64.EXE</td><td>1</td></row>
 	</table>
 
@@ -2362,11 +2375,13 @@
 		<row><td>AnalysisManager</td><td>AnalysisManager\StatTag.csproj</td><td/><td>2</td></row>
 		<row><td>CommonFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>Core</td><td>Core\Core.csproj</td><td/><td>2</td></row>
+		<row><td>DynamicInterop</td><td>..\dynamic-interop-dll\DynamicInterop\DynamicInterop.csproj</td><td/><td>2</td></row>
 		<row><td>ISPROJECTDIR</td><td/><td/><td>1</td></row>
 		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
+		<row><td>R</td><td>R\R.csproj</td><td/><td>2</td></row>
 		<row><td>SAS</td><td>SAS\SAS.csproj</td><td/><td>2</td></row>
 		<row><td>StatTag</td><td>StatTag\StatTag.csproj</td><td/><td>2</td></row>
 		<row><td>Stata</td><td>Stata\Stata.csproj</td><td/><td>2</td></row>
@@ -4408,9 +4423,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{46F7CF99-5A15-488D-929A-E9E29215A53D}</td><td/></row>
+		<row><td>ProductCode</td><td>{FD106374-AE11-49F9-83EA-71069ED5721E}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>2.2.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.1.0.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4697,7 +4712,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0</td><td>2.1.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 2.1.0</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>3.1.0.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 3.1.0.0</td></row>
 	</table>
 
 	<table name="Verb">

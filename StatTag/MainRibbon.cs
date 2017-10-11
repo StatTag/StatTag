@@ -48,6 +48,10 @@ namespace StatTag
             {
                 UIStatusAfterFileLoad();
             }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
@@ -82,12 +86,16 @@ namespace StatTag
                         var linkDialog = new LinkCodeFiles(unlinkedResults, loadDialog.Files);
                         if (DialogResult.OK == linkDialog.ShowDialog())
                         {
-                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates);
+                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates, linkDialog.UnlinkedAffectedCodeFiles);
                         }
                     }
 
                     UIStatusAfterFileLoad();
                 }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {
@@ -106,6 +114,10 @@ namespace StatTag
                 {
                     Manager.SaveAllCodeFiles(ActiveDocument);
                 }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {
@@ -126,6 +138,10 @@ namespace StatTag
                     var tags = dialog.GetSelectedTags();
                     LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
                     Manager.InsertTagsInDocument(tags);
+                }
+                catch (StatTagUserException uex)
+                {
+                    UIUtility.ReportException(uex, uex.Message, LogManager);
                 }
                 catch (Exception exc)
                 {
@@ -152,6 +168,10 @@ namespace StatTag
                     PropertiesManager.Save();
                     LogManager.UpdateSettings(dialog.Properties);
                 }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {
@@ -197,6 +217,10 @@ namespace StatTag
                 // through all fields and updating them (via the DocumentManager).
                 Manager.UpdateFields();
             }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
@@ -216,6 +240,10 @@ namespace StatTag
             try
             {
                 Manager.PerformDocumentCheck(ActiveDocument);
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {
@@ -266,6 +294,10 @@ namespace StatTag
             {
                 var about = new About();
                 about.ShowDialog();
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {

@@ -135,18 +135,6 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicInterop.0.7.4\lib\net40\DynamicInterop.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="RDotNet, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="RDotNet.NativeLibrary, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -205,6 +193,12 @@
     </Compile>
     <Compile Include="CheckDocument.Designer.cs">
       <DependentUpon>CheckDocument.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CodeFileEntry.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CodeFileEntry.Designer.cs">
+      <DependentUpon>CodeFileEntry.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\DateTimeValueProperties.cs">
       <SubType>UserControl</SubType>
@@ -326,6 +320,9 @@
     <EmbeddedResource Include="CheckDocument.resx">
       <DependentUpon>CheckDocument.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CodeFileEntry.resx">
+      <DependentUpon>CodeFileEntry.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </EmbeddedResource>
@@ -384,7 +381,6 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
@@ -395,6 +391,7 @@
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
@@ -415,6 +412,22 @@
     <None Include="Resources\DeleteTablefromDatabase_270.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dynamic-interop-dll\DynamicInterop\DynamicInterop.csproj">
+      <Project>{37e8df32-0d37-418e-b976-10f4b36a0073}</Project>
+      <Name>DynamicInterop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
+      <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
+      <Name>RDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.Graphics\RDotNet.Graphics.csproj">
+      <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
+      <Name>RDotNet.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
+      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
+      <Name>RDotNet.NativeLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
       <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>
       <Name>ScintillaNET</Name>
@@ -466,6 +479,9 @@
     <Content Include="Resources\1463107707_icon-148-tag-add.png" />
     <Content Include="Resources\1463181117_icon-loop.png" />
     <Content Include="Resources\1463181737_seo_programming.png" />
+    <Content Include="Resources\stats_package_r.png" />
+    <Content Include="Resources\stats_package_sas.png" />
+    <Content Include="Resources\stats_package_stata.png" />
     <Content Include="Resources\tag-add.png" />
     <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>
@@ -514,6 +530,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup />
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- Include additional build rules for an Office application add-in. -->

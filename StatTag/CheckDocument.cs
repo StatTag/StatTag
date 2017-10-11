@@ -37,6 +37,12 @@ namespace StatTag
         /// </summary>
         public DuplicateTagResults DuplicateTags { get; set; }
 
+        /// <summary>
+        /// If there are unlinked tags, this will be a list of the unique code files that
+        /// were found to have unlinked tags.
+        /// </summary>
+        public List<string> UnlinkedAffectedCodeFiles { get; set; } 
+
         private readonly List<CodeFile> Files;
 
         private const int ColUnlinkedTag = 0;
@@ -59,7 +65,7 @@ namespace StatTag
         public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files)
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UnlinkedTags = unlinkedTags;
             DuplicateTags = duplicateTags;
@@ -136,6 +142,7 @@ namespace StatTag
             // Make sure we pick up any changes that the data grid view hasn't seen yet
             dgvUnlinkedTags.EndEdit();
             dgvDuplicateTags.EndEdit();
+            UnlinkedAffectedCodeFiles = new List<string>();
 
             // Iterate the list of unlinked tags and determine the actions that we
             // should be taking.
@@ -152,6 +159,11 @@ namespace StatTag
                 if (tag != null && !UnlinkedTagUpdates.ContainsKey(tag.Id))
                 {
                     UnlinkedTagUpdates.Add(tag.Id, actionCell.Value as CodeFileAction);
+                }
+
+                if (!UnlinkedAffectedCodeFiles.Contains(fileCell.Value.ToString()))
+                {
+                    UnlinkedAffectedCodeFiles.Add(fileCell.Value.ToString());
                 }
             }
 

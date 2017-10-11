@@ -60,6 +60,7 @@ namespace StatTag
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
+            DocumentManager.TagManager.Logger = LogManager;
             AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
 
             try
@@ -101,18 +102,18 @@ namespace StatTag
         /// <param name="cancel"></param>
         void Application_DocumentBeforeSave(Word.Document doc, ref bool saveAsUI, ref bool cancel)
         {
-            LogManager.WriteMessage("DocumentBeforeSave - preparing to save code files to document");
+            LogManager.WriteMessage("DocumentBeforeSave - preparing to save document properties");
 
             try
             {
-                DocumentManager.SaveCodeFileListToDocument(doc);
+                DocumentManager.SaveMetadataToDocument(doc);
             }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc, "There was an error while trying to save the document.  Your StatTag data may not be saved.", LogManager);
             }
 
-            LogManager.WriteMessage("DocumentBeforeSave - code files saved");
+            LogManager.WriteMessage("DocumentBeforeSave - properties saved");
         }
 
         void Application_NewDocument(Word.Document doc)
@@ -124,7 +125,7 @@ namespace StatTag
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            DocumentManager.LoadCodeFileListFromDocument(doc);
+            DocumentManager.LoadMetadataFromDocument(doc);
             var files = DocumentManager.GetCodeFileList(doc);
             LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 
@@ -212,6 +213,38 @@ namespace StatTag
             thread.Start();
         }
 
+        private Word.ShapeRange SafeGetShapeRange(Word.Selection selection)
+        {
+            Word.ShapeRange shape = null;
+            try
+            {
+                shape = selection.ShapeRange;
+            }
+            catch
+            {
+                // This is a safe wrapper function, so we are eating the exception
+                shape = null;
+            }
+
+            return shape;
+        }
+
+        private Word.Fields SafeGetFields(Word.Selection selection)
+        {
+            Word.Fields fields = null;
+            try
+            {
+                fields = selection.Fields;
+            }
+            catch
+            {
+                // This is a safe wrapper function, so we are eating the exception
+                fields = null;
+            }
+
+            return fields;
+        }
+
         /// <summary>
         /// Special handler called by us to allow the event queue to be processed before we try responding to
         /// a double-click message.  This allows us to simulate an AfterDoubleClick event.
@@ -223,7 +256,8 @@ namespace StatTag
             Thread.Sleep(100);
 
             var selection = Application.Selection;
-            var fields = selection.Fields;
+            var fields = SafeGetFields(selection);
+            var shape = SafeGetShapeRange(selection);
 
             try
             {
@@ -238,6 +272,10 @@ namespace StatTag
                         Marshal.ReleaseComObject(field);
                     }
                 }
+                else if (shape != null && shape.Count > 0)
+                {
+                    DocumentManager.EditTagShape(shape[1]);
+                }
             }
             catch (Exception exc)
             {
@@ -251,7 +289,14 @@ namespace StatTag
             }
             finally
             {
-                Marshal.ReleaseComObject(fields);
+                if (fields != null)
+                {
+                    Marshal.ReleaseComObject(fields);
+                }
+                if (shape != null)
+                {
+                    Marshal.ReleaseComObject(shape);
+                }
                 Marshal.ReleaseComObject(selection);
             }
         }

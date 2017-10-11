@@ -112,17 +112,21 @@
     </Compile>
     <Compile Include="Generator\TableParameterGenerator.cs" />
     <Compile Include="Generator\ValueParameterGenerator.cs" />
+    <Compile Include="Generator\VerbatimGenerator.cs" />
     <Compile Include="Interfaces\IFileHandler.cs" />
     <Compile Include="Interfaces\IResultCommandFormatter.cs" />
     <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\BaseManager.cs" />
     <Compile Include="Models\CSVToTable.cs" />
+    <Compile Include="Models\DocumentMetadata.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FilterFormat.cs" />
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\RGBColorConverter.cs" />
+    <Compile Include="Models\StatPackageState.cs" />
+    <Compile Include="Models\StatTagUserException.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />
@@ -146,7 +150,9 @@
     <Compile Include="Parser\StataParser.cs" />
     <Compile Include="Parser\TableParameterParser.cs" />
     <Compile Include="Parser\ValueParameterParser.cs" />
+    <Compile Include="Parser\VerbatimParameterParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CodeParserUtil.cs" />
     <Compile Include="Utility\GeneralUtil.cs" />
     <Compile Include="Utility\AnnotationUtil.cs" />
     <Compile Include="Utility\TableUtil.cs" />

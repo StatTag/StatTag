@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using StatTag.Core.Models;
 
@@ -6,16 +7,18 @@ namespace StatTag.Core.Parser
 {
     public class SASParser : BaseParser
     {
-        public const string ValueCommand = "%put";
-        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", ValueCommand), RegexOptions.IgnoreCase);
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", ValueCommand), RegexOptions.IgnoreCase);
-        public const string FigureCommand = "ods pdf";
-        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", FigureCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        public const string TableCommand = "ods csv";
-        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*\"(.*)\"[\\S\\s]*;", TableCommand.Replace(" ", "\\s+")), RegexOptions.IgnoreCase);
+        public static readonly string[] ValueCommands = {"%put"};
+        private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(ValueCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*{0}\\s+([^;]*);", string.Join("|", ValueCommands)), RegexOptions.IgnoreCase);
+        public static readonly string[] FigureCommands = {"ods pdf"};
+        private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
+        public static readonly string[] TableCommands = {"ods csv"};
+        private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        private static readonly Regex PathCaptureRegex = new Regex("\\bpath\\s*=\\s*(?:([&].+?\\b)|(?:[\"'](.*?)[\"']))[\\S\\s]*?;", RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
+        public const string FunctionIndicator = "%";
 
         public override string CommentCharacter
         {
@@ -58,6 +61,18 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
+        /// Determine if a command has character(s) that indicate a function call may
+        /// be included within.  This is primarily intended for use when a filename
+        /// is used and we need to resolve the path to a literal value.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool HasFunctionIndicator(string command)
+        {
+            return command.ToUpper().Contains(FunctionIndicator);
+        }
+
+        /// <summary>
         /// Determine if a command is for displaying a result
         /// </summary>
         /// <param name="command"></param>
@@ -86,12 +101,52 @@ namespace StatTag.Core.Parser
 
         public override string GetTableName(string command)
         {
-            return MatchRegexReturnGroup(command, TableRegex, 1);
+            string file = MatchRegexReturnGroup(command, TableRegex, 1);
+
+            // Check to see if a path parameter was provided as well.  If not, we will
+            // stop and return the file parameter.
+            string path = GetPathParameter(command);
+            if (string.IsNullOrEmpty(path))
+            {
+                return file;
+            }
+
+            if (path.Contains(MacroIndicator))
+            {
+                return string.Format("{0}.\\{1}", path, file);
+            }
+
+            return Path.Combine(path, file);
         }
 
         public override List<string> PreProcessContent(List<string> originalContent)
         {
             return originalContent;
+        }
+
+        /// <summary>
+        /// Retrieve the value of a PATH parameter in a command, if it exists.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>Null if no PATH parameter exists, otherwise the value of the match (which can be an empty string)</returns>
+        public string GetPathParameter(string command)
+        {
+            var match = PathCaptureRegex.Match(command);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            if (match.Groups[1].Success)
+            {
+                return match.Groups[1].Value;
+            }
+            else if (match.Groups[2].Success)
+            {
+                return match.Groups[2].Value;
+            }
+
+            return string.Empty;
         }
     }
 }

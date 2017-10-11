@@ -19,6 +19,7 @@ namespace StatTag
         /// </summary>
         public Dictionary<string, CodeFileAction> CodeFileUpdates { get; set; }
         public Dictionary<string, List<Tag>> UnlinkedResults;
+        public List<string> UnlinkedAffectedCodeFiles { get; set; } 
         private readonly List<CodeFile> Files;
 
         private const int ColMissingCodeFile = 0;
@@ -30,7 +31,7 @@ namespace StatTag
         {
             InitializeComponent();
 
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             UnlinkedResults = unlinkedResults;
             Files = files;
             MinimumSize = Size;
@@ -53,6 +54,7 @@ namespace StatTag
         {
             // Make sure we pick up any changes that the data grid view hasn't seen yet
             dgvCodeFiles.EndEdit();
+            UnlinkedAffectedCodeFiles = new List<string>();
 
             foreach (var row in dgvCodeFiles.Rows.OfType<DataGridViewRow>())
             {
@@ -64,6 +66,10 @@ namespace StatTag
                 }
 
                 CodeFileUpdates.Add(fileCell.Value.ToString(), actionCell.Value as CodeFileAction);
+                if (!UnlinkedAffectedCodeFiles.Contains(fileCell.Value.ToString()))
+                {
+                    UnlinkedAffectedCodeFiles.Add(fileCell.Value.ToString());
+                }
             }
         }
 

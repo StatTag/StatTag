@@ -24,7 +24,7 @@ namespace StatTag
         public ManageTags(DocumentManager manager)
         {
             InitializeComponent();
-            Font = UIUtility.CreateScaledFont(Font, CreateGraphics());
+            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             Manager = manager;
             UIUtility.SetDialogTitle(this);
@@ -59,7 +59,7 @@ namespace StatTag
 
         private void cmdRemove_Click(object sender, EventArgs e)
         {
-            var removedTags = UIUtility.RemoveSelectedItems(dgvItems, CheckColumn);
+            var removedTags = UIUtility.RemoveCheckedItems(dgvItems, CheckColumn);
             if (removedTags != null)
             {
                 var removedItems = removedTags.Select(x => x as Tag);

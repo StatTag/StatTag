@@ -17,7 +17,6 @@
             {
                 components.Dispose();
             }
-            UnselectedButtonFont.Dispose();
             base.Dispose(disposing);
         }
 
@@ -53,6 +52,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
+            this.label5 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,6 +72,7 @@
             // 
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdOK.Enabled = false;
             this.cmdOK.Location = new System.Drawing.Point(269, 603);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
@@ -135,6 +136,7 @@
             // 
             this.cmdSaveAndInsert.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdSaveAndInsert.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdSaveAndInsert.Enabled = false;
             this.cmdSaveAndInsert.Location = new System.Drawing.Point(463, 603);
             this.cmdSaveAndInsert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdSaveAndInsert.Name = "cmdSaveAndInsert";
@@ -172,6 +174,7 @@
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(205, 25);
             this.txtName.TabIndex = 35;
+            this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
             // 
             // label4
             // 
@@ -206,6 +209,7 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.figureProperties);
             this.panel1.Controls.Add(this.tableProperties);
             this.panel1.Controls.Add(this.horizontalLine1);
@@ -264,7 +268,7 @@
             this.valueProperties.Location = new System.Drawing.Point(6, 134);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
-            this.valueProperties.Size = new System.Drawing.Size(293, 135);
+            this.valueProperties.Size = new System.Drawing.Size(293, 116);
             this.valueProperties.TabIndex = 0;
             // 
             // cboResultType
@@ -323,6 +327,15 @@
             this.verticalLine1.Size = new System.Drawing.Size(10, 570);
             this.verticalLine1.TabIndex = 42;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(85, 5);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(69, 17);
+            this.label5.TabIndex = 44;
+            this.label5.Text = "(Required)";
+            // 
             // EditTag
             // 
             this.AcceptButton = this.cmdOK;
@@ -380,5 +393,6 @@
         private Controls.VerticalLine verticalLine1;
         private Controls.TableProperties tableProperties;
         private Controls.FigureProperties figureProperties;
+        private System.Windows.Forms.Label label5;
     }
 }

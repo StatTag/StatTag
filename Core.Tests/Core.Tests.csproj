@@ -103,6 +103,7 @@
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
     <Compile Include="Generator\OpenXmlGeneratorTests.cs" />
+    <Compile Include="Generator\VerbatimGeneratorTests.cs" />
     <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
     <Compile Include="Models\TagTests.cs" />
     <Compile Include="Models\CommandResultTests.cs" />
@@ -112,8 +113,9 @@
     <Compile Include="Models\TableTests.cs" />
     <Compile Include="Models\FilterFormatTests.cs" />
     <Compile Include="Models\LogManagerTests.cs" />
+    <Compile Include="Models\DocumentMetadataTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
-    <Compile Include="Parser\StataTests.cs" />
+    <Compile Include="Parser\StataParserTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
     <Compile Include="Parser\TableParameterParserTests.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Utility\GeneralUtilTests.cs" />
     <Compile Include="Utility\AnnotationUtilTests.cs" />
     <Compile Include="Utility\TableUtilTests.cs" />
+    <Compile Include="Utility\CodeParserUtilTests.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatterTests.cs" />
     <Compile Include="ValueFormatter\StataTests.cs" />
     <Compile Include="ValueFormatter\SASTests.cs" />

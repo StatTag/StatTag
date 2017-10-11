@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
@@ -13,18 +14,42 @@ namespace SAS
     public class SASAutomation : IStatAutomation
     {
         private const string DisplayMacroValueCommand = "%PUT";
+        private const string CloseAllODS = "ODS _ALL_ CLOSE; ODS NORESULTS; ODS LISTING;";
+        //private const string CloseAllODS = "ODS NORESULTS;";
 
         private SasServer Server = null;
         protected SASParser Parser { get; set; }
+        protected List<string> LogCache { get; set; }
+        protected bool LogCacheEnabled { get; set; }
+
+        public StatPackageState State { get; set; }
 
         public SASAutomation()
         {
             Parser = new SASParser();
+            State = new StatPackageState();
         }
 
         public string GetInitializationErrorMessage()
         {
-            return "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            if (!State.EngineConnected)
+            {
+                return
+                    "Could not communicate with SAS.  SAS may not be fully installed, or might be missing some of the automation pieces that StatTag requires.";
+            }
+            else if (!State.WorkingDirectorySet)
+            {
+                return
+                    "We were unable to change the working directory to the location of your code file.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+            }
+
+            return
+                "We were able to connect to SAS and change the working directory, but some other unknown error occurred during initialization.   If this problem persists, please contact the StatTag team at StatTag@northwestern.edu.";
+        }
+
+        public void Hide()
+        {
+            // Since the UI is not shown, no action is needed here.
         }
 
         public void Dispose()
@@ -35,14 +60,41 @@ namespace SAS
             }
         }
 
-        public bool Initialize()
+        public bool Initialize(CodeFile file)
         {
-            //TODO Do we want to allow remote connections, or just localhost?
-            Server = new SasServer()
+            try
             {
-                UseLocal = true
-            };
-            Server.Connect();
+                //TODO Do we want to allow remote connections, or just localhost?
+                Server = new SasServer()
+                {
+                    UseLocal = true
+                };
+                Server.Connect();
+                State.EngineConnected = true;
+
+                // To protect against blank PDFs being created in different situations (mostly around
+                // when and how we are executing code and how SAS works when submitting code as a 
+                // batch), we will explicitly close all ODS before the execution begins.
+                RunCommand(CloseAllODS);
+
+                // Set the working directory to the location of the code file, if it is provided and
+                // isn't a UNC path.
+                if (file != null)
+                {
+                    var path = Path.GetDirectoryName(file.FilePath);
+                    if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
+                    {
+                        RunCommand(string.Format("data _null_; call system('cd \"{0}\"'); run;", path));
+                        State.WorkingDirectorySet = true;
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Server = null;
+                return false;
+            }
+
             return true;
         }
 
@@ -68,7 +120,26 @@ namespace SAS
             var commandResults = new List<CommandResult>();
             foreach (var command in commands)
             {
-                var result = RunCommand(command);
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagStart(command))
+                {
+                    LogCache = new List<string>();
+                    LogCacheEnabled = true;
+                }
+
+                var result = RunCommand(command, tag);
+
+                if (tag != null && tag.Type == Constants.TagType.Verbatim && Parser.IsTagEnd(command))
+                {
+                    if (result == null)
+                    {
+                        result = new CommandResult();
+                    }
+                    // SAS writes out some unicode character as a horizontal delimiter.  It looks awful.  We're going to take
+                    // the liberty of replacing it with a dash.
+                    result.VerbatimResult = string.Join("\r\n", LogCache).Replace("\u0192", "-");
+                    LogCacheEnabled = false;
+                }
+
                 if (result != null && !result.IsEmpty())
                 {
                     commandResults.Add(result);
@@ -89,10 +160,34 @@ namespace SAS
             //   %put "&Pathway.\Test\";
             // We will do a simple check (it's not perfect, and we may expand more often than we
             // need), but this allows us to keep the code simple while being effective.
-            if (Parser.HasMacroIndicator(originalLocation))
+            if (Parser.HasMacroIndicator(originalLocation) || Parser.HasFunctionIndicator(originalLocation))
             {
                 var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
-                return expandedLocation.ValueResult;
+                if (expandedLocation != null)
+                {
+                    originalLocation = expandedLocation.ValueResult;
+                }
+
+                originalLocation = originalLocation.Replace("\"", "");
+            }
+            
+            // If a macro expansion has taken place, we should still check to see if it resulted
+            // in a relative path (instead of assuming all macro expansions result in a fully
+            // qualiifed path).
+            if (Parser.IsRelativePath(originalLocation))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var results = RunCommands(new string[] { "filename dummy '.';", "%let __stattag_pwd=%sysfunc(pathname(dummy));", "%put &__stattag_pwd; RUN;" });
+                if (results != null && results.Length > 0)
+                {
+                    var path = results.First().ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, originalLocation));
+                    if (File.Exists(correctedPath))
+                    {
+                        originalLocation = correctedPath;
+                    }
+                }
             }
 
             return originalLocation;
@@ -102,8 +197,9 @@ namespace SAS
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
+        /// <param name="tag">The tag associated with the command (if applicable)</param>
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
-        public CommandResult RunCommand(string command)
+        public CommandResult RunCommand(string command, Tag tag = null)
         {
             Array carriageControls;
             Array lineTypeArray;
@@ -114,26 +210,60 @@ namespace SAS
             // These calls need to be made because they cause SAS to initialize internal structures that
             // are used when FlushLogLines is called.  Even though we're not really doing anything with these
             // values, don't remove these calls.
-            SAS.LanguageServiceCarriageControl carriageControl = new SAS.LanguageServiceCarriageControl();
-            SAS.LanguageServiceLineType lineType = new SAS.LanguageServiceLineType();
+            SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+            SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
 
-            Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
-                out logLineArray);
+            //Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
+            //    out logLineArray);
 
             // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
             // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
             // will dump out a bunch of extra output when we run, including blank Normal lines.
             var relevantLines = new List<string>();
-            var lineTypes = lineTypeArray.OfType<LanguageServiceLineType>().ToArray();
-            var logLines = logLineArray.OfType<string>().ToArray();
-            for (int index = 0; index < lineTypes.Length; index++)
+            do
             {
-                var line = logLines[index];
-                if (lineTypes[index] == LanguageServiceLineType.LanguageServiceLineTypeNormal
-                    && !string.IsNullOrWhiteSpace(line))
+                Server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                for (int index = 0; index < logLineArray.GetLength(0); index++)
                 {
-                    relevantLines.Add(line);
+                    var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                    var line = (string)logLineArray.GetValue(index);
+                    if (lineType == LanguageServiceLineType.LanguageServiceLineTypeNormal
+                        && !string.IsNullOrWhiteSpace(line))
+                    {
+                        relevantLines.Add(line);
+                    }
                 }
+
+            }
+            while (logLineArray != null && logLineArray.Length > 0);
+
+            // Process the listing, even if we aren't going to use the output (it's only relevant when collecting
+            // verbatim results).  This way we know that it's appropriately flushed when it comes time to use it for
+            // verbatim tags.
+            do
+            {
+                Server.Workspace.LanguageService.FlushListLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                if (LogCacheEnabled)
+                {
+                    for (int index = 0; index < logLineArray.GetLength(0); index++)
+                    {
+                        var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                        var line = (string)logLineArray.GetValue(index);
+                        // For verbatim we skip titles, but leave everything else.
+                        if (lineType != LanguageServiceLineType.LanguageServiceLineTypeTitle)
+                        {
+                            LogCache.Add(line);
+                        }
+                    }                    
+                }
+            }
+            while (logLineArray != null && logLineArray.Length > 0);
+
+            // If we're doing verbatim output, don't bother continuing down and trying
+            // to otherwise process the commands.
+            if (tag != null && tag.Type == Constants.TagType.Verbatim)
+            {
+                return null;
             }
 
             if (Parser.IsValueDisplay(command))
