@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Office.Core;
 using StatTag.Core;
@@ -23,23 +24,23 @@ namespace StatTag.Models
     /// </summary>
     public class DocumentManager : BaseManager, IDisposable
     {
-        public class ManagedCodeFile : IDisposable
-        {
-            public FileSystemWatcher Watcher { get; set; }
-            public CodeFile CodeFile { get; set; }
-            public string LastUpdateChecksum { get; set; }
+        //public class ManagedCodeFile : IDisposable
+        //{
+        //    public FileSystemWatcher Watcher { get; set; }
+        //    public CodeFile CodeFile { get; set; }
+        //    public string LastUpdateChecksum { get; set; }
 
-            public void Dispose()
-            {
-                if (Watcher != null)
-                {
-                    Watcher.EnableRaisingEvents = false;
-                    Watcher.Dispose();
-                }
-            }
-        }
+        //    public void Dispose()
+        //    {
+        //        if (Watcher != null)
+        //        {
+        //            Watcher.EnableRaisingEvents = false;
+        //            Watcher.Dispose();
+        //        }
+        //    }
+        //}
 
-        private Dictionary<string, List<ManagedCodeFile>> DocumentCodeFiles { get; set; }
+        private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
 
@@ -48,7 +49,7 @@ namespace StatTag.Models
 
         public DocumentManager()
         {
-            DocumentCodeFiles = new Dictionary<string, List<ManagedCodeFile>>();
+            DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this);
         }
@@ -231,7 +232,7 @@ namespace StatTag.Models
                 }
                 else
                 {
-                    DocumentCodeFiles[document.FullName] = new List<ManagedCodeFile>();
+                    DocumentCodeFiles[document.FullName] = new List<MonitoredCodeFile>();
                     Log("Document variable does not exist, no code files loaded");
                 }
             }
@@ -1306,7 +1307,7 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            files.Add(new ManagedCodeFile() {CodeFile = file, Watcher = CreateCodeFileWatcher(file), LastUpdateChecksum = file.GetChecksumFromFile()});
+            files.Add(new MonitoredCodeFile(file));
             Log(string.Format("Added code file {0}", fileName));
         }
 
@@ -1336,43 +1337,41 @@ namespace StatTag.Models
             }
         }
 
-        // Define the event handlers.
-        private void OnChanged(object source, FileSystemEventArgs e)
-        {
-            // Go through all of our managed code files in all open documents.  Any code file that 
-            // matches the path of the changed file will be updated.
-            Log("OnChanged event for code file " + e.FullPath);
+        //// Define the event handlers.
+        //private void OnChanged(object source, FileSystemEventArgs e)
+        //{
+        //    // Go through all of our managed code files in all open documents.  Any code file that 
+        //    // matches the path of the changed file will be updated.
+        //    Log("OnChanged event for code file " + e.FullPath + " " + e.ChangeType);
+        //}
 
+        //private static void OnRenamed(object source, RenamedEventArgs e)
+        //{
+        //    // Specify what is done when a file is renamed.
+        //    Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
+        //}
 
-        }
+        ///// <summary>
+        ///// For a specific code file instance, create a watcher to respond to certain file system events.
+        ///// </summary>
+        ///// <param name="codeFile"></param>
+        ///// <returns></returns>
+        //private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
+        //{
+        //    var watcher = new FileSystemWatcher
+        //    {
+        //        Path = Path.GetDirectoryName(codeFile.FilePath),
+        //        Filter = Path.GetFileName(codeFile.FilePath),
+        //        EnableRaisingEvents = true,
+        //        NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite
+        //    };
+        //    watcher.Changed += new FileSystemEventHandler(OnChanged);
+        //    watcher.Created += new FileSystemEventHandler(OnChanged);
+        //    watcher.Deleted += new FileSystemEventHandler(OnChanged);
+        //    watcher.Renamed += new RenamedEventHandler(OnRenamed);
 
-        private static void OnRenamed(object source, RenamedEventArgs e)
-        {
-            // Specify what is done when a file is renamed.
-            Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
-        }
-
-        /// <summary>
-        /// For a specific code file instance, create a watcher to respond to certain file system events.
-        /// </summary>
-        /// <param name="codeFile"></param>
-        /// <returns></returns>
-        private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
-        {
-            var watcher = new FileSystemWatcher
-            {
-                Path = Path.GetDirectoryName(codeFile.FilePath),
-                Filter = Path.GetFileName(codeFile.FilePath),
-                EnableRaisingEvents = true,
-                NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
-            };
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-            return watcher;
-        }
+        //    return watcher;
+        //}
 
         private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
         {
@@ -1388,9 +1387,9 @@ namespace StatTag.Models
 
             // Now set up the new code file list, and subscribe new watchers for them so they are
             // properly managed
-            var managedFiles = new List<ManagedCodeFile>();
+            var managedFiles = new List<MonitoredCodeFile>();
             files.ForEach(
-                x => managedFiles.Add(new ManagedCodeFile() {CodeFile = x, Watcher = CreateCodeFileWatcher(x), LastUpdateChecksum = x.GetChecksumFromFile()}));
+                x => managedFiles.Add(new MonitoredCodeFile(x)));
             DocumentCodeFiles[document.FullName] = managedFiles;
         }
 
@@ -1400,7 +1399,7 @@ namespace StatTag.Models
         /// </summary>
         /// <param name="document"></param>
         /// <returns></returns>
-        public List<ManagedCodeFile> GetManagedCodeFileList(Document document = null)
+        public List<MonitoredCodeFile> GetManagedCodeFileList(Document document = null)
         {
             if (document == null)
             {
@@ -1410,14 +1409,14 @@ namespace StatTag.Models
             if (document == null)
             {
                 Log("Attempted to access code files for a null document.  Returning empty collection.");
-                return new List<ManagedCodeFile>();
+                return new List<MonitoredCodeFile>();
             }
 
             var fullName = document.FullName;
             if (!DocumentCodeFiles.ContainsKey(fullName))
             {
                 Log(string.Format("Code file list for {0} is not yet cached.", fullName));
-                DocumentCodeFiles.Add(fullName, new List<ManagedCodeFile>());
+                DocumentCodeFiles.Add(fullName, new List<MonitoredCodeFile>());
                 LoadCodeFileListFromDocument(document);
                 Log(string.Format("Loaded {0} code files from document", DocumentCodeFiles[fullName].Count));
             }
