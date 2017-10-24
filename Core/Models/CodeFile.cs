@@ -45,6 +45,19 @@ namespace StatTag.Core.Models
             Initialize(null);
         }
 
+        public CodeFile(CodeFile file)
+        {
+            Initialize(null);
+            if (file != null)
+            {
+                Tags = file.Tags;
+                StatisticalPackage = file.StatisticalPackage;
+                FilePath = file.FilePath;
+                LastCached = file.LastCached;
+                Content = file.Content;
+            }
+        }
+
         public CodeFile(IFileHandler handler = null)
         {
             Initialize(handler);

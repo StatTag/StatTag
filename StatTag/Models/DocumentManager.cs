@@ -24,21 +24,7 @@ namespace StatTag.Models
     /// </summary>
     public class DocumentManager : BaseManager, IDisposable
     {
-        //public class ManagedCodeFile : IDisposable
-        //{
-        //    public FileSystemWatcher Watcher { get; set; }
-        //    public CodeFile CodeFile { get; set; }
-        //    public string LastUpdateChecksum { get; set; }
-
-        //    public void Dispose()
-        //    {
-        //        if (Watcher != null)
-        //        {
-        //            Watcher.EnableRaisingEvents = false;
-        //            Watcher.Dispose();
-        //        }
-        //    }
-        //}
+        public event EventHandler CodeFileChanged;
 
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
@@ -1297,7 +1283,7 @@ namespace StatTag.Models
         {
             //var files = GetCodeFileList(document);
             var files = GetManagedCodeFileList(document);
-            if (files.Any(x => x.CodeFile.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
+            if (files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
             {
                 Log(string.Format("Code file {0} already exists and won't be added again", fileName));
                 return;
@@ -1307,8 +1293,30 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            files.Add(new MonitoredCodeFile(file));
+            var monitoredCodeFile = new MonitoredCodeFile(file);
+            monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+            files.Add(monitoredCodeFile);
             Log(string.Format("Added code file {0}", fileName));
+        }
+
+        /// <summary>
+        /// This just dispatches to the next level for handling.  This is because the DocumentManager class
+        /// is responsible for collecting and managing all code files.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnCodeFileChanged(object sender, EventArgs args)
+        {
+            var monitoredCodeFile = sender as MonitoredCodeFile;
+            if (monitoredCodeFile == null)
+            {
+                return;
+            }
+
+            if (CodeFileChanged != null)
+            {
+                CodeFileChanged(monitoredCodeFile, args);
+            }
         }
 
         private void UpdateRenamedTags(List<UpdatePair<Tag>> updates)
@@ -1388,8 +1396,13 @@ namespace StatTag.Models
             // Now set up the new code file list, and subscribe new watchers for them so they are
             // properly managed
             var managedFiles = new List<MonitoredCodeFile>();
-            files.ForEach(
-                x => managedFiles.Add(new MonitoredCodeFile(x)));
+            foreach (var file in files)
+            {
+                var monitoredCodeFile = new MonitoredCodeFile(file);
+                monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+                managedFiles.Add(monitoredCodeFile);
+                //x => managedFiles.Add(new MonitoredCodeFile(x));
+            }
             DocumentCodeFiles[document.FullName] = managedFiles;
         }
 
@@ -1424,6 +1437,21 @@ namespace StatTag.Models
             return DocumentCodeFiles[fullName];
         }
 
+        public bool IsCodeFileLinkedToDocument(Document document, MonitoredCodeFile codeFile)
+        {
+            if (document == null || codeFile == null)
+            {
+                return false;
+            }
+
+            if (!DocumentCodeFiles.ContainsKey(document.FullName))
+            {
+                return false;
+            }
+
+            return DocumentCodeFiles[document.FullName].Any(x => x.Equals(codeFile));
+        }
+
         public List<CodeFile> GetCodeFileList(Document document = null)
         {
             var codeFileList = GetManagedCodeFileList(document);
@@ -1432,7 +1460,7 @@ namespace StatTag.Models
                 return new List<CodeFile>();
             }
 
-            return codeFileList.Select(x => x.CodeFile).ToList<CodeFile>();
+            return codeFileList.Select(x => (CodeFile)x).ToList<CodeFile>();
         }
 
         /// <summary>
@@ -1453,7 +1481,6 @@ namespace StatTag.Models
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
-            //DocumentCodeFiles[document.FullName] = files;
             RefreshCodeFileListForDocument(document, files);
         }
 

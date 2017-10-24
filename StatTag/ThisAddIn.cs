@@ -52,6 +52,7 @@ namespace StatTag
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             StatsManager = new StatsManager(DocumentManager);
+            DocumentManager.CodeFileChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
@@ -304,6 +305,30 @@ namespace StatTag
         void Application_WindowActivate(Word.Document doc, Word.Window window)
         {
             Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+        }
+
+        private void OnCodeFileChanged(object sender, EventArgs args)
+        {
+            var monitoredCodeFile = sender as MonitoredCodeFile;
+            if (monitoredCodeFile == null)
+            {
+                return;
+            }
+
+            LogManager.WriteMessage("Code file changed: " + monitoredCodeFile.FilePath);
+
+            var document = SafeGetActiveDocument();
+            if (document != null)
+            {
+                if (DocumentManager.IsCodeFileLinkedToDocument(document, monitoredCodeFile))
+                {
+                    LogManager.WriteMessage("   Code file is linked to active document");
+                }
+                else
+                {
+                    LogManager.WriteMessage("   Code file NOT linked to active document");
+                }
+            }
         }
 
         /// <summary>

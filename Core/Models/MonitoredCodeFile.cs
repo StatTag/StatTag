@@ -7,30 +7,58 @@ using System.Threading.Tasks;
 
 namespace StatTag.Core.Models
 {
-    public class MonitoredCodeFile : IDisposable
+    public class MonitoredCodeFile : CodeFile, IDisposable
     {
+        public event EventHandler CodeFileChanged;
+
+        /// <summary>
+        /// Contains the information about a specific change that took place
+        /// </summary>
         public class FileChangeNotificationData
         {
+            /// <summary>
+            /// The type of change that took place (rename, deleted, edited)
+            /// </summary>
             public WatcherChangeTypes ChangeType { get; set; }
+
+            /// <summary>
+            /// The original file path.  This is set as well for delete and edit events.
+            /// </summary>
             public string OldPath { get; set; }
+
+            /// <summary>
+            /// The new path, used only when a file is renamed
+            /// </summary>
             public string NewPath { get; set; }
         }
 
-        public FileSystemWatcher Watcher { get; set; }
-        public CodeFile CodeFile { get; set; }
-        public string LastUpdateChecksum { get; set; }
+        /// <summary>
+        ///  The code file that is being monitored
+        /// </summary>
+        //public CodeFile CodeFile { get; set; }
+
+        ///// <summary>
+        ///// An MD5 checksum of the file's contents
+        ///// </summary>
+        //public string LastUpdateChecksum { get; set; }
+
+        /// <summary>
+        /// A list containing the history.  The first item will be the first change detected,
+        /// and the last item will be the most recent change.
+        /// </summary>
         public List<FileChangeNotificationData> ChangeHistory { get; set; }
 
         private string OriginalFilePath { get; set; }
+        private FileSystemWatcher Watcher { get; set; }
 
-        public MonitoredCodeFile(CodeFile codeFile, bool startMonitoring = true)
+        public MonitoredCodeFile(CodeFile codeFile, bool startMonitoring = true) : base(codeFile)
         {
             if (codeFile == null)
             {
                 throw new ArgumentNullException("You must specify a code file to monitor.");
             }
             Watcher = CreateCodeFileWatcher(codeFile, startMonitoring);
-            LastUpdateChecksum = codeFile.GetChecksumFromFile();
+            // LastUpdateChecksum = codeFile.GetChecksumFromFile();
             ChangeHistory = new List<FileChangeNotificationData>();
             OriginalFilePath = codeFile.FilePath;
         }
@@ -44,16 +72,26 @@ namespace StatTag.Core.Models
             }
         }
 
+        /// <summary>
+        /// Begin the monitor to detect and track changes
+        /// </summary>
         public void StartMonitoring()
         {
             Watcher.EnableRaisingEvents = true;
         }
 
+        /// <summary>
+        /// Turn off monitoring of the code file.
+        /// </summary>
         public void StopMonitoring()
         {
             Watcher.EnableRaisingEvents = false;
         }
 
+        /// <summary>
+        /// Is the code file currently being monitored?
+        /// </summary>
+        /// <returns></returns>
         public bool IsMonitoring()
         {
             return Watcher.EnableRaisingEvents;
@@ -83,6 +121,11 @@ namespace StatTag.Core.Models
             return watcher;
         }
 
+        /// <summary>
+        /// Handler for an edit, create or delete event
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private void OnChanged(object source, FileSystemEventArgs e)
         {
             // If a file has changed, we only care about that as a binary condition.  If it changes
@@ -92,7 +135,7 @@ namespace StatTag.Core.Models
             if (e.ChangeType != WatcherChangeTypes.Changed
                 || !ChangeHistory.Any(x => x.ChangeType == WatcherChangeTypes.Changed && x.OldPath.Equals(e.FullPath)))
             {
-                ChangeHistory.Add(new FileChangeNotificationData()
+                AddToChangeHistory(new FileChangeNotificationData()
                 {
                     ChangeType = e.ChangeType,
                     OldPath = e.FullPath
@@ -100,14 +143,29 @@ namespace StatTag.Core.Models
             }
         }
 
+        /// <summary>
+        /// Handler for a file rename event
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private void OnRenamed(object source, RenamedEventArgs e)
         {
-            ChangeHistory.Add(new FileChangeNotificationData()
+            AddToChangeHistory(new FileChangeNotificationData()
             {
                 ChangeType = e.ChangeType,
                 OldPath = e.OldFullPath,
                 NewPath = e.FullPath
             });
+        }
+
+        private void AddToChangeHistory(FileChangeNotificationData data)
+        {
+            ChangeHistory.Add(data);
+
+            if (CodeFileChanged != null)
+            {
+                CodeFileChanged(this, new EventArgs());
+            }
         }
     }
 }

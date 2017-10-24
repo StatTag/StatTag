@@ -53,6 +53,7 @@ namespace Core.Tests.Models
             };
 
             var monitoredFile = new MonitoredCodeFile(codeFile, false);
+            Assert.IsFalse(monitoredFile.IsMonitoring());
             File.WriteAllText(codeFile.FilePath, "test1");
             Thread.Sleep(100);
             Assert.AreEqual(0, monitoredFile.ChangeHistory.Count);
@@ -75,15 +76,18 @@ namespace Core.Tests.Models
 
             // Monitoring will be on
             var monitoredFile = new MonitoredCodeFile(codeFile);
+            Assert.IsTrue(monitoredFile.IsMonitoring());
 
             // No events, now turn monitoring off
             monitoredFile.StopMonitoring();
+            Assert.IsFalse(monitoredFile.IsMonitoring());
             File.WriteAllText(codeFile.FilePath, "test1");
             Thread.Sleep(100);
             Assert.AreEqual(0, monitoredFile.ChangeHistory.Count);
             
             // Turn monitoring on and do another change
             monitoredFile.StartMonitoring();
+            Assert.IsTrue(monitoredFile.IsMonitoring());
             File.WriteAllText(codeFile.FilePath, "test2");
             Thread.Sleep(100);
             Assert.AreEqual(1, monitoredFile.ChangeHistory.Count);
