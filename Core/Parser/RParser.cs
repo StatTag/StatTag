@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -16,10 +17,15 @@ namespace StatTag.Core.Parser
     {
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
+        public static readonly string[] TableCommands = {"write.csv", "write.csv2", "write.table"};
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
+        //private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
+        //private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private const char KeyValueDelimiter = '=';
         private const char ArgumentDelimiter = ',';
         private const char CommandDelimiter = ';';
-        private const string FileParameterName = "filename";
+        private const string ImageFileParameterName = "filename";
+        private const string TableFileParameterName = "file";
 
         public override string CommentCharacter
         {
@@ -157,13 +163,29 @@ namespace StatTag.Core.Parser
         /// <returns></returns>
         public override string GetImageSaveLocation(string command)
         {
+            return GetSaveLocation(command, FigureRegex, ImageFileParameterName, 1);
+        }
+
+        /// <summary>
+        /// This will return the exact parameter that represents a file save location.  This may be an R function (e.g., paste)
+        /// to construct the file path, a variable, or a string literal.  String literals will include enclosing quotes.  This is
+        /// because the output of this method is sent to R as an expression for evaluation.  That way R handles converting everything
+        /// into an exact file path that we can then utilize.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="regex"></param>
+        /// <param name="fileParameter"></param>
+        /// <param name="fileParameterIndex"></param>
+        /// <returns></returns>
+        private string GetSaveLocation(string command, Regex regex, string fileParameter, int fileParameterIndex)
+        {
             // In order to account for a command string that actually has multiple commands embedded in it, we want to find the right
             // fragment that has the image command.  We will take the first one we find.
             Match match = null;
             var commandLines = command.Split(CommandDelimiter);
             foreach (var commandLine in commandLines)
             {
-                match = FigureRegex.Match(commandLine);
+                match = regex.Match(commandLine);
                 if (match.Success)
                 {
                     break;
@@ -184,7 +206,7 @@ namespace StatTag.Core.Parser
             // First, look for exact name (perfect matching)
             var matchingArg =
                 parameters.FirstOrDefault(
-                    x => x.Key.Equals(FileParameterName, StringComparison.CurrentCultureIgnoreCase));
+                    x => x.Key.Equals(fileParameter, StringComparison.CurrentCultureIgnoreCase));
             if (matchingArg != null)
             {
                 return matchingArg.Value;
@@ -195,15 +217,15 @@ namespace StatTag.Core.Parser
                 parameters.FirstOrDefault(
                     x =>
                         !string.IsNullOrWhiteSpace(x.Key) &&
-                        FileParameterName.StartsWith(x.Key, StringComparison.CurrentCultureIgnoreCase));
+                        fileParameter.StartsWith(x.Key, StringComparison.CurrentCultureIgnoreCase));
             if (matchingArg != null)
             {
                 return matchingArg.Value;
             }
 
-            // Finally, look for the first unnamed argument.
+            // Finally, look for the nth unnamed argument (defined in the method parameters)
             var filteredParameters = parameters.Where(x => string.IsNullOrWhiteSpace(x.Key)).OrderBy(x => x.Index);
-            var firstUnnamed = filteredParameters.FirstOrDefault();
+            var firstUnnamed = filteredParameters.Skip(fileParameterIndex - 1).FirstOrDefault();
             return (firstUnnamed == null) ? string.Empty : firstUnnamed.Value;
         }
 
@@ -240,13 +262,17 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
-        /// Not used (see IsTableResult)
+        /// This will return the exact parameter that represents the save location of a file written in R.  This may be an R function (e.g., paste)
+        /// to construct the file path, a variable, or a string literal.  String literals will include enclosing quotes.  This is
+        /// because the output of this method is sent to R as an expression for evaluation.  That way R handles converting everything
+        /// into an exact file path that we can then utilize.
         /// </summary>
         /// <param name="command"></param>
-        /// <returns>string.Empty</returns>
+        /// <returns>A string containing the file path, if a file path is specified in the command.  If not, an empty string is returned.</returns>
         public override string GetTableName(string command)
         {
-            return string.Empty;
+            var result = GetSaveLocation(command, TableRegex, TableFileParameterName, 2);
+            return result;
         }
 
         /// <summary>

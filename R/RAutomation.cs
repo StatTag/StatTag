@@ -112,6 +112,33 @@ namespace R
             return commandResults.ToArray();
         }
 
+        /// <summary>
+        /// Return an expanded, full file path - accounting for variables, functions, relative paths, etc.
+        /// </summary>
+        /// <param name="saveLocation">An R command that will be translated into a file path.</param>
+        /// <returns>The full file path</returns>
+        private string GetExpandedFilePath(string saveLocation)
+        {
+            var fileLocation = RunCommand(saveLocation, new Tag() { Type = Constants.TagType.Value });
+            if (Parser.IsRelativePath(fileLocation.ValueResult))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var workingDirResult = RunCommand("getwd()", new Tag() { Type = Constants.TagType.Value });
+                if (workingDirResult != null)
+                {
+                    var path = workingDirResult.ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, fileLocation.ValueResult));
+                    if (File.Exists(correctedPath))
+                    {
+                        fileLocation.ValueResult = correctedPath;
+                    }
+                }
+            }
+
+            return fileLocation.ValueResult;
+        }
+
         public CommandResult RunCommand(string command, Tag tag = null)
         {
             var result = Engine.Evaluate(command);
@@ -124,29 +151,13 @@ namespace R
             // return of results, a user can just specify a variable and get the result.
             if (tag != null && tag.Type == Constants.TagType.Table)
             {
-                return new CommandResult() { TableResult = GetTableResult(result)};
+                return new CommandResult() { TableResult = GetTableResult(command, result)};
             }
 
             // Image comes next, because everything else we will count as a value type.
             if (Parser.IsImageExport(command))
             {
-                var imageLocation = RunCommand(Parser.GetImageSaveLocation(command), new Tag() { Type = Constants.TagType.Value });
-                if (Parser.IsRelativePath(imageLocation.ValueResult))
-                {
-                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
-                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                    var workingDirResult = RunCommand("getwd()", new Tag() {Type = Constants.TagType.Value});
-                    if (workingDirResult != null)
-                    {
-                        var path = workingDirResult.ValueResult;
-                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation.ValueResult));
-                        if (File.Exists(correctedPath))
-                        {
-                            imageLocation.ValueResult = correctedPath;
-                        }
-                    }
-                }
-                return new CommandResult() { FigureResult = imageLocation.ValueResult };
+                return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
             }
 
             // If we have a value command, we will pull out the last relevant line from the output.
@@ -268,8 +279,17 @@ namespace R
             return data.ToArray();
         }
 
-        private Table GetTableResult(SymbolicExpression result)
+        private Table GetTableResult(string command, SymbolicExpression result)
         {
+            // Check to see if we can identify a file name that contains our table data.  If one
+            // exists, we will start by returning that.  If there is no file name specified, we
+            // will proceed and assume we are pulling data out of some R type.
+            var dataFile = Parser.GetTableName(command);
+            if (!string.IsNullOrWhiteSpace(dataFile))
+            {
+                return CSVToTable.GetTableResult(GetExpandedFilePath(dataFile));
+            }
+
             // You'll notice that regardless of the type, we convert everything to a string.  This
             // is just a simplification that StatTag makes about the results.  Often times we are
             // doing additional formatting and will do a conversion from the string type to the right

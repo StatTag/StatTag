@@ -26,7 +26,7 @@ namespace StatTag.Core.Models
             int rows = 0;
             int columns = 0;
 
-            using (TextFieldParser parser = new TextFieldParser(tableFilePath))
+            using (var parser = new TextFieldParser(tableFilePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
@@ -66,7 +66,7 @@ namespace StatTag.Core.Models
                 return table;
             }
 
-            using (TextFieldParser parser = new TextFieldParser(tableFilePath, System.Text.Encoding.Default))
+            using (var parser = new TextFieldParser(tableFilePath, System.Text.Encoding.Default))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");

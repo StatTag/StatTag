@@ -101,9 +101,28 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetTableName()
         {
-            // Same as with IsTableResult we are ignoring finding table names, so this always returns an empty string.
+            // Although we will always allow something to be considered a table, this will test if we can
+            // pull a file name out of call to write output.
             var parser = new RParser();
-            Assert.AreEqual(string.Empty, parser.GetTableName("doesn't matter what i put here"));
+            Assert.AreEqual("\"test.txt\"", parser.GetTableName("write.table(x, file=\"test.txt\", append=FALSE, sep = \",\")"));
+            Assert.AreEqual("\"test.csv\"", parser.GetTableName("write.csv(x, file=\"test.csv\", append=FALSE, sep = \",\")"));
+            Assert.AreEqual("\"test2.csv\"", parser.GetTableName("write.csv2(x, file=\"test2.csv\", append=FALSE, sep = \",\")"));
+
+            // Detect positional placement of file parameter
+            Assert.AreEqual("\"test.txt\"", parser.GetTableName("write.table(x, \"test.txt\")"));
+
+            // Mix order of parameters
+            Assert.AreEqual("\"test2.csv\"", parser.GetTableName("write.csv2(x, append=FALSE, file=\"test2.csv\", sep = \",\")"));
+
+            // Don't return anything for assignment/other operations that end up creating a table-compatible object
+            Assert.AreEqual("", parser.GetTableName("x <- c(1,2,3,4,5)"));
+
+            // Handle variables used as file paths
+            Assert.AreEqual("out_file", parser.GetTableName("write.table(x, out_file)"));
+            Assert.AreEqual("out_file", parser.GetTableName("write.table(x, file=out_file)"));
+
+            // Handle functions used as file paths
+            Assert.AreEqual("paste(getwd(), \"test.txt\", sep = \"\")", parser.GetTableName("write.table(x, file = paste(getwd(), \"test.txt\", sep = \"\"))"));
         }
 
         [TestMethod]
