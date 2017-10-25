@@ -25,6 +25,9 @@ namespace StatTag.Core.Parser
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(TableCommands)));
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:,|\\r|\\n|$)", FormatCommandListAsNonCapturingGroup(TableCommands)));
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
+        public static readonly string[] TableWithDataCommands = { "estout", "esttab" };
+        private static readonly Regex TableWithDataKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(TableWithDataCommands)));
+        private static readonly Regex TableWithDataRegex = new Regex("\\busing\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
         private static readonly Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
         private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
         private const string CommentStart = "/*";
@@ -173,12 +176,25 @@ namespace StatTag.Core.Parser
 
         public override bool IsTableResult(string command)
         {
-            return TableKeywordRegex.IsMatch(command);
+            return TableKeywordRegex.IsMatch(command) ||
+                   TableWithDataKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Determines the name of the table.  This may be a variable or a file path,
+        /// depending on the type of command used.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetTableName(string command)
         {
-            return MatchRegexReturnGroup(command, TableRegex, 1);
+            var dataFilePath = MatchRegexReturnGroup(command, TableWithDataRegex, 1);
+            if (string.IsNullOrWhiteSpace(dataFilePath))
+            {
+                return MatchRegexReturnGroup(command, TableRegex, 1);
+            }
+
+            return dataFilePath;
         }
 
         public bool IsCalculatedDisplayValue(string command)
