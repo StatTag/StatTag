@@ -4,6 +4,7 @@
 
 * Automatically set working directory before executing code files
 * Insert verbatim output at the current cursor location in document
+* Documented process for managing software versions
 * R
     * Allow named parameters in R image commands
     * Support beta version of R
