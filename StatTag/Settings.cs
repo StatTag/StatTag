@@ -174,5 +174,33 @@ namespace StatTag
                 lblLogWarning.Visible = false;
             }
         }
+
+        private void MissingValueRadio_Changed(object sender, EventArgs e)
+        {
+            HandleMissingValueRadioChanged();
+        }
+
+        private void HandleMissingValueRadioChanged()
+        {
+            if (radMissingValueStatDefault.Checked)
+            {
+                txtMissingValueString.Enabled = false;
+            }
+            else if (radMissingValueBlankString.Checked)
+            {
+                txtMissingValueString.Enabled = false;
+            }
+            else if (radMissingValueCustomString.Checked)
+            {
+                txtMissingValueString.Enabled = true;
+            }
+            else
+            {
+                // This "should never happen", but if for some reason no radio
+                // buttons are selected after a select event, we will force the
+                // selection to the first item by default.
+                radMissingValueStatDefault.Checked = true;
+            }
+        }
     }
 }
