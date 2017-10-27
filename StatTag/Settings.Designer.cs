@@ -143,7 +143,7 @@
             // 
             this.txtMissingValueString.Location = new System.Drawing.Point(165, 90);
             this.txtMissingValueString.Name = "txtMissingValueString";
-            this.txtMissingValueString.Size = new System.Drawing.Size(52, 25);
+            this.txtMissingValueString.Size = new System.Drawing.Size(80, 25);
             this.txtMissingValueString.TabIndex = 4;
             // 
             // radMissingValueBlankString
@@ -206,9 +206,9 @@
             this.tabLogging.Controls.Add(this.chkEnableLogging);
             this.tabLogging.Controls.Add(this.cmdLogLocation);
             this.tabLogging.Controls.Add(this.txtLogLocation);
-            this.tabLogging.Location = new System.Drawing.Point(4, 22);
+            this.tabLogging.Location = new System.Drawing.Point(4, 26);
             this.tabLogging.Name = "tabLogging";
-            this.tabLogging.Size = new System.Drawing.Size(665, 201);
+            this.tabLogging.Size = new System.Drawing.Size(665, 197);
             this.tabLogging.TabIndex = 2;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -216,6 +216,11 @@
             // txtMaxLogFiles
             // 
             this.txtMaxLogFiles.Location = new System.Drawing.Point(276, 103);
+            this.txtMaxLogFiles.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.txtMaxLogFiles.Name = "txtMaxLogFiles";
             this.txtMaxLogFiles.Size = new System.Drawing.Size(46, 25);
             this.txtMaxLogFiles.TabIndex = 25;
@@ -238,6 +243,11 @@
             // txtMaxLogSize
             // 
             this.txtMaxLogSize.Location = new System.Drawing.Point(276, 72);
+            this.txtMaxLogSize.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.txtMaxLogSize.Name = "txtMaxLogSize";
             this.txtMaxLogSize.Size = new System.Drawing.Size(46, 25);
             this.txtMaxLogSize.TabIndex = 23;
@@ -317,10 +327,10 @@
             this.tabStata.Controls.Add(this.cmdStataLocation);
             this.tabStata.Controls.Add(this.txtStataLocation);
             this.tabStata.Controls.Add(this.label1);
-            this.tabStata.Location = new System.Drawing.Point(4, 22);
+            this.tabStata.Location = new System.Drawing.Point(4, 26);
             this.tabStata.Name = "tabStata";
             this.tabStata.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStata.Size = new System.Drawing.Size(665, 201);
+            this.tabStata.Size = new System.Drawing.Size(665, 197);
             this.tabStata.TabIndex = 1;
             this.tabStata.Text = "Stata";
             this.tabStata.UseVisualStyleBackColor = true;

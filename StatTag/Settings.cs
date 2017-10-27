@@ -58,6 +58,14 @@ namespace StatTag
             chkEnableLogging.Checked = Properties.EnableLogging;
             txtLogLocation.Text = Properties.LogLocation;
             chkRunCodeOnOpen.Checked = Properties.RunCodeOnOpen;
+            txtMaxLogSize.Value = ((int)(Properties.GetValueInRange(Properties.MaxLogFileSize,
+                Core.Models.Properties.MaxLogFileSizeMin, Core.Models.Properties.MaxLogFileSizeMax,
+                Core.Models.Properties.MaxLogFileSizeDefault) / (Constants.BytesToMegabytesConversion * 1.0)));
+            txtMaxLogFiles.Value = Properties.GetValueInRange(Properties.MaxLogFiles,
+                Core.Models.Properties.MaxLogFilesMin, Core.Models.Properties.MaxLogFilesMax,
+                Core.Models.Properties.MaxLogFilesDefault);
+            SetMissingValuesSelection(Properties.RepresentMissingValues);
+            txtMissingValueString.Text = Properties.CustomMissingValue;
             
             UpdateLoggingControls();
             UpdateStataControls();
@@ -133,12 +141,63 @@ namespace StatTag
             Properties.EnableLogging = chkEnableLogging.Checked;
             Properties.LogLocation = txtLogLocation.Text;
             Properties.RunCodeOnOpen = chkRunCodeOnOpen.Checked;
+            Properties.MaxLogFileSize = ((uint)(txtMaxLogSize.Value * Constants.BytesToMegabytesConversion));
+            Properties.MaxLogFiles = (uint)txtMaxLogFiles.Value;
+            Properties.CustomMissingValue = txtMissingValueString.Text;
+            Properties.RepresentMissingValues = GetMissingValuesSelection();
 
             if (Properties.EnableLogging && !Logger.IsValidLogPath(Properties.LogLocation))
             {
                 UIUtility.WarningMessageBox("The debug file you have selected appears to be invalid, or you do not have rights to access it.\r\nPlease select a valid path for the debug file, or disable debugging.", null);
                 DialogResult = DialogResult.None;
             }
+        }
+
+        /// <summary>
+        /// Helper method to get the (string) constant value that represents the user's
+        /// choice for how to represent a missing value.
+        /// </summary>
+        /// <returns></returns>
+        private string GetMissingValuesSelection()
+        {
+            if (radMissingValueCustomString.Checked)
+            {
+                return Constants.MissingValueOption.CustomValue;
+            }
+            else if (radMissingValueBlankString.Checked)
+            {
+                return Constants.MissingValueOption.BlankString;
+            }
+
+            // For previous versions, or just as a last restort, our default is
+            // to use the statistical package default value.
+            return Constants.MissingValueOption.StatPackageDefault;
+        }
+
+        /// <summary>
+        /// Helper method to convert a constant string value into the appropriately
+        /// selected radio button for missing value handling.
+        /// </summary>
+        /// <param name="value"></param>
+        private void SetMissingValuesSelection(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                if (value.Equals(Constants.MissingValueOption.CustomValue, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    radMissingValueCustomString.Checked = true;
+                }
+                else if (value.Equals(Constants.MissingValueOption.BlankString, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    radMissingValueBlankString.Checked = true;
+                }
+                else
+                {
+                    radMissingValueStatDefault.Checked = true;
+                }
+            }
+
+            HandleMissingValueRadioChanged();
         }
 
         private void chkEnableLogging_CheckedChanged(object sender, EventArgs e)
