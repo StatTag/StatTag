@@ -54,8 +54,9 @@
             textBox1.ReadOnly = true;
             textBox1.Size = new System.Drawing.Size(623, 41);
             textBox1.TabIndex = 21;
-            textBox1.Text = "Welty, L.J., Rasmussen, L.V., & Baldridge, A.S. (2016). StatTag. Chicago, Illinoi" +
-    "s, United States: Galter Health Sciences Library. doi:10.18131/G3K76";
+            textBox1.Text = "Welty, L.J., Rasmussen, L.V., Baldridge, A.S., & Whitley E. (2016). StatTag. Chic" +
+    "ago, Illinois, United States: Galter Health Sciences Library. doi:10.18131/G3K76" +
+    "";
             // 
             // groupBox1
             // 
@@ -195,6 +196,7 @@
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
