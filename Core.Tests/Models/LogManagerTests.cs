@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
+using LogManager = StatTag.Core.Models.LogManager;
 
 namespace Core.Tests.Models
 {
@@ -13,9 +15,10 @@ namespace Core.Tests.Models
         [TestMethod]
         public void IsValidLogPath_Invalid()
         {
-            var mock = new Mock<IFileHandler>();
-            mock.Setup(file => file.OpenWrite(It.IsAny<string>())).Throws(new Exception("Invalid"));
-            var manager = new LogManager(mock.Object);
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
+            mockHandler.Setup(file => file.OpenWrite(It.IsAny<string>())).Throws(new Exception("Invalid"));
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
             Assert.IsFalse(manager.IsValidLogPath("Test.log"));
             Assert.IsFalse(manager.IsValidLogPath(""));
         }
@@ -23,10 +26,11 @@ namespace Core.Tests.Models
         [TestMethod]
         public void IsValidLogPath_Valid()
         {
-            var mock = new Mock<IFileHandler>();
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
             FileStream nullStream = null;
-            mock.Setup(file => file.OpenWrite(It.IsAny<string>())).Returns(nullStream);
-            var manager = new LogManager(mock.Object);
+            mockHandler.Setup(file => file.OpenWrite(It.IsAny<string>())).Returns(nullStream);
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
             Assert.IsTrue(manager.IsValidLogPath("Test.log"));
         }
 
@@ -46,46 +50,50 @@ namespace Core.Tests.Models
         [TestMethod]
         public void WriteMessage_Disabled()
         {
-            var mock = new Mock<IFileHandler>();
-            mock.Setup(file => file.AppendAllText(It.IsAny<string>(), It.IsAny<string>()));
-            var manager = new LogManager(mock.Object);
-            manager.UpdateSettings(false, null);
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
+            mockLog.Setup(log => log.Info(It.IsAny<string>()));
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
+            manager.UpdateSettings(false, "Test.log", 1L, 1L);
             manager.WriteMessage("Test");
             // Never called if disabled
-            mock.Verify(m => m.AppendAllText(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            mockLog.Verify(m => m.Info(It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
         public void WriteMessage_Enabled()
         {
-            var mock = new Mock<IFileHandler>();
-            mock.Setup(file => file.AppendAllText(It.IsAny<string>(), It.IsAny<string>()));
-            var manager = new LogManager(mock.Object);
-            manager.UpdateSettings(true, "Test.log");
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
+            mockLog.Setup(log => log.Info(It.IsAny<string>()));
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
+            manager.UpdateSettings(true, "Test.log", 1L, 1L);
             manager.WriteMessage("Test");
-            mock.Verify(m => m.AppendAllText(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            mockLog.Verify(m => m.Info(It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
         public void WriteException()
         {
-            var mock = new Mock<IFileHandler>();
-            mock.Setup(file => file.AppendAllText(It.IsAny<string>(), It.IsAny<string>()));
-            var manager = new LogManager(mock.Object);
-            manager.UpdateSettings(true, "Test.log");
-            manager.WriteException(new Exception("Test exception"));;
-            mock.Verify(m => m.AppendAllText(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
+            mockLog.Setup(log => log.ErrorFormat(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>()));
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
+            manager.UpdateSettings(true, "Test.log", 1L, 1L);
+            manager.WriteException(new Exception("Test exception")); ;
+            mockLog.Verify(m => m.ErrorFormat(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>()), Times.Once);
         }
 
         [TestMethod]
         public void WriteException_Nested()
         {
-            var mock = new Mock<IFileHandler>();
-            mock.Setup(file => file.AppendAllText(It.IsAny<string>(), It.IsAny<string>()));
-            var manager = new LogManager(mock.Object);
-            manager.UpdateSettings(true, "Test.log");
+            var mockHandler = new Mock<IFileHandler>();
+            var mockLog = new Mock<ILog>();
+            mockLog.Setup(log => log.ErrorFormat(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>()));
+            var manager = new LogManager(mockHandler.Object, mockLog.Object);
+            manager.UpdateSettings(true, "Test.log", 1L, 1L);
             manager.WriteException(new Exception("Test exception", new Exception("Inner")));
-            mock.Verify(m => m.AppendAllText(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+            mockLog.Verify(m => m.ErrorFormat(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>()), Times.Exactly(2));
         }
     }
 }
