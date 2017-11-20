@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using StatTag.Core.Models;
 
 namespace StatTag.Models
 {
@@ -128,6 +129,9 @@ namespace StatTag.Models
             Properties.RunCodeOnOpen = GetBooleanValue(key, RunCodeOnOpenKey);
             Properties.MaxLogFileSize = GetULongValue(key, MaxLogFileSize, Core.Models.Properties.MaxLogFileSizeDefault);
             Properties.MaxLogFiles = GetULongValue(key, MaxLogFiles, Core.Models.Properties.MaxLogFilesDefault);
+            Properties.RepresentMissingValues =
+                key.GetValue(MissingValuesOption, Constants.MissingValueOption.StatPackageDefault).ToString();
+            Properties.CustomMissingValue = key.GetValue(MissingValuesCustomValue, string.Empty).ToString();
         }
     }
 }
