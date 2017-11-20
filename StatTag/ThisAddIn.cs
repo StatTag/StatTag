@@ -20,8 +20,8 @@ namespace StatTag
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
 
         public LogManager LogManager = new LogManager();
-        public DocumentManager DocumentManager = null;
         public PropertiesManager PropertiesManager = new PropertiesManager();
+        public DocumentManager DocumentManager = new DocumentManager();
         public StatsManager StatsManager = null;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            DocumentManager = new DocumentManager(PropertiesManager);
+            DocumentManager.SetPropertiesManager(PropertiesManager);
             StatsManager = new StatsManager(DocumentManager, PropertiesManager);
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes

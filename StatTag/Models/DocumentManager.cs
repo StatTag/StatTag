@@ -31,12 +31,25 @@ namespace StatTag.Models
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
-        public DocumentManager(PropertiesManager propertiesManager)
+        public DocumentManager()
         {
-            PropertiesManager = propertiesManager;
+            PropertiesManager = null;
             DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
             TagManager = new TagManager(this);
             StatsManager = new StatsManager(this, PropertiesManager);
+        }
+
+        public void SetPropertiesManager(PropertiesManager propertiesManager)
+        {
+            PropertiesManager = propertiesManager;
+            if (StatsManager == null)
+            {
+                StatsManager = new StatsManager(this, PropertiesManager);
+            }
+            else
+            {
+                StatsManager.PropertiesManager = PropertiesManager;
+            }
         }
 
         /// <summary>
