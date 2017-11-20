@@ -181,20 +181,25 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
-        /// Determines the name of the table.  This may be a variable or a file path,
-        /// depending on the type of command used.
+        /// Determines the name of the table.  If the data is stored in a file (not in
+        /// an object in the statistical program), this should return no result and
+        /// GetTableDataPath should be used instead.
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
         public override string GetTableName(string command)
         {
-            var dataFilePath = MatchRegexReturnGroup(command, TableWithDataRegex, 1);
-            if (string.IsNullOrWhiteSpace(dataFilePath))
-            {
-                return MatchRegexReturnGroup(command, TableRegex, 1);
-            }
+            return MatchRegexReturnGroup(command, TableRegex, 1);
+        }
 
-            return dataFilePath;
+        /// <summary>
+        /// Determines the path of a file where table data is located.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public override string GetTableDataPath(string command)
+        {
+            return MatchRegexReturnGroup(command, TableWithDataRegex, 1);
         }
 
         public bool IsCalculatedDisplayValue(string command)

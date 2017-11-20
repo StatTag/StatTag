@@ -12,6 +12,18 @@ namespace StatTag.Core.Interfaces
         bool IsValueDisplay(string command);
         string GetValueName(string command);
         bool IsTableResult(string command);
+        /// <summary>
+        /// Return a named object that represents table data within the statistical program
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         string GetTableName(string command);
+
+        /// <summary>
+        /// Return a path to where table data is found
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        string GetTableDataPath(string command);
     }
 }

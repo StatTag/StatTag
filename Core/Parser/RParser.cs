@@ -261,6 +261,11 @@ namespace StatTag.Core.Parser
             return true;
         }
 
+        public override string GetTableName(string command)
+        {
+            return null;
+        }
+
         /// <summary>
         /// This will return the exact parameter that represents the save location of a file written in R.  This may be an R function (e.g., paste)
         /// to construct the file path, a variable, or a string literal.  String literals will include enclosing quotes.  This is
@@ -269,7 +274,7 @@ namespace StatTag.Core.Parser
         /// </summary>
         /// <param name="command"></param>
         /// <returns>A string containing the file path, if a file path is specified in the command.  If not, an empty string is returned.</returns>
-        public override string GetTableName(string command)
+        public override string GetTableDataPath(string command)
         {
             var result = GetSaveLocation(command, TableRegex, TableFileParameterName, 2);
             return result;

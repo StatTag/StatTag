@@ -245,6 +245,13 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void GetTableDataPath()
+        {
+            var parser = new StataParser();
+            Assert.AreEqual("example.csv", parser.GetTableDataPath("esttab using example.csv, replace wide plain"));
+        }
+
+        [TestMethod]
         public void PreProcessContent_Empty()
         {
             var parser = new StataParser();

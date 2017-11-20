@@ -279,7 +279,7 @@ namespace SAS
 
             if (Parser.IsTableResult(command))
             {
-                return new CommandResult() { TableResultPromise = GetExpandedLocation(Parser.GetTableName(command)) };
+                return new CommandResult() { TableResultPromise = GetExpandedLocation(Parser.GetTableDataPath(command)) };
             }
 
             return null;

@@ -284,7 +284,7 @@ namespace R
             // Check to see if we can identify a file name that contains our table data.  If one
             // exists, we will start by returning that.  If there is no file name specified, we
             // will proceed and assume we are pulling data out of some R type.
-            var dataFile = Parser.GetTableName(command);
+            var dataFile = Parser.GetTableDataPath(command);
             if (!string.IsNullOrWhiteSpace(dataFile))
             {
                 return CSVToTable.GetTableResult(GetExpandedFilePath(dataFile));
