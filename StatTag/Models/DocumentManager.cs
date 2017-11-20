@@ -26,15 +26,17 @@ namespace StatTag.Models
         private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
+        public PropertiesManager PropertiesManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
-        public DocumentManager()
+        public DocumentManager(PropertiesManager propertiesManager)
         {
+            PropertiesManager = propertiesManager;
             DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
             TagManager = new TagManager(this);
-            StatsManager = new StatsManager(this);
+            StatsManager = new StatsManager(this, PropertiesManager);
         }
 
         /// <summary>
@@ -464,7 +466,7 @@ namespace StatTag.Models
                             shape.Name = tagUpdatePair.New.Id;
                         }
 
-                        shape.TextFrame.TextRange.Text = tag.FormattedResult;
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult(PropertiesManager.Properties);
                     }
                     Marshal.ReleaseComObject(shape);
                 }
@@ -698,7 +700,7 @@ namespace StatTag.Models
 
             var cells = GetCells(selection);
 
-            tag.UpdateFormattedTableData();
+            tag.UpdateFormattedTableData(PropertiesManager.Properties);
             var table = tag.CachedResult.First().TableResult;
 
             var dimensions = tag.GetTableDisplayDimensions();
@@ -765,7 +767,7 @@ namespace StatTag.Models
                 };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
-                    innerTag.FormattedResult, innerTag);
+                    innerTag.FormattedResult(PropertiesManager.Properties), innerTag);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -921,7 +923,7 @@ namespace StatTag.Models
                 {
                     Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateTagField(range, tag.Name, tag.FormattedResult, tag);
+                    CreateTagField(range, tag.Name, tag.FormattedResult(PropertiesManager.Properties), tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -1001,14 +1003,14 @@ namespace StatTag.Models
                         if (dialog.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Tag.UpdateFormattedTableData();
+                            dialog.Tag.UpdateFormattedTableData(PropertiesManager.Properties);
                         }
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.TableFormat != tag.TableFormat)
                     {
                         Log("Updating fields after tag table format changed");
-                        dialog.Tag.UpdateFormattedTableData();
+                        dialog.Tag.UpdateFormattedTableData(PropertiesManager.Properties);
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.Id != tag.Id)
