@@ -4,6 +4,8 @@ namespace StatTag.Core.Models
 {
     public static class Constants
     {
+        public const long BytesToMegabytesConversion = 1048576;
+
         public static class StatisticalPackages
         {
             public const string Stata = "Stata";
@@ -235,6 +237,13 @@ namespace StatTag.Core.Models
         {
             public const string Exclude = "Exclude";
             public const string Include = "Include";
+        }
+
+        public static class MissingValueOption
+        {
+            public const string StatPackageDefault = "StatPackageDefault";
+            public const string CustomValue = "CustomValue";
+            public const string BlankString = "BlankString";
         }
     }
 }

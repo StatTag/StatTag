@@ -18,8 +18,9 @@ namespace StatTag.Core.Models
         /// </summary>
         /// <param name="value">The string value to be formatted</param>
         /// <param name="valueFormatter"></param>
+        /// <param name="properties"></param>
         /// <returns></returns>
-        public string Format(string value, IValueFormatter valueFormatter = null)
+        public string Format(string value, IValueFormatter valueFormatter = null, Properties properties = null)
         {
             valueFormatter = valueFormatter ?? new BaseValueFormatter();
 
@@ -41,7 +42,7 @@ namespace StatTag.Core.Models
                     break;
             }
 
-            return valueFormatter.Finalize(value);
+            return valueFormatter.Finalize(value, properties);
         }
 
         /// <summary>

@@ -65,30 +65,27 @@ namespace StatTag.Core.Models
         /// received a cahced copy of the results it should format.  It does not call out to
         /// retrieve results if they are not set.
         /// </summary>
-        public string FormattedResult
+        public string FormattedResult(Properties properties)
         {
-            get
+            if (CachedResult == null || CachedResult.Count == 0)
             {
-                if (CachedResult == null || CachedResult.Count == 0)
-                {
-                    return Constants.Placeholders.EmptyField;
-                }
-
-                // When formatting a value, it is possible the user has selected multiple 
-                // display commands.  We will only return the last cached result, and format
-                // that if our formatter is available.
-                var lastValue = CachedResult.Last();
-                string formattedValue = lastValue.ToString();
-                if (!string.IsNullOrWhiteSpace(Type) && ValueFormat != null)
-                {
-                    formattedValue = ValueFormat.Format(lastValue.ToString(), Factories.GetValueFormatter(CodeFile));
-                }
-
-                // Table tags should never return the placeholder.  We assume that there could reasonably
-                // be empty cells at some point, so we will not correct those like we do for individual values.
-                return (!IsTableTag() && string.IsNullOrWhiteSpace(formattedValue)) ? 
-                    Constants.Placeholders.EmptyField : formattedValue;
+                return Constants.Placeholders.EmptyField;
             }
+
+            // When formatting a value, it is possible the user has selected multiple 
+            // display commands.  We will only return the last cached result, and format
+            // that if our formatter is available.
+            var lastValue = CachedResult.Last();
+            string formattedValue = lastValue.ToString();
+            if (!string.IsNullOrWhiteSpace(Type) && ValueFormat != null)
+            {
+                formattedValue = ValueFormat.Format(lastValue.ToString(), Factories.GetValueFormatter(CodeFile), properties);
+            }
+
+            // Table tags should never return the placeholder.  We assume that there could reasonably
+            // be empty cells at some point, so we will not correct those like we do for individual values.
+            return (!IsTableTag() && string.IsNullOrWhiteSpace(formattedValue)) ? 
+                Constants.Placeholders.EmptyField : formattedValue;
         }
 
         /// <summary>
@@ -253,7 +250,7 @@ namespace StatTag.Core.Models
         /// <summary>
         /// Update the underlying table data associated with this tag.
         /// </summary>
-        public void UpdateFormattedTableData()
+        public void UpdateFormattedTableData(Properties properties)
         {
             if (!IsTableTag() || !HasTableData())
             {
@@ -261,7 +258,7 @@ namespace StatTag.Core.Models
             }
 
             var table = CachedResult.First().TableResult;
-            table.FormattedCells = TableFormat.Format(table, Factories.GetValueFormatter(CodeFile));
+            table.FormattedCells = TableFormat.Format(table, Factories.GetValueFormatter(CodeFile), properties);
         }
 
         /// <summary>

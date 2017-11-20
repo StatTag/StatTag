@@ -149,34 +149,37 @@ namespace Core.Tests.Models
         [TestMethod]
         public void FormattedResult_Empty()
         {
+            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag();
-            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
 
             tag = new Tag() { CachedResult = new List<CommandResult>() };
-            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
         }
 
         [TestMethod]
         public void FormattedResult_Values()
         {
+            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
-            Assert.AreEqual("Test 1", tag.FormattedResult);
+            Assert.AreEqual("Test 1", tag.FormattedResult(properties));
 
             tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" }, new CommandResult() { ValueResult = "Test 2" } }) };
-            Assert.AreEqual("Test 2", tag.FormattedResult);
+            Assert.AreEqual("Test 2", tag.FormattedResult(properties));
 
             tag = new Tag() { CachedResult = new List<CommandResult>(new[] {  new CommandResult() { ValueResult = "1234" },  new CommandResult() { ValueResult = "456789" } }), Type = Constants.TagType.Value, ValueFormat = new ValueFormat() { FormatType = Constants.ValueFormatType.Numeric, UseThousands = true}};
-            Assert.AreEqual("456,789", tag.FormattedResult);
+            Assert.AreEqual("456,789", tag.FormattedResult(properties));
         }
 
         [TestMethod]
         public void FormattedResult_ValuesBlank()
         {
+            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "" } }) };
-            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
 
             tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "    " }, new CommandResult() { ValueResult = "         " } }) };
-            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult);
+            Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
         }
 
         [TestMethod]
@@ -196,9 +199,10 @@ namespace Core.Tests.Models
             var tag = new Tag() { Type = Constants.TagType.Value, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             var serialized = tag.Serialize();
             var recreatedTag = Tag.Deserialize(serialized);
+            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             Assert.AreEqual(tag.CodeFile, recreatedTag.CodeFile);
             Assert.AreEqual(tag.FigureFormat, recreatedTag.FigureFormat);
-            Assert.AreEqual(tag.FormattedResult, recreatedTag.FormattedResult);
+            Assert.AreEqual(tag.FormattedResult(properties), recreatedTag.FormattedResult(properties));
             Assert.AreEqual(tag.LineEnd, recreatedTag.LineEnd);
             Assert.AreEqual(tag.LineStart, recreatedTag.LineStart);
             Assert.AreEqual(tag.Name, recreatedTag.Name);

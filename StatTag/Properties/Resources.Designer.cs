@@ -95,7 +95,7 @@ namespace StatTag.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap _1447149705_Gnome_System_File_Manager_64 {
             get {
-                object obj = ResourceManager.GetObject("1447149705_Gnome-System-File-Manager-64", resourceCulture);
+                object obj = ResourceManager.GetObject("1447149705_Gnome-System-File-DocumentManager-64", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

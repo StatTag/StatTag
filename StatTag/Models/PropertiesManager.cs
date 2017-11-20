@@ -19,6 +19,10 @@ namespace StatTag.Models
         private const string LogLocationKey = "Log Location";
         private const string LogEnabledKey = "Logging Enabled";
         private const string RunCodeOnOpenKey = "Autorun Code";
+        private const string MaxLogFileSize = "Max Log File Size";
+        private const string MaxLogFiles = "Max Num Log Files";
+        private const string MissingValuesOption = "Missing Values";
+        private const string MissingValuesCustomValue = "Custom Missing Value String";
 
         public Core.Models.Properties Properties { get; set; }
 
@@ -42,6 +46,14 @@ namespace StatTag.Models
             key.SetValue(LogLocationKey, Properties.LogLocation, RegistryValueKind.String);
             key.SetValue(LogEnabledKey, Properties.EnableLogging, RegistryValueKind.DWord);
             key.SetValue(RunCodeOnOpenKey, Properties.RunCodeOnOpen, RegistryValueKind.DWord);
+            key.SetValue(MaxLogFileSize, Properties.GetValueInRange(Properties.MaxLogFileSize,
+                Core.Models.Properties.MaxLogFileSizeMin, Core.Models.Properties.MaxLogFileSizeMax,
+                Core.Models.Properties.MaxLogFileSizeDefault), RegistryValueKind.QWord);
+            key.SetValue(MaxLogFiles, Properties.GetValueInRange(Properties.MaxLogFiles,
+                Core.Models.Properties.MaxLogFilesMin, Core.Models.Properties.MaxLogFilesMax,
+                Core.Models.Properties.MaxLogFilesDefault), RegistryValueKind.DWord);
+            key.SetValue(MissingValuesOption, Properties.RepresentMissingValues, RegistryValueKind.String);
+            key.SetValue(MissingValuesCustomValue, Properties.CustomMissingValue, RegistryValueKind.String);
         }
 
         /// <summary>
@@ -73,6 +85,33 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Helper function to decipher a ulong registry value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="registryKey"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private ulong GetULongValue(RegistryKey key, string registryKey, ulong defaultValue)
+        {
+            var value = key.GetValue(registryKey, defaultValue);
+            if (value == null)
+            {
+                return defaultValue;
+            }
+
+            if (value is long)
+            {
+                return ((ulong) (long) value);
+            }
+            else if (value is int)
+            {
+                return ((ulong) (int) value);
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
         /// Load the properties from the user's registry.
         /// </summary>
         public void Load()
@@ -87,6 +126,8 @@ namespace StatTag.Models
             Properties.LogLocation = key.GetValue(LogLocationKey, string.Empty).ToString();
             Properties.EnableLogging = GetBooleanValue(key, LogEnabledKey);
             Properties.RunCodeOnOpen = GetBooleanValue(key, RunCodeOnOpenKey);
+            Properties.MaxLogFileSize = GetULongValue(key, MaxLogFileSize, Core.Models.Properties.MaxLogFileSizeDefault);
+            Properties.MaxLogFiles = GetULongValue(key, MaxLogFiles, Core.Models.Properties.MaxLogFilesDefault);
         }
     }
 }
