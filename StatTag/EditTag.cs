@@ -10,6 +10,7 @@ using StatTag.Core.Utility;
 using StatTag.Models;
 using ScintillaNET;
 using Tag = StatTag.Core.Models.Tag;
+using ScintillaNET_FindReplaceDialog;
 
 namespace StatTag
 {
@@ -27,6 +28,8 @@ namespace StatTag
         private const uint TagMask = (1 << TagMarker);
         private const string CannotLoadDialogMessage =
             "There was an error trying to load the Tag dialog.";
+
+        private FindReplace FindReplaceManager = null;
         
         public DocumentManager Manager { get; set; }
         private Tag OriginalTag { get; set; }
@@ -49,6 +52,9 @@ namespace StatTag
                 UIUtility.SetDialogTitle(this);
                 AllowInsertInDocument = allowInsertInDocument;
                 RefreshButtons();
+
+                FindReplaceManager = new FindReplace(scintilla1);
+                incrementalSearcher1.FindReplace = FindReplaceManager;
             }
             catch (Exception exc)
             {
