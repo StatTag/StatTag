@@ -59,6 +59,11 @@ namespace Core.Tests.Parser
                 throw new NotImplementedException();
             }
 
+            public override string GetTableDataPath(string command)
+            {
+                throw new NotImplementedException();
+            }
+
             public override List<string> PreProcessContent(List<string> originalContent)
             {
                 return originalContent;

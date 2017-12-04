@@ -99,7 +99,18 @@ namespace StatTag.Core.Parser
             return TableKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Within SAS, we only return table data from files.  This will always
+        /// return null to indicate that no named table objects are used.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetTableName(string command)
+        {
+            return null;
+        }
+
+        public override string GetTableDataPath(string command)
         {
             string file = MatchRegexReturnGroup(command, TableRegex, 1);
 

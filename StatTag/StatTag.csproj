@@ -135,6 +135,10 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -381,6 +385,7 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
@@ -427,6 +432,10 @@
     <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
       <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
       <Name>RDotNet.NativeLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ScintillaNET-FindReplaceDialog\ScintillaNet FindReplaceDialog\ScintillaNET FindReplaceDialog.csproj">
+      <Project>{548fd833-9a3b-41bb-9850-570afe9a91b7}</Project>
+      <Name>ScintillaNET FindReplaceDialog</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
       <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>

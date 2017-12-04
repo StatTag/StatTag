@@ -82,32 +82,40 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetTableName()
         {
+            // Regardless of what's sent in, GetTableName always returns null
+            var parser = new RParser();
+            Assert.IsNull(parser.GetTableName("ods csv file=\"test.csv\";"));
+        }
+
+        [TestMethod]
+        public void GetTableDataPath()
+        {
             var parser = new SASParser();
-            Assert.AreEqual("", parser.GetTableName("ods csv file=\"\";"));
-            Assert.AreEqual("", parser.GetTableName("ods csv file=\"test.csv\"")); // It won't match because there is no semicolon
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file = \"test.csv\";"));
-            Assert.AreEqual("", parser.GetTableName("ods csv file=test.csv;")); // It won't match because there are no quotes
-            Assert.AreEqual("test.csv", parser.GetTableName("   ods    csv    file   =   \"test.csv\" ;"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv\r\n   file=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods\r\ncsv\r\nfile\r\n=\"test.csv\"\r\n;"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\" test.csv \";")); // Trims the response
-            Assert.AreEqual("", parser.GetTableName("ods csvd file = \"test.csv\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=\"\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=\"test.csv\"")); // It won't match because there is no semicolon
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file = \"test.csv\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=test.csv;")); // It won't match because there are no quotes
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("   ods    csv    file   =   \"test.csv\" ;"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv\r\n   file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods\r\ncsv\r\nfile\r\n=\"test.csv\"\r\n;"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file=\" test.csv \";")); // Trims the response
+            Assert.AreEqual("", parser.GetTableDataPath("ods csvd file = \"test.csv\";"));
 
             // Testing to ensure single-quotes work as well as double-quotes
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv';"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File='test.csv';"));
 
             // Our regex is kind of dumb... this will pass, but it is invalid in SAS
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv';"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File='test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File=\"test.csv';"));
 
             // Case shouldn't matter
-            Assert.AreEqual("TEST.CSV", parser.GetTableName("ODS CSV FILE=\"TEST.CSV\";"));
+            Assert.AreEqual("TEST.CSV", parser.GetTableDataPath("ODS CSV FILE=\"TEST.CSV\";"));
 
             // Test with path set - variable and constant
-            Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableName("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
-            Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableName("ODS CSV path=&outpath file=\"Test.csv\";"));
+            Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableDataPath("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
+            Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableDataPath("ODS CSV path=&outpath file=\"Test.csv\";"));
         }
 
         [TestMethod]

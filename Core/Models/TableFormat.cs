@@ -20,7 +20,7 @@ namespace StatTag.Core.Models
 
         // This is going to start out assuming left to right filling.  In the future
         // this will have different fill options.
-        public string[,] Format(Table tableData, IValueFormatter valueFormatter = null)
+        public string[,] Format(Table tableData, IValueFormatter valueFormatter = null, DocumentMetadata properties = null)
         {
             valueFormatter = valueFormatter ?? new BaseValueFormatter();
 
@@ -43,7 +43,7 @@ namespace StatTag.Core.Models
                         continue;
                     }
 
-                    formattedResults[row, column] = valueFormatter.Finalize(tableData.Data[row, column]);
+                    formattedResults[row, column] = valueFormatter.Finalize(tableData.Data[row, column], properties);
                 }
             }
             return formattedResults;

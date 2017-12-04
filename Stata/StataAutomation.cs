@@ -392,6 +392,15 @@ namespace Stata
         /// <returns></returns>
         public Table GetTableResult(string command)
         {
+            // Check to see if we can identify a file name that contains our table data.  If one
+            // exists, we will start by returning that.  If there is no file name specified, we
+            // will proceed and assume we are pulling data out of a Stata matrix.
+            var dataFile = Parser.GetTableDataPath(command);
+            if (!string.IsNullOrWhiteSpace(dataFile))
+            {
+                return CSVToTable.GetTableResult(GetExpandedFilePath(dataFile));
+            }
+
             var matrixName = Parser.GetTableName(command);
             try
             {
@@ -437,6 +446,43 @@ namespace Stata
             }
 
             return cleanedData;
+        }
+
+        /// <summary>
+        /// Return an expanded, full file path - accounting for variables, functions, relative paths, etc.
+        /// </summary>
+        /// <param name="saveLocation">A Stata command that will be translated into a file path.</param>
+        /// <returns>The full file path</returns>
+        private string GetExpandedFilePath(string saveLocation)
+        {
+            // If the save location is not a macro, and it appears to be a relative path, translate it into a fully
+            // qualified path based on Stata's current environment.
+            if (saveLocation.Contains(StataParser.MacroDelimiters[0]))
+            {
+                var macros = Parser.GetMacros(saveLocation);
+                foreach (var macro in macros)
+                {
+                    var result = GetMacroValue(macro);
+                    saveLocation = ReplaceMacroWithValue(saveLocation, macro, result);
+                }
+            }
+            else if (Parser.IsRelativePath(saveLocation))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var results = RunCommands(new string[] { "local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'" });
+                if (results != null && results.Length > 0)
+                {
+                    var path = results.First().ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, saveLocation));
+                    if (File.Exists(correctedPath))
+                    {
+                        saveLocation = correctedPath;
+                    }
+                }
+            }
+
+            return saveLocation;
         }
 
         /// <summary>
@@ -487,35 +533,7 @@ namespace Stata
 
             if (Parser.IsImageExport(command) && !IsTrackingVerbatim)
             {
-                // If the image location is not a macro, and it appears to be a relative path, translate it into a fully
-                // qualified path based on Stata's current environment.
-                var imageLocation = Parser.GetImageSaveLocation(command);
-                if (imageLocation.Contains(StataParser.MacroDelimiters[0]))
-                {
-                    var macros = Parser.GetMacros(imageLocation);
-                    foreach (var macro in macros)
-                    {
-                        var result = GetMacroValue(macro);
-                        imageLocation = ReplaceMacroWithValue(imageLocation, macro, result);
-                    }
-                }
-                else if (Parser.IsRelativePath(imageLocation))
-                {
-                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
-                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                    var results = RunCommands(new string[] { "local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'" });
-                    if (results != null && results.Length > 0)
-                    {
-                        var path = results.First().ValueResult;
-                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation));
-                        if (File.Exists(correctedPath))
-                        {
-                            imageLocation = correctedPath;
-                        }
-                    }
-                }
-
-                return new CommandResult() { FigureResult = imageLocation };
+                return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
             }
             
             return null;

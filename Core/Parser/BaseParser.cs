@@ -29,6 +29,7 @@ namespace StatTag.Core.Parser
         public abstract string GetValueName(string command);
         public abstract bool IsTableResult(string command);
         public abstract string GetTableName(string command);
+        public abstract string GetTableDataPath(string command);
 
         /// <summary>
         /// Perform any necessary pre-processing on the original code file content in order

@@ -20,8 +20,8 @@ namespace StatTag
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
 
         public LogManager LogManager = new LogManager();
-        public DocumentManager DocumentManager = new DocumentManager();
         public PropertiesManager PropertiesManager = new PropertiesManager();
+        public DocumentManager DocumentManager = new DocumentManager();
         public StatsManager StatsManager = null;
 
         /// <summary>
@@ -51,13 +51,15 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            StatsManager = new StatsManager(DocumentManager);
+            DocumentManager.SetPropertiesManager(PropertiesManager);
+            StatsManager = new StatsManager(DocumentManager, PropertiesManager);
             DocumentManager.CodeFileChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
             PropertiesManager.Load();
-            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation,
+                PropertiesManager.Properties.MaxLogFileSize, PropertiesManager.Properties.MaxLogFiles);
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
@@ -126,7 +128,24 @@ namespace StatTag
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            DocumentManager.LoadMetadataFromDocument(doc);
+            var metadata = DocumentManager.LoadMetadataFromDocument(doc, false);
+            if (metadata == null)
+            {
+                LogManager.WriteMessage("No StatTag metadata contained in document");
+            }
+            else
+            {
+                LogManager.WriteMessage("Document Metadata");
+                LogManager.WriteMessage(string.Format("   Document created with: {0}", metadata.StatTagVersion));
+                LogManager.WriteMessage(string.Format("   Handling of missing values: {0}", metadata.RepresentMissingValues));
+                LogManager.WriteMessage(string.Format("   Custom missing value replacement (if applicable): {0}", metadata.CustomMissingValue));
+            }
+
+            // Historically we just had the code file list in the document properties, so we call the old load
+            // function to help with backwards compatibility for documents created prior to v3.1, without having
+            // to migrate document properties.
+            DocumentManager.LoadCodeFileListFromDocument(doc);
+
             var files = DocumentManager.GetCodeFileList(doc);
             LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 

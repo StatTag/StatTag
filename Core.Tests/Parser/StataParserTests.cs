@@ -71,6 +71,20 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsTableResult("matrix list r(coefs)"));
         }
 
+
+        [TestMethod]
+        public void IsTableResult_DataFile()
+        {
+            var parser = new StataParser();
+            Assert.IsFalse(parser.IsTableResult("estadd using test.csv"));
+            Assert.IsTrue(parser.IsTableResult("estout using test.csv"));
+            Assert.IsTrue(parser.IsTableResult("esttab using example.csv, replace wide plain"));
+            Assert.IsTrue(parser.IsTableResult("  esttab  using  example.csv ,  replace  wide  plain "));
+            Assert.IsFalse(parser.IsTableResult("a estout using test.csv"));
+            Assert.IsFalse(parser.IsTableResult("aestout using test.csv"));
+            Assert.IsFalse(parser.IsTableResult("estouts using test.csv"));
+        }
+
         [TestMethod]
         public void IsStartingLog()
         {
@@ -228,6 +242,13 @@ namespace Core.Tests.Parser
             Assert.AreEqual("r(coefs)", parser.GetTableName("matrix list r(coefs), format(%5.0g)"));
             Assert.AreEqual("r ( coefs )", parser.GetTableName("mat list r ( coefs ) "));
             Assert.AreEqual("B", parser.GetTableName("matrix list B\r\n\r\n*Some comments following"));
+        }
+
+        [TestMethod]
+        public void GetTableDataPath()
+        {
+            var parser = new StataParser();
+            Assert.AreEqual("example.csv", parser.GetTableDataPath("esttab using example.csv, replace wide plain"));
         }
 
         [TestMethod]
