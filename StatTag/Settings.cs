@@ -17,10 +17,10 @@ namespace StatTag
         private const string ExecutableFileFilter = "Application Executable|*.exe";
         private const string LogFileFilter = "Log File|*.log";
         
-        public Core.Models.Properties Properties { get; set; }
+        public Core.Models.UserSettings Properties { get; set; }
         private LogManager Logger { get; set; }
 
-        public Settings(Core.Models.Properties properties)
+        public Settings(Core.Models.UserSettings properties)
         {
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
@@ -59,11 +59,11 @@ namespace StatTag
             txtLogLocation.Text = Properties.LogLocation;
             chkRunCodeOnOpen.Checked = Properties.RunCodeOnOpen;
             txtMaxLogSize.Value = ((int)(Properties.GetValueInRange(Properties.MaxLogFileSize,
-                Core.Models.Properties.MaxLogFileSizeMin, Core.Models.Properties.MaxLogFileSizeMax,
-                Core.Models.Properties.MaxLogFileSizeDefault) / (Constants.BytesToMegabytesConversion * 1.0)));
+                Core.Models.UserSettings.MaxLogFileSizeMin, Core.Models.UserSettings.MaxLogFileSizeMax,
+                Core.Models.UserSettings.MaxLogFileSizeDefault) / (Constants.BytesToMegabytesConversion * 1.0)));
             txtMaxLogFiles.Value = Properties.GetValueInRange(Properties.MaxLogFiles,
-                Core.Models.Properties.MaxLogFilesMin, Core.Models.Properties.MaxLogFilesMax,
-                Core.Models.Properties.MaxLogFilesDefault);
+                Core.Models.UserSettings.MaxLogFilesMin, Core.Models.UserSettings.MaxLogFilesMax,
+                Core.Models.UserSettings.MaxLogFilesDefault);
             SetMissingValuesSelection(Properties.RepresentMissingValues);
             txtMissingValueString.Text = Properties.CustomMissingValue;
             

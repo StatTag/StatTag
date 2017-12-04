@@ -112,6 +112,9 @@ namespace StatTag.Models
                     return result;
                 }
 
+                var document = Globals.ThisAddIn.SafeGetActiveDocument();
+                var metadata = DocumentManager.LoadMetadataFromDocument(document, true);
+
                 try
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
@@ -166,7 +169,7 @@ namespace StatTag.Models
                                             x.TableResult.FormattedCells =
                                                 tag.TableFormat.Format(x.TableResult,
                                                     Factories.GetValueFormatter(tag.CodeFile),
-                                                    PropertiesManager.Properties));
+                                                    metadata));
                                 }
 
                                 result.UpdatedTags.Add(tag);

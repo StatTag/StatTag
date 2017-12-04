@@ -17,7 +17,7 @@ namespace StatTag.Core.ValueFormatter
         /// <param name="value"></param>
         /// <param name="properties">The properties that control how formatting is done</param>
         /// <returns></returns>
-        string Finalize(string value, Properties properties);
+        string Finalize(string value, DocumentMetadata properties);
 
         /// <summary>
         /// Provide the string that should be used to represent a missing value.  This typically differs by

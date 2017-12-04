@@ -31,7 +31,7 @@ namespace Core.Tests.ValueFormatter
         [TestMethod]
         public void TestEmptyNullStrings_BlankForMissing()
         {
-            var properties = new Properties()
+            var properties = new DocumentMetadata()
             {
                 RepresentMissingValues = Constants.MissingValueOption.BlankString
             };
@@ -44,7 +44,7 @@ namespace Core.Tests.ValueFormatter
         [TestMethod]
         public void TestEmptyNullStrings_DefaultMissingForFormatter()
         {
-            var properties = new Properties()
+            var properties = new DocumentMetadata()
             {
                 RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault
             };
@@ -57,7 +57,7 @@ namespace Core.Tests.ValueFormatter
         [TestMethod]
         public void TestEmptyNullStrings_UseSpecifiedString()
         {
-            var properties = new Properties()
+            var properties = new DocumentMetadata()
             {
                 CustomMissingValue = "TEST",
                 RepresentMissingValues = Constants.MissingValueOption.CustomValue
@@ -71,7 +71,7 @@ namespace Core.Tests.ValueFormatter
         [TestMethod]
         public void TestEmptyNullStrings_InvalidMissingValueOption()
         {
-            var properties = new Properties()
+            var properties = new DocumentMetadata()
             {
                 CustomMissingValue = "TEST",
                 RepresentMissingValues = "THISISNOTVALID"
@@ -87,7 +87,7 @@ namespace Core.Tests.ValueFormatter
         {
             // Since we can't really put a null in the document, our fallback behavior is to provide a blank
             // string for the custom missing value indicator if it's showing up as null.
-            var properties = new Properties()
+            var properties = new DocumentMetadata()
             {
                 CustomMissingValue = null,
                 RepresentMissingValues = Constants.MissingValueOption.CustomValue
@@ -101,7 +101,7 @@ namespace Core.Tests.ValueFormatter
         [TestMethod]
         public void TestRegularStrings()
         {
-            var properties = new Properties();
+            var properties = new DocumentMetadata();
             Assert.AreEqual("Test", new BaseValueFormatter().Finalize("Test", properties));
         }
     }

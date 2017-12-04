@@ -127,7 +127,24 @@ namespace StatTag
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            DocumentManager.LoadMetadataFromDocument(doc);
+            var metadata = DocumentManager.LoadMetadataFromDocument(doc, false);
+            if (metadata == null)
+            {
+                LogManager.WriteMessage("No StatTag metadata contained in document");
+            }
+            else
+            {
+                LogManager.WriteMessage("Document Metadata");
+                LogManager.WriteMessage(string.Format("   Document created with: {0}", metadata.StatTagVersion));
+                LogManager.WriteMessage(string.Format("   Handling of missing values: {0}", metadata.RepresentMissingValues));
+                LogManager.WriteMessage(string.Format("   Custom missing value replacement (if applicable): {0}", metadata.CustomMissingValue));
+            }
+
+            // Historically we just had the code file list in the document properties, so we call the old load
+            // function to help with backwards compatibility for documents created prior to v3.1, without having
+            // to migrate document properties.
+            DocumentManager.LoadCodeFileListFromDocument(doc);
+
             var files = DocumentManager.GetCodeFileList(doc);
             LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 

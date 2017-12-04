@@ -112,7 +112,7 @@ namespace Core.Tests.Models
                 }
             };
 
-            var properties = new Properties() {RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault};
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var fieldTag = new FieldTag(tag, 0);
             Assert.AreEqual(0, fieldTag.TableCellIndex);
             Assert.AreEqual(string.Empty, fieldTag.FormattedResult(properties));
@@ -162,7 +162,7 @@ namespace Core.Tests.Models
             var tag = new FieldTag() { Type = Constants.TagType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = codeFile};
             var serialized = tag.Serialize();
             var recreatedTag = FieldTag.Deserialize(serialized);
-            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             Assert.AreEqual(tag.FigureFormat, recreatedTag.FigureFormat);
             Assert.AreEqual(tag.FormattedResult(properties), recreatedTag.FormattedResult(properties));
             Assert.AreEqual(tag.LineEnd, recreatedTag.LineEnd);

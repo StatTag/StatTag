@@ -80,7 +80,11 @@ namespace StatTag.Models
         {
             var metadata = new DocumentMetadata()
             {
-                StatTagVersion = UIUtility.GetVersionLabel()
+                StatTagVersion = UIUtility.GetVersionLabel(),
+                RepresentMissingValues = PropertiesManager.Properties.RepresentMissingValues,
+                CustomMissingValue = PropertiesManager.Properties.CustomMissingValue,
+                MetadataFormatVersion = DocumentMetadata.CurrentMetadataFormatVersion,
+                TagFormatVersion = Tag.CurrentTagFormatVersion
             };
             return metadata;
         }
@@ -178,9 +182,11 @@ namespace StatTag.Models
         /// Loads associated metadata about StatTag from the properties in the supplied document.
         /// </summary>
         /// <param name="document"></param>
-        public void LoadMetadataFromDocument(Document document)
+        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
+        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
         {
             Log("LoadMetadataFromDocument - Started");
+            DocumentMetadata metadata = null;
             // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
             // we just read it and log it so we know a little more about the document.
             var variables = document.Variables;
@@ -189,12 +195,11 @@ namespace StatTag.Models
             {
                 if (DocumentVariableExists(variable))
                 {
-                    var metadata = DocumentMetadata.Deserialize(variable.Value);
-                    Log(string.Format("Document created with {0}", metadata.StatTagVersion));
+                    metadata = DocumentMetadata.Deserialize(variable.Value);
                 }
-                else
+                else if (createIfEmpty)
                 {
-                    Log("No StatTag metadata contained in document");
+                    metadata = CreateDocumentMetadata();
                 }
             }
             finally
@@ -203,18 +208,17 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(variables);
             }
             
-            // Historically we just had the code file list in the document properties, so we call the old load
-            // function to help with backwards compatibility for documents created prior to v3.1, without having
-            // to migrate document properties.
-            LoadCodeFileListFromDocument(document);
             Log("LoadMetadataFromDocument - Finished");
+
+            return metadata;
         }
 
         /// <summary>
-        /// Load the list of associated Code Files from a Word document.
+        /// Forces the list of associated Code Files from a Word document to load, and refreshes
+        /// the internally managed list of Code Files for that document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        protected void LoadCodeFileListFromDocument(Document document)
+        public void LoadCodeFileListFromDocument(Document document)
         {
             Log("LoadCodeFileListFromDocument - Started");
 
@@ -452,6 +456,7 @@ namespace StatTag.Models
                 return;
             }
 
+            var metadata = LoadMetadataFromDocument(document, true);
             int shapeCount = shapes.Count;
             for (int index = 1; index <= shapeCount; index++)
             {
@@ -479,7 +484,7 @@ namespace StatTag.Models
                             shape.Name = tagUpdatePair.New.Id;
                         }
 
-                        shape.TextFrame.TextRange.Text = tag.FormattedResult(PropertiesManager.Properties);
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult(metadata);
                     }
                     Marshal.ReleaseComObject(shape);
                 }
@@ -713,7 +718,8 @@ namespace StatTag.Models
 
             var cells = GetCells(selection);
 
-            tag.UpdateFormattedTableData(PropertiesManager.Properties);
+            var metadata = LoadMetadataFromDocument(selection.Document, true);
+            tag.UpdateFormattedTableData(metadata);
             var table = tag.CachedResult.First().TableResult;
 
             var dimensions = tag.GetTableDisplayDimensions();
@@ -780,7 +786,7 @@ namespace StatTag.Models
                 };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
-                    innerTag.FormattedResult(PropertiesManager.Properties), innerTag);
+                    innerTag.FormattedResult(metadata), innerTag);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -936,7 +942,7 @@ namespace StatTag.Models
                 {
                     Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateTagField(range, tag.Name, tag.FormattedResult(PropertiesManager.Properties), tag);
+                    CreateTagField(range, tag.Name, tag.FormattedResult(LoadMetadataFromDocument(document, true)), tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -999,6 +1005,9 @@ namespace StatTag.Models
             {
                 var dialog = new EditTag(false, this);
 
+                var document = Globals.ThisAddIn.SafeGetActiveDocument();
+                var metadata = LoadMetadataFromDocument(document, true);
+
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
 
@@ -1016,14 +1025,14 @@ namespace StatTag.Models
                         if (dialog.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Tag.UpdateFormattedTableData(PropertiesManager.Properties);
+                            dialog.Tag.UpdateFormattedTableData(metadata);
                         }
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.TableFormat != tag.TableFormat)
                     {
                         Log("Updating fields after tag table format changed");
-                        dialog.Tag.UpdateFormattedTableData(PropertiesManager.Properties);
+                        dialog.Tag.UpdateFormattedTableData(metadata);
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.Id != tag.Id)

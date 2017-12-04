@@ -95,7 +95,7 @@ namespace StatTag.Core.Models
         /// </summary>
         /// <remarks>This should ba called any time the application properties are loaded or updated.</remarks>
         /// <param name="properties">Application properties</param>
-        public void UpdateSettings(Properties properties)
+        public void UpdateSettings(UserSettings properties)
         {
             UpdateSettings(properties.EnableLogging, properties.LogLocation, properties.MaxLogFileSize, properties.MaxLogFiles);
         }

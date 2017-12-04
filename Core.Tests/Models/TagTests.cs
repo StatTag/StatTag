@@ -149,7 +149,7 @@ namespace Core.Tests.Models
         [TestMethod]
         public void FormattedResult_Empty()
         {
-            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag();
             Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
 
@@ -160,7 +160,7 @@ namespace Core.Tests.Models
         [TestMethod]
         public void FormattedResult_Values()
         {
-            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             Assert.AreEqual("Test 1", tag.FormattedResult(properties));
 
@@ -174,7 +174,7 @@ namespace Core.Tests.Models
         [TestMethod]
         public void FormattedResult_ValuesBlank()
         {
-            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var tag = new Tag() { CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "" } }) };
             Assert.AreEqual(Constants.Placeholders.EmptyField, tag.FormattedResult(properties));
 
@@ -199,7 +199,7 @@ namespace Core.Tests.Models
             var tag = new Tag() { Type = Constants.TagType.Value, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }) };
             var serialized = tag.Serialize();
             var recreatedTag = Tag.Deserialize(serialized);
-            var properties = new Properties() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             Assert.AreEqual(tag.CodeFile, recreatedTag.CodeFile);
             Assert.AreEqual(tag.FigureFormat, recreatedTag.FigureFormat);
             Assert.AreEqual(tag.FormattedResult(properties), recreatedTag.FormattedResult(properties));

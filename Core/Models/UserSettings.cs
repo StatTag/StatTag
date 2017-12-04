@@ -9,7 +9,7 @@ namespace StatTag.Core.Models
     /// <summary>
     /// User preferences and settings for StatTag.
     /// </summary>
-    public class Properties
+    public class UserSettings
     {
         public const ulong MaxLogFileSizeMin = (1 * Constants.BytesToMegabytesConversion);
         public const ulong MaxLogFileSizeMax = (10000 * Constants.BytesToMegabytesConversion);

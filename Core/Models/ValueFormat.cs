@@ -20,7 +20,7 @@ namespace StatTag.Core.Models
         /// <param name="valueFormatter"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public string Format(string value, IValueFormatter valueFormatter = null, Properties properties = null)
+        public string Format(string value, IValueFormatter valueFormatter = null, DocumentMetadata properties = null)
         {
             valueFormatter = valueFormatter ?? new BaseValueFormatter();
 

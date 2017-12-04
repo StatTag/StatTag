@@ -41,7 +41,7 @@ namespace Core.Tests.Models
             Assert.IsFalse(manager.Enabled);
             Assert.IsNull(manager.LogFilePath);
 
-            var properties = new Properties() {EnableLogging = true, LogLocation = "Test.log"};
+            var properties = new UserSettings() {EnableLogging = true, LogLocation = "Test.log"};
             manager.UpdateSettings(properties);
             Assert.IsTrue(manager.Enabled);
             Assert.AreEqual("Test.log", manager.LogFilePath);

@@ -13,6 +13,11 @@ namespace StatTag.Core.Models
     /// </summary>
     public class Tag
     {
+        /// <summary>
+        /// This will be the most recent version.  Please document here any changes in the version over time.
+        /// </summary>
+        public const string CurrentTagFormatVersion = "1.0.0";
+
         public const string IdentifierDelimiter = "--";
 
         [JsonIgnore]
@@ -65,7 +70,7 @@ namespace StatTag.Core.Models
         /// received a cahced copy of the results it should format.  It does not call out to
         /// retrieve results if they are not set.
         /// </summary>
-        public string FormattedResult(Properties properties)
+        public string FormattedResult(DocumentMetadata properties)
         {
             if (CachedResult == null || CachedResult.Count == 0)
             {
@@ -250,7 +255,7 @@ namespace StatTag.Core.Models
         /// <summary>
         /// Update the underlying table data associated with this tag.
         /// </summary>
-        public void UpdateFormattedTableData(Properties properties)
+        public void UpdateFormattedTableData(DocumentMetadata properties)
         {
             if (!IsTableTag() || !HasTableData())
             {

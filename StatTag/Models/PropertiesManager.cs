@@ -25,11 +25,11 @@ namespace StatTag.Models
         private const string MissingValuesOption = "Missing Values";
         private const string MissingValuesCustomValue = "Custom Missing Value String";
 
-        public Core.Models.Properties Properties { get; set; }
+        public Core.Models.UserSettings Properties { get; set; }
 
         public PropertiesManager()
         {
-            Properties = new Core.Models.Properties();
+            Properties = new Core.Models.UserSettings();
         }
 
         /// <summary>
@@ -48,11 +48,11 @@ namespace StatTag.Models
             key.SetValue(LogEnabledKey, Properties.EnableLogging, RegistryValueKind.DWord);
             key.SetValue(RunCodeOnOpenKey, Properties.RunCodeOnOpen, RegistryValueKind.DWord);
             key.SetValue(MaxLogFileSize, Properties.GetValueInRange(Properties.MaxLogFileSize,
-                Core.Models.Properties.MaxLogFileSizeMin, Core.Models.Properties.MaxLogFileSizeMax,
-                Core.Models.Properties.MaxLogFileSizeDefault), RegistryValueKind.QWord);
+                Core.Models.UserSettings.MaxLogFileSizeMin, Core.Models.UserSettings.MaxLogFileSizeMax,
+                Core.Models.UserSettings.MaxLogFileSizeDefault), RegistryValueKind.QWord);
             key.SetValue(MaxLogFiles, Properties.GetValueInRange(Properties.MaxLogFiles,
-                Core.Models.Properties.MaxLogFilesMin, Core.Models.Properties.MaxLogFilesMax,
-                Core.Models.Properties.MaxLogFilesDefault), RegistryValueKind.DWord);
+                Core.Models.UserSettings.MaxLogFilesMin, Core.Models.UserSettings.MaxLogFilesMax,
+                Core.Models.UserSettings.MaxLogFilesDefault), RegistryValueKind.DWord);
             key.SetValue(MissingValuesOption, Properties.RepresentMissingValues, RegistryValueKind.String);
             key.SetValue(MissingValuesCustomValue, Properties.CustomMissingValue, RegistryValueKind.String);
         }
@@ -127,8 +127,8 @@ namespace StatTag.Models
             Properties.LogLocation = key.GetValue(LogLocationKey, string.Empty).ToString();
             Properties.EnableLogging = GetBooleanValue(key, LogEnabledKey);
             Properties.RunCodeOnOpen = GetBooleanValue(key, RunCodeOnOpenKey);
-            Properties.MaxLogFileSize = GetULongValue(key, MaxLogFileSize, Core.Models.Properties.MaxLogFileSizeDefault);
-            Properties.MaxLogFiles = GetULongValue(key, MaxLogFiles, Core.Models.Properties.MaxLogFilesDefault);
+            Properties.MaxLogFileSize = GetULongValue(key, MaxLogFileSize, Core.Models.UserSettings.MaxLogFileSizeDefault);
+            Properties.MaxLogFiles = GetULongValue(key, MaxLogFiles, Core.Models.UserSettings.MaxLogFilesDefault);
             Properties.RepresentMissingValues =
                 key.GetValue(MissingValuesOption, Constants.MissingValueOption.StatPackageDefault).ToString();
             Properties.CustomMissingValue = key.GetValue(MissingValuesCustomValue, string.Empty).ToString();

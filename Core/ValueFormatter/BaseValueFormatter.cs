@@ -20,7 +20,7 @@ namespace StatTag.Core.ValueFormatter
             return MissingValue;
         }
 
-        public virtual string Finalize(string value, Properties properties)
+        public virtual string Finalize(string value, DocumentMetadata properties)
         {
             // If there is no value, look at our properties to see how we should behave
             // for formatting empty results.
