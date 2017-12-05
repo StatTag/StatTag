@@ -339,14 +339,9 @@ namespace StatTag
             var document = SafeGetActiveDocument();
             if (document != null)
             {
-                if (DocumentManager.IsCodeFileLinkedToDocument(document, monitoredCodeFile))
-                {
-                    LogManager.WriteMessage("   Code file is linked to active document");
-                }
-                else
-                {
-                    LogManager.WriteMessage("   Code file NOT linked to active document");
-                }
+                LogManager.WriteMessage(DocumentManager.IsCodeFileLinkedToDocument(document, monitoredCodeFile)
+                    ? "   Code file is linked to active document"
+                    : "   Code file NOT linked to active document");
             }
         }
 
