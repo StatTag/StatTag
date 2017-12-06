@@ -37,14 +37,15 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainRibbon));
             this.tab1 = this.Factory.CreateRibbonTab();
             this.codeGroup = this.Factory.CreateRibbonGroup();
-            this.group1 = this.Factory.CreateRibbonGroup();
-            this.group2 = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
             this.cmdDefineTag = this.Factory.CreateRibbonButton();
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
+            this.group1 = this.Factory.CreateRibbonGroup();
             this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.cmdManageTags = this.Factory.CreateRibbonButton();
+            this.cmdDocumentProperties = this.Factory.CreateRibbonButton();
             this.cmdValidateDocument = this.Factory.CreateRibbonButton();
+            this.group2 = this.Factory.CreateRibbonGroup();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.cmdAbout = this.Factory.CreateRibbonButton();
             this.cmdHelp = this.Factory.CreateRibbonButton();
@@ -69,22 +70,6 @@
             this.codeGroup.Items.Add(this.cmdInsertOutput);
             this.codeGroup.Label = "Build";
             this.codeGroup.Name = "codeGroup";
-            // 
-            // group1
-            // 
-            this.group1.Items.Add(this.cmdUpdateOutput);
-            this.group1.Items.Add(this.cmdManageTags);
-            this.group1.Items.Add(this.cmdValidateDocument);
-            this.group1.Label = "Manage";
-            this.group1.Name = "group1";
-            // 
-            // group2
-            // 
-            this.group2.Items.Add(this.cmdSettings);
-            this.group2.Items.Add(this.cmdAbout);
-            this.group2.Items.Add(this.cmdHelp);
-            this.group2.Label = "Support";
-            this.group2.Name = "group2";
             // 
             // cmdLoadCode
             // 
@@ -117,6 +102,15 @@
     "sor location.";
             this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
             // 
+            // group1
+            // 
+            this.group1.Items.Add(this.cmdUpdateOutput);
+            this.group1.Items.Add(this.cmdManageTags);
+            this.group1.Items.Add(this.cmdDocumentProperties);
+            this.group1.Items.Add(this.cmdValidateDocument);
+            this.group1.Label = "Manage";
+            this.group1.Name = "group1";
+            // 
             // cmdUpdateOutput
             // 
             this.cmdUpdateOutput.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -135,6 +129,15 @@
             this.cmdManageTags.ShowImage = true;
             this.cmdManageTags.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageTags_Click);
             // 
+            // cmdDocumentProperties
+            // 
+            this.cmdDocumentProperties.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdDocumentProperties.Image = ((System.Drawing.Image)(resources.GetObject("cmdDocumentProperties.Image")));
+            this.cmdDocumentProperties.Label = "Document Properties";
+            this.cmdDocumentProperties.Name = "cmdDocumentProperties";
+            this.cmdDocumentProperties.ShowImage = true;
+            this.cmdDocumentProperties.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdDocumentProperties_Click);
+            // 
             // cmdValidateDocument
             // 
             this.cmdValidateDocument.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -145,6 +148,14 @@
     "figured for use with StatTag.";
             this.cmdValidateDocument.ShowImage = true;
             this.cmdValidateDocument.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdValidateDocument_Click);
+            // 
+            // group2
+            // 
+            this.group2.Items.Add(this.cmdSettings);
+            this.group2.Items.Add(this.cmdAbout);
+            this.group2.Items.Add(this.cmdHelp);
+            this.group2.Label = "Support";
+            this.group2.Name = "group2";
             // 
             // cmdSettings
             // 
@@ -206,6 +217,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdAbout;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdDocumentProperties;
     }
 
     partial class ThisRibbonCollection

@@ -43,12 +43,12 @@ namespace StatTag.Models
         private const int RefreshStepInterval = 5;
 
         public DocumentManager DocumentManager { get; set; }
-        public PropertiesManager PropertiesManager { get; set; }
+        public SettingsManager SettingsManager { get; set; }
 
-        public StatsManager(DocumentManager documentManager, PropertiesManager propertiesManager)
+        public StatsManager(DocumentManager documentManager, SettingsManager settingsManager)
         {
             DocumentManager = documentManager;
-            PropertiesManager = propertiesManager;
+            SettingsManager = settingsManager;
         }
 
         /// <summary>

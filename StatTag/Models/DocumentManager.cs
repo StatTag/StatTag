@@ -26,29 +26,29 @@ namespace StatTag.Models
         private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
-        public PropertiesManager PropertiesManager { get; set; }
+        public SettingsManager SettingsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
         public DocumentManager()
         {
-            PropertiesManager = null;
+            SettingsManager = null;
             DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
             TagManager = new TagManager(this);
-            StatsManager = new StatsManager(this, PropertiesManager);
+            StatsManager = new StatsManager(this, SettingsManager);
         }
 
-        public void SetPropertiesManager(PropertiesManager propertiesManager)
+        public void SetSettingsManager(SettingsManager settingsManager)
         {
-            PropertiesManager = propertiesManager;
+            SettingsManager = settingsManager;
             if (StatsManager == null)
             {
-                StatsManager = new StatsManager(this, PropertiesManager);
+                StatsManager = new StatsManager(this, SettingsManager);
             }
             else
             {
-                StatsManager.PropertiesManager = PropertiesManager;
+                StatsManager.SettingsManager = SettingsManager;
             }
         }
 
@@ -81,8 +81,8 @@ namespace StatTag.Models
             var metadata = new DocumentMetadata()
             {
                 StatTagVersion = UIUtility.GetVersionLabel(),
-                RepresentMissingValues = PropertiesManager.Properties.RepresentMissingValues,
-                CustomMissingValue = PropertiesManager.Properties.CustomMissingValue,
+                RepresentMissingValues = SettingsManager.Settings.RepresentMissingValues,
+                CustomMissingValue = SettingsManager.Settings.CustomMissingValue,
                 MetadataFormatVersion = DocumentMetadata.CurrentMetadataFormatVersion,
                 TagFormatVersion = Tag.CurrentTagFormatVersion
             };
