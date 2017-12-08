@@ -33,7 +33,6 @@
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.txtMaxLogFiles = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -50,10 +49,10 @@
             this.cmdStataLocation = new System.Windows.Forms.Button();
             this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.tabLogging.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogFiles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogSize)).BeginInit();
@@ -111,7 +110,8 @@
             // 
             // tabGeneral
             // 
-            this.tabGeneral.Controls.Add(this.groupBox1);
+            this.tabGeneral.Controls.Add(this.label5);
+            this.tabGeneral.Controls.Add(this.missingValueSettings1);
             this.tabGeneral.Controls.Add(this.chkRunCodeOnOpen);
             this.tabGeneral.Location = new System.Drawing.Point(4, 26);
             this.tabGeneral.Name = "tabGeneral";
@@ -120,16 +120,6 @@
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.missingValueSettings1);
-            this.groupBox1.Location = new System.Drawing.Point(8, 40);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(644, 124);
-            this.groupBox1.TabIndex = 18;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Representing Missing Values";
             // 
             // tabLogging
             // 
@@ -319,13 +309,24 @@
             this.label1.TabIndex = 15;
             this.label1.Text = "Stata executable location:";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(5, 46);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(623, 17);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
+    "ay the missing value using:";
+            // 
             // missingValueSettings1
             // 
             this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(6, 22);
+            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
             this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(550, 94);
-            this.missingValueSettings1.TabIndex = 0;
+            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // Settings
             // 
@@ -346,7 +347,6 @@
             this.tabSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
             this.tabGeneral.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
             this.tabLogging.ResumeLayout(false);
             this.tabLogging.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogFiles)).EndInit();
@@ -380,7 +380,7 @@
         private System.Windows.Forms.NumericUpDown txtMaxLogSize;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label5;
         private Controls.MissingValueSettings missingValueSettings1;
     }
 }

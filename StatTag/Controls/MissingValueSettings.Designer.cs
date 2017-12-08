@@ -32,12 +32,11 @@
             this.radMissingValueBlankString = new System.Windows.Forms.RadioButton();
             this.radMissingValueCustomString = new System.Windows.Forms.RadioButton();
             this.radMissingValueStatDefault = new System.Windows.Forms.RadioButton();
-            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtMissingValueString
             // 
-            this.txtMissingValueString.Location = new System.Drawing.Point(161, 65);
+            this.txtMissingValueString.Location = new System.Drawing.Point(146, 45);
             this.txtMissingValueString.Name = "txtMissingValueString";
             this.txtMissingValueString.Size = new System.Drawing.Size(80, 25);
             this.txtMissingValueString.TabIndex = 14;
@@ -45,7 +44,7 @@
             // radMissingValueBlankString
             // 
             this.radMissingValueBlankString.AutoSize = true;
-            this.radMissingValueBlankString.Location = new System.Drawing.Point(16, 43);
+            this.radMissingValueBlankString.Location = new System.Drawing.Point(1, 23);
             this.radMissingValueBlankString.Margin = new System.Windows.Forms.Padding(1);
             this.radMissingValueBlankString.Name = "radMissingValueBlankString";
             this.radMissingValueBlankString.Size = new System.Drawing.Size(161, 21);
@@ -58,7 +57,7 @@
             // radMissingValueCustomString
             // 
             this.radMissingValueCustomString.AutoSize = true;
-            this.radMissingValueCustomString.Location = new System.Drawing.Point(16, 66);
+            this.radMissingValueCustomString.Location = new System.Drawing.Point(1, 46);
             this.radMissingValueCustomString.Margin = new System.Windows.Forms.Padding(1);
             this.radMissingValueCustomString.Name = "radMissingValueCustomString";
             this.radMissingValueCustomString.Size = new System.Drawing.Size(138, 21);
@@ -71,7 +70,7 @@
             // radMissingValueStatDefault
             // 
             this.radMissingValueStatDefault.AutoSize = true;
-            this.radMissingValueStatDefault.Location = new System.Drawing.Point(16, 20);
+            this.radMissingValueStatDefault.Location = new System.Drawing.Point(1, 0);
             this.radMissingValueStatDefault.Margin = new System.Windows.Forms.Padding(1);
             this.radMissingValueStatDefault.Name = "radMissingValueStatDefault";
             this.radMissingValueStatDefault.Size = new System.Drawing.Size(391, 21);
@@ -81,16 +80,6 @@
             this.radMissingValueStatDefault.UseVisualStyleBackColor = true;
             this.radMissingValueStatDefault.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(463, 17);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "If a missing value is identified in a table result, display the missing value usi" +
-    "ng:\r\n";
-            // 
             // MissingValueSettings
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -98,11 +87,10 @@
             this.Controls.Add(this.radMissingValueBlankString);
             this.Controls.Add(this.radMissingValueCustomString);
             this.Controls.Add(this.radMissingValueStatDefault);
-            this.Controls.Add(this.label5);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MissingValueSettings";
-            this.Size = new System.Drawing.Size(550, 94);
+            this.Size = new System.Drawing.Size(391, 74);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -114,6 +102,5 @@
         private System.Windows.Forms.RadioButton radMissingValueBlankString;
         private System.Windows.Forms.RadioButton radMissingValueCustomString;
         private System.Windows.Forms.RadioButton radMissingValueStatDefault;
-        private System.Windows.Forms.Label label5;
     }
 }

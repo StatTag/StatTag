@@ -42,7 +42,7 @@ namespace StatTag
             // If there is no metadata, inform the user that we are using the default settings
             if (metadata == null)
             {
-                lblMissingValueInformation.Text = "The document has been set to your default user settings.";
+                lblMissingValueInformation.Text = "This document has been set to use your default user settings.";
                 lblMissingValueInformation.Visible = true;
 
                 var settings = Manager.SettingsManager.Settings;
@@ -77,9 +77,9 @@ namespace StatTag
             if (lblMissingValueInformation.Visible)
             {
                 // Only adjust things if the default layout is the current state
-                if (missingValueSettings1.Top == lblMissingValueInformation.Top)
+                if (pnlMissingValues.Top == lblMissingValueInformation.Top)
                 {
-                    missingValueSettings1.Top = lblMissingValueInformation.Bottom + lblMissingValueInformation.Margin.Bottom;
+                    pnlMissingValues.Top = lblMissingValueInformation.Bottom + lblMissingValueInformation.Margin.Bottom;
                     this.Height = this.Height + lblMissingValueInformation.Height +
                                   lblMissingValueInformation.Margin.Bottom;
                     this.MinimumSize = this.Size;
@@ -88,9 +88,9 @@ namespace StatTag
             else
             {
                 // Only adjust things if the default layout is not the current state
-                if (missingValueSettings1.Top != lblMissingValueInformation.Top)
+                if (pnlMissingValues.Top != lblMissingValueInformation.Top)
                 {
-                    missingValueSettings1.Top = lblMissingValueInformation.Top;
+                    pnlMissingValues.Top = lblMissingValueInformation.Top;
                 }
             }
         }
