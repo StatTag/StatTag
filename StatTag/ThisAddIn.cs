@@ -108,7 +108,7 @@ namespace StatTag
 
             try
             {
-                DocumentManager.SaveMetadataToDocument(doc);
+                DocumentManager.SaveMetadataToDocument(doc, DocumentManager.LoadMetadataFromDocument(doc, true));
             }
             catch (Exception exc)
             {

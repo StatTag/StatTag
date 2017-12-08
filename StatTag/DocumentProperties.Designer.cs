@@ -55,6 +55,7 @@
             this.cmdOK.TabIndex = 10;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // lblMissingValueInformation
             // 

@@ -92,8 +92,9 @@ namespace StatTag.Models
         /// <summary>
         /// Saves associated metadata about StatTag to the properties in the supplied document.
         /// </summary>
-        /// <param name="document"></param>
-        public void SaveMetadataToDocument(Document document)
+        /// <param name="document">The Word Document object we are saving the metadata to</param>
+        /// <param name="metadata">The metadata object to be serialized and saved</param>
+        public void SaveMetadataToDocument(Document document, DocumentMetadata metadata)
         {
             Log("SaveMetadataToDocument - Started");
 
@@ -101,7 +102,12 @@ namespace StatTag.Models
             var variable = variables[MetadataAttribute];
             try
             {
-                var attribute = CreateDocumentMetadata().Serialize();
+                if (metadata == null)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+
+                var attribute = metadata.Serialize();
                 if (!DocumentVariableExists(variable))
                 {
                     Log(string.Format("Metadata variable does not exist.  Adding attribute value of {0}", attribute));
@@ -125,6 +131,42 @@ namespace StatTag.Models
             SaveCodeFileListToDocument(document);
 
             Log("SaveMetadataToDocument - Finished");
+        }
+
+
+        /// <summary>
+        /// Loads associated metadata about StatTag from the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
+        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
+        {
+            Log("LoadMetadataFromDocument - Started");
+            DocumentMetadata metadata = null;
+            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
+            // we just read it and log it so we know a little more about the document.
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                if (DocumentVariableExists(variable))
+                {
+                    metadata = DocumentMetadata.Deserialize(variable.Value);
+                }
+                else if (createIfEmpty)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+
+            Log("LoadMetadataFromDocument - Finished");
+
+            return metadata;
         }
 
         /// <summary>
@@ -176,41 +218,6 @@ namespace StatTag.Models
             }
 
             Log("SaveCodeFileListToDocument - Finished");
-        }
-
-        /// <summary>
-        /// Loads associated metadata about StatTag from the properties in the supplied document.
-        /// </summary>
-        /// <param name="document"></param>
-        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
-        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
-        {
-            Log("LoadMetadataFromDocument - Started");
-            DocumentMetadata metadata = null;
-            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
-            // we just read it and log it so we know a little more about the document.
-            var variables = document.Variables;
-            var variable = variables[MetadataAttribute];
-            try
-            {
-                if (DocumentVariableExists(variable))
-                {
-                    metadata = DocumentMetadata.Deserialize(variable.Value);
-                }
-                else if (createIfEmpty)
-                {
-                    metadata = CreateDocumentMetadata();
-                }
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
-            }
-            
-            Log("LoadMetadataFromDocument - Finished");
-
-            return metadata;
         }
 
         /// <summary>

@@ -99,5 +99,13 @@ namespace StatTag
         {
             InitializeProperites();
         }
+
+        private void cmdOK_Click(object sender, EventArgs e)
+        {
+            var metadata = Manager.LoadMetadataFromDocument(ActiveDocument, true);
+            metadata.RepresentMissingValues = missingValueSettings1.GetMissingValuesSelection();
+            metadata.CustomMissingValue = missingValueSettings1.GetCustomMissingValueString();
+            Manager.SaveMetadataToDocument(ActiveDocument, metadata);
+        }
     }
 }

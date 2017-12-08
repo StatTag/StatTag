@@ -86,10 +86,10 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(3, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(543, 17);
+            this.label5.Size = new System.Drawing.Size(463, 17);
             this.label5.TabIndex = 10;
-            this.label5.Text = "If a \"missing value\" is identified in a result (value or a table), display the mi" +
-    "ssing value using:\r\n";
+            this.label5.Text = "If a missing value is identified in a table result, display the missing value usi" +
+    "ng:\r\n";
             // 
             // MissingValueSettings
             // 
