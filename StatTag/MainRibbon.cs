@@ -22,9 +22,9 @@ namespace StatTag
             get { return Globals.ThisAddIn.DocumentManager; }
         }
 
-        public PropertiesManager PropertiesManager
+        public SettingsManager SettingsManager
         {
-            get { return Globals.ThisAddIn.PropertiesManager; }
+            get { return Globals.ThisAddIn.SettingsManager; }
         }
 
         public LogManager LogManager
@@ -161,11 +161,11 @@ namespace StatTag
         {
             try
             {
-                var dialog = new Settings(PropertiesManager.Properties);
+                var dialog = new Settings(SettingsManager.Settings);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    PropertiesManager.Properties = dialog.Properties;
-                    PropertiesManager.Save();
+                    SettingsManager.Settings = dialog.Properties;
+                    SettingsManager.Save();
                     LogManager.UpdateSettings(dialog.Properties);
                 }
             }
@@ -294,6 +294,23 @@ namespace StatTag
             {
                 var about = new About();
                 about.ShowDialog();
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteException(exc);
+            }
+        }
+
+        private void cmdDocumentProperties_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var documentProperties = new DocumentProperties(this.ActiveDocument, this.Manager);
+                documentProperties.ShowDialog();
             }
             catch (StatTagUserException uex)
             {
