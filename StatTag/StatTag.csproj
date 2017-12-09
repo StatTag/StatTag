@@ -216,6 +216,12 @@
     <Compile Include="Controls\FigureProperties.Designer.cs">
       <DependentUpon>FigureProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MissingValueSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MissingValueSettings.Designer.cs">
+      <DependentUpon>MissingValueSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NumericValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -258,6 +264,12 @@
     <Compile Include="Controls\VerticalLine.Designer.cs">
       <DependentUpon>VerticalLine.cs</DependentUpon>
     </Compile>
+    <Compile Include="DocumentProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocumentProperties.Designer.cs">
+      <DependentUpon>DocumentProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditTag.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -293,7 +305,7 @@
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
-    <Compile Include="Models\PropertiesManager.cs" />
+    <Compile Include="Models\SettingsManager.cs" />
     <Compile Include="Models\ScintillaManager.cs" />
     <Compile Include="Models\StatsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -330,6 +342,9 @@
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MissingValueSettings.resx">
+      <DependentUpon>MissingValueSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\NumericValueProperties.resx">
       <DependentUpon>NumericValueProperties.cs</DependentUpon>
     </EmbeddedResource>
@@ -350,6 +365,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VerticalLine.resx">
       <DependentUpon>VerticalLine.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocumentProperties.resx">
+      <DependentUpon>DocumentProperties.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditTag.resx">
       <DependentUpon>EditTag.cs</DependentUpon>

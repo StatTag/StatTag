@@ -20,7 +20,7 @@ namespace StatTag
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
 
         public LogManager LogManager = new LogManager();
-        public PropertiesManager PropertiesManager = new PropertiesManager();
+        public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = new DocumentManager();
         public StatsManager StatsManager = null;
 
@@ -51,15 +51,15 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            DocumentManager.SetPropertiesManager(PropertiesManager);
-            StatsManager = new StatsManager(DocumentManager, PropertiesManager);
+            DocumentManager.SetSettingsManager(SettingsManager);
+            StatsManager = new StatsManager(DocumentManager, SettingsManager);
             DocumentManager.CodeFileChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
-            PropertiesManager.Load();
-            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation,
-                PropertiesManager.Properties.MaxLogFileSize, PropertiesManager.Properties.MaxLogFiles);
+            SettingsManager.Load();
+            LogManager.UpdateSettings(SettingsManager.Settings.EnableLogging, SettingsManager.Settings.LogLocation,
+                SettingsManager.Settings.MaxLogFileSize, SettingsManager.Settings.MaxLogFiles);
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
@@ -109,7 +109,7 @@ namespace StatTag
 
             try
             {
-                DocumentManager.SaveMetadataToDocument(doc);
+                DocumentManager.SaveMetadataToDocument(doc, DocumentManager.LoadMetadataFromDocument(doc, true));
             }
             catch (Exception exc)
             {
@@ -161,7 +161,7 @@ namespace StatTag
                 {
                     file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
 
-                    if (PropertiesManager.Properties.RunCodeOnOpen)
+                    if (SettingsManager.Settings.RunCodeOnOpen)
                     {
                         try
                         {
@@ -343,6 +343,11 @@ namespace StatTag
                     ? "   Code file is linked to active document"
                     : "   Code file NOT linked to active document");
             }
+
+            // 1. Close all open dialogs
+            // 2. Reload the code files
+            // 3. Alert the user at what's affected
+            Globals.Ribbons.MainRibbon.CloseAllOpenDialogs();
         }
 
         /// <summary>

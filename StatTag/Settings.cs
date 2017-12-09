@@ -64,8 +64,8 @@ namespace StatTag
             txtMaxLogFiles.Value = Properties.GetValueInRange(Properties.MaxLogFiles,
                 Core.Models.UserSettings.MaxLogFilesMin, Core.Models.UserSettings.MaxLogFilesMax,
                 Core.Models.UserSettings.MaxLogFilesDefault);
-            SetMissingValuesSelection(Properties.RepresentMissingValues);
-            txtMissingValueString.Text = Properties.CustomMissingValue;
+            missingValueSettings1.SetMissingValuesSelection(Properties.RepresentMissingValues);
+            missingValueSettings1.SetCustomMissingValueString(Properties.CustomMissingValue);
             
             UpdateLoggingControls();
             UpdateStataControls();
@@ -143,61 +143,14 @@ namespace StatTag
             Properties.RunCodeOnOpen = chkRunCodeOnOpen.Checked;
             Properties.MaxLogFileSize = ((uint)(txtMaxLogSize.Value * Constants.BytesToMegabytesConversion));
             Properties.MaxLogFiles = (uint)txtMaxLogFiles.Value;
-            Properties.CustomMissingValue = txtMissingValueString.Text;
-            Properties.RepresentMissingValues = GetMissingValuesSelection();
+            Properties.CustomMissingValue = missingValueSettings1.GetCustomMissingValueString(); //txtMissingValueString.Text;
+            Properties.RepresentMissingValues = missingValueSettings1.GetMissingValuesSelection();
 
             if (Properties.EnableLogging && !Logger.IsValidLogPath(Properties.LogLocation))
             {
                 UIUtility.WarningMessageBox("The debug file you have selected appears to be invalid, or you do not have rights to access it.\r\nPlease select a valid path for the debug file, or disable debugging.", null);
                 DialogResult = DialogResult.None;
             }
-        }
-
-        /// <summary>
-        /// Helper method to get the (string) constant value that represents the user's
-        /// choice for how to represent a missing value.
-        /// </summary>
-        /// <returns></returns>
-        private string GetMissingValuesSelection()
-        {
-            if (radMissingValueCustomString.Checked)
-            {
-                return Constants.MissingValueOption.CustomValue;
-            }
-            else if (radMissingValueBlankString.Checked)
-            {
-                return Constants.MissingValueOption.BlankString;
-            }
-
-            // For previous versions, or just as a last restort, our default is
-            // to use the statistical package default value.
-            return Constants.MissingValueOption.StatPackageDefault;
-        }
-
-        /// <summary>
-        /// Helper method to convert a constant string value into the appropriately
-        /// selected radio button for missing value handling.
-        /// </summary>
-        /// <param name="value"></param>
-        private void SetMissingValuesSelection(string value)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                if (value.Equals(Constants.MissingValueOption.CustomValue, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    radMissingValueCustomString.Checked = true;
-                }
-                else if (value.Equals(Constants.MissingValueOption.BlankString, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    radMissingValueBlankString.Checked = true;
-                }
-                else
-                {
-                    radMissingValueStatDefault.Checked = true;
-                }
-            }
-
-            HandleMissingValueRadioChanged();
         }
 
         private void chkEnableLogging_CheckedChanged(object sender, EventArgs e)
@@ -231,34 +184,6 @@ namespace StatTag
             else
             {
                 lblLogWarning.Visible = false;
-            }
-        }
-
-        private void MissingValueRadio_Changed(object sender, EventArgs e)
-        {
-            HandleMissingValueRadioChanged();
-        }
-
-        private void HandleMissingValueRadioChanged()
-        {
-            if (radMissingValueStatDefault.Checked)
-            {
-                txtMissingValueString.Enabled = false;
-            }
-            else if (radMissingValueBlankString.Checked)
-            {
-                txtMissingValueString.Enabled = false;
-            }
-            else if (radMissingValueCustomString.Checked)
-            {
-                txtMissingValueString.Enabled = true;
-            }
-            else
-            {
-                // This "should never happen", but if for some reason no radio
-                // buttons are selected after a select event, we will force the
-                // selection to the first item by default.
-                radMissingValueStatDefault.Checked = true;
             }
         }
     }

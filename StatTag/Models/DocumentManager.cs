@@ -29,29 +29,29 @@ namespace StatTag.Models
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
-        public PropertiesManager PropertiesManager { get; set; }
+        public SettingsManager SettingsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
         public DocumentManager()
         {
-            PropertiesManager = null;
+            SettingsManager = null;
             DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
             TagManager = new TagManager(this);
-            StatsManager = new StatsManager(this, PropertiesManager);
+            StatsManager = new StatsManager(this, SettingsManager);
         }
 
-        public void SetPropertiesManager(PropertiesManager propertiesManager)
+        public void SetSettingsManager(SettingsManager settingsManager)
         {
-            PropertiesManager = propertiesManager;
+            SettingsManager = settingsManager;
             if (StatsManager == null)
             {
-                StatsManager = new StatsManager(this, PropertiesManager);
+                StatsManager = new StatsManager(this, SettingsManager);
             }
             else
             {
-                StatsManager.PropertiesManager = PropertiesManager;
+                StatsManager.SettingsManager = SettingsManager;
             }
         }
 
@@ -84,8 +84,8 @@ namespace StatTag.Models
             var metadata = new DocumentMetadata()
             {
                 StatTagVersion = UIUtility.GetVersionLabel(),
-                RepresentMissingValues = PropertiesManager.Properties.RepresentMissingValues,
-                CustomMissingValue = PropertiesManager.Properties.CustomMissingValue,
+                RepresentMissingValues = SettingsManager.Settings.RepresentMissingValues,
+                CustomMissingValue = SettingsManager.Settings.CustomMissingValue,
                 MetadataFormatVersion = DocumentMetadata.CurrentMetadataFormatVersion,
                 TagFormatVersion = Tag.CurrentTagFormatVersion
             };
@@ -95,8 +95,9 @@ namespace StatTag.Models
         /// <summary>
         /// Saves associated metadata about StatTag to the properties in the supplied document.
         /// </summary>
-        /// <param name="document"></param>
-        public void SaveMetadataToDocument(Document document)
+        /// <param name="document">The Word Document object we are saving the metadata to</param>
+        /// <param name="metadata">The metadata object to be serialized and saved</param>
+        public void SaveMetadataToDocument(Document document, DocumentMetadata metadata)
         {
             Log("SaveMetadataToDocument - Started");
 
@@ -104,7 +105,12 @@ namespace StatTag.Models
             var variable = variables[MetadataAttribute];
             try
             {
-                var attribute = CreateDocumentMetadata().Serialize();
+                if (metadata == null)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+
+                var attribute = metadata.Serialize();
                 if (!DocumentVariableExists(variable))
                 {
                     Log(string.Format("Metadata variable does not exist.  Adding attribute value of {0}", attribute));
@@ -128,6 +134,42 @@ namespace StatTag.Models
             SaveCodeFileListToDocument(document);
 
             Log("SaveMetadataToDocument - Finished");
+        }
+
+
+        /// <summary>
+        /// Loads associated metadata about StatTag from the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
+        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
+        {
+            Log("LoadMetadataFromDocument - Started");
+            DocumentMetadata metadata = null;
+            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
+            // we just read it and log it so we know a little more about the document.
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                if (DocumentVariableExists(variable))
+                {
+                    metadata = DocumentMetadata.Deserialize(variable.Value);
+                }
+                else if (createIfEmpty)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+
+            Log("LoadMetadataFromDocument - Finished");
+
+            return metadata;
         }
 
         /// <summary>
@@ -179,41 +221,6 @@ namespace StatTag.Models
             }
 
             Log("SaveCodeFileListToDocument - Finished");
-        }
-
-        /// <summary>
-        /// Loads associated metadata about StatTag from the properties in the supplied document.
-        /// </summary>
-        /// <param name="document"></param>
-        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
-        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
-        {
-            Log("LoadMetadataFromDocument - Started");
-            DocumentMetadata metadata = null;
-            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
-            // we just read it and log it so we know a little more about the document.
-            var variables = document.Variables;
-            var variable = variables[MetadataAttribute];
-            try
-            {
-                if (DocumentVariableExists(variable))
-                {
-                    metadata = DocumentMetadata.Deserialize(variable.Value);
-                }
-                else if (createIfEmpty)
-                {
-                    metadata = CreateDocumentMetadata();
-                }
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
-            }
-            
-            Log("LoadMetadataFromDocument - Finished");
-
-            return metadata;
         }
 
         /// <summary>
@@ -1202,7 +1209,22 @@ namespace StatTag.Models
         /// </summary>
         /// <param name="document">The Word document to analyze.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
+
         public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
+        {
+            CheckDocument checkDocumentDialog = null;
+            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound);
+        }
+
+        /// <summary>
+        /// Conduct an assessment of the active document to see if there are any inserted
+        /// tags that do not have an associated code file in the document.
+        /// </summary>
+        /// <param name="document">The Word document to analyze.</param>
+        /// <param name="checkDocumentDialog">A reference to use for the CheckDocument form.  This method will create the dialog, but the
+        /// reference allows the caller to have a reference when the method completes.</param>
+        /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
+        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false)
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
@@ -1213,11 +1235,11 @@ namespace StatTag.Models
                 return;
             }
 
-            var dialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
-            if (DialogResult.OK == dialog.ShowDialog())
+            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
+            if (DialogResult.OK == checkDocumentDialog.ShowDialog())
             {
-                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates, dialog.UnlinkedAffectedCodeFiles);
-                UpdateRenamedTags(dialog.DuplicateTagUpdates);
+                UpdateUnlinkedTagsByTag(checkDocumentDialog.UnlinkedTagUpdates, checkDocumentDialog.UnlinkedAffectedCodeFiles);
+                UpdateRenamedTags(checkDocumentDialog.DuplicateTagUpdates);
             }
         }
 

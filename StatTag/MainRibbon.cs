@@ -17,14 +17,27 @@ namespace StatTag
 {
     public partial class MainRibbon
     {
+        // The ribbon will maintain a reference to all of its dialogs to help track when
+        // the dialog is open.  If a dialog is open, the CloseAllOpenDialogs method will
+        // then be able to signal all of them to close.  If a dialog is not currently
+        // open, its property is set to null.
+        private EditTag EditTagDialog = null;
+        private LoadAnalysisCode LoadAnalysisCodeDialog = null;
+        private LinkCodeFiles LinkCodeFilesDialog = null;
+        private ManageTags ManageTagsDialog = null;
+        private SelectOutput SelectOutputDialog = null;
+        private Settings SettingsDialog = null;
+        private UpdateOutput UpdateOutputDialog = null;
+        private CheckDocument CheckDocumentDialog = null;
+
         public DocumentManager Manager
         {
             get { return Globals.ThisAddIn.DocumentManager; }
         }
 
-        public PropertiesManager PropertiesManager
+        public SettingsManager SettingsManager
         {
-            get { return Globals.ThisAddIn.PropertiesManager; }
+            get { return Globals.ThisAddIn.SettingsManager; }
         }
 
         public LogManager LogManager
@@ -75,18 +88,19 @@ namespace StatTag
             try
             {
                 var files = Manager.GetCodeFileList(ActiveDocument);
-                var loadDialog = new LoadAnalysisCode(Manager, files);
-                if (DialogResult.OK == loadDialog.ShowDialog())
+                LoadAnalysisCodeDialog = new LoadAnalysisCode(Manager, files);
+                if (DialogResult.OK == LoadAnalysisCodeDialog.ShowDialog())
                 {
-                    Manager.SetCodeFileList(loadDialog.Files);
+                    Manager.SetCodeFileList(LoadAnalysisCodeDialog.Files);
 
                     var unlinkedResults = Manager.FindAllUnlinkedTags();
                     if (unlinkedResults != null && unlinkedResults.Count > 0)
                     {
-                        var linkDialog = new LinkCodeFiles(unlinkedResults, loadDialog.Files);
-                        if (DialogResult.OK == linkDialog.ShowDialog())
+                        LinkCodeFilesDialog = new LinkCodeFiles(unlinkedResults, LoadAnalysisCodeDialog.Files);
+                        if (DialogResult.OK == LinkCodeFilesDialog.ShowDialog())
                         {
-                            Manager.UpdateUnlinkedTagsByCodeFile(linkDialog.CodeFileUpdates, linkDialog.UnlinkedAffectedCodeFiles);
+                            Manager.UpdateUnlinkedTagsByCodeFile(LinkCodeFilesDialog.CodeFileUpdates,
+                                LinkCodeFilesDialog.UnlinkedAffectedCodeFiles);
                         }
                     }
 
@@ -103,14 +117,19 @@ namespace StatTag
                     "There was an unexpected error when trying to manage your code files.",
                     LogManager);
             }
+            finally
+            {
+                LoadAnalysisCodeDialog = null;
+                LinkCodeFilesDialog = null;
+            }
         }
 
         private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
             try
             {
-                var dialog = new ManageTags(Manager);
-                if (DialogResult.OK == dialog.ShowDialog())
+                ManageTagsDialog = new ManageTags(Manager);
+                if (DialogResult.OK == ManageTagsDialog.ShowDialog())
                 {
                     Manager.SaveAllCodeFiles(ActiveDocument);
                 }
@@ -125,35 +144,46 @@ namespace StatTag
                     "There was an unexpected error when trying to manage your tags.",
                     LogManager);
             }
+            finally
+            {
+                ManageTagsDialog = null;
+            }
         }
 
         private void cmdInsertOutput_Click(object sender, RibbonControlEventArgs e)
         {
-            var files = Manager.GetCodeFileList(ActiveDocument);
-            var dialog = new SelectOutput(files);
-            if (DialogResult.OK == dialog.ShowDialog())
+            try
             {
-                try
+                var files = Manager.GetCodeFileList(ActiveDocument);
+                SelectOutputDialog = new SelectOutput(files);
+                if (DialogResult.OK == SelectOutputDialog.ShowDialog())
                 {
-                    var tags = dialog.GetSelectedTags();
-                    LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-                    Manager.InsertTagsInDocument(tags);
+                    try
+                    {
+                        var tags = SelectOutputDialog.GetSelectedTags();
+                        LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
+                        Manager.InsertTagsInDocument(tags);
+                    }
+                    catch (StatTagUserException uex)
+                    {
+                        UIUtility.ReportException(uex, uex.Message, LogManager);
+                    }
+                    catch (Exception exc)
+                    {
+                        UIUtility.ReportException(exc,
+                            "There was an unexpected error when trying to insert the tag output into the document.",
+                            LogManager);
+                    }
+                    finally
+                    {
+                        Globals.ThisAddIn.Application.ScreenUpdating = true;
+                        Cursor.Current = Cursors.Default;
+                    }
                 }
-                catch (StatTagUserException uex)
-                {
-                    UIUtility.ReportException(uex, uex.Message, LogManager);
-                }
-                catch (Exception exc)
-                {
-                    UIUtility.ReportException(exc,
-                        "There was an unexpected error when trying to insert the tag output into the document.",
-                        LogManager);
-                }
-                finally
-                {
-                    Globals.ThisAddIn.Application.ScreenUpdating = true;
-                    Cursor.Current = Cursors.Default;
-                }
+            }
+            finally
+            {
+                SelectOutputDialog = null;
             }
         }
 
@@ -161,12 +191,12 @@ namespace StatTag
         {
             try
             {
-                var dialog = new Settings(PropertiesManager.Properties);
-                if (DialogResult.OK == dialog.ShowDialog())
+                SettingsDialog = new Settings(SettingsManager.Settings);
+                if (DialogResult.OK == SettingsDialog.ShowDialog())
                 {
-                    PropertiesManager.Properties = dialog.Properties;
-                    PropertiesManager.Save();
-                    LogManager.UpdateSettings(dialog.Properties);
+                    SettingsManager.Settings = SettingsDialog.Properties;
+                    SettingsManager.Save();
+                    LogManager.UpdateSettings(SettingsDialog.Properties);
                 }
             }
             catch (StatTagUserException uex)
@@ -179,17 +209,21 @@ namespace StatTag
                     "There was an unexpected error when trying to manage your settings",
                     LogManager);
             }
+            finally
+            {
+                SettingsDialog = null;
+            }
         }
 
         private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new UpdateOutput(Manager.GetTags());
-            if (DialogResult.OK != dialog.ShowDialog())
+            UpdateOutputDialog = new UpdateOutput(Manager.GetTags());
+            if (DialogResult.OK != UpdateOutputDialog.ShowDialog())
             {
                 return;
             }
 
-            var tags = dialog.SelectedTags;
+            var tags = UpdateOutputDialog.SelectedTags;
             Cursor.Current = Cursors.WaitCursor;
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
@@ -231,6 +265,7 @@ namespace StatTag
             {
                 Globals.ThisAddIn.Application.ScreenUpdating = true;
                 Cursor.Current = Cursors.Default;
+                UpdateOutputDialog = null;
             }
         }
 
@@ -239,7 +274,7 @@ namespace StatTag
             Cursor.Current = Cursors.WaitCursor;
             try
             {
-                Manager.PerformDocumentCheck(ActiveDocument);
+                Manager.PerformDocumentCheck(ActiveDocument, ref CheckDocumentDialog);
             }
             catch (StatTagUserException uex)
             {
@@ -254,22 +289,61 @@ namespace StatTag
             finally
             {
                 Cursor.Current = Cursors.Default;
+                CheckDocumentDialog = null;
+            }
+        }
+
+        /// <summary>
+        /// Called when we need to forcibly close any and all open dialogs, such as
+        /// for system shutdown, or when a linked code file has been changed.
+        /// </summary>
+        public void CloseAllOpenDialogs()
+        {
+            ManageCloseDialog(EditTagDialog);
+            ManageCloseDialog(LoadAnalysisCodeDialog);
+            ManageCloseDialog(LinkCodeFilesDialog);
+            ManageCloseDialog(ManageTagsDialog);
+            ManageCloseDialog(SelectOutputDialog);
+            ManageCloseDialog(SettingsDialog);
+            ManageCloseDialog(UpdateOutputDialog);
+            ManageCloseDialog(CheckDocumentDialog);
+        }
+
+        /// <summary>
+        /// Utility function to invoke the Close method in a given dialog/form.
+        /// </summary>
+        /// <remarks>Because this
+        /// uses messaging, it isn't an immediate close of the dialog, but will result in it
+        /// being closed when all threads and message queues are processed.</remarks>
+        /// <param name="dialog">The dialog/form to be closed</param>
+        private void ManageCloseDialog(Form dialog)
+        {
+            if (dialog != null && !dialog.IsDisposed)
+            {
+                dialog.Invoke((MethodInvoker)(dialog.Close));
             }
         }
 
         private void cmdDefineTag_Click(object sender, RibbonControlEventArgs e)
         {
-            var dialog = new EditTag(true, Manager);
-            if (DialogResult.OK == dialog.ShowDialog())
+            try
             {
-                Manager.SaveEditedTag(dialog);
-                var files = Manager.GetCodeFileList(ActiveDocument);
-                foreach (var file in files)
+                EditTagDialog = new EditTag(true, Manager);
+                if (DialogResult.OK == EditTagDialog.ShowDialog())
                 {
-                    file.LoadTagsFromContent();
-                }
+                    Manager.SaveEditedTag(EditTagDialog);
+                    var files = Manager.GetCodeFileList(ActiveDocument);
+                    foreach (var file in files)
+                    {
+                        file.LoadTagsFromContent();
+                    }
 
-                Manager.CheckForInsertSavedTag(dialog);
+                    Manager.CheckForInsertSavedTag(EditTagDialog);
+                }
+            }
+            finally
+            {
+                EditTagDialog = null;
             }
         }
 
@@ -294,6 +368,23 @@ namespace StatTag
             {
                 var about = new About();
                 about.ShowDialog();
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteException(exc);
+            }
+        }
+
+        private void cmdDocumentProperties_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var documentProperties = new DocumentProperties(this.ActiveDocument, this.Manager);
+                documentProperties.ShowDialog();
             }
             catch (StatTagUserException uex)
             {

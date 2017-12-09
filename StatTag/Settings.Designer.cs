@@ -33,12 +33,6 @@
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txtMissingValueString = new System.Windows.Forms.TextBox();
-            this.radMissingValueBlankString = new System.Windows.Forms.RadioButton();
-            this.radMissingValueCustomString = new System.Windows.Forms.RadioButton();
-            this.radMissingValueStatDefault = new System.Windows.Forms.RadioButton();
-            this.label5 = new System.Windows.Forms.Label();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.txtMaxLogFiles = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -55,9 +49,10 @@
             this.cmdStataLocation = new System.Windows.Forms.Button();
             this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.tabLogging.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogFiles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogSize)).BeginInit();
@@ -115,7 +110,8 @@
             // 
             // tabGeneral
             // 
-            this.tabGeneral.Controls.Add(this.groupBox1);
+            this.tabGeneral.Controls.Add(this.label5);
+            this.tabGeneral.Controls.Add(this.missingValueSettings1);
             this.tabGeneral.Controls.Add(this.chkRunCodeOnOpen);
             this.tabGeneral.Location = new System.Drawing.Point(4, 26);
             this.tabGeneral.Name = "tabGeneral";
@@ -124,76 +120,6 @@
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.txtMissingValueString);
-            this.groupBox1.Controls.Add(this.radMissingValueBlankString);
-            this.groupBox1.Controls.Add(this.radMissingValueCustomString);
-            this.groupBox1.Controls.Add(this.radMissingValueStatDefault);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Location = new System.Drawing.Point(8, 40);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(644, 124);
-            this.groupBox1.TabIndex = 18;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Representing Missing Values";
-            // 
-            // txtMissingValueString
-            // 
-            this.txtMissingValueString.Location = new System.Drawing.Point(165, 90);
-            this.txtMissingValueString.Name = "txtMissingValueString";
-            this.txtMissingValueString.Size = new System.Drawing.Size(80, 25);
-            this.txtMissingValueString.TabIndex = 4;
-            // 
-            // radMissingValueBlankString
-            // 
-            this.radMissingValueBlankString.AutoSize = true;
-            this.radMissingValueBlankString.Location = new System.Drawing.Point(20, 68);
-            this.radMissingValueBlankString.Margin = new System.Windows.Forms.Padding(1);
-            this.radMissingValueBlankString.Name = "radMissingValueBlankString";
-            this.radMissingValueBlankString.Size = new System.Drawing.Size(161, 21);
-            this.radMissingValueBlankString.TabIndex = 3;
-            this.radMissingValueBlankString.TabStop = true;
-            this.radMissingValueBlankString.Text = "An empty (blank) string";
-            this.radMissingValueBlankString.UseVisualStyleBackColor = true;
-            this.radMissingValueBlankString.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
-            // 
-            // radMissingValueCustomString
-            // 
-            this.radMissingValueCustomString.AutoSize = true;
-            this.radMissingValueCustomString.Location = new System.Drawing.Point(20, 91);
-            this.radMissingValueCustomString.Margin = new System.Windows.Forms.Padding(1);
-            this.radMissingValueCustomString.Name = "radMissingValueCustomString";
-            this.radMissingValueCustomString.Size = new System.Drawing.Size(138, 21);
-            this.radMissingValueCustomString.TabIndex = 2;
-            this.radMissingValueCustomString.TabStop = true;
-            this.radMissingValueCustomString.Text = "The following value";
-            this.radMissingValueCustomString.UseVisualStyleBackColor = true;
-            this.radMissingValueCustomString.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
-            // 
-            // radMissingValueStatDefault
-            // 
-            this.radMissingValueStatDefault.AutoSize = true;
-            this.radMissingValueStatDefault.Location = new System.Drawing.Point(20, 45);
-            this.radMissingValueStatDefault.Margin = new System.Windows.Forms.Padding(1);
-            this.radMissingValueStatDefault.Name = "radMissingValueStatDefault";
-            this.radMissingValueStatDefault.Size = new System.Drawing.Size(391, 21);
-            this.radMissingValueStatDefault.TabIndex = 1;
-            this.radMissingValueStatDefault.TabStop = true;
-            this.radMissingValueStatDefault.Text = "The statistical program\'s default (R = \'NA\', SAS = \'.\', Stata = \'.\')";
-            this.radMissingValueStatDefault.UseVisualStyleBackColor = true;
-            this.radMissingValueStatDefault.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(7, 25);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(543, 17);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "If a \"missing value\" is identified in a result (value or a table), display the mi" +
-    "ssing value using:\r\n";
             // 
             // tabLogging
             // 
@@ -206,9 +132,9 @@
             this.tabLogging.Controls.Add(this.chkEnableLogging);
             this.tabLogging.Controls.Add(this.cmdLogLocation);
             this.tabLogging.Controls.Add(this.txtLogLocation);
-            this.tabLogging.Location = new System.Drawing.Point(4, 26);
+            this.tabLogging.Location = new System.Drawing.Point(4, 22);
             this.tabLogging.Name = "tabLogging";
-            this.tabLogging.Size = new System.Drawing.Size(665, 197);
+            this.tabLogging.Size = new System.Drawing.Size(665, 201);
             this.tabLogging.TabIndex = 2;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -327,10 +253,10 @@
             this.tabStata.Controls.Add(this.cmdStataLocation);
             this.tabStata.Controls.Add(this.txtStataLocation);
             this.tabStata.Controls.Add(this.label1);
-            this.tabStata.Location = new System.Drawing.Point(4, 26);
+            this.tabStata.Location = new System.Drawing.Point(4, 22);
             this.tabStata.Name = "tabStata";
             this.tabStata.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStata.Size = new System.Drawing.Size(665, 197);
+            this.tabStata.Size = new System.Drawing.Size(665, 201);
             this.tabStata.TabIndex = 1;
             this.tabStata.Text = "Stata";
             this.tabStata.UseVisualStyleBackColor = true;
@@ -383,6 +309,25 @@
             this.label1.TabIndex = 15;
             this.label1.Text = "Stata executable location:";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(5, 46);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(623, 17);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
+    "ay the missing value using:";
+            // 
+            // missingValueSettings1
+            // 
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
+            this.missingValueSettings1.TabIndex = 18;
+            // 
             // Settings
             // 
             this.AcceptButton = this.cmdOK;
@@ -402,8 +347,6 @@
             this.tabSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
             this.tabGeneral.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.tabLogging.ResumeLayout(false);
             this.tabLogging.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtMaxLogFiles)).EndInit();
@@ -437,11 +380,7 @@
         private System.Windows.Forms.NumericUpDown txtMaxLogSize;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox txtMissingValueString;
-        private System.Windows.Forms.RadioButton radMissingValueBlankString;
-        private System.Windows.Forms.RadioButton radMissingValueCustomString;
-        private System.Windows.Forms.RadioButton radMissingValueStatDefault;
         private System.Windows.Forms.Label label5;
+        private Controls.MissingValueSettings missingValueSettings1;
     }
 }
