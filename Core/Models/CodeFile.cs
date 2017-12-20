@@ -138,7 +138,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Return the contents of the CodeFile
+        /// Read the contents of the code file from the underlying file on the file system.
         /// </summary>
         /// <returns></returns>
         public void RefreshContent()

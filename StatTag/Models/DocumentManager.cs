@@ -1429,7 +1429,7 @@ namespace StatTag.Models
 
         private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
         {
-            // If there is no entry for this particular document, we can exist (there's nothing to clean up)
+            // If there is no entry for this particular document, we can exit (there's nothing to clean up)
             if (document == null || !DocumentCodeFiles.ContainsKey(document.FullName))
             {
                 return;
@@ -1447,9 +1447,37 @@ namespace StatTag.Models
                 var monitoredCodeFile = new MonitoredCodeFile(file);
                 monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
                 managedFiles.Add(monitoredCodeFile);
-                //x => managedFiles.Add(new MonitoredCodeFile(x));
             }
             DocumentCodeFiles[document.FullName] = managedFiles;
+        }
+
+        /// <summary>
+        /// Given a document, force all known code files to refresh their contents.
+        /// <remarks>This uses the list of internally managed code files associated with a document.  Even if the code file has
+        /// had its contents cached, this forces it to completely reload.  It should be called only when we know that the code
+        /// file is invalid (such as when a file changes on disk)</remarks>
+        /// </summary>
+        /// <param name="document">The document we want to reload code file contents for</param>
+        public void RefreshContentInDocumentCodeFiles(Document document)
+        {
+            Log("RefreshContentInDocumentCodeFiles - Start");
+            if (document == null)
+            {
+                Log("No document was specified to refresh - will exit");
+                return;
+            }
+            var codeFiles = GetManagedCodeFileList(document);
+            Log(string.Format("Document has {0} existing code file(s) associated", (codeFiles == null ) ? "(null)" : codeFiles.Count.ToString()));
+            if (codeFiles != null)
+            {
+                foreach (var codeFile in codeFiles)
+                {
+                    codeFile.StopMonitoring();
+                    codeFile.RefreshContent();
+                    codeFile.StartMonitoring();
+                }
+            }
+            Log("RefreshContentInDocumentCodeFiles - Finish");
         }
 
         /// <summary>

@@ -345,9 +345,13 @@ namespace StatTag
             }
 
             // 1. Close all open dialogs
-            // 2. Reload the code files
-            // 3. Alert the user at what's affected
             Globals.Ribbons.MainRibbon.CloseAllOpenDialogs();
+
+            // 2. Reload the code files
+            DocumentManager.RefreshContentInDocumentCodeFiles(document);
+
+            // 3. Alert the user at what's affected
+            MessageBox.Show("The following code files have changed and were reloaded: " + monitoredCodeFile.FilePath);
         }
 
         /// <summary>
