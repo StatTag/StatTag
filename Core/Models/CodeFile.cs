@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using StatTag.Core.Interfaces;
 using Newtonsoft.Json;
 using System;
@@ -43,6 +45,19 @@ namespace StatTag.Core.Models
             Initialize(null);
         }
 
+        public CodeFile(CodeFile file)
+        {
+            Initialize(null);
+            if (file != null)
+            {
+                Tags = file.Tags;
+                StatisticalPackage = file.StatisticalPackage;
+                FilePath = file.FilePath;
+                LastCached = file.LastCached;
+                Content = file.Content;
+            }
+        }
+
         public CodeFile(IFileHandler handler = null)
         {
             Initialize(handler);
@@ -52,6 +67,26 @@ namespace StatTag.Core.Models
         {
             Tags = new List<Tag>();
             FileHandler = handler ?? new FileHandler();
+        }
+        
+        public string GetChecksumFromFile()
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(FilePath))
+                {
+                    return Encoding.Default.GetString(md5.ComputeHash(stream));
+                }
+            }
+        }
+
+        public string GetChecksumFromCache()
+        {
+            using (var md5 = MD5.Create())
+            {
+                var data = string.Join("\r\n", Content);
+                return Encoding.Default.GetString(md5.ComputeHash(Encoding.Default.GetBytes(data)));
+            }
         }
 
         public override string ToString()
@@ -103,7 +138,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Return the contents of the CodeFile
+        /// Read the contents of the code file from the underlying file on the file system.
         /// </summary>
         /// <returns></returns>
         public void RefreshContent()

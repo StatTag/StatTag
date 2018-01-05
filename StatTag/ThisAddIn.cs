@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,12 @@ namespace StatTag
         public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = new DocumentManager();
         public StatsManager StatsManager = null;
+        /// <summary>
+        /// A thread-safe collection of any code files that have been modified, which we have not alerted
+        /// the user about.  When the code file change has been handled by us, the entry is removed from
+        /// this collection.
+        /// </summary>
+        private ConcurrentQueue<string> ModifiedCodeFiles = new ConcurrentQueue<string>(); 
 
         /// <summary>
         /// Perform a safe get of the active document.  There is no other way to safely
@@ -53,6 +60,7 @@ namespace StatTag
         {
             DocumentManager.SetSettingsManager(SettingsManager);
             StatsManager = new StatsManager(DocumentManager, SettingsManager);
+            DocumentManager.CodeFileChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
@@ -320,9 +328,76 @@ namespace StatTag
             }
         }
 
-        void Application_WindowActivate(Word.Document doc, Word.Window window)
+        void Application_WindowActivate(Word.Document activeDocument, Word.Window window)
         {
             Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+
+            if (!ModifiedCodeFiles.IsEmpty)
+            {
+                LogManager.WriteMessage(string.Format("There are {0} modified files to process", ModifiedCodeFiles.Count));
+
+                var documents = Application.Documents;
+                var messageBuilder = new StringBuilder("The following code files were changed outside of StatTag, and have been reloaded:\r\n\r\n");
+                int failedDequeueCount = 0;
+                while (!ModifiedCodeFiles.IsEmpty)
+                {
+                    string filePath = string.Empty;
+                    if (ModifiedCodeFiles.TryDequeue(out filePath))
+                    {
+                        LogManager.WriteMessage(string.Format("Processing code file: {0}", filePath));
+                        messageBuilder.AppendFormat("  - {0}\r\n", filePath);
+
+                        // Reload the code files for ALL affected documents.
+                        foreach (var document in documents.OfType<Word.Document>())
+                        {
+                            if (DocumentManager.IsCodeFileLinkedToDocument(document, filePath))
+                            {
+                                LogManager.WriteMessage(string.Format("  - Reloading code file in document {0}", document.FullName));
+                                DocumentManager.RefreshContentInDocumentCodeFiles(document);
+                            }
+                        }
+                    }
+                    else if (failedDequeueCount >= 5)
+                    {
+                        LogManager.WriteMessage(string.Format("We have had {0} dequeue failures - we will stop processing at this point.", failedDequeueCount));
+                        UIUtility.WarningMessageBox("StatTag detected that one or more code files were modified.  In trying to reload the code files in your open Word documents, we ran into some unexpected issues.\r\n\r\nWe recommend closing and re-opening Microsoft Word, as the code files and documents may be in an inconsistent state.", LogManager);
+                        return;
+                    }
+                    else
+                    {
+                        failedDequeueCount++;
+                        LogManager.WriteMessage("Failed to dequeue modified code file from list - will try again after a 1 second pause");
+                        Thread.Sleep(1000);
+                    }
+                }
+                Marshal.ReleaseComObject(documents);
+                LogManager.WriteMessage("Finished processing all modified code files");
+
+                // Alert the user at what's affected
+                var message = messageBuilder.ToString().Trim();
+                UIUtility.WarningMessageBox(message, LogManager);
+            }
+        }
+
+        private void OnCodeFileChanged(object sender, EventArgs args)
+        {
+            var monitoredCodeFile = sender as MonitoredCodeFile;
+            if (monitoredCodeFile == null)
+            {
+                return;
+            }
+
+            var filePath = monitoredCodeFile.FilePath;
+            LogManager.WriteMessage("Code file changed: " + filePath);
+            if (!ModifiedCodeFiles.Contains(filePath))
+            {
+                ModifiedCodeFiles.Enqueue(filePath);
+            }
+
+            // Close all open dialogs.  We need to do this here instead of Application_WindowActivate, since at that
+            // point an open dialog blocks Application_WindowActivate from being called.
+            Globals.Ribbons.MainRibbon.CloseAllOpenDialogs();
+            LogManager.WriteMessage("Closed all open dialogs in response to code file change");
         }
 
         /// <summary>
