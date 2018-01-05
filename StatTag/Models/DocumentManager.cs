@@ -1511,19 +1511,21 @@ namespace StatTag.Models
             return DocumentCodeFiles[fullName];
         }
 
-        public bool IsCodeFileLinkedToDocument(Document document, MonitoredCodeFile codeFile)
+        public bool IsCodeFileLinkedToDocument(Document document, string codeFilePath)
         {
-            if (document == null || codeFile == null)
+            if (document == null || string.IsNullOrWhiteSpace(codeFilePath))
             {
                 return false;
             }
 
+            // If our internal map of documents doesn't know about the document being passed in, there's no
+            // way we've tracked the code files associated with it, so we have to say it's not linked.
             if (!DocumentCodeFiles.ContainsKey(document.FullName))
             {
                 return false;
             }
 
-            return DocumentCodeFiles[document.FullName].Any(x => x.Equals(codeFile));
+            return DocumentCodeFiles[document.FullName].Select(x => x.FilePath).Any(x => x.Equals(codeFilePath));
         }
 
         public List<CodeFile> GetCodeFileList(Document document = null)
