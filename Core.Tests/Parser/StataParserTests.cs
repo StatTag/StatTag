@@ -76,13 +76,18 @@ namespace Core.Tests.Parser
         public void IsTableResult_DataFile()
         {
             var parser = new StataParser();
-            Assert.IsFalse(parser.IsTableResult("estadd using test.csv"));
+            Assert.IsTrue(parser.IsTableResult("estadd using test.csv"));  // Even though this isn't allowed for data export ("estadd"), we are just checking the presence of file paths
             Assert.IsTrue(parser.IsTableResult("estout using test.csv"));
+            Assert.IsTrue(parser.IsTableResult("estout using C:\\test.csv"));
+            Assert.IsTrue(parser.IsTableResult("estout using /c:/test.csv"));
             Assert.IsTrue(parser.IsTableResult("esttab using example.csv, replace wide plain"));
             Assert.IsTrue(parser.IsTableResult("  esttab  using  example.csv ,  replace  wide  plain "));
-            Assert.IsFalse(parser.IsTableResult("a estout using test.csv"));
-            Assert.IsFalse(parser.IsTableResult("aestout using test.csv"));
-            Assert.IsFalse(parser.IsTableResult("estouts using test.csv"));
+            Assert.IsFalse(parser.IsTableResult("estadd using test csv"));
+
+            // Handle local and global macro values - they MAY contain a filename, so the heuristic check should allow them
+            Assert.IsTrue(parser.IsTableResult("estout using `filename'"));
+            Assert.IsTrue(parser.IsTableResult("estout using $filename"));
+            Assert.IsFalse(parser.IsTableResult("estout using $ filename"));
         }
 
         [TestMethod]
@@ -179,6 +184,7 @@ namespace Core.Tests.Parser
             var parser = new StataParser();
             Assert.AreEqual("test", parser.GetValueName("display test"));
             Assert.AreEqual("`x2'", parser.GetValueName("display  `x2'"));
+            Assert.AreEqual("$x2", parser.GetValueName("display  $x2"));
             Assert.AreEqual("test", parser.GetValueName(" display   test  "));
             Assert.AreEqual(string.Empty, parser.GetValueName("adisplay test"));
             Assert.AreEqual("test", parser.GetValueName("display (test)"));
@@ -223,6 +229,7 @@ namespace Core.Tests.Parser
         {
             var parser = new StataParser();
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'"));
+            Assert.AreEqual("x2", parser.GetMacroValueName("display  $x2"));
             Assert.AreEqual("x2", parser.GetMacroValueName("display  `x2'\r\n\r\n*Some comments following"));
             Assert.AreEqual("test", parser.GetMacroValueName("display test"));   // This isn't a proper Stata macro value, but is the expected return
         }
@@ -248,7 +255,29 @@ namespace Core.Tests.Parser
         public void GetTableDataPath()
         {
             var parser = new StataParser();
+
+            // Check for file names
             Assert.AreEqual("example.csv", parser.GetTableDataPath("esttab using example.csv, replace wide plain"));
+            Assert.AreEqual("example.csv", parser.GetTableDataPath("esttab using example.csv , replace wide plain"));
+            Assert.AreEqual("example 2.csv", parser.GetTableDataPath("esttab using \"example 2.csv\", replace wide plain"));
+
+            // Check for file paths
+            Assert.AreEqual("C:\\example.csv", parser.GetTableDataPath("esttab using C:\\example.csv, replace wide plain"));
+            Assert.AreEqual("C:\\data path\\example.csv", parser.GetTableDataPath("esttab using \"C:\\data path\\example.csv\", replace wide plain"));
+            Assert.AreEqual("..\\example.csv", parser.GetTableDataPath("esttab using ..\\example.csv, replace wide plain"));
+            Assert.AreEqual("C:/example.csv", parser.GetTableDataPath("esttab using C:/example.csv, replace wide plain"));
+
+            // Commands with parentheses
+            Assert.AreEqual("testing.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.csv, replace)"));
+            Assert.AreEqual("testing 2.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(\"testing 2.csv\", replace)"));
+
+            // Check for macros
+            Assert.AreEqual("`filename'", parser.GetTableDataPath("esttab using `filename', replace wide plain"));
+            Assert.AreEqual("$filename", parser.GetTableDataPath("esttab using $filename, replace wide plain"));
+
+            // Don't forget you can mix paths and macros
+            Assert.AreEqual("C:\\`file'", parser.GetTableDataPath("esttab using C:\\`file', replace wide plain"));
+            Assert.AreEqual("C:\\data path\\`file'", parser.GetTableDataPath("esttab using \"C:\\data path\\`file'\", replace wide plain"));
         }
 
         [TestMethod]
@@ -438,6 +467,11 @@ namespace Core.Tests.Parser
             Assert.AreEqual("x", result.First());
 
             result = parser.GetMacros("display `x'\\`y'");
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual("x", result[0]);
+            Assert.AreEqual("y", result[1]);
+
+            result = parser.GetMacros("display `x'\\$y");
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("x", result[0]);
             Assert.AreEqual("y", result[1]);

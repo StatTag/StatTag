@@ -181,7 +181,7 @@ namespace Stata
                     }
 
                     // Perform execution of the command
-                    var result = RunCommand(command);
+                    var result = RunCommand(command, tag);
 
                     // Handle the result normally unless we are in the middle of a verbatim tag.  In that case,
                     // the logging should be enabled at this point and closing it out will be handled later when
@@ -490,7 +490,7 @@ namespace Stata
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
-        public CommandResult RunCommand(string command)
+        public CommandResult RunCommand(string command, Tag tag = null)
         {
             if (!IsTrackingVerbatim)
             {
@@ -499,7 +499,13 @@ namespace Stata
                     return new CommandResult() { ValueResult = GetDisplayResult(command) };
                 }
 
-                if (Parser.IsTableResult(command))
+                // Because we are being more open what we allow for tables, we are now going
+                // to only allow table results when we have a tag that is a table type.  Note that
+                // we will short-circuit executing the command ONLY when we have a matrix type
+                // of result.  If we think we have a data file, we need to execute the command.  That
+                // is why we make two checks within this method for table results, the first one here for
+                // matrix results, and the second one for any table result.
+                if ((tag != null && tag.Type == Constants.TagType.Table) && Parser.IsMatrix(command))
                 {
                     return new CommandResult() { TableResult = GetTableResult(command) };
                 }
@@ -531,9 +537,20 @@ namespace Stata
                         command, errorCode, GetStataErrorDescription(errorCode)));
             }
 
-            if (Parser.IsImageExport(command) && !IsTrackingVerbatim)
+            if (!IsTrackingVerbatim)
             {
-                return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
+                if (Parser.IsImageExport(command))
+                {
+                    return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
+                }
+
+                // Because we are being more open what we allow for tables, we are now going
+                // to only allow table results when we have a tag that is a table type.  See above why we
+                // have two checks for table results in this method.
+                if ((tag != null && tag.Type == Constants.TagType.Table) && Parser.IsTableResult(command))
+                {
+                    return new CommandResult() { TableResult = GetTableResult(command) };
+                }
             }
             
             return null;

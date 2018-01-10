@@ -37,7 +37,7 @@ namespace Stata
             public string[] GetCommands()
             {
                 return
-                    StataParser.TableCommands.Select(CleanUpRegex).Concat(StataParser.TableWithDataCommands.Select(CleanUpRegex)).ToArray();
+                    StataParser.TableCommands.Select(CleanUpRegex).Concat(new[] { "(Any command that writes to a CSV file)" }).ToArray();
             }
         }
 
