@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StatTag.Core.Parser;
 
 namespace Core.Tests.Parser
 {
     [TestClass]
-    public class SASTests
+    public class SASParserTests
     {
         [TestMethod]
         public void IsValueDisplay()
@@ -147,6 +148,67 @@ namespace Core.Tests.Parser
             Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"C:\\test\\\";"));
             Assert.IsNull(parser.GetPathParameter("ods csv file=\"tmp.csv\";"));
             Assert.AreEqual("", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"\";"));
+        }
+
+        [TestMethod]
+        public void PreProcessContent_MultiLineCommands()
+        {
+            var parser = new SASParser();
+            var testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace;",
+                "run;"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace;\r\nrun;", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Not that this would actually happen in real code, but we want to make sure that a lack
+            // of any semicolon strings everything into one line, and that there is no semicolon at
+            // the end
+            testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace",
+                "run"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace\r\nrun", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // For this, make sure that if the last statement did not end in a semicolon that
+            // we're not adding one.  It seems unlikely this would happen in practice, but
+            // we want to make sure our code isn't inappropriately adding in semicolons.
+            testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace;",
+                "run"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace;\r\nrun", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Check an empty string
+            testList = new List<string>(new string[]
+            {
+                ""
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual(string.Empty, string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Check an empty collection
+            testList = new List<string>();
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual(string.Empty, string.Join("\r\n", parser.PreProcessContent(testList)));
+
         }
     }
 }

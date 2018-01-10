@@ -124,7 +124,7 @@
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
     <Compile Include="Parser\TableParameterParserTests.cs" />
-    <Compile Include="Parser\SASTests.cs" />
+    <Compile Include="Parser\SASParserTests.cs" />
     <Compile Include="Parser\RParserTests.cs" />
     <Compile Include="Parser\ValueParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

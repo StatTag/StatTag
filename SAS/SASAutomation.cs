@@ -162,7 +162,7 @@ namespace SAS
             // need), but this allows us to keep the code simple while being effective.
             if (Parser.HasMacroIndicator(originalLocation) || Parser.HasFunctionIndicator(originalLocation))
             {
-                var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
+                var expandedLocation = RunCommand(string.Format("%PUT {0}{1}", originalLocation, SASParser.CommandDelimiter));
                 if (expandedLocation != null)
                 {
                     originalLocation = expandedLocation.ValueResult;
