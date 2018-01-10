@@ -236,6 +236,7 @@ namespace Stata
                     }
                 }
 
+                ResolveCommandPromises(commandResults);
                 return commandResults.ToArray();
             }
             catch (Exception exc)
@@ -256,6 +257,27 @@ namespace Stata
                 IsTrackingVerbatim = false;
 
                 throw exc;
+            }
+        }
+
+        /// <summary>
+        /// Iterate through a list of command results and resolve any outstanding
+        /// promises on the results.
+        /// </summary>
+        /// <param name="commandResults">The list of command results</param>
+        private void ResolveCommandPromises(List<CommandResult> commandResults)
+        {
+            foreach (var result in commandResults)
+            {
+                if (!string.IsNullOrEmpty(result.TableResultPromise))
+                {
+                    // Yes, we are expanding the file paths twice. The problem is that depending on how the file is written (putexcel
+                    // being the first example we ran into), it may not actually be on disk when the first GetExpandedFilePath is called.
+                    // Because that method requires a file to exist before it will accept it, we need to do the expansion again since
+                    // otherwise we could have just a relative path.
+                    result.TableResult = DataFileToTable.GetTableResult(GetExpandedFilePath(result.TableResultPromise));
+                    result.TableResultPromise = null;
+                }
             }
         }
 
@@ -398,7 +420,7 @@ namespace Stata
             var dataFile = Parser.GetTableDataPath(command);
             if (!string.IsNullOrWhiteSpace(dataFile))
             {
-                return CSVToTable.GetTableResult(GetExpandedFilePath(dataFile));
+                return DataFileToTable.GetTableResult(GetExpandedFilePath(dataFile));
             }
 
             var matrixName = Parser.GetTableName(command);
@@ -549,7 +571,7 @@ namespace Stata
                 // have two checks for table results in this method.
                 if ((tag != null && tag.Type == Constants.TagType.Table) && Parser.IsTableResult(command))
                 {
-                    return new CommandResult() { TableResult = GetTableResult(command) };
+                    return new CommandResult() { TableResultPromise = GetExpandedFilePath(Parser.GetTableDataPath(command)) };
                 }
             }
             

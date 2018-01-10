@@ -287,7 +287,7 @@ namespace R
             var dataFile = Parser.GetTableDataPath(command);
             if (!string.IsNullOrWhiteSpace(dataFile))
             {
-                return CSVToTable.GetTableResult(GetExpandedFilePath(dataFile));
+                return DataFileToTable.GetTableResult(GetExpandedFilePath(dataFile));
             }
 
             // You'll notice that regardless of the type, we convert everything to a string.  This

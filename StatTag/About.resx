@@ -127,7 +127,8 @@ Json.NET - http://www.newtonsoft.com/json
 SASHarness - https://github.com/cjdinger/SasHarness
 R.NET - https://github.com/jmp75/rdotnet
 log4net - https://logging.apache.org/log4net/
-ScintillaNET Find &amp;&amp; Replace - https://github.com/Stumpii/ScintillaNET-FindReplaceDialog</value>
+ScintillaNET Find &amp;&amp; Replace - https://github.com/Stumpii/ScintillaNET-FindReplaceDialog
+EPPlus - https://github.com/JanKallman/EPPlus</value>
   </data>
   <data name="label2.Text" xml:space="preserve">
     <value>StatTag was inspired in part by the Stata Automation Report project:

@@ -109,7 +109,7 @@ namespace SAS
             {
                 if (!string.IsNullOrEmpty(result.TableResultPromise))
                 {
-                    result.TableResult = CSVToTable.GetTableResult(result.TableResultPromise);
+                    result.TableResult = DataFileToTable.GetTableResult(result.TableResultPromise);
                     result.TableResultPromise = null;
                 }
             }
