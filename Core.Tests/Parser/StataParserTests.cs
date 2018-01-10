@@ -269,6 +269,7 @@ namespace Core.Tests.Parser
 
             // Commands with parentheses
             Assert.AreEqual("testing.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.csv, replace)"));
+            Assert.AreEqual("testing.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(  testing.csv , replace)"));
             Assert.AreEqual("testing 2.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(\"testing 2.csv\", replace)"));
 
             // Check for macros
@@ -278,6 +279,10 @@ namespace Core.Tests.Parser
             // Don't forget you can mix paths and macros
             Assert.AreEqual("C:\\`file'", parser.GetTableDataPath("esttab using C:\\`file', replace wide plain"));
             Assert.AreEqual("C:\\data path\\`file'", parser.GetTableDataPath("esttab using \"C:\\data path\\`file'\", replace wide plain"));
+
+            // Special handling for table1 - enforce use of XLSX
+            Assert.AreEqual("testing.xlsx", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.xls, replace)"));
+            Assert.AreEqual("testing.xlsx", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.xlsx, replace)"));
         }
 
         [TestMethod]

@@ -27,13 +27,13 @@ namespace StatTag.Core.Parser
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
         private static readonly Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
         private static readonly Regex MacroRegex = new Regex("`([\\S]*?)'|\\$([\\S]+?\\b)", RegexOptions.Multiline);
-        private static readonly Regex DataFileRegex = new Regex("[\\\\\\/]*(\\.(?:csv|txt|xlsx))", RegexOptions.IgnoreCase);
+        private static readonly Regex DataFileRegex = new Regex("[\\\\\\/]*(\\.(?:csv|txt|xlsx|xls))", RegexOptions.IgnoreCase);
         private const string CommentStart = "/*";
         private const string CommentEnd = "*/";
         private static readonly char[] StartCommandSegmentDelimiters = {' ', ',', '"', '('};
         private static readonly char[] EndCommandSegmentDelimiters = { ' ', ',', '"', ')' };
         private static readonly char[] QuotedSegmentDelimiters = { '"' };
-        //private static readonly Regex TrailingLineComment = new Regex("(?<!\\*)\\/\\/[^\\r\\n]*");
+        private static readonly Regex Table1Regex = new Regex("(?:^|\\s+)table1,", RegexOptions.Multiline);
 
         public class Log
         {
@@ -286,18 +286,33 @@ namespace StatTag.Core.Parser
                     startIndex = 0;
                 }
 
-                return command.Substring(startIndex + 1, (endIndex - startIndex - 1));
+                var result = command.Substring(startIndex + 1, (endIndex - startIndex - 1));
+                if (IsTable1Command(command))
+                {
+                    // We want to force XLS -> XLSX for the table1 command.
+                    if (result.Trim().EndsWith(".xls"))
+                    {
+                        result += "x";
+                    }
+                }
+                return result;
             }
 
-
-            // Now, check for standalone macros.  By doing this last, we should avoid a situation where a path
-            // (enclosed in quotes) has a macro name for the file.  This should detect where just a macro is
-            // used for the file name/path.
-
-
-            // TODO: Finish implementation
             return string.Empty;
-            //return MatchRegexReturnGroup(command, TableWithDataRegex, 1);
+        }
+
+        /// <summary>Detect if the command references the table1 package</summary>
+        /// <remarks>
+        /// This is a very specialized function - we are promoting the use of the table1 package (which is not a core
+        /// Stata command) since it makes generating tables much easier within Stata for StatTag.  Because the
+        /// table1 package only allows exporting to Excel, we created this detection so that we can manipulate it and
+        /// enforce XLSX output (as opposed to legacy XLS).
+        /// </remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        private bool IsTable1Command(string command)
+        {
+            return Table1Regex.IsMatch(command);
         }
 
         public bool IsCalculatedDisplayValue(string command)
