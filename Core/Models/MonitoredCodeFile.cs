@@ -167,5 +167,19 @@ namespace StatTag.Core.Models
                 CodeFileChanged(this, new EventArgs());
             }
         }
+
+        public override void UpdateContent(string text)
+        {
+            StopMonitoring();
+            base.UpdateContent(text);
+            StartMonitoring();
+        }
+
+        public override void Save()
+        {
+            StopMonitoring();
+            base.Save();
+            StartMonitoring();
+        }
     }
 }

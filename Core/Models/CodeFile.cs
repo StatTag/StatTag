@@ -208,7 +208,7 @@ namespace StatTag.Core.Models
         /// <summary>
         /// Save the content to the code file
         /// </summary>
-        public void Save()
+        public virtual void Save()
         {
             if (FilePath != null && Content != null)
             {
@@ -461,7 +461,7 @@ namespace StatTag.Core.Models
         /// content and refreshes the internal cache.
         /// </summary>
         /// <param name="text"></param>
-        public void UpdateContent(string text)
+        public virtual void UpdateContent(string text)
         {
             FileHandler.WriteAllText(FilePath, text);
             LoadTagsFromContent();
