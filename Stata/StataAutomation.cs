@@ -492,7 +492,9 @@ namespace Stata
             {
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                var results = RunCommands(new string[] { "local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'" });
+                var results =
+                    RunCommands(new string[] {"local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'"},
+                        new Tag() {Type = Constants.TagType.Value});
                 if (results != null && results.Length > 0)
                 {
                     var path = results.First().ValueResult;
@@ -514,7 +516,10 @@ namespace Stata
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
         public CommandResult RunCommand(string command, Tag tag = null)
         {
-            if (!IsTrackingVerbatim)
+            // If we are tracking verbatim, we don't do any special tag processing.  Likewise, if we don't have
+            // a tag, we don't want to do any special handling or processing of results.  This way any non-
+            // tagged code is going to go ahead and be executed.
+            if (!IsTrackingVerbatim && tag != null)
             {
                 if (Parser.IsValueDisplay(command))
                 {
@@ -527,7 +532,7 @@ namespace Stata
                 // of result.  If we think we have a data file, we need to execute the command.  That
                 // is why we make two checks within this method for table results, the first one here for
                 // matrix results, and the second one for any table result.
-                if ((tag != null && tag.Type == Constants.TagType.Table) && Parser.IsMatrix(command))
+                if (tag.Type == Constants.TagType.Table && Parser.IsMatrix(command))
                 {
                     return new CommandResult() { TableResult = GetTableResult(command) };
                 }
@@ -559,7 +564,7 @@ namespace Stata
                         command, errorCode, GetStataErrorDescription(errorCode)));
             }
 
-            if (!IsTrackingVerbatim)
+            if (!IsTrackingVerbatim && tag != null)
             {
                 if (Parser.IsImageExport(command))
                 {
@@ -569,7 +574,7 @@ namespace Stata
                 // Because we are being more open what we allow for tables, we are now going
                 // to only allow table results when we have a tag that is a table type.  See above why we
                 // have two checks for table results in this method.
-                if ((tag != null && tag.Type == Constants.TagType.Table) && Parser.IsTableResult(command))
+                if (tag.Type == Constants.TagType.Table && Parser.IsTableResult(command))
                 {
                     return new CommandResult() { TableResultPromise = GetExpandedFilePath(Parser.GetTableDataPath(command)) };
                 }

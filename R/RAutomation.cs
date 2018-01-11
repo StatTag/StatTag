@@ -49,7 +49,7 @@ namespace R
                         var path = Path.GetDirectoryName(file.FilePath);
                         if (!string.IsNullOrEmpty(path))
                         {
-                            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")));  // Escape the path for R
+                            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")), new Tag() { Type = Constants.TagType.Value });  // Escape the path for R
                             State.WorkingDirectorySet = true;
                         }
                     }
@@ -147,25 +147,32 @@ namespace R
                 return null;
             }
 
-            // We take a hint from the tag type to identify tables.  Because of how open R is with its
-            // return of results, a user can just specify a variable and get the result.
-            if (tag != null && tag.Type == Constants.TagType.Table)
+            // If there is no tag associated with the command that was run, we aren't going to bother
+            // parsing and processing the results.  This is for blocks of codes in between tags where
+            // all we need is for the code to run.
+            if (tag != null)
             {
-                return new CommandResult() { TableResult = GetTableResult(command, result)};
-            }
+                // We take a hint from the tag type to identify tables.  Because of how open R is with its
+                // return of results, a user can just specify a variable and get the result.
+                if (tag.Type == Constants.TagType.Table)
+                {
+                    return new CommandResult() { TableResult = GetTableResult(command, result) };
+                }
 
-            // Image comes next, because everything else we will count as a value type.
-            if (Parser.IsImageExport(command))
-            {
-                return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
-            }
+                // Image comes next, because everything else we will count as a value type.
+                if (Parser.IsImageExport(command))
+                {
+                    return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
+                }
 
-            // If we have a value command, we will pull out the last relevant line from the output.
-            // Because we treat every type of output as a possible value result, we are only going
-            // to capture the result if it's flagged as a tag.
-            if (tag != null && tag.Type == Constants.TagType.Value)
-            {
-                return new CommandResult() { ValueResult = GetValueResult(result) };
+                // If we have a value command, we will pull out the last relevant line from the output.
+                // Because we treat every type of output as a possible value result, we are only going
+                // to capture the result if it's flagged as a tag.
+                if (tag.Type == Constants.TagType.Value)
+                {
+                    return new CommandResult() { ValueResult = GetValueResult(result) };
+                }
+                
             }
 
             return null;
