@@ -28,11 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.txtMaxLogFiles = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -49,8 +52,7 @@
             this.cmdStataLocation = new System.Windows.Forms.Button();
             this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
+            this.lblEmptyValueWarning = new System.Windows.Forms.Label();
             this.tabSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabLogging.SuspendLayout();
@@ -110,6 +112,7 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.lblEmptyValueWarning);
             this.tabGeneral.Controls.Add(this.label5);
             this.tabGeneral.Controls.Add(this.missingValueSettings1);
             this.tabGeneral.Controls.Add(this.chkRunCodeOnOpen);
@@ -120,6 +123,25 @@
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(5, 46);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(623, 17);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
+    "ay the missing value using:";
+            // 
+            // missingValueSettings1
+            // 
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // tabLogging
             // 
@@ -309,24 +331,14 @@
             this.label1.TabIndex = 15;
             this.label1.Text = "Stata executable location:";
             // 
-            // label5
+            // lblEmptyValueWarning
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(5, 46);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(623, 17);
-            this.label5.TabIndex = 19;
-            this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
-    "ay the missing value using:";
-            // 
-            // missingValueSettings1
-            // 
-            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
-            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
-            this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
-            this.missingValueSettings1.TabIndex = 18;
+            this.lblEmptyValueWarning.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEmptyValueWarning.Location = new System.Drawing.Point(281, 102);
+            this.lblEmptyValueWarning.Name = "lblEmptyValueWarning";
+            this.lblEmptyValueWarning.Size = new System.Drawing.Size(378, 70);
+            this.lblEmptyValueWarning.TabIndex = 20;
+            this.lblEmptyValueWarning.Text = resources.GetString("lblEmptyValueWarning.Text");
             // 
             // Settings
             // 
@@ -382,5 +394,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label5;
         private Controls.MissingValueSettings missingValueSettings1;
+        private System.Windows.Forms.Label lblEmptyValueWarning;
     }
 }

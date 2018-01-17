@@ -65,5 +65,25 @@ namespace StatTag.Core.Models
         {
             return JsonConvert.DeserializeObject<DocumentMetadata>(value);
         }
+
+        /// <summary>
+        /// Take our settings for how missing values are to be represented, and convert them into
+        /// a text representation that can be used in the user interface.
+        /// </summary>
+        /// <returns></returns>
+        public string GetMissingValueReplacementAsString()
+        {
+            switch (RepresentMissingValues)
+            {
+                case Constants.MissingValueOption.BlankString:
+                    return "an empty (blank) string";
+                case Constants.MissingValueOption.StatPackageDefault:
+                    return "the statistical program's default";
+                case Constants.MissingValueOption.CustomValue:
+                    return string.Format("'{0}'", CustomMissingValue);
+                default:
+                    return "an unspecified value";
+            }
+        }
     }
 }

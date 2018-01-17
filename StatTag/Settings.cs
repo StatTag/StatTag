@@ -16,16 +16,21 @@ namespace StatTag
     {
         private const string ExecutableFileFilter = "Application Executable|*.exe";
         private const string LogFileFilter = "Log File|*.log";
+
+        private const string BlankValueLabelTemplate =
+            "Note: The current document is set to use [BLANK_VALUE] for missing values.  Changes made here will affect new documents, but not the current document.  The setting for the current document can be changed under \"Document Properties\".";
         
         public Core.Models.UserSettings Properties { get; set; }
         private LogManager Logger { get; set; }
+        private DocumentManager Manager { get; set; }
 
-        public Settings(Core.Models.UserSettings properties)
+        public Settings(Core.Models.UserSettings properties, DocumentManager manager)
         {
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
             UIUtility.ScaleFont(this);
             Properties = properties;
+            Manager = manager;
             MinimumSize = Size;
             Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
@@ -66,9 +71,31 @@ namespace StatTag
                 Core.Models.UserSettings.MaxLogFilesDefault);
             missingValueSettings1.SetMissingValuesSelection(Properties.RepresentMissingValues);
             missingValueSettings1.SetCustomMissingValueString(Properties.CustomMissingValue);
+
+            missingValueSettings1.ValueChanged += missingValueSettings_Changed;
             
             UpdateLoggingControls();
             UpdateStataControls();
+            UpdateMissingValueControls();
+        }
+
+        private void missingValueSettings_Changed(object sender, EventArgs e)
+        {
+            UpdateMissingValueControls();
+        }
+
+        private void UpdateMissingValueControls()
+        {
+            var documentMetadata = Manager.LoadMetadataFromCurrentDocument(false);
+            var customMissingValue = missingValueSettings1.GetCustomMissingValueString();
+            var representMissingValues = missingValueSettings1.GetMissingValuesSelection();
+            lblEmptyValueWarning.Visible = false;
+            if (documentMetadata != null && (!representMissingValues.Equals(documentMetadata.RepresentMissingValues)
+                || (representMissingValues.Equals(Constants.MissingValueOption.CustomValue) && !customMissingValue.Equals(documentMetadata.CustomMissingValue))))
+            {
+                lblEmptyValueWarning.Text = BlankValueLabelTemplate.Replace("[BLANK_VALUE]", documentMetadata.GetMissingValueReplacementAsString());
+                lblEmptyValueWarning.Visible = true;
+            }
         }
 
         private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
@@ -143,7 +170,7 @@ namespace StatTag
             Properties.RunCodeOnOpen = chkRunCodeOnOpen.Checked;
             Properties.MaxLogFileSize = ((uint)(txtMaxLogSize.Value * Constants.BytesToMegabytesConversion));
             Properties.MaxLogFiles = (uint)txtMaxLogFiles.Value;
-            Properties.CustomMissingValue = missingValueSettings1.GetCustomMissingValueString(); //txtMissingValueString.Text;
+            Properties.CustomMissingValue = missingValueSettings1.GetCustomMissingValueString();
             Properties.RepresentMissingValues = missingValueSettings1.GetMissingValuesSelection();
 
             if (Properties.EnableLogging && !Logger.IsValidLogPath(Properties.LogLocation))

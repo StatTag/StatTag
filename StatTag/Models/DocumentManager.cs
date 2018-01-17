@@ -137,6 +137,12 @@ namespace StatTag.Models
             Log("SaveMetadataToDocument - Finished");
         }
 
+        public DocumentMetadata LoadMetadataFromCurrentDocument(bool createIfEmpty)
+        {
+            var document = Globals.ThisAddIn.SafeGetActiveDocument();
+            return LoadMetadataFromDocument(document, createIfEmpty);
+        }
+
 
         /// <summary>
         /// Loads associated metadata about StatTag from the properties in the supplied document.

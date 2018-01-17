@@ -192,7 +192,7 @@ namespace StatTag
         {
             try
             {
-                SettingsDialog = new Settings(SettingsManager.Settings);
+                SettingsDialog = new Settings(SettingsManager.Settings, Manager);
                 if (DialogResult.OK == SettingsDialog.ShowDialog())
                 {
                     SettingsManager.Settings = SettingsDialog.Properties;

@@ -13,6 +13,8 @@ namespace StatTag.Controls
 {
     public partial class MissingValueSettings : UserControl
     {
+        public event EventHandler ValueChanged;
+
         public MissingValueSettings()
         {
             InitializeComponent();
@@ -106,6 +108,11 @@ namespace StatTag.Controls
                 // buttons are selected after a select event, we will force the
                 // selection to the first item by default.
                 radMissingValueStatDefault.Checked = true;
+            }
+
+            if (ValueChanged != null)
+            {
+                ValueChanged(this, new EventArgs());
             }
         }
     }
