@@ -378,14 +378,13 @@ namespace Stata
             // process them directly, so our workaround is to introduce a local macro to process the
             // calculcation, and then use the downstream macro result handler to pull out the result.
             // This will work even if the same local macro is defined multiple times in the same
-            // execution.
-            if (Parser.IsCalculatedDisplayValue(command))
-            {
-                name = Parser.GetValueName(command);
-                command = string.Format("local {0} = {1}", StatTagTempMacroName, name);
-                RunCommand(command);
-                command = string.Format("display `{0}'", StatTagTempMacroName);
-            }
+            // execution.  In version 3.2, we introduced this step for ALL display values.  While it
+            // is admittedly some execution overhead, it saves time (and potential errors) trying to
+            // parse every command to see if it's a calculation or system variable (e.g., _pi, _N, _b[val]).
+            name = Parser.GetValueName(command);
+            command = string.Format("local {0} = {1}", StatTagTempMacroName, name);
+            RunCommand(command);
+            command = string.Format("display `{0}'", StatTagTempMacroName);
 
             if (Parser.IsMacroDisplayValue(command))
             {
