@@ -12,6 +12,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Office.Core;
 using StatTag.Core;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
@@ -1339,10 +1340,17 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            var monitoredCodeFile = new MonitoredCodeFile(file);
-            monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
-            files.Add(monitoredCodeFile);
-            Log(string.Format("Added code file {0}", fileName));
+            try
+            {
+                var monitoredCodeFile = new MonitoredCodeFile(file);
+                monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+                files.Add(monitoredCodeFile);
+                Log(string.Format("Added code file {0}", fileName));
+            }
+            catch (Exception exc)
+            {
+                throw new FileMonitoringException(fileName, exc);
+            }
         }
 
         /// <summary>
@@ -1444,9 +1452,16 @@ namespace StatTag.Models
             var managedFiles = new List<MonitoredCodeFile>();
             foreach (var file in files)
             {
-                var monitoredCodeFile = new MonitoredCodeFile(file);
-                monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
-                managedFiles.Add(monitoredCodeFile);
+                try
+                {
+                    var monitoredCodeFile = new MonitoredCodeFile(file);
+                    monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+                    managedFiles.Add(monitoredCodeFile);
+                }
+                catch (Exception exc)
+                {
+                    throw new FileMonitoringException(file.FilePath, exc);
+                }
             }
             DocumentCodeFiles[document.FullName] = managedFiles;
         }

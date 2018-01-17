@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Utility;
 
 namespace StatTag.Core.Models

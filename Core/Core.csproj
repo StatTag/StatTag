@@ -107,6 +107,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\FileMonitoringException.cs" />
     <Compile Include="Factories.cs" />
     <Compile Include="Generator\BaseGenerator.cs" />
     <Compile Include="Generator\BaseParameterGenerator.cs" />
@@ -135,7 +136,7 @@
     <Compile Include="Models\UserSettings.cs" />
     <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\StatPackageState.cs" />
-    <Compile Include="Models\StatTagUserException.cs" />
+    <Compile Include="Exceptions\StatTagUserException.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using StatTag.Core;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using StatTag.Models;
