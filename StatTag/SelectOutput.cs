@@ -53,7 +53,8 @@ namespace StatTag
             {
                 lvwOutput.Items.Clear();
 
-                foreach (var tag in Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                var filteredTags = Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0).OrderBy(x => x.LineStart);
+                foreach (var tag in filteredTags)
                 {
                     var item = lvwOutput.Items.Add(tag.Name);
                     item.SubItems.AddRange(new[] {tag.CodeFile.FilePath});
