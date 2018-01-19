@@ -56,6 +56,17 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Deserialize_WithNullValues()
+        {
+            var metadata = DocumentMetadata.Deserialize("{\"MetadataFormatVersion\":\"1.0.0\",\"TagFormatVersion\":\"1.0.0\",\"StatTagVersion\":\"StatTag v3.1.0\",\"RepresentMissingValues\":null,\"CustomMissingValue\":null}");
+            Assert.AreEqual("StatTag v3.1.0", metadata.StatTagVersion);
+            Assert.AreEqual("1.0.0", metadata.MetadataFormatVersion);
+            Assert.AreEqual("1.0.0", metadata.TagFormatVersion);
+            Assert.IsNull(metadata.RepresentMissingValues);
+            Assert.IsNull(metadata.CustomMissingValue);
+        }
+
+        [TestMethod]
         public void Deserialize_ExtraFields()
         {
             // Ensure deserializing works with extra fields in there
