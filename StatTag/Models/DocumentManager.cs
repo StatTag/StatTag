@@ -1494,7 +1494,8 @@ namespace StatTag.Models
                 foreach (var codeFile in codeFiles)
                 {
                     codeFile.StopMonitoring();
-                    codeFile.RefreshContent();
+                    codeFile.LoadTagsFromContent();
+                    codeFile.ChangeHistory.Clear();  // We have reloaded the code file, so clear out any outstanding changes.
                     codeFile.StartMonitoring();
                 }
             }
