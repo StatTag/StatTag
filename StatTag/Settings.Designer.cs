@@ -34,8 +34,8 @@
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.lblEmptyValueWarning = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.txtMaxLogFiles = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -52,7 +52,7 @@
             this.cmdStataLocation = new System.Windows.Forms.Button();
             this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.lblEmptyValueWarning = new System.Windows.Forms.Label();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabLogging.SuspendLayout();
@@ -124,6 +124,15 @@
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
             // 
+            // lblEmptyValueWarning
+            // 
+            this.lblEmptyValueWarning.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEmptyValueWarning.Location = new System.Drawing.Point(281, 102);
+            this.lblEmptyValueWarning.Name = "lblEmptyValueWarning";
+            this.lblEmptyValueWarning.Size = new System.Drawing.Size(378, 70);
+            this.lblEmptyValueWarning.TabIndex = 20;
+            this.lblEmptyValueWarning.Text = resources.GetString("lblEmptyValueWarning.Text");
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -133,15 +142,6 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
     "ay the missing value using:";
-            // 
-            // missingValueSettings1
-            // 
-            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
-            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
-            this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
-            this.missingValueSettings1.TabIndex = 18;
             // 
             // tabLogging
             // 
@@ -331,14 +331,14 @@
             this.label1.TabIndex = 15;
             this.label1.Text = "Stata executable location:";
             // 
-            // lblEmptyValueWarning
+            // missingValueSettings1
             // 
-            this.lblEmptyValueWarning.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblEmptyValueWarning.Location = new System.Drawing.Point(281, 102);
-            this.lblEmptyValueWarning.Name = "lblEmptyValueWarning";
-            this.lblEmptyValueWarning.Size = new System.Drawing.Size(378, 70);
-            this.lblEmptyValueWarning.TabIndex = 20;
-            this.lblEmptyValueWarning.Text = resources.GetString("lblEmptyValueWarning.Text");
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // Settings
             // 
@@ -354,7 +354,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Settings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Settings";
+            this.Text = "User Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
             this.tabSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
