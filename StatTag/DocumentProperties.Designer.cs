@@ -33,8 +33,6 @@
             this.lblMissingValueInformation = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
-            this.pnlMissingValues = new System.Windows.Forms.Panel();
-            this.pnlMissingValues.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -62,41 +60,31 @@
             // 
             // lblMissingValueInformation
             // 
-            this.lblMissingValueInformation.AutoSize = true;
-            this.lblMissingValueInformation.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMissingValueInformation.Location = new System.Drawing.Point(9, 9);
+            this.lblMissingValueInformation.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMissingValueInformation.Location = new System.Drawing.Point(281, 55);
             this.lblMissingValueInformation.Name = "lblMissingValueInformation";
-            this.lblMissingValueInformation.Size = new System.Drawing.Size(235, 17);
+            this.lblMissingValueInformation.Size = new System.Drawing.Size(280, 66);
             this.lblMissingValueInformation.TabIndex = 14;
             this.lblMissingValueInformation.Text = "[Placeholder for informational messages]";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(-3, 0);
+            this.label5.Location = new System.Drawing.Point(12, 9);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(549, 17);
-            this.label5.TabIndex = 15;
+            this.label5.TabIndex = 17;
             this.label5.Text = "For this document, if a table has a missing value (empty cell), display the missi" +
     "ng value using:";
             // 
             // missingValueSettings1
             // 
             this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(12, 20);
+            this.missingValueSettings1.Location = new System.Drawing.Point(27, 29);
             this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
             this.missingValueSettings1.Name = "missingValueSettings1";
             this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
-            this.missingValueSettings1.TabIndex = 16;
-            // 
-            // pnlMissingValues
-            // 
-            this.pnlMissingValues.Controls.Add(this.missingValueSettings1);
-            this.pnlMissingValues.Controls.Add(this.label5);
-            this.pnlMissingValues.Location = new System.Drawing.Point(9, 9);
-            this.pnlMissingValues.Name = "pnlMissingValues";
-            this.pnlMissingValues.Size = new System.Drawing.Size(551, 100);
-            this.pnlMissingValues.TabIndex = 17;
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // DocumentProperties
             // 
@@ -106,8 +94,9 @@
             this.CancelButton = this.cmdCancel;
             this.CausesValidation = false;
             this.ClientSize = new System.Drawing.Size(575, 174);
-            this.Controls.Add(this.pnlMissingValues);
             this.Controls.Add(this.lblMissingValueInformation);
+            this.Controls.Add(this.missingValueSettings1);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.cmdOK);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F);
@@ -117,8 +106,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Document Properties";
             this.Shown += new System.EventHandler(this.DocumentProperties_Shown);
-            this.pnlMissingValues.ResumeLayout(false);
-            this.pnlMissingValues.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -129,8 +116,7 @@
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.Label lblMissingValueInformation;
-        private System.Windows.Forms.Label label5;
         private Controls.MissingValueSettings missingValueSettings1;
-        private System.Windows.Forms.Panel pnlMissingValues;
+        private System.Windows.Forms.Label label5;
     }
 }

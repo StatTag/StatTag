@@ -9,12 +9,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Word;
+using StatTag.Core.Models;
 using StatTag.Models;
 
 namespace StatTag
 {
     public sealed partial class DocumentProperties : Form
     {
+        private const string BlankValueLabelTemplate =
+            "Note: The current document will use a different placeholder for missing values than your user settings, which are set to [BLANK_VALUE].";
+
         private Document ActiveDocument { get; set; }
         private DocumentManager Manager { get; set; }
 
@@ -33,6 +37,30 @@ namespace StatTag
 
             ActiveDocument = document;
             Manager = manager;
+
+            missingValueSettings1.ValueChanged += MissingValueSettings_OnValueChanged;
+        }
+
+        private void MissingValueSettings_OnValueChanged(object sender, EventArgs eventArgs)
+        {
+            UpdateMissingValueControls();
+        }
+
+        private void UpdateMissingValueControls()
+        {
+            var settings = Manager.SettingsManager.Settings;
+            var customMissingValue = missingValueSettings1.GetCustomMissingValueString();
+            var representMissingValues = missingValueSettings1.GetMissingValuesSelection();
+            lblMissingValueInformation.Visible = false;
+            if (settings != null && (!representMissingValues.Equals(settings.RepresentMissingValues)
+                                     ||
+                                     (representMissingValues.Equals(Constants.MissingValueOption.CustomValue) &&
+                                      !customMissingValue.Equals(settings.CustomMissingValue))))
+            {
+                lblMissingValueInformation.Text = BlankValueLabelTemplate.Replace("[BLANK_VALUE]",
+                    DocumentMetadata.GetMissingValueReplacementAsString(settings.RepresentMissingValues, settings.CustomMissingValue));
+                lblMissingValueInformation.Visible = true;
+            }
         }
 
         private void InitializeProperites()
@@ -42,9 +70,6 @@ namespace StatTag
             // If there is no metadata, inform the user that we are using the default settings
             if (metadata == null)
             {
-                lblMissingValueInformation.Text = "This document has been set to use your default user settings.";
-                lblMissingValueInformation.Visible = true;
-
                 var settings = Manager.SettingsManager.Settings;
                 missingValueSettings1.SetMissingValuesSelection(settings.RepresentMissingValues);
                 missingValueSettings1.SetCustomMissingValueString(settings.CustomMissingValue);
@@ -55,43 +80,6 @@ namespace StatTag
                 var settings = Manager.SettingsManager.Settings;
                 missingValueSettings1.SetMissingValuesSelection(metadata.RepresentMissingValues);
                 missingValueSettings1.SetCustomMissingValueString(metadata.CustomMissingValue);
-
-                if (!settings.RepresentMissingValues.Equals(metadata.RepresentMissingValues))
-                {
-                    lblMissingValueInformation.Text =
-                        "Note: The document properties are different than your default user settings.";
-                    lblMissingValueInformation.Visible = true;
-                }
-                else
-                {
-                    lblMissingValueInformation.Text = string.Empty;
-                    lblMissingValueInformation.Visible = false;
-                }
-            }
-
-            ResizeDialogForInformationalMessages();
-        }
-
-        private void ResizeDialogForInformationalMessages()
-        {
-            if (lblMissingValueInformation.Visible)
-            {
-                // Only adjust things if the default layout is the current state
-                if (pnlMissingValues.Top == lblMissingValueInformation.Top)
-                {
-                    pnlMissingValues.Top = lblMissingValueInformation.Bottom + lblMissingValueInformation.Margin.Bottom;
-                    this.Height = this.Height + lblMissingValueInformation.Height +
-                                  lblMissingValueInformation.Margin.Bottom;
-                    this.MinimumSize = this.Size;
-                }
-            }
-            else
-            {
-                // Only adjust things if the default layout is not the current state
-                if (pnlMissingValues.Top != lblMissingValueInformation.Top)
-                {
-                    pnlMissingValues.Top = lblMissingValueInformation.Top;
-                }
             }
         }
 
