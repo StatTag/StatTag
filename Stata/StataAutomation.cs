@@ -4,11 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -534,6 +530,27 @@ namespace Stata
                 if (tag.Type == Constants.TagType.Table && Parser.IsMatrix(command))
                 {
                     return new CommandResult() { TableResult = GetTableResult(command) };
+                }
+            }
+
+            // Additional special handling for table1.  In order to force the output of table1 to be an XLSX file,
+            // we need to trap its creation.  Here we detect if it looks like a non-XLSX file extension (with two
+            // common types - this is not an exhaustive list) and change the command appropriately.
+            if (!IsTrackingVerbatim && tag != null && tag.Type == Constants.TagType.Table &&
+                Parser.IsTableResult(command) && Parser.IsTable1Command(command))
+            {
+                var result = Parser.GetTableDataPath(command);
+                // We want to force XLS -> XLSX for the table1 command, and will convert CSV (which isn't valid, but people can still do it) to XLSX.
+                // Since the command has already run, we do have an extra step to rename the file to the extension we want.  Keeping in mind that the
+                // table1 can only create Excel files, so we are allowed to make assumptions about formats.
+                if (result.EndsWith(".xls"))
+                {
+                    command = command.Replace(result, result + "x");
+                }
+                else if (result.EndsWith(".csv"))
+                {
+                    var newFile = result.Substring(0, result.Length - 4) + ".xlsx";
+                    command = command.Replace(result, newFile);
                 }
             }
 

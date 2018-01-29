@@ -33,7 +33,7 @@ namespace StatTag.Core.Parser
         private static readonly char[] StartCommandSegmentDelimiters = {' ', ',', '"', '('};
         private static readonly char[] EndCommandSegmentDelimiters = { ' ', ',', '"', ')' };
         private static readonly char[] QuotedSegmentDelimiters = { '"' };
-        private static readonly Regex Table1Regex = new Regex("(?:^|\\s+)table1,", RegexOptions.Multiline);
+        private static readonly Regex Table1Regex = new Regex("(?:^|\\s+)table1\\s*,", RegexOptions.Multiline);
 
         public class Log
         {
@@ -286,16 +286,7 @@ namespace StatTag.Core.Parser
                     startIndex = 0;
                 }
 
-                var result = command.Substring(startIndex + 1, (endIndex - startIndex - 1));
-                if (IsTable1Command(command))
-                {
-                    // We want to force XLS -> XLSX for the table1 command.
-                    if (result.Trim().EndsWith(".xls"))
-                    {
-                        result += "x";
-                    }
-                }
-                return result;
+                return command.Substring(startIndex + 1, (endIndex - startIndex - 1)).Trim();
             }
 
             return string.Empty;
@@ -310,7 +301,7 @@ namespace StatTag.Core.Parser
         /// </remarks>
         /// <param name="command"></param>
         /// <returns></returns>
-        private bool IsTable1Command(string command)
+        public bool IsTable1Command(string command)
         {
             return Table1Regex.IsMatch(command);
         }

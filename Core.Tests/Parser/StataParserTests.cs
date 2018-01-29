@@ -279,10 +279,16 @@ namespace Core.Tests.Parser
             // Don't forget you can mix paths and macros
             Assert.AreEqual("C:\\`file'", parser.GetTableDataPath("esttab using C:\\`file', replace wide plain"));
             Assert.AreEqual("C:\\data path\\`file'", parser.GetTableDataPath("esttab using \"C:\\data path\\`file'\", replace wide plain"));
+        }
 
-            // Special handling for table1 - enforce use of XLSX
-            Assert.AreEqual("testing.xlsx", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.xls, replace)"));
-            Assert.AreEqual("testing.xlsx", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.xlsx, replace)"));
+        [TestMethod]
+        public void IsTable1Command()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.IsTable1Command("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(table1.xls, replace)"));
+            Assert.IsTrue(parser.IsTable1Command("table1 ,  vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(table1.xls, replace)"));
+            Assert.IsFalse(parser.IsTable1Command("esttab using table1.csv, replace wide plain"));
+            Assert.IsFalse(parser.IsTable1Command("esttab using $table1, replace wide plain"));
         }
 
         [TestMethod]
