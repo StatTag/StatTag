@@ -154,9 +154,9 @@
             this.tabLogging.Controls.Add(this.chkEnableLogging);
             this.tabLogging.Controls.Add(this.cmdLogLocation);
             this.tabLogging.Controls.Add(this.txtLogLocation);
-            this.tabLogging.Location = new System.Drawing.Point(4, 22);
+            this.tabLogging.Location = new System.Drawing.Point(4, 26);
             this.tabLogging.Name = "tabLogging";
-            this.tabLogging.Size = new System.Drawing.Size(665, 201);
+            this.tabLogging.Size = new System.Drawing.Size(665, 197);
             this.tabLogging.TabIndex = 2;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -246,6 +246,7 @@
             this.chkEnableLogging.TabIndex = 19;
             this.chkEnableLogging.Text = "Enable the debug text file:";
             this.chkEnableLogging.UseVisualStyleBackColor = true;
+            this.chkEnableLogging.Click += new System.EventHandler(this.chkEnableLogging_CheckedChanged);
             // 
             // cmdLogLocation
             // 
@@ -257,6 +258,7 @@
             this.cmdLogLocation.TabIndex = 18;
             this.cmdLogLocation.Text = "...";
             this.cmdLogLocation.UseVisualStyleBackColor = true;
+            this.cmdLogLocation.Click += new System.EventHandler(this.cmdLogLocation_Click);
             // 
             // txtLogLocation
             // 
@@ -267,6 +269,7 @@
             this.txtLogLocation.Name = "txtLogLocation";
             this.txtLogLocation.Size = new System.Drawing.Size(594, 25);
             this.txtLogLocation.TabIndex = 17;
+            this.txtLogLocation.TextChanged += new System.EventHandler(this.txtLogLocation_TextChanged);
             // 
             // tabStata
             // 
@@ -275,10 +278,10 @@
             this.tabStata.Controls.Add(this.cmdStataLocation);
             this.tabStata.Controls.Add(this.txtStataLocation);
             this.tabStata.Controls.Add(this.label1);
-            this.tabStata.Location = new System.Drawing.Point(4, 22);
+            this.tabStata.Location = new System.Drawing.Point(4, 26);
             this.tabStata.Name = "tabStata";
             this.tabStata.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStata.Size = new System.Drawing.Size(665, 201);
+            this.tabStata.Size = new System.Drawing.Size(665, 197);
             this.tabStata.TabIndex = 1;
             this.tabStata.Text = "Stata";
             this.tabStata.UseVisualStyleBackColor = true;
@@ -292,6 +295,7 @@
             this.cmdDisableStataAutomation.TabIndex = 19;
             this.cmdDisableStataAutomation.Text = "Disable Automation";
             this.cmdDisableStataAutomation.UseVisualStyleBackColor = true;
+            this.cmdDisableStataAutomation.Click += new System.EventHandler(this.cmdDisableStataAutomation_Click);
             // 
             // cmdRegisterStataAutomation
             // 
@@ -302,6 +306,7 @@
             this.cmdRegisterStataAutomation.TabIndex = 18;
             this.cmdRegisterStataAutomation.Text = "Enable Automation";
             this.cmdRegisterStataAutomation.UseVisualStyleBackColor = true;
+            this.cmdRegisterStataAutomation.Click += new System.EventHandler(this.cmdRegisterStataAutomation_Click);
             // 
             // cmdStataLocation
             // 
@@ -312,6 +317,7 @@
             this.cmdStataLocation.TabIndex = 17;
             this.cmdStataLocation.Text = "...";
             this.cmdStataLocation.UseVisualStyleBackColor = true;
+            this.cmdStataLocation.Click += new System.EventHandler(this.cmdStataLocation_Click);
             // 
             // txtStataLocation
             // 

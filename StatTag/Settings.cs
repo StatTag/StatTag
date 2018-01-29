@@ -187,8 +187,11 @@ namespace StatTag
 
         private void UpdateLoggingControls()
         {
-            cmdLogLocation.Enabled = chkEnableLogging.Checked;
-            txtLogLocation.Enabled = chkEnableLogging.Checked;
+            bool enableControls = chkEnableLogging.Checked;
+            cmdLogLocation.Enabled = enableControls;
+            txtLogLocation.Enabled = enableControls;
+            txtMaxLogFiles.Enabled = enableControls;
+            txtMaxLogSize.Enabled = enableControls;
         }
 
         private void cmdLogLocation_Click(object sender, EventArgs e)
