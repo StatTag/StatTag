@@ -218,17 +218,22 @@ namespace StatTag
 
         private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
         {
-            UpdateOutputDialog = new UpdateOutput(Manager.GetTags());
-            if (DialogResult.OK != UpdateOutputDialog.ShowDialog())
-            {
-                return;
-            }
-
-            var tags = UpdateOutputDialog.SelectedTags;
-            Cursor.Current = Cursors.WaitCursor;
-            Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
+                UpdateOutputDialog = new UpdateOutput(Manager.GetTags());
+                if (DialogResult.OK != UpdateOutputDialog.ShowDialog())
+                {
+                    return;
+                }
+
+                var tags = UpdateOutputDialog.SelectedTags;
+
+                // Clear the dialog object once we no longer need it.  This allows us to better track which
+                // dialogs are active and open.
+                UpdateOutputDialog = null;
+                Cursor.Current = Cursors.WaitCursor;
+                Globals.ThisAddIn.Application.ScreenUpdating = false;
+                
                 // First, go through and update all of the code files to ensure we have all
                 // refreshed tags.
                 var refreshedFiles = new List<CodeFile>();
@@ -266,6 +271,9 @@ namespace StatTag
             {
                 Globals.ThisAddIn.Application.ScreenUpdating = true;
                 Cursor.Current = Cursors.Default;
+
+                // First, go through and update all of the code files to ensure we have all
+                // refreshed tags.
                 UpdateOutputDialog = null;
             }
         }
@@ -319,9 +327,16 @@ namespace StatTag
         /// <param name="dialog">The dialog/form to be closed</param>
         private void ManageCloseDialog(Form dialog)
         {
-            if (dialog != null && !dialog.IsDisposed)
+            try
             {
-                dialog.Invoke((MethodInvoker)(dialog.Close));
+                if (dialog != null && !dialog.IsDisposed)
+                {
+                    dialog.Invoke((MethodInvoker) (dialog.Close));
+                }
+            }
+            catch (Exception exc)
+            {
+                // For now we are eating the exception.
             }
         }
 

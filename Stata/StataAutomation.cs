@@ -492,7 +492,7 @@ namespace Stata
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
                 var results =
-                    RunCommands(new string[] {"local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'"},
+                    RunCommands(new string[] { "display \"`c(pwd)'\"" },
                         new Tag() {Type = Constants.TagType.Value});
                 if (results != null && results.Length > 0)
                 {
