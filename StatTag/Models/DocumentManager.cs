@@ -431,12 +431,13 @@ namespace StatTag.Models
         /// If the shape can be updated, we will process the update.
         /// </summary>
         /// <param name="document"></param>
-        private void UpdateInlineShapes(Document document)
+        private List<string> UpdateInlineShapes(Document document)
         {
+            var pathsNotUpdated = new List<string>();
             var shapes = document.InlineShapes;
             if (shapes == null)
             {
-                return;
+                return pathsNotUpdated;
             }
 
             int shapesCount = shapes.Count;
@@ -448,15 +449,42 @@ namespace StatTag.Models
                     var linkFormat = shape.LinkFormat;
                     if (linkFormat != null)
                     {
-                        linkFormat.Update();
-                        Marshal.ReleaseComObject(linkFormat);
-                    }
+                        // Attempt to update the linked file.  If it fails / throws an exception, catch that
+                        // and track the image file path that did not update.
+                        try
+                        {
+                            linkFormat.Update();
+                        }
+                        catch
+                        {
+                            string fileName = string.Empty;
+                            try
+                            {
+                                fileName = linkFormat.SourceFullName;
+                            }
+                            catch
+                            {
+                                // If we can't safely get the name, we will just provide a generic name.
+                                fileName = "Additional image(s) (unable to access their file names)";
+                            }
 
+                            if (!pathsNotUpdated.Contains(fileName))
+                            {
+                                pathsNotUpdated.Add(fileName);
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(linkFormat);
+                        }
+                    }
                     Marshal.ReleaseComObject(shape);
                 }
             }
 
             Marshal.ReleaseComObject(shapes);
+
+            return pathsNotUpdated;
         }
 
         /// <summary>
@@ -530,6 +558,7 @@ namespace StatTag.Models
             var document = application.ActiveDocument;
             Cursor.Current = Cursors.WaitCursor;
             application.ScreenUpdating = false;
+            List<string> shapesNotUpdated = null;
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
@@ -543,7 +572,7 @@ namespace StatTag.Models
                     }
                 }
 
-                UpdateInlineShapes(document);
+                shapesNotUpdated = UpdateInlineShapes(document);
 
                 UpdateVerbatimEntries(document, tagUpdatePair);
                 
@@ -604,6 +633,13 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(document);
                 Cursor.Current = Cursors.Default;
                 application.ScreenUpdating = true;
+            }
+
+            // Report this as an exception AFTER all of the fields have been updated.
+            if (shapesNotUpdated != null && shapesNotUpdated.Count > 0)
+            {
+                throw new StatTagUserException(string.Format("StatTag was unable to find the following figure(s), and so they could not be updated in the document.  You will need to delete each figure from Word and re-add it:\r\n\r\n{0}",
+                    string.Join("\r\n", shapesNotUpdated)));
             }
 
             Log("UpdateFields - Finished");

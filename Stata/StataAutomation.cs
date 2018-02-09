@@ -29,6 +29,8 @@ namespace Stata
 
         public const string EndLoggingCommand = "log close";
 
+        public const string DisplayWorkingDirectoryCommand = "display \"`c(pwd)'\"";
+
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
         public const string UnregisterParameter = "/Unregister";
@@ -488,7 +490,7 @@ namespace Stata
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
                 var results =
-                    RunCommands(new string[] { "display \"`c(pwd)'\"" },
+                    RunCommands(new string[] { DisplayWorkingDirectoryCommand },
                         new Tag() {Type = Constants.TagType.Value});
                 if (results != null && results.Length > 0)
                 {

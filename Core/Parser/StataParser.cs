@@ -179,7 +179,7 @@ namespace StatTag.Core.Parser
         /// </summary>
         /// <remarks>Stata's API has special handling for accessing matrices.  To account for this, we need to detect commands
         /// that create/access a matrix result.  That tells the rest of the StatTag code to use the API to get results.  This
-        /// is required different handling from referencing a data file on disk.</remarks>
+        /// requires different handling from referencing a data file on disk.</remarks>
         /// <param name="command"></param>
         /// <returns></returns>
         public bool IsMatrix(string command)
