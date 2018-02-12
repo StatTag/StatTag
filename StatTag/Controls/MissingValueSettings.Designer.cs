@@ -44,6 +44,7 @@
             // radMissingValueBlankString
             // 
             this.radMissingValueBlankString.AutoSize = true;
+            this.radMissingValueBlankString.Checked = true;
             this.radMissingValueBlankString.Location = new System.Drawing.Point(1, 23);
             this.radMissingValueBlankString.Margin = new System.Windows.Forms.Padding(1);
             this.radMissingValueBlankString.Name = "radMissingValueBlankString";
@@ -62,7 +63,6 @@
             this.radMissingValueCustomString.Name = "radMissingValueCustomString";
             this.radMissingValueCustomString.Size = new System.Drawing.Size(138, 21);
             this.radMissingValueCustomString.TabIndex = 12;
-            this.radMissingValueCustomString.TabStop = true;
             this.radMissingValueCustomString.Text = "The following value";
             this.radMissingValueCustomString.UseVisualStyleBackColor = true;
             this.radMissingValueCustomString.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
@@ -75,7 +75,6 @@
             this.radMissingValueStatDefault.Name = "radMissingValueStatDefault";
             this.radMissingValueStatDefault.Size = new System.Drawing.Size(391, 21);
             this.radMissingValueStatDefault.TabIndex = 11;
-            this.radMissingValueStatDefault.TabStop = true;
             this.radMissingValueStatDefault.Text = "The statistical program\'s default (R = \'NA\', SAS = \'.\', Stata = \'.\')";
             this.radMissingValueStatDefault.UseVisualStyleBackColor = true;
             this.radMissingValueStatDefault.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);

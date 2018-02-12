@@ -47,14 +47,13 @@ namespace StatTag.Controls
             {
                 return Constants.MissingValueOption.CustomValue;
             }
-            else if (radMissingValueBlankString.Checked)
+            else if (radMissingValueStatDefault.Checked)
             {
-                return Constants.MissingValueOption.BlankString;
+                return Constants.MissingValueOption.StatPackageDefault;
             }
 
-            // For previous versions, or just as a last restort, our default is
-            // to use the statistical package default value.
-            return Constants.MissingValueOption.StatPackageDefault;
+            // Our default is to use a blank string.
+            return Constants.MissingValueOption.BlankString;
         }
 
         /// <summary>
@@ -70,13 +69,13 @@ namespace StatTag.Controls
                 {
                     radMissingValueCustomString.Checked = true;
                 }
-                else if (value.Equals(Constants.MissingValueOption.BlankString, StringComparison.CurrentCultureIgnoreCase))
+                else if (value.Equals(Constants.MissingValueOption.StatPackageDefault, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    radMissingValueBlankString.Checked = true;
+                    radMissingValueStatDefault.Checked = true;
                 }
                 else
                 {
-                    radMissingValueStatDefault.Checked = true;
+                    radMissingValueBlankString.Checked = true;
                 }
             }
 

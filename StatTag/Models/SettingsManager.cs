@@ -130,7 +130,7 @@ namespace StatTag.Models
             Settings.MaxLogFileSize = GetULongValue(key, MaxLogFileSize, Core.Models.UserSettings.MaxLogFileSizeDefault);
             Settings.MaxLogFiles = GetULongValue(key, MaxLogFiles, Core.Models.UserSettings.MaxLogFilesDefault);
             Settings.RepresentMissingValues =
-                key.GetValue(MissingValuesOption, Constants.MissingValueOption.StatPackageDefault).ToString();
+                key.GetValue(MissingValuesOption, Constants.MissingValueOption.BlankString).ToString();
             Settings.CustomMissingValue = key.GetValue(MissingValuesCustomValue, string.Empty).ToString();
         }
     }

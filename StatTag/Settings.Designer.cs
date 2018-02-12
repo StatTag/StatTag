@@ -36,6 +36,7 @@
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.lblEmptyValueWarning = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.txtMaxLogFiles = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -52,7 +53,6 @@
             this.cmdStataLocation = new System.Windows.Forms.Button();
             this.txtStataLocation = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tabSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabLogging.SuspendLayout();
@@ -142,6 +142,15 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
     "ay the missing value using:";
+            // 
+            // missingValueSettings1
+            // 
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // tabLogging
             // 
@@ -327,6 +336,7 @@
             this.txtStataLocation.Name = "txtStataLocation";
             this.txtStataLocation.Size = new System.Drawing.Size(594, 25);
             this.txtStataLocation.TabIndex = 16;
+            this.txtStataLocation.TextChanged += new System.EventHandler(this.txtStataLocation_TextChanged);
             // 
             // label1
             // 
@@ -336,15 +346,6 @@
             this.label1.Size = new System.Drawing.Size(156, 17);
             this.label1.TabIndex = 15;
             this.label1.Text = "Stata executable location:";
-            // 
-            // missingValueSettings1
-            // 
-            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(20, 66);
-            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
-            this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(391, 74);
-            this.missingValueSettings1.TabIndex = 18;
             // 
             // Settings
             // 
