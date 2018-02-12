@@ -127,7 +127,7 @@ namespace StatTag.Core.Models
                 logAppender = new RollingFileAppender()
                 {
                     AppendToFile = true,
-                    File = LogFilePath,
+                    File = LogFilePath ?? "",
                     MaxFileSize = (long)MaxLogFileSize,
                     MaxSizeRollBackups = (int)MaxLogFiles,
                     RollingStyle = RollingFileAppender.RollingMode.Size,
