@@ -26,16 +26,17 @@ namespace StatTag.Core.ValueFormatter
             // for formatting empty results.
             if (string.IsNullOrEmpty(value))
             {
+                // If there is no property specified, our default is to return a blank string.
                 if (properties == null
                     || string.IsNullOrEmpty(properties.RepresentMissingValues)
-                    || properties.RepresentMissingValues.Equals(Constants.MissingValueOption.StatPackageDefault))
-                {
-                    return GetMissingValue();
-                }
-
-                if (properties.RepresentMissingValues.Equals(Constants.MissingValueOption.BlankString))
+                    || properties.RepresentMissingValues.Equals(Constants.MissingValueOption.BlankString))
                 {
                     return string.Empty;
+                }
+
+                if (properties.RepresentMissingValues.Equals(Constants.MissingValueOption.StatPackageDefault))
+                {
+                    return GetMissingValue();
                 }
 
                 if (properties.RepresentMissingValues.Equals(Constants.MissingValueOption.CustomValue))
