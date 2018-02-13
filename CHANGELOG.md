@@ -1,5 +1,36 @@
 # Releases
 
+## v3.2.0
+
+* Receive a notification when your code files change outside of StatTag
+* Import CSV files for tables
+* Specify how missing/empty values in tables should be displayed
+* UI changes for User Settings dialog
+* New Document Properties screen
+* Handle Stata system variables (e.g., _b)
+
+
+### Component Versions
+
+| Component             | File Version |
+| --------------------- | ------------ |
+| Core                  | 3.2.0.5      |
+| StatTag.R             | 3.2.0.5      |
+| StatTag.SAS           | 3.2.0.5      |
+| StatTag.Stata         | 3.2.0.5      |
+| StatTag               | 3.2.0.5      |
+| DynamicInterop        | 0.7.4.0      |
+| EPPlus                | 4.1.1.0      |
+| log4net               | 2.0.8.0      |
+| RDotNet               | 1.7.0.0      |
+| RDotNet.Graphics      | 0.1.0.0      |
+| RDotNet.NativeLibrary | 1.7.0.0      |
+| ScintillaNET          | 3.6.3.1      |
+| ScintillaNET FindReplaceDialog | 1.4.0.0      |
+| SciLexer.dll          | 3.7.4.1      |
+
+
+
 ## v3.1.0
 
 * Automatically set working directory before executing code files
@@ -15,7 +46,6 @@
     * Support specified formatting for Stata matrix command
     * Remove extra whitespace in Stata verbatim tags
     * Improved Stata error reporting
-
 
 
 ### Component Versions
