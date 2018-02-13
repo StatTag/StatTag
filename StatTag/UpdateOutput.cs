@@ -114,7 +114,8 @@ namespace StatTag
             {
                 listView.Items.Clear();
 
-                foreach (var tag in tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+                var filteredTags = tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0).OrderBy(x => x.LineStart);
+                foreach (var tag in filteredTags)
                 {
                     var item = listView.Items.Add(tag.Name);
                     item.SubItems.AddRange(new[] { tag.CodeFile.FilePath });

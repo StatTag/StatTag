@@ -714,5 +714,25 @@ namespace Core.Tests.Models
             };
             Assert.IsTrue(codeFile.IsValid());
         }
+
+        [TestMethod]
+        public void CopyCtor()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "**>>>ST:Value(Label=\"Test\", Type=\"Default\")",
+                "first line",
+                "second line",
+                "**<<<"
+            });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+
+            var codeFile = new CodeFile(mock.Object) {StatisticalPackage = Constants.StatisticalPackages.Stata};
+            var copyCodeFile = new CodeFile(codeFile);
+            Assert.AreEqual(codeFile.Tags.Count, copyCodeFile.Tags.Count);
+            Assert.AreEqual(codeFile.StatisticalPackage, copyCodeFile.StatisticalPackage);
+            Assert.AreEqual(codeFile.FilePath, copyCodeFile.FilePath);
+        }
     }
 }

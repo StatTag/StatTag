@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace StatTag.Core.Models
+namespace StatTag.Core.Exceptions
 {
     /// <summary>
     /// Exceptions that are purposely formatted to be displayed to the user.  If an exception

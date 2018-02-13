@@ -43,6 +43,7 @@
             this.cboRunFrequency = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
             this.figureProperties = new StatTag.Controls.FigureProperties();
             this.tableProperties = new StatTag.Controls.TableProperties();
             this.horizontalLine1 = new StatTag.Controls.HorizontalLine();
@@ -50,9 +51,9 @@
             this.cboResultType = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.scintilla1 = new ScintillaNET.Scintilla();
+            this.incrementalSearcher1 = new ScintillaNET_FindReplaceDialog.IncrementalSearcher();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
-            this.label5 = new System.Windows.Forms.Label();
+            this.scintilla1 = new ScintillaNET.Scintilla();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,7 +61,7 @@
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(657, 603);
+            this.cmdCancel.Location = new System.Drawing.Point(657, 609);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(164, 25);
@@ -73,7 +74,7 @@
             this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Enabled = false;
-            this.cmdOK.Location = new System.Drawing.Point(269, 603);
+            this.cmdOK.Location = new System.Drawing.Point(269, 609);
             this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(164, 25);
@@ -94,7 +95,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 38);
+            this.label3.Location = new System.Drawing.Point(13, 46);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(203, 17);
             this.label3.TabIndex = 12;
@@ -119,7 +120,7 @@
             this.lblNoOutputWarning.AutoSize = true;
             this.lblNoOutputWarning.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNoOutputWarning.ForeColor = System.Drawing.Color.Red;
-            this.lblNoOutputWarning.Location = new System.Drawing.Point(334, 38);
+            this.lblNoOutputWarning.Location = new System.Drawing.Point(334, 580);
             this.lblNoOutputWarning.Name = "lblNoOutputWarning";
             this.lblNoOutputWarning.Size = new System.Drawing.Size(414, 17);
             this.lblNoOutputWarning.TabIndex = 23;
@@ -137,7 +138,7 @@
             this.cmdSaveAndInsert.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdSaveAndInsert.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdSaveAndInsert.Enabled = false;
-            this.cmdSaveAndInsert.Location = new System.Drawing.Point(463, 603);
+            this.cmdSaveAndInsert.Location = new System.Drawing.Point(463, 609);
             this.cmdSaveAndInsert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdSaveAndInsert.Name = "cmdSaveAndInsert";
             this.cmdSaveAndInsert.Size = new System.Drawing.Size(164, 25);
@@ -150,7 +151,7 @@
             // 
             this.lblAllowedCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblAllowedCommands.Location = new System.Drawing.Point(16, 499);
+            this.lblAllowedCommands.Location = new System.Drawing.Point(16, 505);
             this.lblAllowedCommands.Name = "lblAllowedCommands";
             this.lblAllowedCommands.Size = new System.Drawing.Size(280, 62);
             this.lblAllowedCommands.TabIndex = 4;
@@ -160,7 +161,7 @@
             // 
             this.lblInstructionTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblInstructionTitle.Location = new System.Drawing.Point(13, 459);
+            this.lblInstructionTitle.Location = new System.Drawing.Point(13, 465);
             this.lblInstructionTitle.Name = "lblInstructionTitle";
             this.lblInstructionTitle.Size = new System.Drawing.Size(283, 40);
             this.lblInstructionTitle.TabIndex = 3;
@@ -175,6 +176,7 @@
             this.txtName.Size = new System.Drawing.Size(205, 25);
             this.txtName.TabIndex = 35;
             this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
+            this.txtName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtName_KeyPress);
             // 
             // label4
             // 
@@ -225,8 +227,17 @@
             this.panel1.Controls.Add(this.label2);
             this.panel1.Location = new System.Drawing.Point(767, 10);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(312, 570);
+            this.panel1.Size = new System.Drawing.Size(312, 576);
             this.panel1.TabIndex = 41;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(85, 5);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(69, 17);
+            this.label5.TabIndex = 44;
+            this.label5.Text = "(Required)";
             // 
             // figureProperties
             // 
@@ -245,7 +256,7 @@
             this.tableProperties.Location = new System.Drawing.Point(6, 134);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(293, 309);
+            this.tableProperties.Size = new System.Drawing.Size(293, 315);
             this.tableProperties.TabIndex = 40;
             // 
             // horizontalLine1
@@ -302,20 +313,21 @@
             this.label6.TabIndex = 36;
             this.label6.Text = "Tag Settings";
             // 
-            // scintilla1
+            // incrementalSearcher1
             // 
-            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
-            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
-            this.scintilla1.Location = new System.Drawing.Point(16, 58);
-            this.scintilla1.MarginOptions = ScintillaNET.MarginOptions.None;
-            this.scintilla1.Name = "scintilla1";
-            this.scintilla1.Size = new System.Drawing.Size(732, 522);
-            this.scintilla1.TabIndex = 24;
-            this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
-            this.scintilla1.LineSelectClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_LineSelectClick);
+            this.incrementalSearcher1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.incrementalSearcher1.AutoPosition = false;
+            this.incrementalSearcher1.AutoSize = true;
+            this.incrementalSearcher1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.incrementalSearcher1.BackColor = System.Drawing.Color.Transparent;
+            this.incrementalSearcher1.FindReplace = null;
+            this.incrementalSearcher1.Location = new System.Drawing.Point(462, 46);
+            this.incrementalSearcher1.Margin = new System.Windows.Forms.Padding(0);
+            this.incrementalSearcher1.Name = "incrementalSearcher1";
+            this.incrementalSearcher1.Scintilla = null;
+            this.incrementalSearcher1.Size = new System.Drawing.Size(286, 26);
+            this.incrementalSearcher1.TabIndex = 43;
+            this.incrementalSearcher1.ToolItem = true;
             // 
             // verticalLine1
             // 
@@ -324,24 +336,31 @@
             this.verticalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
             this.verticalLine1.Location = new System.Drawing.Point(754, 10);
             this.verticalLine1.Name = "verticalLine1";
-            this.verticalLine1.Size = new System.Drawing.Size(10, 570);
+            this.verticalLine1.Size = new System.Drawing.Size(10, 576);
             this.verticalLine1.TabIndex = 42;
             // 
-            // label5
+            // scintilla1
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(85, 5);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(69, 17);
-            this.label5.TabIndex = 44;
-            this.label5.Text = "(Required)";
+            this.scintilla1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
+            this.scintilla1.Lexer = ScintillaNET.Lexer.R;
+            this.scintilla1.Location = new System.Drawing.Point(16, 72);
+            this.scintilla1.MarginOptions = ScintillaNET.MarginOptions.None;
+            this.scintilla1.Name = "scintilla1";
+            this.scintilla1.Size = new System.Drawing.Size(732, 505);
+            this.scintilla1.TabIndex = 24;
+            this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
+            this.scintilla1.LineSelectClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_LineSelectClick);
             // 
             // EditTag
             // 
             this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
-            this.ClientSize = new System.Drawing.Size(1091, 641);
+            this.ClientSize = new System.Drawing.Size(1091, 647);
+            this.Controls.Add(this.incrementalSearcher1);
             this.Controls.Add(this.verticalLine1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.cmdSaveAndInsert);
@@ -359,7 +378,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Tag";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditTag_FormClosing);
-            this.Load += new System.EventHandler(this.ManageTag_Load);
+            this.Load += new System.EventHandler(this.EditTag_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -394,5 +413,6 @@
         private Controls.TableProperties tableProperties;
         private Controls.FigureProperties figureProperties;
         private System.Windows.Forms.Label label5;
+        private ScintillaNET_FindReplaceDialog.IncrementalSearcher incrementalSearcher1;
     }
 }

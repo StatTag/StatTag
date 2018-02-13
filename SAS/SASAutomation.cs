@@ -109,7 +109,7 @@ namespace SAS
             {
                 if (!string.IsNullOrEmpty(result.TableResultPromise))
                 {
-                    result.TableResult = CSVToTable.GetTableResult(result.TableResultPromise);
+                    result.TableResult = DataFileToTable.GetTableResult(result.TableResultPromise);
                     result.TableResultPromise = null;
                 }
             }
@@ -162,7 +162,9 @@ namespace SAS
             // need), but this allows us to keep the code simple while being effective.
             if (Parser.HasMacroIndicator(originalLocation) || Parser.HasFunctionIndicator(originalLocation))
             {
-                var expandedLocation = RunCommand("%PUT " + originalLocation + ";");
+                var expandedLocation =
+                    RunCommand(string.Format("%PUT {0}{1}", originalLocation, SASParser.CommandDelimiter),
+                        new Tag() {Type = Constants.TagType.Value});
                 if (expandedLocation != null)
                 {
                     originalLocation = expandedLocation.ValueResult;
@@ -178,7 +180,13 @@ namespace SAS
             {
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                var results = RunCommands(new string[] { "filename dummy '.';", "%let __stattag_pwd=%sysfunc(pathname(dummy));", "%put &__stattag_pwd; RUN;" });
+                var results =
+                    RunCommands(
+                        new string[]
+                        {
+                            "filename dummy '.';", "%let __stattag_pwd=%sysfunc(pathname(dummy));",
+                            "%put &__stattag_pwd; RUN;"
+                        }, new Tag() {Type = Constants.TagType.Value});
                 if (results != null && results.Length > 0)
                 {
                     var path = results.First().ValueResult;
@@ -266,20 +274,26 @@ namespace SAS
                 return null;
             }
 
-            if (Parser.IsValueDisplay(command))
-            {
-                // If we have a value command, we will pull out the last relevant line from the output.
-                return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
-            }
+            // If there is no tag associated with the command that was run, we aren't going to bother
+            // parsing and processing the results.  This is for blocks of codes in between tags where
+            // all we need is for the code to run.
+            if (tag != null)
+            { 
+                if (Parser.IsValueDisplay(command))
+                {
+                    // If we have a value command, we will pull out the last relevant line from the output.
+                    return new CommandResult() { ValueResult = relevantLines.LastOrDefault() };
+                }
 
-            if (Parser.IsImageExport(command))
-            {
-                return new CommandResult() { FigureResult = GetExpandedLocation(Parser.GetImageSaveLocation(command)) };
-            }
+                if (Parser.IsImageExport(command))
+                {
+                    return new CommandResult() { FigureResult = GetExpandedLocation(Parser.GetImageSaveLocation(command)) };
+                }
 
-            if (Parser.IsTableResult(command))
-            {
-                return new CommandResult() { TableResultPromise = GetExpandedLocation(Parser.GetTableName(command)) };
+                if (Parser.IsTableResult(command))
+                {
+                    return new CommandResult() { TableResultPromise = GetExpandedLocation(Parser.GetTableDataPath(command)) };
+                }
             }
 
             return null;

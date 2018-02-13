@@ -13,4 +13,4 @@ We welcome anyone that wishes to contribute to StatTag.  Please download the cod
 ## Referencing StatTag
 Please cite StatTag in any manuscripts that use it:
 
-*Welty, L.J., Rasmussen, L.V., & Baldridge, A.S. (2016). StatTag. Chicago, Illinois, United States: Galter Health Sciences Library. doi:10.18131/G36K76*
+*Welty, L.J., Rasmussen, L.V., Baldridge, A.S., & Whitley, E. (2016). StatTag. Chicago, Illinois, United States: Galter Health Sciences Library. doi:10.18131/G36K76*

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using StatTag.Core.Models;
 
@@ -13,12 +15,13 @@ namespace StatTag.Core.Parser
         public static readonly string[] FigureCommands = {"ods pdf"};
         private static readonly Regex FigureKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(FigureCommands)), RegexOptions.IgnoreCase);
-        public static readonly string[] TableCommands = {"ods csv"};
+        public static readonly string[] TableCommands = {"ods csv", "ods excel", "proc export"};
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private static readonly Regex PathCaptureRegex = new Regex("\\bpath\\s*=\\s*(?:([&].+?\\b)|(?:[\"'](.*?)[\"']))[\\S\\s]*?;", RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
         public const string FunctionIndicator = "%";
+        public const string CommandDelimiter = ";";
 
         public override string CommentCharacter
         {
@@ -99,7 +102,18 @@ namespace StatTag.Core.Parser
             return TableKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Within SAS, we only return table data from files.  This will always
+        /// return null to indicate that no named table objects are used.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetTableName(string command)
+        {
+            return null;
+        }
+
+        public override string GetTableDataPath(string command)
         {
             string file = MatchRegexReturnGroup(command, TableRegex, 1);
 
@@ -119,9 +133,43 @@ namespace StatTag.Core.Parser
             return Path.Combine(path, file);
         }
 
+        /// <summary>
+        /// To ensure that we are properly processing and detecting SAS commands, we need to take commands that may
+        /// span multiple lines and put them into a single line.  This is easily done in SAS, as we simply need to
+        /// find the command delimiter (semicolon).
+        /// </summary>
+        /// <param name="originalContent">An array of command lines</param>
+        /// <returns>An array of commands with multi-line commands on a single line.  The size will be &lt;= the size of originalContent</returns>
+        public List<string> CollapseMultiLineCommands(List<string> originalContent)
+        {
+            var originalText = string.Join("\r\n", originalContent);
+
+            // This is a fringe case - but in the event there is no command delimiter in this
+            // block of code, we want to return it as-is and not add any delimiters.  If we
+            // let the code below run, it will add the delimiter.
+            if (!originalText.Contains(CommandDelimiter))
+            {
+                return new List<string>(new[] { originalText });
+            }
+
+            var modifiedText = originalText;
+            var splitCommands =
+                modifiedText.Split(new[] {CommandDelimiter}, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList()
+                    .Select(x => string.Format("{0}{1}", x, CommandDelimiter).Trim())
+                    .ToList();
+
+            if (!originalText.Trim().EndsWith(CommandDelimiter))
+            {
+                splitCommands[splitCommands.Count - 1] =
+                    splitCommands[splitCommands.Count - 1].Trim(new[] {CommandDelimiter[0]});
+            }
+            return splitCommands;
+        }
+
         public override List<string> PreProcessContent(List<string> originalContent)
         {
-            return originalContent;
+            return new List<string>(CollapseMultiLineCommands(originalContent));
         }
 
         /// <summary>

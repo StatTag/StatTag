@@ -71,6 +71,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -109,17 +113,18 @@
     <Compile Include="Models\CommandResultTests.cs" />
     <Compile Include="Models\TableFormatTests.cs" />
     <Compile Include="Models\FieldAnnotationTests.cs" />
-    <Compile Include="Models\CSVToTableTests.cs" />
+    <Compile Include="Models\DataFileToTableTests.cs" />
     <Compile Include="Models\TableTests.cs" />
     <Compile Include="Models\FilterFormatTests.cs" />
     <Compile Include="Models\LogManagerTests.cs" />
     <Compile Include="Models\DocumentMetadataTests.cs" />
+    <Compile Include="Models\MonitoredCodeFileTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataParserTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
     <Compile Include="Parser\BaseParameterParserTests.cs" />
     <Compile Include="Parser\TableParameterParserTests.cs" />
-    <Compile Include="Parser\SASTests.cs" />
+    <Compile Include="Parser\SASParserTests.cs" />
     <Compile Include="Parser\RParserTests.cs" />
     <Compile Include="Parser\ValueParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

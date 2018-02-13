@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using StatTag.Models;
 using Word = Microsoft.Office.Interop.Word;
@@ -20,9 +22,15 @@ namespace StatTag
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
 
         public LogManager LogManager = new LogManager();
+        public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = new DocumentManager();
-        public PropertiesManager PropertiesManager = new PropertiesManager();
         public StatsManager StatsManager = null;
+        /// <summary>
+        /// A thread-safe collection of any code files that have been modified, which we have not alerted
+        /// the user about.  When the code file change has been handled by us, the entry is removed from
+        /// this collection.
+        /// </summary>
+        private ConcurrentQueue<string> ModifiedCodeFiles = new ConcurrentQueue<string>(); 
 
         /// <summary>
         /// Perform a safe get of the active document.  There is no other way to safely
@@ -51,12 +59,15 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            StatsManager = new StatsManager(DocumentManager);
+            DocumentManager.SetSettingsManager(SettingsManager);
+            StatsManager = new StatsManager(DocumentManager, SettingsManager);
+            DocumentManager.CodeFileChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
-            PropertiesManager.Load();
-            LogManager.UpdateSettings(PropertiesManager.Properties.EnableLogging, PropertiesManager.Properties.LogLocation);
+            SettingsManager.Load();
+            LogManager.UpdateSettings(SettingsManager.Settings.EnableLogging, SettingsManager.Settings.LogLocation,
+                SettingsManager.Settings.MaxLogFileSize, SettingsManager.Settings.MaxLogFiles);
             LogManager.WriteMessage(GetUserEnvironmentDetails());
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
@@ -106,7 +117,7 @@ namespace StatTag
 
             try
             {
-                DocumentManager.SaveMetadataToDocument(doc);
+                DocumentManager.SaveMetadataToDocument(doc, DocumentManager.LoadMetadataFromDocument(doc, true));
             }
             catch (Exception exc)
             {
@@ -125,59 +136,88 @@ namespace StatTag
         void Application_DocumentOpen(Word.Document doc)
         {
             LogManager.WriteMessage("DocumentOpen - Started");
-            DocumentManager.LoadMetadataFromDocument(doc);
-            var files = DocumentManager.GetCodeFileList(doc);
-            LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
 
-            var filesNotFound = new List<CodeFile>();
-            foreach (var file in files)
+            try
             {
-                if (!File.Exists(file.FilePath))
+                var metadata = DocumentManager.LoadMetadataFromDocument(doc, false);
+                if (metadata == null)
                 {
-                    filesNotFound.Add(file);
-                    LogManager.WriteMessage(string.Format("Code file: {0} not found", file.FilePath));
+                    LogManager.WriteMessage("No StatTag metadata contained in document");
                 }
                 else
                 {
-                    file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
+                    LogManager.WriteMessage("Document Metadata");
+                    LogManager.WriteMessage(string.Format("   Document created with: {0}", metadata.StatTagVersion));
+                    LogManager.WriteMessage(string.Format("   Handling of missing values: {0}", metadata.RepresentMissingValues));
+                    LogManager.WriteMessage(string.Format("   Custom missing value replacement (if applicable): {0}", metadata.CustomMissingValue));
+                }
+                
+                // Historically we just had the code file list in the document properties, so we call the old load
+                // function to help with backwards compatibility for documents created prior to v3.1, without having
+                // to migrate document properties.
+                DocumentManager.LoadCodeFileListFromDocument(doc);
 
-                    if (PropertiesManager.Properties.RunCodeOnOpen)
+                var files = DocumentManager.GetCodeFileList(doc);
+                LogManager.WriteMessage(string.Format("Loaded {0} code files from document", files.Count));
+
+                var filesNotFound = new List<CodeFile>();
+                foreach (var file in files)
+                {
+                    if (!File.Exists(file.FilePath))
                     {
-                        try
-                        {
-                            Globals.ThisAddIn.Application.ScreenUpdating = false;
-                            LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded",
-                                file.FilePath, file.Tags.Count));
-                            var results = StatsManager.ExecuteStatPackage(file);
-                            LogManager.WriteMessage(
-                                string.Format("Executed the statistical code for file, with success = {0}",
-                                    results.Success));
-                        }
-                        finally
-                        {
-                            Globals.ThisAddIn.Application.ScreenUpdating = true;
-                        }
+                        filesNotFound.Add(file);
+                        LogManager.WriteMessage(string.Format("Code file: {0} not found", file.FilePath));
                     }
                     else
                     {
-                        LogManager.WriteMessage(string.Format("Per user preferences, skipping auto-run of {0}", file.FilePath));
+                        file.LoadTagsFromContent(false);  // Skip saving the cache, since this is the first load
+
+                        if (SettingsManager.Settings.RunCodeOnOpen)
+                        {
+                            try
+                            {
+                                Globals.ThisAddIn.Application.ScreenUpdating = false;
+                                LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded",
+                                    file.FilePath, file.Tags.Count));
+                                var results = StatsManager.ExecuteStatPackage(file);
+                                LogManager.WriteMessage(
+                                    string.Format("Executed the statistical code for file, with success = {0}",
+                                        results.Success));
+                            }
+                            finally
+                            {
+                                Globals.ThisAddIn.Application.ScreenUpdating = true;
+                            }
+                        }
+                        else
+                        {
+                            LogManager.WriteMessage(string.Format("Per user preferences, skipping auto-run of {0}", file.FilePath));
+                        }
                     }
                 }
-            }
 
-            if (filesNotFound.Any())
-            {
-                MessageBox.Show(
-                    string.Format(
-                        "The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}",
-                        string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
-                    UIUtility.GetAddInName(),
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                if (filesNotFound.Any())
+                {
+                    MessageBox.Show(
+                        string.Format(
+                            "The following source code files were referenced by this document, but could not be found on this device:\r\n\r\n{0}",
+                            string.Join("\r\n", filesNotFound.Select(x => x.FilePath))),
+                        UIUtility.GetAddInName(),
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    LogManager.WriteMessage("Performing the document validation check");
+                    DocumentManager.PerformDocumentCheck(doc, true);
+                }
             }
-            else
+            catch (StatTagUserException uex)
             {
-                LogManager.WriteMessage("Performing the document validation check");
-                DocumentManager.PerformDocumentCheck(doc, true);
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc, "There was an unexpected error while trying to open the current Word document.", LogManager);
             }
 
             LogManager.WriteMessage("DocumentOpen - Completed");
@@ -301,9 +341,97 @@ namespace StatTag
             }
         }
 
-        void Application_WindowActivate(Word.Document doc, Word.Window window)
+        void Application_WindowActivate(Word.Document activeDocument, Word.Window window)
         {
-            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+            try
+            {
+                Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+
+                if (!ModifiedCodeFiles.IsEmpty)
+                {
+                    LogManager.WriteMessage(string.Format("There are {0} modified files to process",
+                        ModifiedCodeFiles.Count));
+
+                    var documents = Application.Documents;
+                    var messageBuilder =
+                        new StringBuilder(
+                            "The following code files were changed outside of StatTag, and have been reloaded:\r\n\r\n");
+                    int failedDequeueCount = 0;
+                    while (!ModifiedCodeFiles.IsEmpty)
+                    {
+                        string filePath = string.Empty;
+                        if (ModifiedCodeFiles.TryDequeue(out filePath))
+                        {
+                            LogManager.WriteMessage(string.Format("Processing code file: {0}", filePath));
+                            messageBuilder.AppendFormat("  - {0}\r\n", filePath);
+
+                            // Reload the code files for ALL affected documents.
+                            foreach (var document in documents.OfType<Word.Document>())
+                            {
+                                if (DocumentManager.IsCodeFileLinkedToDocument(document, filePath))
+                                {
+                                    LogManager.WriteMessage(string.Format("  - Reloading code file in document {0}",
+                                        document.FullName));
+                                    DocumentManager.RefreshContentInDocumentCodeFiles(document);
+                                }
+                            }
+                        }
+                        else if (failedDequeueCount >= 5)
+                        {
+                            LogManager.WriteMessage(
+                                string.Format(
+                                    "We have had {0} dequeue failures - we will stop processing at this point.",
+                                    failedDequeueCount));
+                            UIUtility.WarningMessageBox(
+                                "StatTag detected that one or more code files were modified.  In trying to reload the code files in your open Word documents, we ran into some unexpected issues.\r\n\r\nWe recommend closing and re-opening Microsoft Word, as the code files and documents may be in an inconsistent state.",
+                                LogManager);
+                            return;
+                        }
+                        else
+                        {
+                            failedDequeueCount++;
+                            LogManager.WriteMessage(
+                                "Failed to dequeue modified code file from list - will try again after a 1 second pause");
+                            Thread.Sleep(1000);
+                        }
+                    }
+                    Marshal.ReleaseComObject(documents);
+                    LogManager.WriteMessage("Finished processing all modified code files");
+
+                    // Alert the user at what's affected
+                    var message = messageBuilder.ToString().Trim();
+                    UIUtility.WarningMessageBox(message, LogManager);
+                }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc, "There was an error while trying to check the state of the current Word document.", LogManager);
+            }
+        }
+
+        private void OnCodeFileChanged(object sender, EventArgs args)
+        {
+            var monitoredCodeFile = sender as MonitoredCodeFile;
+            if (monitoredCodeFile == null)
+            {
+                return;
+            }
+
+            var filePath = monitoredCodeFile.FilePath;
+            LogManager.WriteMessage("Code file changed: " + filePath);
+            if (!ModifiedCodeFiles.Contains(filePath))
+            {
+                ModifiedCodeFiles.Enqueue(filePath);
+            }
+
+            // Close all open dialogs.  We need to do this here instead of Application_WindowActivate, since at that
+            // point an open dialog blocks Application_WindowActivate from being called.
+            Globals.Ribbons.MainRibbon.CloseAllOpenDialogs();
+            LogManager.WriteMessage("Closed all open dialogs in response to code file change");
         }
 
         /// <summary>

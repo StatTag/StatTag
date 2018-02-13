@@ -44,6 +44,7 @@
             this.cmdInsertOutput = this.Factory.CreateRibbonButton();
             this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.cmdManageTags = this.Factory.CreateRibbonButton();
+            this.cmdDocumentProperties = this.Factory.CreateRibbonButton();
             this.cmdValidateDocument = this.Factory.CreateRibbonButton();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.cmdAbout = this.Factory.CreateRibbonButton();
@@ -74,6 +75,7 @@
             // 
             this.group1.Items.Add(this.cmdUpdateOutput);
             this.group1.Items.Add(this.cmdManageTags);
+            this.group1.Items.Add(this.cmdDocumentProperties);
             this.group1.Items.Add(this.cmdValidateDocument);
             this.group1.Label = "Manage";
             this.group1.Name = "group1";
@@ -135,6 +137,15 @@
             this.cmdManageTags.ShowImage = true;
             this.cmdManageTags.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageTags_Click);
             // 
+            // cmdDocumentProperties
+            // 
+            this.cmdDocumentProperties.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.cmdDocumentProperties.Image = ((System.Drawing.Image)(resources.GetObject("cmdDocumentProperties.Image")));
+            this.cmdDocumentProperties.Label = "Document Properties";
+            this.cmdDocumentProperties.Name = "cmdDocumentProperties";
+            this.cmdDocumentProperties.ShowImage = true;
+            this.cmdDocumentProperties.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdDocumentProperties_Click);
+            // 
             // cmdValidateDocument
             // 
             this.cmdValidateDocument.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -150,7 +161,7 @@
             // 
             this.cmdSettings.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.cmdSettings.Image = ((System.Drawing.Image)(resources.GetObject("cmdSettings.Image")));
-            this.cmdSettings.Label = "Settings";
+            this.cmdSettings.Label = "User Settings";
             this.cmdSettings.Name = "cmdSettings";
             this.cmdSettings.ShowImage = true;
             this.cmdSettings.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdSettings_Click);
@@ -206,6 +217,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdAbout;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdDocumentProperties;
     }
 
     partial class ThisRibbonCollection

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StatTag.Core.Parser;
 
 namespace Core.Tests.Parser
 {
     [TestClass]
-    public class SASTests
+    public class SASParserTests
     {
         [TestMethod]
         public void IsValueDisplay()
@@ -82,32 +83,40 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void GetTableName()
         {
+            // Regardless of what's sent in, GetTableName always returns null
+            var parser = new RParser();
+            Assert.IsNull(parser.GetTableName("ods csv file=\"test.csv\";"));
+        }
+
+        [TestMethod]
+        public void GetTableDataPath()
+        {
             var parser = new SASParser();
-            Assert.AreEqual("", parser.GetTableName("ods csv file=\"\";"));
-            Assert.AreEqual("", parser.GetTableName("ods csv file=\"test.csv\"")); // It won't match because there is no semicolon
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file = \"test.csv\";"));
-            Assert.AreEqual("", parser.GetTableName("ods csv file=test.csv;")); // It won't match because there are no quotes
-            Assert.AreEqual("test.csv", parser.GetTableName("   ods    csv    file   =   \"test.csv\" ;"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv\r\n   file=\"test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods\r\ncsv\r\nfile\r\n=\"test.csv\"\r\n;"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ods csv file=\" test.csv \";")); // Trims the response
-            Assert.AreEqual("", parser.GetTableName("ods csvd file = \"test.csv\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=\"\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=\"test.csv\"")); // It won't match because there is no semicolon
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file = \"test.csv\";"));
+            Assert.AreEqual("", parser.GetTableDataPath("ods csv file=test.csv;")); // It won't match because there are no quotes
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("   ods    csv    file   =   \"test.csv\" ;"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv\r\n   file=\"test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods\r\ncsv\r\nfile\r\n=\"test.csv\"\r\n;"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ods csv file=\" test.csv \";")); // Trims the response
+            Assert.AreEqual("", parser.GetTableDataPath("ods csvd file = \"test.csv\";"));
 
             // Testing to ensure single-quotes work as well as double-quotes
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv';"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File='test.csv';"));
 
             // Our regex is kind of dumb... this will pass, but it is invalid in SAS
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File='test.csv\";"));
-            Assert.AreEqual("test.csv", parser.GetTableName("ODS Csv File=\"test.csv';"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File='test.csv\";"));
+            Assert.AreEqual("test.csv", parser.GetTableDataPath("ODS Csv File=\"test.csv';"));
 
             // Case shouldn't matter
-            Assert.AreEqual("TEST.CSV", parser.GetTableName("ODS CSV FILE=\"TEST.CSV\";"));
+            Assert.AreEqual("TEST.CSV", parser.GetTableDataPath("ODS CSV FILE=\"TEST.CSV\";"));
 
             // Test with path set - variable and constant
-            Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableName("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
-            Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableName("ODS CSV path=&outpath file=\"Test.csv\";"));
+            Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableDataPath("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
+            Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableDataPath("ODS CSV path=&outpath file=\"Test.csv\";"));
         }
 
         [TestMethod]
@@ -139,6 +148,67 @@ namespace Core.Tests.Parser
             Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"C:\\test\\\";"));
             Assert.IsNull(parser.GetPathParameter("ods csv file=\"tmp.csv\";"));
             Assert.AreEqual("", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"\";"));
+        }
+
+        [TestMethod]
+        public void PreProcessContent_MultiLineCommands()
+        {
+            var parser = new SASParser();
+            var testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace;",
+                "run;"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace;\r\nrun;", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Not that this would actually happen in real code, but we want to make sure that a lack
+            // of any semicolon strings everything into one line, and that there is no semicolon at
+            // the end
+            testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace",
+                "run"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace\r\nrun", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // For this, make sure that if the last statement did not end in a semicolon that
+            // we're not adding one.  It seems unlikely this would happen in practice, but
+            // we want to make sure our code isn't inappropriately adding in semicolons.
+            testList = new List<string>(new string[]
+            {
+                "proc export",
+                "  data=Subset",
+                "  dbms=xlsx",
+                "  outfile=\"&Pathway.\\test.xlsx\"",
+                "replace;",
+                "run"
+            });
+            Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("proc export\r\n  data=Subset\r\n  dbms=xlsx\r\n  outfile=\"&Pathway.\\test.xlsx\"\r\nreplace;\r\nrun", string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Check an empty string
+            testList = new List<string>(new string[]
+            {
+                ""
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual(string.Empty, string.Join("\r\n", parser.PreProcessContent(testList)));
+
+            // Check an empty collection
+            testList = new List<string>();
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual(string.Empty, string.Join("\r\n", parser.PreProcessContent(testList)));
+
         }
     }
 }

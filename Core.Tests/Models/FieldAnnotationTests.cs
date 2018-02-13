@@ -112,17 +112,18 @@ namespace Core.Tests.Models
                 }
             };
 
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             var fieldTag = new FieldTag(tag, 0);
             Assert.AreEqual(0, fieldTag.TableCellIndex);
-            Assert.AreEqual(string.Empty, fieldTag.FormattedResult);
+            Assert.AreEqual(string.Empty, fieldTag.FormattedResult(properties));
 
             fieldTag = new FieldTag(tag, 3);
             Assert.AreEqual(3, fieldTag.TableCellIndex);
-            Assert.AreEqual("r1", fieldTag.FormattedResult);
+            Assert.AreEqual("r1", fieldTag.FormattedResult(properties));
 
             fieldTag = new FieldTag(tag, 7);
             Assert.AreEqual(7, fieldTag.TableCellIndex);
-            Assert.AreEqual("3.0", fieldTag.FormattedResult);
+            Assert.AreEqual("3.0", fieldTag.FormattedResult(properties));
         }
 
         [TestMethod]
@@ -161,8 +162,9 @@ namespace Core.Tests.Models
             var tag = new FieldTag() { Type = Constants.TagType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = codeFile};
             var serialized = tag.Serialize();
             var recreatedTag = FieldTag.Deserialize(serialized);
+            var properties = new DocumentMetadata() { RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault };
             Assert.AreEqual(tag.FigureFormat, recreatedTag.FigureFormat);
-            Assert.AreEqual(tag.FormattedResult, recreatedTag.FormattedResult);
+            Assert.AreEqual(tag.FormattedResult(properties), recreatedTag.FormattedResult(properties));
             Assert.AreEqual(tag.LineEnd, recreatedTag.LineEnd);
             Assert.AreEqual(tag.LineStart, recreatedTag.LineStart);
             Assert.AreEqual(tag.Name, recreatedTag.Name);

@@ -4,11 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -32,6 +28,8 @@ namespace Stata
         public const string StatTagVerbatimLogIdentifier = "stattag-verbatim";
 
         public const string EndLoggingCommand = "log close";
+
+        public const string DisplayWorkingDirectoryCommand = "display \"`c(pwd)'\"";
 
         // The following are constants used to manage the Stata Automation API
         public const string RegisterParameter = "/Register";
@@ -181,7 +179,7 @@ namespace Stata
                     }
 
                     // Perform execution of the command
-                    var result = RunCommand(command);
+                    var result = RunCommand(command, tag);
 
                     // Handle the result normally unless we are in the middle of a verbatim tag.  In that case,
                     // the logging should be enabled at this point and closing it out will be handled later when
@@ -236,6 +234,7 @@ namespace Stata
                     }
                 }
 
+                ResolveCommandPromises(commandResults);
                 return commandResults.ToArray();
             }
             catch (Exception exc)
@@ -256,6 +255,27 @@ namespace Stata
                 IsTrackingVerbatim = false;
 
                 throw exc;
+            }
+        }
+
+        /// <summary>
+        /// Iterate through a list of command results and resolve any outstanding
+        /// promises on the results.
+        /// </summary>
+        /// <param name="commandResults">The list of command results</param>
+        private void ResolveCommandPromises(List<CommandResult> commandResults)
+        {
+            foreach (var result in commandResults)
+            {
+                if (!string.IsNullOrEmpty(result.TableResultPromise))
+                {
+                    // Yes, we are expanding the file paths twice. The problem is that depending on how the file is written (putexcel
+                    // being the first example we ran into), it may not actually be on disk when the first GetExpandedFilePath is called.
+                    // Because that method requires a file to exist before it will accept it, we need to do the expansion again since
+                    // otherwise we could have just a relative path.
+                    result.TableResult = DataFileToTable.GetTableResult(GetExpandedFilePath(result.TableResultPromise));
+                    result.TableResultPromise = null;
+                }
             }
         }
 
@@ -356,14 +376,13 @@ namespace Stata
             // process them directly, so our workaround is to introduce a local macro to process the
             // calculcation, and then use the downstream macro result handler to pull out the result.
             // This will work even if the same local macro is defined multiple times in the same
-            // execution.
-            if (Parser.IsCalculatedDisplayValue(command))
-            {
-                name = Parser.GetValueName(command);
-                command = string.Format("local {0} = {1}", StatTagTempMacroName, name);
-                RunCommand(command);
-                command = string.Format("display `{0}'", StatTagTempMacroName);
-            }
+            // execution.  In version 3.2, we introduced this step for ALL display values.  While it
+            // is admittedly some execution overhead, it saves time (and potential errors) trying to
+            // parse every command to see if it's a calculation or system variable (e.g., _pi, _N, _b[val]).
+            name = Parser.GetValueName(command);
+            command = string.Format("local {0} = {1}", StatTagTempMacroName, name);
+            RunCommand(command);
+            command = string.Format("display `{0}'", StatTagTempMacroName);
 
             if (Parser.IsMacroDisplayValue(command))
             {
@@ -392,6 +411,15 @@ namespace Stata
         /// <returns></returns>
         public Table GetTableResult(string command)
         {
+            // Check to see if we can identify a file name that contains our table data.  If one
+            // exists, we will start by returning that.  If there is no file name specified, we
+            // will proceed and assume we are pulling data out of a Stata matrix.
+            var dataFile = Parser.GetTableDataPath(command);
+            if (!string.IsNullOrWhiteSpace(dataFile))
+            {
+                return DataFileToTable.GetTableResult(GetExpandedFilePath(dataFile));
+            }
+
             var matrixName = Parser.GetTableName(command);
             try
             {
@@ -440,22 +468,91 @@ namespace Stata
         }
 
         /// <summary>
+        /// Return an expanded, full file path - accounting for variables, functions, relative paths, etc.
+        /// </summary>
+        /// <param name="saveLocation">A Stata command that will be translated into a file path.</param>
+        /// <returns>The full file path</returns>
+        private string GetExpandedFilePath(string saveLocation)
+        {
+            // If the save location is not a macro, and it appears to be a relative path, translate it into a fully
+            // qualified path based on Stata's current environment.
+            if (saveLocation.Contains(StataParser.MacroDelimiters[0]))
+            {
+                var macros = Parser.GetMacros(saveLocation);
+                foreach (var macro in macros)
+                {
+                    var result = GetMacroValue(macro);
+                    saveLocation = ReplaceMacroWithValue(saveLocation, macro, result);
+                }
+            }
+            else if (Parser.IsRelativePath(saveLocation))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var results =
+                    RunCommands(new string[] { DisplayWorkingDirectoryCommand },
+                        new Tag() {Type = Constants.TagType.Value});
+                if (results != null && results.Length > 0)
+                {
+                    var path = results.First().ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, saveLocation));
+                    if (File.Exists(correctedPath))
+                    {
+                        saveLocation = correctedPath;
+                    }
+                }
+            }
+
+            return saveLocation;
+        }
+
+        /// <summary>
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
         /// <returns>The result of the command, or null if the command does not provide a result.</returns>
-        public CommandResult RunCommand(string command)
+        public CommandResult RunCommand(string command, Tag tag = null)
         {
-            if (!IsTrackingVerbatim)
+            // If we are tracking verbatim, we don't do any special tag processing.  Likewise, if we don't have
+            // a tag, we don't want to do any special handling or processing of results.  This way any non-
+            // tagged code is going to go ahead and be executed.
+            if (!IsTrackingVerbatim && tag != null)
             {
                 if (Parser.IsValueDisplay(command))
                 {
                     return new CommandResult() { ValueResult = GetDisplayResult(command) };
                 }
 
-                if (Parser.IsTableResult(command))
+                // Because we are being more open what we allow for tables, we are now going
+                // to only allow table results when we have a tag that is a table type.  Note that
+                // we will short-circuit executing the command ONLY when we have a matrix type
+                // of result.  If we think we have a data file, we need to execute the command.  That
+                // is why we make two checks within this method for table results, the first one here for
+                // matrix results, and the second one for any table result.
+                if (tag.Type == Constants.TagType.Table && Parser.IsMatrix(command))
                 {
                     return new CommandResult() { TableResult = GetTableResult(command) };
+                }
+            }
+
+            // Additional special handling for table1.  In order to force the output of table1 to be an XLSX file,
+            // we need to trap its creation.  Here we detect if it looks like a non-XLSX file extension (with two
+            // common types - this is not an exhaustive list) and change the command appropriately.
+            if (!IsTrackingVerbatim && tag != null && tag.Type == Constants.TagType.Table &&
+                Parser.IsTableResult(command) && Parser.IsTable1Command(command))
+            {
+                var result = Parser.GetTableDataPath(command);
+                // We want to force XLS -> XLSX for the table1 command, and will convert CSV (which isn't valid, but people can still do it) to XLSX.
+                // Since the command has already run, we do have an extra step to rename the file to the extension we want.  Keeping in mind that the
+                // table1 can only create Excel files, so we are allowed to make assumptions about formats.
+                if (result.EndsWith(".xls"))
+                {
+                    command = command.Replace(result, result + "x");
+                }
+                else if (result.EndsWith(".csv"))
+                {
+                    var newFile = result.Substring(0, result.Length - 4) + ".xlsx";
+                    command = command.Replace(result, newFile);
                 }
             }
 
@@ -485,37 +582,20 @@ namespace Stata
                         command, errorCode, GetStataErrorDescription(errorCode)));
             }
 
-            if (Parser.IsImageExport(command) && !IsTrackingVerbatim)
+            if (!IsTrackingVerbatim && tag != null)
             {
-                // If the image location is not a macro, and it appears to be a relative path, translate it into a fully
-                // qualified path based on Stata's current environment.
-                var imageLocation = Parser.GetImageSaveLocation(command);
-                if (imageLocation.Contains(StataParser.MacroDelimiters[0]))
+                if (Parser.IsImageExport(command))
                 {
-                    var macros = Parser.GetMacros(imageLocation);
-                    foreach (var macro in macros)
-                    {
-                        var result = GetMacroValue(macro);
-                        imageLocation = ReplaceMacroWithValue(imageLocation, macro, result);
-                    }
-                }
-                else if (Parser.IsRelativePath(imageLocation))
-                {
-                    // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
-                    // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                    var results = RunCommands(new string[] { "local __stattag_cur_dir `c(pwd)'", "display `__stattag_cur_dir'" });
-                    if (results != null && results.Length > 0)
-                    {
-                        var path = results.First().ValueResult;
-                        var correctedPath = Path.GetFullPath(Path.Combine(path, imageLocation));
-                        if (File.Exists(correctedPath))
-                        {
-                            imageLocation = correctedPath;
-                        }
-                    }
+                    return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
                 }
 
-                return new CommandResult() { FigureResult = imageLocation };
+                // Because we are being more open what we allow for tables, we are now going
+                // to only allow table results when we have a tag that is a table type.  See above why we
+                // have two checks for table results in this method.
+                if (tag.Type == Constants.TagType.Table && Parser.IsTableResult(command))
+                {
+                    return new CommandResult() { TableResultPromise = GetExpandedFilePath(Parser.GetTableDataPath(command)) };
+                }
             }
             
             return null;

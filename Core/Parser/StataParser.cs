@@ -26,10 +26,14 @@ namespace StatTag.Core.Parser
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\s+([^,]*?)(?:,|\\r|\\n|$)", FormatCommandListAsNonCapturingGroup(TableCommands)));
         private static readonly Regex LogKeywordRegex = new Regex("^\\s*((?:cmd)?log)\\s*using\\b([\\w\\W]*?)(?:$|[\\r\\n,])", RegexOptions.Multiline);
         private static readonly Regex MultiLineIndicator = new Regex("[/]{3,}.*\\s*", RegexOptions.Multiline);
-        private static readonly Regex MacroRegex = new Regex(string.Format("`([\\S]*?)'"), RegexOptions.Multiline);
+        private static readonly Regex MacroRegex = new Regex("`([\\S]*?)'|\\$([\\S]+?\\b)", RegexOptions.Multiline);
+        private static readonly Regex DataFileRegex = new Regex("[\\\\\\/]*(\\.(?:csv|txt|xlsx|xls))", RegexOptions.IgnoreCase);
         private const string CommentStart = "/*";
         private const string CommentEnd = "*/";
-        //private static readonly Regex TrailingLineComment = new Regex("(?<!\\*)\\/\\/[^\\r\\n]*");
+        private static readonly char[] StartCommandSegmentDelimiters = {' ', ',', '"', '('};
+        private static readonly char[] EndCommandSegmentDelimiters = { ' ', ',', '"', ')' };
+        private static readonly char[] QuotedSegmentDelimiters = { '"' };
+        private static readonly Regex Table1Regex = new Regex("(?:^|\\s+)table1\\s*,", RegexOptions.Multiline);
 
         public class Log
         {
@@ -170,15 +174,136 @@ namespace StatTag.Core.Parser
             return GetValueName(command).Trim(MacroDelimiters);
         }
 
-
-        public override bool IsTableResult(string command)
+        /// <summary>
+        /// Determine if a command references a matrix.
+        /// </summary>
+        /// <remarks>Stata's API has special handling for accessing matrices.  To account for this, we need to detect commands
+        /// that create/access a matrix result.  That tells the rest of the StatTag code to use the API to get results.  This
+        /// requires different handling from referencing a data file on disk.</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsMatrix(string command)
         {
             return TableKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Determine if a command references some type of table result - either from a matrix or a data file.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public override bool IsTableResult(string command)
+        {
+            return IsMatrix(command) ||
+                   CommandHasDataFileOrMacroHeuristic(command);
+        }
+
+        /// <summary>
+        /// Determine if a command may contain a reference to a data file that we could use within a table.  
+        /// We perform simple heuristic checks for simplicity.
+        /// </summary>
+        /// <param name="command">The command string to check</param>
+        /// <returns>true if the command looks like it contains a file path, false otherwise</returns>
+        private bool CommandHasDataFileOrMacroHeuristic(string command)
+        {
+            // Determine if the command looks like a data file is referenced, because there is a file extension we associate with
+            // data files present.
+            if (DataFileRegex.IsMatch(command))
+            {
+                return true;
+            }
+
+            // Otherwise, if there is a macro present, be optimistic in that it will expand to a file path
+            var macros = GetMacros(command);
+            return (macros != null && macros.Length > 0);
+        }
+
+        /// <summary>
+        /// Determines the name of the table.  If the data is stored in a file (not in
+        /// an object in the statistical program), this should return no result and
+        /// GetTableDataPath should be used instead.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetTableName(string command)
         {
             return MatchRegexReturnGroup(command, TableRegex, 1);
+        }
+
+        private string GetMacroAnchorInCommand(string command)
+        {
+            var macro = GetMacros(command, false).FirstOrDefault() ?? string.Empty;
+            return macro;
+        }
+
+        private string GetFileExtensionAnchorInCommand(string command)
+        {
+            var extension = MatchRegexReturnGroup(command, DataFileRegex, 1);
+            return extension;
+        }
+
+        /// <summary>
+        /// Determines the path of a file where table data is located.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public override string GetTableDataPath(string command)
+        {
+            // How do we detect filenames?  There are a few easy ways that we could do with regex, but we
+            // will walk through the command string for some trigger strings, since in some situations we
+            // may need to back-track.
+
+            // A file must have either: a) one of our expected file extensions, or b) a macro.  This is going
+            // to be our anchor.
+            var macro = GetMacroAnchorInCommand(command) ?? string.Empty;
+            var fileExt = GetFileExtensionAnchorInCommand(command) ?? string.Empty;
+            if (!string.IsNullOrEmpty(fileExt) || !string.IsNullOrEmpty(macro))
+            {
+                int anchorIndex = command.IndexOf(fileExt, StringComparison.CurrentCultureIgnoreCase);
+                if (anchorIndex == -1 || string.IsNullOrEmpty(fileExt))
+                {
+                    anchorIndex = command.IndexOf(macro, StringComparison.CurrentCultureIgnoreCase);
+                }
+
+                // Look ahead to some delimiter that indicates we're at the end of a file path.  This could be
+                // whitespace, a comma or a closing quote.  If no end index is found, assume the end of our
+                // file extension is the end index.
+                int endIndex = command.IndexOfAny(EndCommandSegmentDelimiters, anchorIndex);
+                if (endIndex == -1)
+                {
+                    endIndex = anchorIndex + fileExt.Length;
+                }
+
+                // Now look behind to find the beginning of the file name.  This could be from the same list
+                // of delimiters too.  If for some reason we don't find anything, we're going to assume that
+                // we need to start at the beginning of the string.  This seems highly unlikely that it will
+                // be correct, but it gives us a response we can send back, and the downstream failure should
+                // be handled when we try to expand the path or find the file.
+                bool isQuoted = (QuotedSegmentDelimiters.Contains(command[endIndex]));
+                int startIndex = command.LastIndexOfAny(isQuoted ? QuotedSegmentDelimiters : StartCommandSegmentDelimiters, anchorIndex);
+                if (startIndex == -1)
+                {
+                    startIndex = 0;
+                }
+
+                return command.Substring(startIndex + 1, (endIndex - startIndex - 1)).Trim();
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>Detect if the command references the table1 package</summary>
+        /// <remarks>
+        /// This is a very specialized function - we are promoting the use of the table1 package (which is not a core
+        /// Stata command) since it makes generating tables much easier within Stata for StatTag.  Because the
+        /// table1 package only allows exporting to Excel, we created this detection so that we can manipulate it and
+        /// enforce XLSX output (as opposed to legacy XLS).
+        /// </remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsTable1Command(string command)
+        {
+            return Table1Regex.IsMatch(command);
         }
 
         public bool IsCalculatedDisplayValue(string command)
@@ -199,8 +324,9 @@ namespace StatTag.Core.Parser
         /// macro delimiters from the macro names returned.
         /// </summary>
         /// <param name="command"></param>
+        /// <param name="trimDelimiters"></param>
         /// <returns></returns>
-        public string[] GetMacros(string command)
+        public string[] GetMacros(string command, bool trimDelimiters = true)
         {
             var macroNames = new List<string>();
             if (!string.IsNullOrEmpty(command))
@@ -210,7 +336,11 @@ namespace StatTag.Core.Parser
                 {
                     for (int index = 0; index < matches.Count; index++)
                     {
-                        macroNames.Add(matches[index].Groups[1].Value);
+                        // It could match on group 1 or 2, depending on the type of macro.  If 1 is empty,
+                        // assume we should use 2.
+                        macroNames.Add(string.IsNullOrEmpty(matches[index].Groups[1].Value)
+                            ? (trimDelimiters ? matches[index].Groups[2].Value : string.Format("${0}", matches[index].Groups[2].Value))
+                            : (trimDelimiters ? matches[index].Groups[1].Value : string.Format("`{0}'", matches[index].Groups[1].Value)));
                     }
                 }
             }

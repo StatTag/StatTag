@@ -29,6 +29,7 @@
     <AssemblyName>StatTag</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
+    <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <PublishUrl>publish\</PublishUrl>
     <InstallUrl />
@@ -38,7 +39,6 @@
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
-    <IsWebBootstrapper>False</IsWebBootstrapper>
     <ProductName>StatTag</ProductName>
     <PublisherName />
     <SupportUrl />
@@ -135,6 +135,10 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -212,6 +216,12 @@
     <Compile Include="Controls\FigureProperties.Designer.cs">
       <DependentUpon>FigureProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MissingValueSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MissingValueSettings.Designer.cs">
+      <DependentUpon>MissingValueSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NumericValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -254,6 +264,12 @@
     <Compile Include="Controls\VerticalLine.Designer.cs">
       <DependentUpon>VerticalLine.cs</DependentUpon>
     </Compile>
+    <Compile Include="DocumentProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocumentProperties.Designer.cs">
+      <DependentUpon>DocumentProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditTag.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -289,7 +305,7 @@
     <Compile Include="Models\DocumentManager.cs" />
     <Compile Include="Models\FieldGenerator.cs" />
     <Compile Include="Models\GridDataItem.cs" />
-    <Compile Include="Models\PropertiesManager.cs" />
+    <Compile Include="Models\SettingsManager.cs" />
     <Compile Include="Models\ScintillaManager.cs" />
     <Compile Include="Models\StatsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -326,6 +342,9 @@
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MissingValueSettings.resx">
+      <DependentUpon>MissingValueSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\NumericValueProperties.resx">
       <DependentUpon>NumericValueProperties.cs</DependentUpon>
     </EmbeddedResource>
@@ -346,6 +365,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VerticalLine.resx">
       <DependentUpon>VerticalLine.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocumentProperties.resx">
+      <DependentUpon>DocumentProperties.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditTag.resx">
       <DependentUpon>EditTag.cs</DependentUpon>
@@ -381,6 +403,7 @@
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
@@ -427,6 +450,10 @@
     <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
       <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
       <Name>RDotNet.NativeLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ScintillaNET-FindReplaceDialog\ScintillaNet FindReplaceDialog\ScintillaNET FindReplaceDialog.csproj">
+      <Project>{548fd833-9a3b-41bb-9850-570afe9a91b7}</Project>
+      <Name>ScintillaNET FindReplaceDialog</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET\src\ScintillaNET\ScintillaNET.csproj">
       <Project>{22ae2386-60f1-476e-9303-61cdb0aac4cf}</Project>

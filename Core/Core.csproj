@@ -66,6 +66,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus, Version=4.1.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -99,6 +107,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\FileMonitoringException.cs" />
     <Compile Include="Factories.cs" />
     <Compile Include="Generator\BaseGenerator.cs" />
     <Compile Include="Generator\BaseParameterGenerator.cs" />
@@ -118,15 +127,16 @@
     <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\BaseManager.cs" />
-    <Compile Include="Models\CSVToTable.cs" />
+    <Compile Include="Models\DataFileToTable.cs" />
     <Compile Include="Models\DocumentMetadata.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />
     <Compile Include="Models\FilterFormat.cs" />
     <Compile Include="Models\LogManager.cs" />
-    <Compile Include="Models\Properties.cs" />
+    <Compile Include="Models\MonitoredCodeFile.cs" />
+    <Compile Include="Models\UserSettings.cs" />
     <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\StatPackageState.cs" />
-    <Compile Include="Models\StatTagUserException.cs" />
+    <Compile Include="Exceptions\StatTagUserException.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\CodeFile.cs" />
     <Compile Include="Models\CodeFileAction.cs" />

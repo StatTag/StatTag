@@ -42,11 +42,13 @@ namespace StatTag.Models
         /// </summary>
         private const int RefreshStepInterval = 5;
 
-        public DocumentManager Manager { get; set; }
+        public DocumentManager DocumentManager { get; set; }
+        public SettingsManager SettingsManager { get; set; }
 
-        public StatsManager(DocumentManager manager)
+        public StatsManager(DocumentManager documentManager, SettingsManager settingsManager)
         {
-            Manager = manager;
+            DocumentManager = documentManager;
+            SettingsManager = settingsManager;
         }
 
         /// <summary>
@@ -110,6 +112,9 @@ namespace StatTag.Models
                     return result;
                 }
 
+                var document = Globals.ThisAddIn.SafeGetActiveDocument();
+                var metadata = DocumentManager.LoadMetadataFromDocument(document, true);
+
                 try
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
@@ -141,7 +146,7 @@ namespace StatTag.Models
 
                         var results = automation.RunCommands(step.Code.ToArray(), step.Tag);
 
-                        var tag = Manager.FindTag(step.Tag.Id);
+                        var tag = DocumentManager.FindTag(step.Tag.Id);
                         if (tag != null)
                         {
                             var resultList = new List<CommandResult>(results);
@@ -163,7 +168,8 @@ namespace StatTag.Models
                                         x =>
                                             x.TableResult.FormattedCells =
                                                 tag.TableFormat.Format(x.TableResult,
-                                                    Factories.GetValueFormatter(tag.CodeFile)));
+                                                    Factories.GetValueFormatter(tag.CodeFile),
+                                                    metadata));
                                 }
 
                                 result.UpdatedTags.Add(tag);
@@ -175,9 +181,9 @@ namespace StatTag.Models
                 }
                 catch (Exception exc)
                 {
-                    if (Manager != null && Manager.Logger != null)
+                    if (DocumentManager != null && DocumentManager.Logger != null)
                     {
-                        Manager.Logger.WriteException(exc);
+                        DocumentManager.Logger.WriteException(exc);
                     }
 
                     // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's

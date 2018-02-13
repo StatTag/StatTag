@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using StatTag.Core.Models;
 using StatTag.Models;
 using System;
@@ -78,9 +79,19 @@ namespace StatTag
         private void LoadList(string filter = "")
         {
             dgvItems.Rows.Clear();
-            foreach (var tag in Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0))
+            var filteredTags = Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0).OrderBy(x => x.LineStart);
+            foreach (var tag in filteredTags)
             {
                 AddRow(tag);
+            }
+
+            // If the list was sorted explicitly, retain that sort order after we've refreshed the data
+            if (dgvItems.SortedColumn != null)
+            {
+                var sortOrder = (dgvItems.SortOrder == SortOrder.Descending)
+                    ? ListSortDirection.Descending
+                    : ListSortDirection.Ascending;
+                dgvItems.Sort(dgvItems.SortedColumn, sortOrder);
             }
         }
 

@@ -8,9 +8,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Office.Core;
 using StatTag.Core;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
@@ -21,20 +23,37 @@ namespace StatTag.Models
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and tags.
     /// </summary>
-    public class DocumentManager : BaseManager
+    public class DocumentManager : BaseManager, IDisposable
     {
-        private Dictionary<string, List<CodeFile>> DocumentCodeFiles { get; set; }
+        public event EventHandler CodeFileChanged;
+
+        private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
+        public SettingsManager SettingsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
         public DocumentManager()
         {
-            DocumentCodeFiles = new Dictionary<string, List<CodeFile>>();
+            SettingsManager = null;
+            DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
             TagManager = new TagManager(this);
-            StatsManager = new StatsManager(this);
+            StatsManager = new StatsManager(this, SettingsManager);
+        }
+
+        public void SetSettingsManager(SettingsManager settingsManager)
+        {
+            SettingsManager = settingsManager;
+            if (StatsManager == null)
+            {
+                StatsManager = new StatsManager(this, SettingsManager);
+            }
+            else
+            {
+                StatsManager.SettingsManager = SettingsManager;
+            }
         }
 
         /// <summary>
@@ -65,7 +84,11 @@ namespace StatTag.Models
         {
             var metadata = new DocumentMetadata()
             {
-                StatTagVersion = UIUtility.GetVersionLabel()
+                StatTagVersion = UIUtility.GetVersionLabel(),
+                RepresentMissingValues = SettingsManager.Settings.RepresentMissingValues,
+                CustomMissingValue = SettingsManager.Settings.CustomMissingValue,
+                MetadataFormatVersion = DocumentMetadata.CurrentMetadataFormatVersion,
+                TagFormatVersion = Tag.CurrentTagFormatVersion
             };
             return metadata;
         }
@@ -73,8 +96,9 @@ namespace StatTag.Models
         /// <summary>
         /// Saves associated metadata about StatTag to the properties in the supplied document.
         /// </summary>
-        /// <param name="document"></param>
-        public void SaveMetadataToDocument(Document document)
+        /// <param name="document">The Word Document object we are saving the metadata to</param>
+        /// <param name="metadata">The metadata object to be serialized and saved</param>
+        public void SaveMetadataToDocument(Document document, DocumentMetadata metadata)
         {
             Log("SaveMetadataToDocument - Started");
 
@@ -82,7 +106,12 @@ namespace StatTag.Models
             var variable = variables[MetadataAttribute];
             try
             {
-                var attribute = CreateDocumentMetadata().Serialize();
+                if (metadata == null)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+
+                var attribute = metadata.Serialize();
                 if (!DocumentVariableExists(variable))
                 {
                     Log(string.Format("Metadata variable does not exist.  Adding attribute value of {0}", attribute));
@@ -106,6 +135,48 @@ namespace StatTag.Models
             SaveCodeFileListToDocument(document);
 
             Log("SaveMetadataToDocument - Finished");
+        }
+
+        public DocumentMetadata LoadMetadataFromCurrentDocument(bool createIfEmpty)
+        {
+            var document = Globals.ThisAddIn.SafeGetActiveDocument();
+            return LoadMetadataFromDocument(document, createIfEmpty);
+        }
+
+
+        /// <summary>
+        /// Loads associated metadata about StatTag from the properties in the supplied document.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="createIfEmpty">If true, and there is no metadata for the document, a default instance of the metadata will be created.  If false, and no metadata exists, null will be returned.</param>
+        public DocumentMetadata LoadMetadataFromDocument(Document document, bool createIfEmpty)
+        {
+            Log("LoadMetadataFromDocument - Started");
+            DocumentMetadata metadata = null;
+            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
+            // we just read it and log it so we know a little more about the document.
+            var variables = document.Variables;
+            var variable = variables[MetadataAttribute];
+            try
+            {
+                if (DocumentVariableExists(variable))
+                {
+                    metadata = DocumentMetadata.Deserialize(variable.Value);
+                }
+                else if (createIfEmpty)
+                {
+                    metadata = CreateDocumentMetadata();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(variable);
+                Marshal.ReleaseComObject(variables);
+            }
+
+            Log("LoadMetadataFromDocument - Finished");
+
+            return metadata;
         }
 
         /// <summary>
@@ -160,46 +231,11 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Loads associated metadata about StatTag from the properties in the supplied document.
-        /// </summary>
-        /// <param name="document"></param>
-        public void LoadMetadataFromDocument(Document document)
-        {
-            Log("LoadMetadataFromDocument - Started");
-            // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
-            // we just read it and log it so we know a little more about the document.
-            var variables = document.Variables;
-            var variable = variables[MetadataAttribute];
-            try
-            {
-                if (DocumentVariableExists(variable))
-                {
-                    var metadata = DocumentMetadata.Deserialize(variable.Value);
-                    Log(string.Format("Document created with {0}", metadata.StatTagVersion));
-                }
-                else
-                {
-                    Log("No StatTag metadata contained in document");
-                }
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
-            }
-            
-            // Historically we just had the code file list in the document properties, so we call the old load
-            // function to help with backwards compatibility for documents created prior to v3.1, without having
-            // to migrate document properties.
-            LoadCodeFileListFromDocument(document);
-            Log("LoadMetadataFromDocument - Finished");
-        }
-
-        /// <summary>
-        /// Load the list of associated Code Files from a Word document.
+        /// Forces the list of associated Code Files from a Word document to load, and refreshes
+        /// the internally managed list of Code Files for that document.
         /// </summary>
         /// <param name="document">The Word document of interest</param>
-        protected void LoadCodeFileListFromDocument(Document document)
+        public void LoadCodeFileListFromDocument(Document document)
         {
             Log("LoadCodeFileListFromDocument - Started");
 
@@ -210,12 +246,12 @@ namespace StatTag.Models
                 if (DocumentVariableExists(variable))
                 {
                     var list = CodeFile.DeserializeList(variable.Value);
-                    DocumentCodeFiles[document.FullName] = list;
+                    RefreshCodeFileListForDocument(document, list);
                     Log(string.Format("Document variable existed, loaded {0} code files", list.Count));
                 }
                 else
                 {
-                    DocumentCodeFiles[document.FullName] = new List<CodeFile>();
+                    DocumentCodeFiles[document.FullName] = new List<MonitoredCodeFile>();
                     Log("Document variable does not exist, no code files loaded");
                 }
             }
@@ -395,12 +431,13 @@ namespace StatTag.Models
         /// If the shape can be updated, we will process the update.
         /// </summary>
         /// <param name="document"></param>
-        private void UpdateInlineShapes(Document document)
+        private List<string> UpdateInlineShapes(Document document)
         {
+            var pathsNotUpdated = new List<string>();
             var shapes = document.InlineShapes;
             if (shapes == null)
             {
-                return;
+                return pathsNotUpdated;
             }
 
             int shapesCount = shapes.Count;
@@ -412,15 +449,42 @@ namespace StatTag.Models
                     var linkFormat = shape.LinkFormat;
                     if (linkFormat != null)
                     {
-                        linkFormat.Update();
-                        Marshal.ReleaseComObject(linkFormat);
-                    }
+                        // Attempt to update the linked file.  If it fails / throws an exception, catch that
+                        // and track the image file path that did not update.
+                        try
+                        {
+                            linkFormat.Update();
+                        }
+                        catch
+                        {
+                            string fileName = string.Empty;
+                            try
+                            {
+                                fileName = linkFormat.SourceFullName;
+                            }
+                            catch
+                            {
+                                // If we can't safely get the name, we will just provide a generic name.
+                                fileName = "Additional image(s) (unable to access their file names)";
+                            }
 
+                            if (!pathsNotUpdated.Contains(fileName))
+                            {
+                                pathsNotUpdated.Add(fileName);
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(linkFormat);
+                        }
+                    }
                     Marshal.ReleaseComObject(shape);
                 }
             }
 
             Marshal.ReleaseComObject(shapes);
+
+            return pathsNotUpdated;
         }
 
         /// <summary>
@@ -437,6 +501,7 @@ namespace StatTag.Models
                 return;
             }
 
+            var metadata = LoadMetadataFromDocument(document, true);
             int shapeCount = shapes.Count;
             for (int index = 1; index <= shapeCount; index++)
             {
@@ -464,7 +529,7 @@ namespace StatTag.Models
                             shape.Name = tagUpdatePair.New.Id;
                         }
 
-                        shape.TextFrame.TextRange.Text = tag.FormattedResult;
+                        shape.TextFrame.TextRange.Text = tag.FormattedResult(metadata);
                     }
                     Marshal.ReleaseComObject(shape);
                 }
@@ -493,6 +558,7 @@ namespace StatTag.Models
             var document = application.ActiveDocument;
             Cursor.Current = Cursors.WaitCursor;
             application.ScreenUpdating = false;
+            List<string> shapesNotUpdated = null;
             try
             {
                 var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
@@ -506,7 +572,7 @@ namespace StatTag.Models
                     }
                 }
 
-                UpdateInlineShapes(document);
+                shapesNotUpdated = UpdateInlineShapes(document);
 
                 UpdateVerbatimEntries(document, tagUpdatePair);
                 
@@ -567,6 +633,13 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(document);
                 Cursor.Current = Cursors.Default;
                 application.ScreenUpdating = true;
+            }
+
+            // Report this as an exception AFTER all of the fields have been updated.
+            if (shapesNotUpdated != null && shapesNotUpdated.Count > 0)
+            {
+                throw new StatTagUserException(string.Format("StatTag was unable to find the following figure(s), and so they could not be updated in the document.  You will need to delete each figure from Word and re-add it:\r\n\r\n{0}",
+                    string.Join("\r\n", shapesNotUpdated)));
             }
 
             Log("UpdateFields - Finished");
@@ -698,7 +771,8 @@ namespace StatTag.Models
 
             var cells = GetCells(selection);
 
-            tag.UpdateFormattedTableData();
+            var metadata = LoadMetadataFromDocument(selection.Document, true);
+            tag.UpdateFormattedTableData(metadata);
             var table = tag.CachedResult.First().TableResult;
 
             var dimensions = tag.GetTableDisplayDimensions();
@@ -765,7 +839,7 @@ namespace StatTag.Models
                 };
                 CreateTagField(range,
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
-                    innerTag.FormattedResult, innerTag);
+                    innerTag.FormattedResult(metadata), innerTag);
                 index++;
                 Marshal.ReleaseComObject(range);
             }
@@ -921,7 +995,7 @@ namespace StatTag.Models
                 {
                     Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateTagField(range, tag.Name, tag.FormattedResult, tag);
+                    CreateTagField(range, tag.Name, tag.FormattedResult(LoadMetadataFromDocument(document, true)), tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -984,6 +1058,9 @@ namespace StatTag.Models
             {
                 var dialog = new EditTag(false, this);
 
+                var document = Globals.ThisAddIn.SafeGetActiveDocument();
+                var metadata = LoadMetadataFromDocument(document, true);
+
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
 
@@ -1001,14 +1078,14 @@ namespace StatTag.Models
                         if (dialog.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Tag.UpdateFormattedTableData();
+                            dialog.Tag.UpdateFormattedTableData(metadata);
                         }
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.TableFormat != tag.TableFormat)
                     {
                         Log("Updating fields after tag table format changed");
-                        dialog.Tag.UpdateFormattedTableData();
+                        dialog.Tag.UpdateFormattedTableData(metadata);
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
                     else if (dialog.Tag.Id != tag.Id)
@@ -1175,7 +1252,22 @@ namespace StatTag.Models
         /// </summary>
         /// <param name="document">The Word document to analyze.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
+
         public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
+        {
+            CheckDocument checkDocumentDialog = null;
+            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound);
+        }
+
+        /// <summary>
+        /// Conduct an assessment of the active document to see if there are any inserted
+        /// tags that do not have an associated code file in the document.
+        /// </summary>
+        /// <param name="document">The Word document to analyze.</param>
+        /// <param name="checkDocumentDialog">A reference to use for the CheckDocument form.  This method will create the dialog, but the
+        /// reference allows the caller to have a reference when the method completes.</param>
+        /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
+        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false)
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
@@ -1186,11 +1278,11 @@ namespace StatTag.Models
                 return;
             }
 
-            var dialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
-            if (DialogResult.OK == dialog.ShowDialog())
+            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
+            if (DialogResult.OK == checkDocumentDialog.ShowDialog())
             {
-                UpdateUnlinkedTagsByTag(dialog.UnlinkedTagUpdates, dialog.UnlinkedAffectedCodeFiles);
-                UpdateRenamedTags(dialog.DuplicateTagUpdates);
+                UpdateUnlinkedTagsByTag(checkDocumentDialog.UnlinkedTagUpdates, checkDocumentDialog.UnlinkedAffectedCodeFiles);
+                UpdateRenamedTags(checkDocumentDialog.DuplicateTagUpdates);
             }
         }
 
@@ -1278,7 +1370,8 @@ namespace StatTag.Models
         /// <param name="document"></param>
         public void AddCodeFile(string fileName, Document document = null)
         {
-            var files = GetCodeFileList(document);
+            //var files = GetCodeFileList(document);
+            var files = GetManagedCodeFileList(document);
             if (files.Any(x => x.FilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)))
             {
                 Log(string.Format("Code file {0} already exists and won't be added again", fileName));
@@ -1289,8 +1382,37 @@ namespace StatTag.Models
             var file = new CodeFile { FilePath = fileName, StatisticalPackage = package };
             file.LoadTagsFromContent();
             file.SaveBackup();
-            files.Add(file);
-            Log(string.Format("Added code file {0}", fileName));
+            try
+            {
+                var monitoredCodeFile = new MonitoredCodeFile(file);
+                monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+                files.Add(monitoredCodeFile);
+                Log(string.Format("Added code file {0}", fileName));
+            }
+            catch (Exception exc)
+            {
+                throw new FileMonitoringException(fileName, exc);
+            }
+        }
+
+        /// <summary>
+        /// This just dispatches to the next level for handling.  This is because the DocumentManager class
+        /// is responsible for collecting and managing all code files.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnCodeFileChanged(object sender, EventArgs args)
+        {
+            var monitoredCodeFile = sender as MonitoredCodeFile;
+            if (monitoredCodeFile == null)
+            {
+                return;
+            }
+
+            if (CodeFileChanged != null)
+            {
+                CodeFileChanged(monitoredCodeFile, args);
+            }
         }
 
         private void UpdateRenamedTags(List<UpdatePair<Tag>> updates)
@@ -1319,13 +1441,110 @@ namespace StatTag.Models
             }
         }
 
+        //// Define the event handlers.
+        //private void OnChanged(object source, FileSystemEventArgs e)
+        //{
+        //    // Go through all of our managed code files in all open documents.  Any code file that 
+        //    // matches the path of the changed file will be updated.
+        //    Log("OnChanged event for code file " + e.FullPath + " " + e.ChangeType);
+        //}
+
+        //private static void OnRenamed(object source, RenamedEventArgs e)
+        //{
+        //    // Specify what is done when a file is renamed.
+        //    Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
+        //}
+
+        ///// <summary>
+        ///// For a specific code file instance, create a watcher to respond to certain file system events.
+        ///// </summary>
+        ///// <param name="codeFile"></param>
+        ///// <returns></returns>
+        //private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
+        //{
+        //    var watcher = new FileSystemWatcher
+        //    {
+        //        Path = Path.GetDirectoryName(codeFile.FilePath),
+        //        Filter = Path.GetFileName(codeFile.FilePath),
+        //        EnableRaisingEvents = true,
+        //        NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite
+        //    };
+        //    watcher.Changed += new FileSystemEventHandler(OnChanged);
+        //    watcher.Created += new FileSystemEventHandler(OnChanged);
+        //    watcher.Deleted += new FileSystemEventHandler(OnChanged);
+        //    watcher.Renamed += new RenamedEventHandler(OnRenamed);
+
+        //    return watcher;
+        //}
+
+        private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
+        {
+            // If there is no entry for this particular document, we can exit (there's nothing to clean up)
+            if (document == null || !DocumentCodeFiles.ContainsKey(document.FullName))
+            {
+                return;
+            }
+
+            // Shut down and dispose of all the existing managed code files (including their watchers).
+            var existingFiles = DocumentCodeFiles[document.FullName];
+            existingFiles.ForEach(x => x.Dispose());
+
+            // Now set up the new code file list, and subscribe new watchers for them so they are
+            // properly managed
+            var managedFiles = new List<MonitoredCodeFile>();
+            foreach (var file in files)
+            {
+                try
+                {
+                    var monitoredCodeFile = new MonitoredCodeFile(file);
+                    monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
+                    managedFiles.Add(monitoredCodeFile);
+                }
+                catch (Exception exc)
+                {
+                    throw new FileMonitoringException(file.FilePath, exc);
+                }
+            }
+            DocumentCodeFiles[document.FullName] = managedFiles;
+        }
+
+        /// <summary>
+        /// Given a document, force all known code files to refresh their contents.
+        /// <remarks>This uses the list of internally managed code files associated with a document.  Even if the code file has
+        /// had its contents cached, this forces it to completely reload.  It should be called only when we know that the code
+        /// file is invalid (such as when a file changes on disk)</remarks>
+        /// </summary>
+        /// <param name="document">The document we want to reload code file contents for</param>
+        public void RefreshContentInDocumentCodeFiles(Document document)
+        {
+            Log("RefreshContentInDocumentCodeFiles - Start");
+            if (document == null)
+            {
+                Log("No document was specified to refresh - will exit");
+                return;
+            }
+            var codeFiles = GetManagedCodeFileList(document);
+            Log(string.Format("Document has {0} existing code file(s) associated", (codeFiles == null ) ? "(null)" : codeFiles.Count.ToString()));
+            if (codeFiles != null)
+            {
+                foreach (var codeFile in codeFiles)
+                {
+                    codeFile.StopMonitoring();
+                    codeFile.LoadTagsFromContent();
+                    codeFile.ChangeHistory.Clear();  // We have reloaded the code file, so clear out any outstanding changes.
+                    codeFile.StartMonitoring();
+                }
+            }
+            Log("RefreshContentInDocumentCodeFiles - Finish");
+        }
+
         /// <summary>
         /// Helper accessor to get the list of code files associated with a document.  If the code file list
         /// hasn't been established yet for the document, it will be created and returned.
         /// </summary>
         /// <param name="document"></param>
         /// <returns></returns>
-        public List<CodeFile> GetCodeFileList(Document document = null)
+        public List<MonitoredCodeFile> GetManagedCodeFileList(Document document = null)
         {
             if (document == null)
             {
@@ -1335,19 +1554,47 @@ namespace StatTag.Models
             if (document == null)
             {
                 Log("Attempted to access code files for a null document.  Returning empty collection.");
-                return new List<CodeFile>();
+                return new List<MonitoredCodeFile>();
             }
 
             var fullName = document.FullName;
             if (!DocumentCodeFiles.ContainsKey(fullName))
             {
                 Log(string.Format("Code file list for {0} is not yet cached.", fullName));
-                DocumentCodeFiles.Add(fullName, new List<CodeFile>());
+                DocumentCodeFiles.Add(fullName, new List<MonitoredCodeFile>());
                 LoadCodeFileListFromDocument(document);
                 Log(string.Format("Loaded {0} code files from document", DocumentCodeFiles[fullName].Count));
             }
 
             return DocumentCodeFiles[fullName];
+        }
+
+        public bool IsCodeFileLinkedToDocument(Document document, string codeFilePath)
+        {
+            if (document == null || string.IsNullOrWhiteSpace(codeFilePath))
+            {
+                return false;
+            }
+
+            // If our internal map of documents doesn't know about the document being passed in, there's no
+            // way we've tracked the code files associated with it, so we have to say it's not linked.
+            if (!DocumentCodeFiles.ContainsKey(document.FullName))
+            {
+                return false;
+            }
+
+            return DocumentCodeFiles[document.FullName].Select(x => x.FilePath).Any(x => x.Equals(codeFilePath));
+        }
+
+        public List<CodeFile> GetCodeFileList(Document document = null)
+        {
+            var codeFileList = GetManagedCodeFileList(document);
+            if (codeFileList == null)
+            {
+                return new List<CodeFile>();
+            }
+
+            return codeFileList.Select(x => (CodeFile)x).ToList<CodeFile>();
         }
 
         /// <summary>
@@ -1368,7 +1615,20 @@ namespace StatTag.Models
                 throw new ArgumentNullException("The Word document must be specified.");
             }
 
-            DocumentCodeFiles[document.FullName] = files;
+            RefreshCodeFileListForDocument(document, files);
+        }
+
+        public void Dispose()
+        {
+            // To help clean things up, go through all of the documents we are managing code files for,
+            // and dispose of those to stop managed objects (e.g., the file system watcher) and clean them up.
+            if (DocumentCodeFiles != null)
+            {
+                foreach (var docFile in DocumentCodeFiles)
+                {
+                    docFile.Value.ForEach(x => x.Dispose());
+                }
+            }
         }
     }
 }
