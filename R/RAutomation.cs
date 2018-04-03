@@ -418,6 +418,34 @@ namespace R
             // Since the UI is not shown, no action is needed here.
         }
 
+        public string FormatErrorMessageFromExecution(Exception exc)
+        {
+            if (Engine == null)
+            {
+                return exc.Message;
+            }
+
+            // There is a known issue with R 3.4.3 and R.NET (https://github.com/jmp75/rdotnet/issues/62).  We will attempt
+            // to detect if this setup is consistent with that, and offer targeted guidance if so.
+            if (Engine.DllVersion.Contains("3.4.3"))
+            {
+                // Our check is the presenece of the etc/Renviron.site file.  That was incorrectly deployed with R 3.4.3
+                // installers on Windows, and is causing problems when we run code from R.NET.  If that file exists, we
+                // provide some additional guidance on what to do.
+                var rHome = Environment.GetEnvironmentVariable("R_HOME");
+                var builder = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(rHome) && File.Exists(Path.Combine(rHome, "etc/Renviron.site")))
+                {
+                    builder.Append(
+                        "There is a known issue with R 3.4.3 that may be causing your code to fail in StatTag.\r\n\r\nIf you have confirmed that your code runs fine from R or RStudio, please check where R is installed to see if the file 'etc/Renviron.site' exists.  If so, renaming or removing the file may fix this issue.");
+                    builder.AppendFormat("\r\n\r\n{0}", exc.Message);
+                    return builder.ToString();
+                }
+            }
+
+            return exc.Message;
+        }
+
         private string GetValueResult(SymbolicExpression result)
         {
             if (result.IsDataFrame())

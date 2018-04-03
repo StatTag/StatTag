@@ -92,6 +92,11 @@ namespace Stata
             }
         }
 
+        public string FormatErrorMessageFromExecution(Exception exc)
+        {
+            return exc.Message;
+        }
+
         public bool Initialize(CodeFile file)
         {
             try
