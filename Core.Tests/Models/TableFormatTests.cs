@@ -68,7 +68,22 @@ namespace Core.Tests.Models
             var table = new Table(3, 3,
                 new string[,] { { "", "Col1", "Col2" }, { "Row1", "0", "1" }, { "Row2", null, "3" } });
             Assert.AreEqual(9, format.Format(table).Length);
-            Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, MISSING, 3", FormatArrayForChecking(format.Format(table, new TestValueFormatter())));
+            // Without any properties, the default is to make missing values show up as empty strings
+            Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, , 3", FormatArrayForChecking(format.Format(table, new TestValueFormatter())));
+
+            // When we specify properties, the behavior should be what we specify
+            var metadata = new DocumentMetadata()
+            {
+                RepresentMissingValues = Constants.MissingValueOption.StatPackageDefault
+            };
+            Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, MISSING, 3", FormatArrayForChecking(format.Format(table, new TestValueFormatter(), metadata)));
+
+            metadata = new DocumentMetadata()
+            {
+                RepresentMissingValues = Constants.MissingValueOption.CustomValue,
+                CustomMissingValue =  "Custom"
+            };
+            Assert.AreEqual(", Col1, Col2, Row1, 0, 1, Row2, Custom, 3", FormatArrayForChecking(format.Format(table, new TestValueFormatter(), metadata)));
         }
     }
 }
