@@ -362,7 +362,51 @@ namespace StatTag.Models
         private bool RefreshTableTagFields(Tag tag, Document document)
         {
             Log("RefreshTableTagFields - Started");
-            var fields = document.Fields;
+
+            var tableRefreshed = true;
+
+            // First iterate over all of the shapes
+            var shapes = document.Shapes;
+            foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
+            {
+                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                {
+                    var fields = shape.TextFrame.TextRange.Fields;
+                    if (fields != null)
+                    {
+                        var shapeTableRefreshed = HandleRefreshTableTagFields(fields, tag, document);
+                        if (fields != null && fields.Count > 0 && !shapeTableRefreshed)
+                        {
+                            Log(string.Format("Table refresh failed for shape of type {0}", shape.Type));
+                            tableRefreshed = shapeTableRefreshed;
+                        }
+                        Marshal.ReleaseComObject(fields);
+                    }
+                }
+            }
+
+            // Then iterate over all of the story ranges - this will include text areas as well as text boxes.
+            foreach (var story in document.StoryRanges.OfType<Range>())
+            {
+                var fields = story.Fields;
+                if (fields != null)
+                {
+                    var storyTableRefreshed = HandleRefreshTableTagFields(fields, tag, document);
+                    if (fields != null && fields.Count > 0 && !storyTableRefreshed)
+                    {
+                        Log(string.Format("Table refresh failed for story of type {0}", story.StoryType));
+                        tableRefreshed = storyTableRefreshed;
+                    }
+                    Marshal.ReleaseComObject(fields);
+                }
+            }
+
+            Log(string.Format("RefreshTableTagFields - Finished, Returning {0}", tableRefreshed));
+            return tableRefreshed;
+        }
+
+        private bool HandleRefreshTableTagFields(Fields fields, Tag tag, Document document)
+        {
             int fieldsCount = fields.Count;
             bool tableRefreshed = false;
 
@@ -406,7 +450,7 @@ namespace StatTag.Models
 
                         Log(string.Format("First table cell found at position {0}", firstFieldLocation));
                     }
-                    
+
                     field.Delete();
 
                     if (isFirstCell)
@@ -422,7 +466,6 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(field);
             }
 
-            Log(string.Format("RefreshTableTagFields - Finished, Returning {0}", tableRefreshed));
             return tableRefreshed;
         }
 
@@ -538,6 +581,59 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(shapes);
         }
 
+        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition)
+        {
+            var fieldsCount = fields.Count;
+            // Fields is a 1-based index
+            Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            for (int index = 1; index <= fieldsCount; index++)
+            {
+                var field = fields[index];
+                if (field == null)
+                {
+                    Log(string.Format("Null field detected at index {0}", index));
+                    continue;
+                }
+
+                if (!TagManager.IsStatTagField(field))
+                {
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                Log("Processing StatTag field");
+                var tag = TagManager.GetFieldTag(field);
+                if (tag == null)
+                {
+                    Log("The field tag is null or could not be found");
+                    Marshal.ReleaseComObject(field);
+                    continue;
+                }
+
+                // If we are asked to update an tag, we are only going to update that
+                // tag specifically.  Otherwise, we will process all tag fields.
+                if (tagUpdatePair != null)
+                {
+                    // Determine if this is a match, factoring in if we should be doing a more exact match on the tag.
+                    if ((!matchOnPosition && !tag.Equals(tagUpdatePair.Old))
+                        || matchOnPosition && !tag.EqualsWithPosition(tagUpdatePair.Old))
+                    {
+                        continue;
+                    }
+
+                    Log(string.Format("Processing only a specific tag with label: {0}", tagUpdatePair.New.Name));
+                    tag = new FieldTag(tagUpdatePair.New, tag);
+                    TagManager.UpdateTagFieldData(field, tag);
+                }
+
+                Log(string.Format("Inserting field for tag: {0}", tag.Name));
+                field.Select();
+                InsertField(tag);
+
+                Marshal.ReleaseComObject(field);
+            }
+        }
+
 
         /// <summary>
         /// Update all of the field values in the current document.
@@ -572,61 +668,31 @@ namespace StatTag.Models
                     }
                 }
 
+
                 shapesNotUpdated = UpdateInlineShapes(document);
 
                 UpdateVerbatimEntries(document, tagUpdatePair);
-                
-                var fields = document.Fields;
-                int fieldsCount = fields.Count;
-                // Fields is a 1-based index
-                Log(string.Format("Preparing to process {0} fields", fieldsCount));
-                for (int index = 1; index <= fieldsCount; index++)
+
+                var shapes = document.Shapes;
+                foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
                 {
-                    var field = fields[index];
-                    if (field == null)
+                    if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null && shape.TextFrame.TextRange.Fields != null)
                     {
-                        Log(string.Format("Null field detected at index {0}", index));
-                        continue;
+                        var fields = shape.TextFrame.TextRange.Fields;
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        Marshal.ReleaseComObject(fields);
                     }
-
-                    if (!TagManager.IsStatTagField(field))
-                    {
-                        Marshal.ReleaseComObject(field);
-                        continue;
-                    }
-
-                    Log("Processing StatTag field");
-                    var tag = TagManager.GetFieldTag(field);
-                    if (tag == null)
-                    {
-                        Log("The field tag is null or could not be found");
-                        Marshal.ReleaseComObject(field);
-                        continue;
-                    }
-
-                    // If we are asked to update an tag, we are only going to update that
-                    // tag specifically.  Otherwise, we will process all tag fields.
-                    if (tagUpdatePair != null)
-                    {
-                        // Determine if this is a match, factoring in if we should be doing a more exact match on the tag.
-                        if ((!matchOnPosition && !tag.Equals(tagUpdatePair.Old))
-                            || matchOnPosition && !tag.EqualsWithPosition(tagUpdatePair.Old))
-                        {
-                            continue;
-                        }
-
-                        Log(string.Format("Processing only a specific tag with label: {0}", tagUpdatePair.New.Name));
-                        tag = new FieldTag(tagUpdatePair.New, tag);
-                        TagManager.UpdateTagFieldData(field, tag);
-                    }
-
-                    Log(string.Format("Inserting field for tag: {0}", tag.Name));
-                    field.Select();
-                    InsertField(tag);
-
-                    Marshal.ReleaseComObject(field);
                 }
-                Marshal.ReleaseComObject(fields);
+
+                foreach (var story in document.StoryRanges.OfType<Range>())
+                {
+                    if (story.Fields != null)
+                    {
+                        var fields = story.Fields;
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        Marshal.ReleaseComObject(fields);
+                    }
+                }
             }
             finally
             {
@@ -687,7 +753,7 @@ namespace StatTag.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
-            document.Range(selectedCell.Range.Start, endCell.Range.End).Select();
+            table.Select();  // Select the target table directly instead of trying to select through the document.Range
 
             var cells = GetCells(application.Selection);
 

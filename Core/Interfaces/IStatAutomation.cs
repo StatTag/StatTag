@@ -11,5 +11,13 @@ namespace StatTag.Core.Interfaces
         bool IsReturnable(string command);
         string GetInitializationErrorMessage();
         void Hide();
+
+        /// <summary>
+        /// If an exception is thrown during execution, this method can be used to
+        /// format a more helpful error message given the raw exception.
+        /// </summary>
+        /// <param name="exc"></param>
+        /// <returns></returns>
+        string FormatErrorMessageFromExecution(Exception exc);
     }
 }

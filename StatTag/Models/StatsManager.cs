@@ -195,7 +195,8 @@ namespace StatTag.Models
                         Globals.ThisAddIn.Application.ScreenRefresh();
                     }
 
-                    MessageBox.Show(exc.Message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var message = automation.FormatErrorMessageFromExecution(exc);
+                    MessageBox.Show(message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return result;
                 }
             }

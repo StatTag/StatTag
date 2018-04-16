@@ -52,6 +52,11 @@ namespace SAS
             // Since the UI is not shown, no action is needed here.
         }
 
+        public string FormatErrorMessageFromExecution(Exception exc)
+        {
+            return exc.Message;
+        }
+
         public void Dispose()
         {
             if (Server != null)

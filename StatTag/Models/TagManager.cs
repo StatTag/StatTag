@@ -168,8 +168,55 @@ namespace StatTag.Models
 
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
+            var usedFiles = new List<string>();
 
-            var fields = document.Fields;
+            // First iterate over all of the shapes
+            var shapes = document.Shapes;
+            foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
+            {
+                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                {
+                    var fields = shape.TextFrame.TextRange.Fields;
+                    if (fields != null)
+                    {
+                        var shapeUsedFiles = HandleFindUnusedCodeFiles(fields);
+                        if (shapeUsedFiles.Any())
+                        {
+                            Log(string.Format("Found {0} files", shapeUsedFiles.Count));
+                            usedFiles.AddRange(shapeUsedFiles);
+                        }
+                        Marshal.ReleaseComObject(fields);
+                    }
+                }
+            }
+
+            // Then iterate over all of the story ranges - this will include text areas as well as text boxes.
+            foreach (var story in document.StoryRanges.OfType<Range>())
+            {
+                var fields = story.Fields;
+                if (fields != null)
+                {
+                    var storyUsedFiles = HandleFindUnusedCodeFiles(fields);
+                    if (storyUsedFiles.Any())
+                    {
+                        Log(string.Format("Found {0} files", storyUsedFiles.Count));
+                        usedFiles.AddRange(storyUsedFiles);
+                    }
+                    Marshal.ReleaseComObject(fields);
+                }
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            var unusedFiles = DocumentManager.GetCodeFileList().Where(x => !usedFiles.Contains(x.FilePath)).ToList();
+            Log(string.Format("Found {0} unused files", unusedFiles.Count));
+
+            Log("FindUnusedCodeFiles - Finished");
+            return unusedFiles;
+        }
+
+        private List<string> HandleFindUnusedCodeFiles(Fields fields)
+        {
             int fieldsCount = fields.Count;
             var usedFiles = new List<string>();
 
@@ -206,13 +253,7 @@ namespace StatTag.Models
                 Marshal.ReleaseComObject(field);
             }
 
-            Marshal.ReleaseComObject(document);
-
-            var unusedFiles = DocumentManager.GetCodeFileList().Where(x => !usedFiles.Contains(x.FilePath)).ToList();
-            Log(string.Format("Found {0} unused files", unusedFiles.Count));
-
-            Log("FindUnusedCodeFiles - Finished");
-            return unusedFiles;
+            return usedFiles;
         }
 
         /// <summary>
@@ -253,57 +294,60 @@ namespace StatTag.Models
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
 
-            var fields = document.Fields;
-            int fieldsCount = fields.Count;
-
             // When checking unlinked tags, we will look to see what tags are present in
             // linked code files.  Because a code file may be linked but no longer exist, we
             // need to filter down our list of files to only include those that are found at
             // the specified path.
             var files = DocumentManager.GetCodeFileList().Where(x => File.Exists(x.FilePath)).ToList();
-            
-            Log(String.Format("Preparing to process {0} fields", fieldsCount));
-            // Fields is a 1-based index
-            for (int index = fieldsCount; index >= 1; index--)
+
+            // Then iterate over all of the story ranges - this will include text areas as well as text boxes.
+            foreach (var story in document.StoryRanges.OfType<Range>())
             {
-                var field = fields[index];
-                if (field == null)
-                {
-                    Log(String.Format("Null field detected at index {0}", index));
-                    continue;
-                }
+                var fields = story.Fields;
+                int fieldsCount = fields.Count;
 
-                if (!IsStatTagField(field))
+                Log(String.Format("Preparing to process {0} fields", fieldsCount));
+                // Fields is a 1-based index
+                for (int index = fieldsCount; index >= 1; index--)
                 {
-                    Marshal.ReleaseComObject(field);
-                    continue;
-                }
-
-                Log("Processing StatTag field");
-                var tag = GetFieldTag(field);
-                if (tag == null)
-                {
-                    Log("The field tag is null or could not be found");
-                    Marshal.ReleaseComObject(field);
-                    continue;
-                }
-
-                // If the file associated with the tag is not in our known list of code files, or if the code file is linked
-                // and we just can't find the tag identifier anymore (e.g., if it was deleted from the code file without us
-                // knowing), we track the tag as being unlinked.
-                bool fileLinked = files.Any(x => x.FilePath.Equals(tag.CodeFilePath));
-                if (!fileLinked || (fileLinked && !(files.First(x => x.FilePath.Equals(tag.CodeFilePath)).Tags.Any(x => x.Id.Equals(tag.Id)))))
-                {
-                    if (!results.ContainsKey(tag.CodeFilePath))
+                    var field = fields[index];
+                    if (field == null)
                     {
-                        results.Add(tag.CodeFilePath, new List<Tag>());
+                        Log(String.Format("Null field detected at index {0}", index));
+                        continue;
                     }
 
-                    results[tag.CodeFilePath].Add(tag);
-                }
-                Marshal.ReleaseComObject(field);
-            }
+                    if (!IsStatTagField(field))
+                    {
+                        Marshal.ReleaseComObject(field);
+                        continue;
+                    }
 
+                    Log("Processing StatTag field");
+                    var tag = GetFieldTag(field);
+                    if (tag == null)
+                    {
+                        Log("The field tag is null or could not be found");
+                        Marshal.ReleaseComObject(field);
+                        continue;
+                    }
+
+                    // If the file associated with the tag is not in our known list of code files, or if the code file is linked
+                    // and we just can't find the tag identifier anymore (e.g., if it was deleted from the code file without us
+                    // knowing), we track the tag as being unlinked.
+                    bool fileLinked = files.Any(x => x.FilePath.Equals(tag.CodeFilePath));
+                    if (!fileLinked || (fileLinked && !(files.First(x => x.FilePath.Equals(tag.CodeFilePath)).Tags.Any(x => x.Id.Equals(tag.Id)))))
+                    {
+                        if (!results.ContainsKey(tag.CodeFilePath))
+                        {
+                            results.Add(tag.CodeFilePath, new List<Tag>());
+                        }
+
+                        results[tag.CodeFilePath].Add(tag);
+                    }
+                    Marshal.ReleaseComObject(field);
+                }                
+            }
 
             var shapes = document.Shapes;
             int shapesCount = shapes.Count;
@@ -369,7 +413,40 @@ namespace StatTag.Models
             var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
             var document = application.ActiveDocument;
 
-            var fields = document.Fields;
+            // First iterate over all of the shapes
+            var shapes = document.Shapes;
+            foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
+            {
+                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                {
+                    var fields = shape.TextFrame.TextRange.Fields;
+                    if (fields != null)
+                    {
+                        HandleProcessStatTagFields(fields, function, configuration);
+                        Marshal.ReleaseComObject(fields);
+                    }
+                }
+            }
+
+            // Then iterate over all of the story ranges - this will include text areas as well as text boxes.
+            foreach (var story in document.StoryRanges.OfType<Range>())
+            {
+                var fields = story.Fields;
+                if (fields != null)
+                {
+                    HandleProcessStatTagFields(fields, function, configuration);
+                    Marshal.ReleaseComObject(fields);
+                }
+            }
+
+            Marshal.ReleaseComObject(document);
+
+            Log("ProcessStatTagFields - Finished");
+        }
+
+        private void HandleProcessStatTagFields(Fields fields, Action<Field, FieldTag, object> function,
+            object configuration)
+        {
             int fieldsCount = fields.Count;
 
             // Fields is a 1-based index
@@ -402,10 +479,6 @@ namespace StatTag.Models
 
                 Marshal.ReleaseComObject(field);
             }
-
-            Marshal.ReleaseComObject(document);
-
-            Log("ProcessStatTagFields - Finished");
         }
 
         /// <summary>
