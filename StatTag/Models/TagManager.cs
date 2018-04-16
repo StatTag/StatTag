@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
+using StatTag.Core.Utility;
 
 namespace StatTag.Models
 {
@@ -174,19 +175,16 @@ namespace StatTag.Models
             var shapes = document.Shapes;
             foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
             {
-                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                var fields = WordUtil.SafeGetFieldsFromShape(shape);
+                if (fields != null)
                 {
-                    var fields = shape.TextFrame.TextRange.Fields;
-                    if (fields != null)
+                    var shapeUsedFiles = HandleFindUnusedCodeFiles(fields);
+                    if (shapeUsedFiles.Any())
                     {
-                        var shapeUsedFiles = HandleFindUnusedCodeFiles(fields);
-                        if (shapeUsedFiles.Any())
-                        {
-                            Log(string.Format("Found {0} files", shapeUsedFiles.Count));
-                            usedFiles.AddRange(shapeUsedFiles);
-                        }
-                        Marshal.ReleaseComObject(fields);
+                        Log(string.Format("Found {0} files", shapeUsedFiles.Count));
+                        usedFiles.AddRange(shapeUsedFiles);
                     }
+                    Marshal.ReleaseComObject(fields);
                 }
             }
 
@@ -417,14 +415,11 @@ namespace StatTag.Models
             var shapes = document.Shapes;
             foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
             {
-                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                var fields = WordUtil.SafeGetFieldsFromShape(shape);
+                if (fields != null)
                 {
-                    var fields = shape.TextFrame.TextRange.Fields;
-                    if (fields != null)
-                    {
-                        HandleProcessStatTagFields(fields, function, configuration);
-                        Marshal.ReleaseComObject(fields);
-                    }
+                    HandleProcessStatTagFields(fields, function, configuration);
+                    Marshal.ReleaseComObject(fields);
                 }
             }
 
