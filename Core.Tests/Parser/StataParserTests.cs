@@ -176,6 +176,9 @@ namespace Core.Tests.Parser
             Assert.AreEqual("mygraph.pdf", parser.GetImageSaveLocation("gr export mygraph.pdf")); // "gr" shortcut
             Assert.AreNotEqual("mygraph.pdf", parser.GetImageSaveLocation("gra export mygraph.pdf"));
             Assert.AreEqual("C:\\Development\\Stats\\bpgraph.pdf", parser.GetImageSaveLocation("gr export \"C:\\Development\\Stats\\bpgraph.pdf\", as(pdf) replace"));
+
+            // Test paths with single quotes
+            Assert.AreEqual("C:\\Test\\Stat's\\bpgraph.pdf", parser.GetImageSaveLocation("gr export \"C:\\Test\\Stat's\\bpgraph.pdf\", as(pdf) replace"));
         }
 
         [TestMethod]
@@ -266,6 +269,9 @@ namespace Core.Tests.Parser
             Assert.AreEqual("C:\\data path\\example.csv", parser.GetTableDataPath("esttab using \"C:\\data path\\example.csv\", replace wide plain"));
             Assert.AreEqual("..\\example.csv", parser.GetTableDataPath("esttab using ..\\example.csv, replace wide plain"));
             Assert.AreEqual("C:/example.csv", parser.GetTableDataPath("esttab using C:/example.csv, replace wide plain"));
+
+            // File paths with single quotes
+            Assert.AreEqual("C:\\data's path\\example.csv", parser.GetTableDataPath("esttab using \"C:\\data's path\\example.csv\", replace wide plain"));
 
             // Commands with parentheses
             Assert.AreEqual("testing.csv", parser.GetTableDataPath("table1, vars(gender cat \\ race cat \\ ridageyr contn %4.2f \\ married cat \\ income cat \\ education cat \\ bmxht contn %4.2f \\ bmxwt conts \\ bmxbmi conts \\ bmxwaist contn %4.2f \\ lbdhdd contn %4.2f \\ lbdldl contn %4.2f \\ lbxtr conts \\ lbxglu conts \\ lbxin conts) saving(testing.csv, replace)"));

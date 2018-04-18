@@ -78,6 +78,8 @@ namespace Core.Tests.Parser
             // Our regex is kind of dumb... this will pass, but it is invalid in SAS
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file='test.pdf\";"));
             Assert.AreEqual("test.pdf", parser.GetImageSaveLocation("ods pdf file=\"test.pdf';"));
+
+            Assert.AreEqual("C:\\test's\\test.pdf", parser.GetImageSaveLocation("ods pdf file=\"C:\\test's\\test.pdf';"));
         }
 
         [TestMethod]
@@ -117,6 +119,9 @@ namespace Core.Tests.Parser
             // Test with path set - variable and constant
             Assert.AreEqual("C:\\Stats\\Test.csv", parser.GetTableDataPath("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stats\";"));
             Assert.AreEqual("&outpath.\\Test.csv", parser.GetTableDataPath("ODS CSV path=&outpath file=\"Test.csv\";"));
+
+            // Test with single quotes in path
+            Assert.AreEqual("C:\\Stat's\\Test.csv", parser.GetTableDataPath("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stat's\";"));
         }
 
         [TestMethod]
@@ -148,6 +153,9 @@ namespace Core.Tests.Parser
             Assert.AreEqual("C:\\test\\", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"C:\\test\\\";"));
             Assert.IsNull(parser.GetPathParameter("ods csv file=\"tmp.csv\";"));
             Assert.AreEqual("", parser.GetPathParameter("ods csv file=\"tmp.csv\" path=\"\";"));
+
+            // Test with single quotes in path
+            Assert.AreEqual("C:\\Stat's\\", parser.GetPathParameter("ODS CSV FILE=\"Test.csv\" path=\"C:\\Stat's\\\";"));
         }
 
         [TestMethod]

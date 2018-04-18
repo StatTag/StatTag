@@ -18,7 +18,7 @@ namespace StatTag.Core.Parser
         public static readonly string[] TableCommands = {"ods csv", "ods excel", "proc export"};
         private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
-        private static readonly Regex PathCaptureRegex = new Regex("\\bpath\\s*=\\s*(?:([&].+?\\b)|(?:[\"'](.*?)[\"']))[\\S\\s]*?;", RegexOptions.IgnoreCase);
+        private static readonly Regex PathCaptureRegex = new Regex("\\bpath\\s*=\\s*(?:([&].+?\\b)|(?:[\"](.*?)[\"])|(?:['](.*?)[']))[\\S\\s]*?;", RegexOptions.IgnoreCase);
         public const string MacroIndicator = "&";
         public const string FunctionIndicator = "%";
         public const string CommandDelimiter = ";";
@@ -192,6 +192,10 @@ namespace StatTag.Core.Parser
             else if (match.Groups[2].Success)
             {
                 return match.Groups[2].Value;
+            }
+            else if (match.Groups[3].Success)
+            {
+                return match.Groups[3].Value;
             }
 
             return string.Empty;
