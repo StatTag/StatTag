@@ -369,19 +369,16 @@ namespace StatTag.Models
             var shapes = document.Shapes;
             foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
             {
-                if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null)
+                var fields = WordUtil.SafeGetFieldsFromShape(shape);
+                if (fields != null && fields.Count > 0)
                 {
-                    var fields = shape.TextFrame.TextRange.Fields;
-                    if (fields != null)
+                    var shapeTableRefreshed = HandleRefreshTableTagFields(fields, tag, document);
+                    if (!shapeTableRefreshed)
                     {
-                        var shapeTableRefreshed = HandleRefreshTableTagFields(fields, tag, document);
-                        if (fields != null && fields.Count > 0 && !shapeTableRefreshed)
-                        {
-                            Log(string.Format("Table refresh failed for shape of type {0}", shape.Type));
-                            tableRefreshed = shapeTableRefreshed;
-                        }
-                        Marshal.ReleaseComObject(fields);
+                        Log(string.Format("Table refresh failed for shape of type {0}", shape.Type));
+                        tableRefreshed = shapeTableRefreshed;
                     }
+                    Marshal.ReleaseComObject(fields);
                 }
             }
 
@@ -676,9 +673,9 @@ namespace StatTag.Models
                 var shapes = document.Shapes;
                 foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
                 {
-                    if (shape != null && shape.TextFrame != null && shape.TextFrame.TextRange != null && shape.TextFrame.TextRange.Fields != null)
+                    var fields = WordUtil.SafeGetFieldsFromShape(shape);
+                    if (fields != null)
                     {
-                        var fields = shape.TextFrame.TextRange.Fields;
                         HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
                         Marshal.ReleaseComObject(fields);
                     }

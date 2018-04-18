@@ -75,6 +75,13 @@ namespace StatTag.Core.Parser
                 char argChar = arguments[index];
                 if (argChar == '\'')
                 {
+                    // If we are in an open double-quote, the single quote should be ignored as it is most likely
+                    // part of a path.  We will detect that situation, and continue processing the next character.
+                    if (isInQuote && doubleQuoteCounter > 0)
+                    {
+                        continue;
+                    }
+
                     isInQuote = true;
                     singleQuoteCounter++;
                     if (singleQuoteCounter%2 == 0)

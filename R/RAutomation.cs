@@ -49,7 +49,8 @@ namespace R
                         var path = Path.GetDirectoryName(file.FilePath);
                         if (!string.IsNullOrEmpty(path))
                         {
-                            RunCommand(string.Format("setwd('{0}')", path.Replace("\\", "\\\\")), new Tag() { Type = Constants.TagType.Value });  // Escape the path for R
+                            path = path.Replace("\\", "\\\\").Replace("'", "\\'");
+                            RunCommand(string.Format("setwd('{0}')", path), new Tag() { Type = Constants.TagType.Value });  // Escape the path for R
                             State.WorkingDirectorySet = true;
                         }
                     }

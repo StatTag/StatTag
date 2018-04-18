@@ -62,6 +62,7 @@ namespace Core.Tests.Parser
             Assert.AreEqual("\"test.png\"", parser.GetImageSaveLocation("png(width=100,f=\"test.png\",height=100)"));
             Assert.AreEqual("'test.png'", parser.GetImageSaveLocation("png(width=100,file='test.png',height=100)"));
             Assert.AreEqual("\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\"", parser.GetImageSaveLocation("pdf(\"C:\\\\Test\\\\Path with spaces\\\\test.pdf\")"));
+            Assert.AreEqual("\"C:\\Test\\Path's\\test.pdf\"", parser.GetImageSaveLocation("pdf(\"C:\\Test\\Path's\\test.pdf\")"));
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("png(width=100, height=100)")); // Here there is no unnamed parameter or file parameter (this would be an error in R)
             Assert.AreEqual(string.Empty, parser.GetImageSaveLocation("spng(width=100,'test.png',height=100)"));
             Assert.AreEqual("\"test, file.png\"", parser.GetImageSaveLocation("png(width = 100, height=100, filename=\"test, file.png\")"));
@@ -131,6 +132,9 @@ namespace Core.Tests.Parser
 
             // Handle functions used as file paths
             Assert.AreEqual("paste(getwd(), \"test.txt\", sep = \"\")", parser.GetTableDataPath("write.table(x, file = paste(getwd(), \"test.txt\", sep = \"\"))"));
+
+            // Handle single quotes in file paths
+            Assert.AreEqual("\"C:/Test/Stats/Test's/test.csv\"", parser.GetTableDataPath("write.csv(df, \"C:/Test/Stats/Test's/test.csv\")"));
         }
 
         [TestMethod]
