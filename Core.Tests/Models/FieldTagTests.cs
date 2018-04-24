@@ -180,6 +180,14 @@ namespace Core.Tests.Models
         }
 
         [TestMethod]
+        public void Desearialize_NullOrEmpty()
+        {
+            Assert.IsNull(FieldTag.Deserialize(null));
+            Assert.IsNull(FieldTag.Deserialize(string.Empty));
+            Assert.IsNull(FieldTag.Deserialize("  "));
+        }
+
+        [TestMethod]
         public void LinkToCodeFile_Found()
         {
             var tag = new FieldTag() { Type = Constants.TagType.Table, CachedResult = new List<CommandResult>(new[] { new CommandResult() { ValueResult = "Test 1" } }), TableCellIndex = 10, CodeFile = new CodeFile() { FilePath = "Test.do" } };
