@@ -1,5 +1,34 @@
 # Releases
 
+## v3.3.0
+
+* Support inserting StatTag fields into Word shapes
+* Improved support for file paths with apostrophes in them.
+* Addressed Stata syntax issue in editor
+* Addressed error when updating a field and change tracking is enabled
+
+
+### Component Versions
+
+| Component             | File Version |
+| --------------------- | ------------ |
+| Core                  | 3.3.0.2      |
+| StatTag.R             | 3.3.0.2      |
+| StatTag.SAS           | 3.3.0.2      |
+| StatTag.Stata         | 3.3.0.2      |
+| StatTag               | 3.3.0.2      |
+| DynamicInterop        | 0.7.4.0      |
+| EPPlus                | 4.1.1.0      |
+| log4net               | 2.0.8.0      |
+| RDotNet               | 1.7.0.0      |
+| RDotNet.Graphics      | 0.1.0.0      |
+| RDotNet.NativeLibrary | 1.7.0.0      |
+| ScintillaNET          | 3.6.3.1      |
+| ScintillaNET FindReplaceDialog | 1.4.0.0      |
+| SciLexer.dll          | 3.7.4.2      |
+
+
+
 ## v3.2.0
 
 * Receive a notification when your code files change outside of StatTag
