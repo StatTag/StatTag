@@ -1132,6 +1132,10 @@ namespace StatTag.Models
                 Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
                 if (DialogResult.OK == dialog.ShowDialog(wrapper))
                 {
+                    // Save the tag first, before trying to update the tags.  This way even if there is
+                    // an error during the updates, our results are saved.
+                    SaveEditedTag(dialog, tag);
+
                     // If the value format has changed, refresh the values in the document with the
                     // new formatting of the results.
                     // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
@@ -1157,7 +1161,6 @@ namespace StatTag.Models
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
 
-                    SaveEditedTag(dialog, tag);
                     Log("EditTag - Finished (action)");
                     return true;
                 }

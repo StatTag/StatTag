@@ -72,7 +72,16 @@ namespace StatTag.Core.Models
         /// <returns></returns>
         public static FieldTag Deserialize(string json, IEnumerable<CodeFile> files = null)
         {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
             var tag = JsonConvert.DeserializeObject<FieldTag>(json);
+            if (tag == null)
+            {
+                return null;
+            }
             tag.Name = NormalizeName(tag.Name);
             LinkToCodeFile(tag, files);
             return tag;

@@ -130,6 +130,10 @@ namespace StatTag.Models
         public FieldTag GetFieldTag(Field field)
         {
             var fieldTag = DeserializeFieldTag(field);
+            if (fieldTag == null)
+            {
+                return null;
+            }
             var tag = FindTag(fieldTag);
 
             // The result of FindTag is going to be a document-level tag, not a
