@@ -65,7 +65,7 @@ namespace SAS
             }
         }
 
-        public bool Initialize(CodeFile file)
+        public bool Initialize(CodeFile file, LogManager logger)
         {
             try
             {
@@ -74,13 +74,17 @@ namespace SAS
                 {
                     UseLocal = true
                 };
+                logger.WriteMessage("Preparing to connect to local SAS instance...");
                 Server.Connect();
                 State.EngineConnected = true;
+                logger.WriteMessage("Connected to local SAS instance");
 
                 // To protect against blank PDFs being created in different situations (mostly around
                 // when and how we are executing code and how SAS works when submitting code as a 
                 // batch), we will explicitly close all ODS before the execution begins.
+                logger.WriteMessage("Preparing to close all ODS...");
                 RunCommand(CloseAllODS);
+                logger.WriteMessage("Closed all ODS");
 
                 // Set the working directory to the location of the code file, if it is provided and
                 // isn't a UNC path.
@@ -89,13 +93,18 @@ namespace SAS
                     var path = Path.GetDirectoryName(file.FilePath);
                     if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
                     {
+                        logger.WriteMessage(string.Format("Changing working directory to {0}", path));
                         RunCommand(string.Format("data _null_; call system('cd \"{0}\"'); run;", path));
                         State.WorkingDirectorySet = true;
                     }
                 }
+
+                logger.WriteMessage("Completed initialization");
             }
             catch (Exception exc)
             {
+                logger.WriteMessage("Caught an exception when attempting to initialize SAS");
+                logger.WriteException(exc);
                 Server = null;
                 return false;
             }

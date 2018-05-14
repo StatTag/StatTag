@@ -97,15 +97,22 @@ namespace Stata
             return exc.Message;
         }
 
-        public bool Initialize(CodeFile file)
+        public bool Initialize(CodeFile file, LogManager logger)
         {
             try
             {
                 OpenLogs = new List<StataParser.Log>();
                 Application = new stata.StataOLEApp();
-                Application.DoCommand(DisablePagingCommand);
-                Show();
 
+                // Make sure that Stata is not busy processing anything.
+                // We will only wait up to 5 seconds
+                logger.WriteMessage("Preparing to pause until Stata is free...");
+                PauseStataUntilFree(500, 10);
+                logger.WriteMessage("Stata is free.  Preparing to disable paging...");
+                DoCommandWithPauseAndRetry(DisablePagingCommand, 500, 3);
+                logger.WriteMessage("Paging disabled.  Preparing to show Stata application window...");
+                Show();
+                logger.WriteMessage("Stata application window now visible");
                 State.EngineConnected = true;
 
                 // Set the working directory to the location of the code file, if it is provided and
@@ -115,13 +122,18 @@ namespace Stata
                     var path = Path.GetDirectoryName(file.FilePath);
                     if (!string.IsNullOrEmpty(path) && !path.Trim().StartsWith("\\\\"))
                     {
+                        logger.WriteMessage(string.Format("Changing working directory to {0}", path));
                         RunCommand(string.Format("cd \"{0}\"", path.Replace("\\", "\\\\")));
                         State.WorkingDirectorySet = true;
                     }
                 }
+
+                logger.WriteMessage("Completed initialization");
             }
             catch (Exception exc)
             {
+                logger.WriteMessage("An exception was caught when trying to initialize Stata");
+                logger.WriteException(exc);
                 return false;
             }
 
@@ -137,6 +149,24 @@ namespace Stata
         public bool IsReturnable(string command)
         {
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
+        }
+
+        private void DoCommandWithPauseAndRetry(string command, int pauseDuration, int maxRetry)
+        {
+            int tryCounter = 0;
+            while (tryCounter < maxRetry)
+            {
+                try
+                {
+                    Application.DoCommand(command);
+                    return;
+                }
+                catch (Exception exc)
+                {
+                    tryCounter++;
+                    Thread.Sleep(pauseDuration);
+                }                
+            }
         }
 
         private void EnsureLoggingForVerbatim(Tag tag)
@@ -512,6 +542,33 @@ namespace Stata
         }
 
         /// <summary>
+        /// Utility function to continue looping until Stata appears to be free.
+        /// <param name="waitDuration">Milliseconds to wait on each iteration</param>
+        /// <param name="maxWait">How many times to check and wait before ending the check.  If set to null, will poll indefinitely.</param>
+        /// </summary>
+        private void PauseStataUntilFree(int waitDuration = 100, int? maxWait = null)
+        {
+            if (Application == null)
+            {
+                return;
+            }
+
+            int waitCounter = 0;
+            while (Application.UtilIsStataFree() == 0)
+            {
+                Thread.Sleep(waitDuration);
+                waitCounter++;
+
+                // If we have a guard in place for maximum wait time, check it and escape
+                // the loop if we're past the threshold.
+                if (maxWait.HasValue && waitCounter >= maxWait.Value)
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Run a Stata command and provide the result of the command (if one should be returned).
         /// </summary>
         /// <param name="command">The command to run, taken from a Stata do file</param>
@@ -572,10 +629,7 @@ namespace Stata
                 throw new Exception(string.Format("There was an error while executing the Stata command: {0}", command));
             }
 
-            while (Application.UtilIsStataFree() == 0)
-            {
-                Thread.Sleep(100);
-            }
+            PauseStataUntilFree();
 
             // Check for the error code.  If there is an error code set, we will throw an exception to report the error message and halt
             // execution.
