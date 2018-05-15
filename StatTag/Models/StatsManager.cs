@@ -100,7 +100,7 @@ namespace StatTag.Models
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
             using (var automation = GetStatAutomation(file))
             {
-                if (!automation.Initialize(file))
+                if (!automation.Initialize(file, DocumentManager.Logger))
                 {
                     MessageBox.Show(automation.GetInitializationErrorMessage(), UIUtility.GetAddInName());
                     return result;

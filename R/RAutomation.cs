@@ -31,16 +31,22 @@ namespace R
             State = new StatPackageState();
         }
 
-        public bool Initialize(CodeFile file)
+        public bool Initialize(CodeFile file, LogManager logger)
         {
             if (Engine == null)
             {
+                logger.WriteMessage("R Engine instance is null - going through full initialization");
+
                 try
                 {
+                    logger.WriteMessage("Preparing to set R environment...");
                     REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
+                    logger.WriteMessage("Set R environment.  Preparing to get R instances...");
                     Engine = REngine.GetInstance(null, true, null, VerbatimLog);
 
                     State.EngineConnected = (Engine != null);
+                    logger.WriteMessage(string.Format("R instance creation {0}",
+                        (State.EngineConnected ? "succeeded" : "failed")));
 
                     // Set the working directory to the location of the code file, if it is provided and the
                     // R engine has been initialized.
@@ -49,14 +55,19 @@ namespace R
                         var path = Path.GetDirectoryName(file.FilePath);
                         if (!string.IsNullOrEmpty(path))
                         {
+                            logger.WriteMessage(string.Format("Changing working directory to {0}", path));
                             path = path.Replace("\\", "\\\\").Replace("'", "\\'");
                             RunCommand(string.Format("setwd('{0}')", path), new Tag() { Type = Constants.TagType.Value });  // Escape the path for R
                             State.WorkingDirectorySet = true;
                         }
                     }
+
+                    logger.WriteMessage("Completed initialization");
                 }
-                catch
+                catch (Exception exc)
                 {
+                    logger.WriteMessage("Caught an exception while trying to initalize R");
+                    logger.WriteException(exc);
                     Engine = null;
                     return false;
                 }

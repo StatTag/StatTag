@@ -6,7 +6,7 @@ namespace StatTag.Core.Interfaces
     public interface IStatAutomation : IDisposable
     {
         StatPackageState State { get; set; }
-        bool Initialize(CodeFile file);
+        bool Initialize(CodeFile file, LogManager logger);
         CommandResult[] RunCommands(string[] commands, Tag tag = null);
         bool IsReturnable(string command);
         string GetInitializationErrorMessage();
