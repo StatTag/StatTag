@@ -447,10 +447,6 @@
       <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
       <Name>RDotNet.Graphics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
-      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
-      <Name>RDotNet.NativeLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET-FindReplaceDialog\ScintillaNet FindReplaceDialog\ScintillaNET FindReplaceDialog.csproj">
       <Project>{548fd833-9a3b-41bb-9850-570afe9a91b7}</Project>
       <Name>ScintillaNET FindReplaceDialog</Name>
