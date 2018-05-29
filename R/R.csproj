@@ -58,10 +58,6 @@
       <Project>{bcadf6cf-2d63-4bd7-bc28-f0ac4f98ae78}</Project>
       <Name>RDotNet.Graphics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
-      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
-      <Name>RDotNet.NativeLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
