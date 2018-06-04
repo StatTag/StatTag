@@ -7,6 +7,7 @@ namespace StatTag.Core.Interfaces
     {
         Tag[] Parse(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);
         List<ExecutionStep> GetExecutionSteps(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);
+        string[] PreProcessExecutionStepCode(ExecutionStep step);
         bool IsImageExport(string command);
         string GetImageSaveLocation(string command);
         bool IsValueDisplay(string command);

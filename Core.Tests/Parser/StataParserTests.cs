@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StatTag.Core.Models;
 using StatTag.Core.Parser;
 
 namespace Core.Tests.Parser
@@ -503,6 +504,175 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsSavedResultCommand("r(N)"));
             Assert.IsFalse(parser.IsSavedResultCommand("p(N)"));
             Assert.IsFalse(parser.IsSavedResultCommand("c ( N ) "));  // This is not valid in Stata because of the space between c and (
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Null()
+        {
+            var parser = new StataParser();
+            Assert.IsNull(parser.PreProcessExecutionStepCode(null));
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Empty()
+        {
+            var parser = new StataParser();
+            var tag = new Tag();
+            var code = new List<string>(new string[] {});
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Tag = tag,
+                Type = Constants.ExecutionStepType.Tag
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Length);
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Tag_Unchanged()
+        {
+            // This test does duplicate the code in BaseParserTests, but we want to ensure we are still receiving
+            // the same output
+            var parser = new StataParser();
+            var tag = new Tag();
+            var code = new List<string>(new string[] { "Line 1", "Line 2", "Line 3", "Line 4" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Tag = tag,
+                Type = Constants.ExecutionStepType.Tag
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(code.Count, result.Length);
+            for (int index = 0; index < result.Length; index++)
+            {
+                Assert.AreEqual(code[index], result[index]);
+            }
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_NoTag_Unchanged()
+        {
+            // This test does duplicate the code in BaseParserTests, but we want to ensure we are still receiving
+            // the same output
+            var parser = new StataParser();
+            var code = new List<string>(new string[] { "Line 1", "Line 2" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Type = Constants.ExecutionStepType.CodeBlock
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("Line 1\r\nLine 2", result[0]);
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_SetMaxvar_NoTag_Single_SeparateLine()
+        {
+            var parser = new StataParser();
+            var code = new List<string>(new string[] { "Line 1", "set maxvar 1000", "Line 3" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Type = Constants.ExecutionStepType.CodeBlock
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual("set maxvar 1000", result[0]);
+            Assert.AreEqual("Line 1\r\n\r\nLine 3", result[1]);
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_SetMaxvar_NoTag_Multiple_SeparateLine()
+        {
+            var parser = new StataParser();
+            var code = new List<string>(new string[] { "Line 1", "set maxvar 1000\r\nLine 2\r\nset maxvar 2000" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Type = Constants.ExecutionStepType.CodeBlock
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual("set maxvar 1000", result[0]);
+            Assert.AreEqual("set maxvar 2000", result[1]);
+            Assert.AreEqual("Line 1\r\n\r\nLine 2", result[2]);
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_SetMaxvar_NoTag_Multiple_SameLine()
+        {
+            var parser = new StataParser();
+            var code = new List<string>(new string[] { "Line 1\r\n set  maxvar  500  ", "set maxvar 1000\r\nset maxvar 10000", "Line 3\r\nsetmaxvar 100" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Type = Constants.ExecutionStepType.CodeBlock
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.Length);
+            Assert.AreEqual("set  maxvar  500", result[0]);
+            Assert.AreEqual("set maxvar 1000", result[1]);
+            Assert.AreEqual("set maxvar 10000", result[2]);
+            Assert.AreEqual("Line 1\r\n   \r\n\r\n\r\nLine 3\r\nsetmaxvar 100", result[3]);  // It's not a valid "set maxvar", so it should be included with the rest of the commands
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_SetMaxvar_Tag_Multiple_SameLine()
+        {
+            var parser = new StataParser();
+            var code = new List<string>(new string[] { "Line 1\r\n set  maxvar  500  ", "set maxvar 1000\r\nset maxvar 10000", "Line 3\r\nsetmaxvar 100" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Tag = new Tag(),
+                Type = Constants.ExecutionStepType.Tag
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(5, result.Length);
+            Assert.AreEqual("set  maxvar  500", result[0]);
+            Assert.AreEqual("set maxvar 1000", result[1]);
+            Assert.AreEqual("set maxvar 10000", result[2]);
+            Assert.AreEqual("Line 1", result[3]);
+            Assert.AreEqual("Line 3\r\nsetmaxvar 100", result[4]);  // It's not a valid "set maxvar", so it should be included with the rest of the commands
+        }
+
+        [TestMethod]
+        public void IsCapturableBlock_NullEmpty()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.IsCapturableBlock(null));
+            Assert.IsTrue(parser.IsCapturableBlock(string.Empty));
+            Assert.IsTrue(parser.IsCapturableBlock("  \r\n   "));
+        }
+
+        [TestMethod]
+        public void IsCapturableBlock_NoSetMaxvar()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.IsCapturableBlock("test 1"));
+            Assert.IsTrue(parser.IsCapturableBlock("test 1\r\ntest2"));
+            Assert.IsTrue(parser.IsCapturableBlock("setmaxvar 1000"));
+            Assert.IsTrue(parser.IsCapturableBlock("setmaxvar abcd"));
+            Assert.IsTrue(parser.IsCapturableBlock("set maxvar"));
+        }
+
+        [TestMethod]
+        public void IsCapturableBlock_SetMaxvar()
+        {
+            var parser = new StataParser();
+            Assert.IsFalse(parser.IsCapturableBlock("test 1\r\nset maxvar 100\r\n"));
+            Assert.IsFalse(parser.IsCapturableBlock("set maxvar 5000000"));
+            Assert.IsFalse(parser.IsCapturableBlock("set maxvar 1000\r\nset maxvar 1000\r\ntest 1\r\n test2"));
         }
     }
 }

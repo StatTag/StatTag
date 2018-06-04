@@ -133,18 +133,18 @@ namespace StatTag.Models
                             Globals.ThisAddIn.Application.ScreenUpdating = false;
                         }
 
-                        // If there is no tag, we will join all of the command code together.  This allows us to have
-                        // multi-line statements, such as a for loop.  Because we don't check for return results, we just
-                        // process the command and continue.
+                        // Call any parser-dependent processing hooks for preparing the code in this step.
+                        var codeToExecute = parser.PreProcessExecutionStepCode(step);
+
+                        // If there is no tag, we want to continue our loop with the next step,
+                        // since there's no processing needed outside of running the code.
                         if (step.Tag == null)
                         {
-                            string combinedCommand = string.Join("\r\n", step.Code.ToArray());
-                            automation.RunCommands(new[] {combinedCommand});
+                            automation.RunCommands(codeToExecute);
                             continue;
-                        }
+                        }   
 
-
-                        var results = automation.RunCommands(step.Code.ToArray(), step.Tag);
+                        var results = automation.RunCommands(codeToExecute, step.Tag);
 
                         var tag = DocumentManager.FindTag(step.Tag.Id);
                         if (tag != null)

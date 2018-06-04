@@ -34,6 +34,7 @@ namespace StatTag.Core.Parser
         private static readonly char[] EndCommandSegmentDelimiters = { ' ', ',', '"', ')' };
         private static readonly char[] QuotedSegmentDelimiters = { '"' };
         private static readonly Regex Table1Regex = new Regex("(?:^|\\s+)table1\\s*,", RegexOptions.Multiline);
+        private static readonly Regex SetMaxvarRegex = new Regex("set\\s+maxvar\\s+[\\d]+", RegexOptions.IgnoreCase);
 
         public class Log
         {
@@ -485,6 +486,64 @@ namespace StatTag.Core.Parser
         {
             // Note that Stata is case-sensitive for these commands.
             return command.Contains("c(") || command.Contains("r(") || command.Contains("e(");
+        }
+
+        /// <summary>
+        /// Determine if the command should be treated specially within our capture/noisily blocks.
+        /// </summary>
+        /// <remarks>This was created to deal with a known issue in Stata when capture/noisily is wrapped around a set maxvar command</remarks>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool IsCapturableBlock(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                return false;
+            }
+
+            return !(SetMaxvarRegex.IsMatch(command));
+        }
+
+        public override string[] PreProcessExecutionStepCode(ExecutionStep step)
+        {
+            var code = base.PreProcessExecutionStepCode(step);
+            if (code == null)
+            {
+                return null;
+            }
+
+            if (code.Length == 0)
+            {
+                return code;
+            }
+
+            var setMaxvarLines = new List<string>();
+            var otherLines = new List<string>();
+            foreach (var codeLine in code)
+            {
+                var modifiedCodeLine = codeLine;
+                var matches = SetMaxvarRegex.Matches(codeLine);
+                if (matches.Count > 0)
+                {
+                    foreach (var match in matches.OfType<Match>())
+                    {
+                        if (match.Success)
+                        {
+                            setMaxvarLines.Add(match.Value.Trim());
+                        }
+                    }
+
+                    modifiedCodeLine = SetMaxvarRegex.Replace(modifiedCodeLine, "").Trim();
+                }
+
+                if (!string.IsNullOrWhiteSpace(modifiedCodeLine))
+                {
+                    otherLines.Add(modifiedCodeLine);
+                }
+            }
+
+            setMaxvarLines.AddRange(otherLines);
+            return setMaxvarLines.ToArray();
         }
     }
 }

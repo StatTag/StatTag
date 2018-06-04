@@ -621,7 +621,9 @@ namespace Stata
             // We wrap all commands in a capture/noisily block so that every execution will check for errors and make them accessible to us
             // via UtilStataErrorCode.  Without this, DoCommandAsync isn't able to return the error codes and we just blindly assume that
             // everything works fine.
-            string captureCommand = "capture {\r\nnoisily {\r\n" + command + "\r\n}\r\n}";
+            bool isCapturable = Parser.IsCapturableBlock(command);
+            string captureCommand = 
+                isCapturable ? string.Format( "capture {{\r\nnoisily {{\r\n{0}\r\n}}\r\n}}", command) : command;
 
             int returnCode = Application.DoCommandAsync(captureCommand);
             if (returnCode != 0)
