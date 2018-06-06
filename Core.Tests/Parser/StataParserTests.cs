@@ -650,9 +650,9 @@ namespace Core.Tests.Parser
         public void IsCapturableBlock_NullEmpty()
         {
             var parser = new StataParser();
-            Assert.IsTrue(parser.IsCapturableBlock(null));
-            Assert.IsTrue(parser.IsCapturableBlock(string.Empty));
-            Assert.IsTrue(parser.IsCapturableBlock("  \r\n   "));
+            Assert.IsFalse(parser.IsCapturableBlock(null));
+            Assert.IsFalse(parser.IsCapturableBlock(string.Empty));
+            Assert.IsFalse(parser.IsCapturableBlock("  \r\n   "));
         }
 
         [TestMethod]
@@ -662,7 +662,7 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsCapturableBlock("test 1"));
             Assert.IsTrue(parser.IsCapturableBlock("test 1\r\ntest2"));
             Assert.IsTrue(parser.IsCapturableBlock("setmaxvar 1000"));
-            Assert.IsTrue(parser.IsCapturableBlock("setmaxvar abcd"));
+            Assert.IsTrue(parser.IsCapturableBlock("set maxvar abcd"));
             Assert.IsTrue(parser.IsCapturableBlock("set maxvar"));
         }
 
