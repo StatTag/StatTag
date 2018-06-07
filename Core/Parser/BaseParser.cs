@@ -40,6 +40,32 @@ namespace StatTag.Core.Parser
         /// <returns>A list of strings representing the code that should be executed</returns>
         public abstract List<string> PreProcessContent(List<string> originalContent);
 
+        /// <summary>
+        /// Provides a hook to perform any processing on a block of code (one or more
+        /// lines) before it is executed by the statistical software.  The default
+        /// behavior is to return the parameter untouched.
+        /// </summary>
+        /// <param name="step"></param>
+        /// <returns></returns>
+        public virtual string[] PreProcessExecutionStepCode(ExecutionStep step)
+        {
+            if (step == null)
+            {
+                return null;
+            }
+
+            // If there is no tag, we will join all of the command code together.  This allows us to have
+            // multi-line statements, such as a for loop.  Because we don't check for return results, we just
+            // process the command and continue.
+            if (step.Tag == null)
+            {
+                string combinedCommand = string.Join("\r\n", step.Code.ToArray());
+                return new[] {combinedCommand};
+            }
+
+            return step.Code.ToArray();
+        }
+
         protected Match DetectTag(Regex tagRegex, string line)
         {
             if (line == null)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StatTag.Core.Parser;
@@ -405,6 +404,50 @@ namespace Core.Tests.Parser
             Assert.IsTrue(parser.IsRelativePath(".\\test\\test.pdf"));
             Assert.IsTrue(parser.IsRelativePath("./test/test.pdf"));
             Assert.IsTrue(parser.IsRelativePath("test.pdf"));
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Null()
+        {
+            var parser = new StubParser();
+            Assert.IsNull(parser.PreProcessExecutionStepCode(null));
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Tag()
+        {
+            var parser = new StubParser();
+            var tag = new Tag();
+            var code = new List<string>(new String[] { "Line 1", "Line 2", "Line 3", "Line 4" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Tag = tag,
+                Type = Constants.ExecutionStepType.Tag
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(code.Count, result.Length);
+            for (int index = 0; index < result.Length; index++)
+            {
+                Assert.AreEqual(code[index], result[index]);
+            }
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_NoTag()
+        {
+            var parser = new StubParser();
+            var code = new List<string>(new String[] { "Line 1", "Line 2" });
+            var step = new ExecutionStep()
+            {
+                Code = code,
+                Type = Constants.ExecutionStepType.CodeBlock
+            };
+            var result = parser.PreProcessExecutionStepCode(step);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("Line 1\r\nLine 2", result[0]);
         }
     }
 }
