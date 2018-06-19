@@ -1,5 +1,59 @@
 # Releases
 
+## v3.4.0
+
+* Support for R 3.5 and higher
+* Address an issue with the Stata 'set maxvar' command
+* Change the default tag type (for new tags) to 'value'
+
+
+### Component Versions
+
+| Component             | File Version |
+| --------------------- | ------------ |
+| Core                  | 3.4.0.3      |
+| StatTag.R             | 3.4.0.3      |
+| StatTag.SAS           | 3.4.0.3      |
+| StatTag.Stata         | 3.4.0.3      |
+| StatTag               | 3.4.0.3      |
+| DynamicInterop        | 0.7.4.0      |
+| EPPlus                | 4.1.1.0      |
+| log4net               | 2.0.8.0      |
+| RDotNet               | 1.7.0.1      |
+| RDotNet.Graphics      | 0.1.0.0      |
+| RDotNet.NativeLibrary | 1.7.0.1      |
+| ScintillaNET          | 3.6.3.1      |
+| ScintillaNET FindReplaceDialog | 1.4.0.0      |
+| SciLexer.dll          | 3.7.4.2      |
+
+
+
+## v3.3.1
+
+* Addresses an issue with Stata not initializing on some instances of Windows 10
+
+
+### Component Versions
+
+| Component             | File Version |
+| --------------------- | ------------ |
+| Core                  | 3.3.1.1      |
+| StatTag.R             | 3.3.1.1      |
+| StatTag.SAS           | 3.3.1.1      |
+| StatTag.Stata         | 3.3.1.1      |
+| StatTag               | 3.3.1.1      |
+| DynamicInterop        | 0.7.4.0      |
+| EPPlus                | 4.1.1.0      |
+| log4net               | 2.0.8.0      |
+| RDotNet               | 1.7.0.0      |
+| RDotNet.Graphics      | 0.1.0.0      |
+| RDotNet.NativeLibrary | 1.7.0.0      |
+| ScintillaNET          | 3.6.3.1      |
+| ScintillaNET FindReplaceDialog | 1.4.0.0      |
+| SciLexer.dll          | 3.7.4.2      |
+
+
+
 ## v3.3.0
 
 * Support inserting StatTag fields into Word shapes

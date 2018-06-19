@@ -29,6 +29,8 @@ namespace StatTag
         private const string CannotLoadDialogMessage =
             "There was an error trying to load the Tag dialog.";
 
+        private const string DefaultTagType = Constants.TagType.Value;
+
         private FindReplace FindReplaceManager = null;
         
         public DocumentManager Manager { get; set; }
@@ -131,7 +133,7 @@ namespace StatTag
             MinimumSize = Size;
 
             cboResultType.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.TagType.GetList()));
-            cboResultType.SelectedItem = Constants.TagType.Verbatim;
+            cboResultType.SelectedItem = DefaultTagType;
             UpdateForTypeClick();
 
             cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
