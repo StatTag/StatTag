@@ -42,7 +42,7 @@ namespace Stata
             if (!State.EngineConnected)
             {
                 return
-                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > Settings, or see http://www.stata.com/automation";
+                    "Could not communicate with Stata.  You will need to enable Stata Automation (not done by default) to run this code in StatTag.\r\n\r\nThis can be done from StatTag > User Settings > Stata, or see http://www.stata.com/automation";
             }
             else if (!State.WorkingDirectorySet)
             {
