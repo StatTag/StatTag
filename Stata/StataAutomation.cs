@@ -511,13 +511,13 @@ namespace Stata
         {
             // If the save location is not a macro, and it appears to be a relative path, translate it into a fully
             // qualified path based on Stata's current environment.
-            if (saveLocation.Contains(StataParser.MacroDelimiters[0]))
+            if (Parser.HasMacroInCommand(saveLocation))
             {
                 var macros = Parser.GetMacros(saveLocation);
                 foreach (var macro in macros)
                 {
                     var result = GetMacroValue(macro);
-                    saveLocation = ReplaceMacroWithValue(saveLocation, macro, result);
+                    saveLocation = Parser.ReplaceMacroWithValue(saveLocation, macro, result);
                 }
             }
             else if (Parser.IsRelativePath(saveLocation))
@@ -660,19 +660,6 @@ namespace Stata
             }
             
             return null;
-        }
-
-        /// <summary>
-        /// Given a macro name that appears in a command string, replace it with its expanded value
-        /// </summary>
-        /// <param name="originalString"></param>
-        /// <param name="macro"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private string ReplaceMacroWithValue(string originalString, string macro, string value)
-        {
-            return originalString.Replace(
-                string.Format("{0}{1}{2}", StataParser.MacroDelimiters[0], macro, StataParser.MacroDelimiters[1]), value);
         }
 
         public void Dispose()

@@ -957,6 +957,12 @@ namespace StatTag.Models
                 int columnCount = dimensions[1];
 
                 Log(string.Format("Table dimensions r={0}, c={1}", rowCount, columnCount));
+                if (rowCount == 0 && columnCount == 0)
+                {
+                    Log("Invalid row/column count - throwing exception");
+                    throw new StatTagUserException(string.Format("The number of rows and columns ({0} x {1}) are not valid for creating a table.\r\n\r\nPlease make sure your statistical code runs properly.  If the table data is coming from a file, please make sure that the file was created and that StatTag has permissions to read it.\r\n\r\nIf the table is being created correctly, please inform the StatTag team (StatTag@northwestern.edu).",
+                        rowCount, columnCount));
+                }
 
                 var wordTable = document.Tables.Add(selection.Range, rowCount, columnCount);
                 wordTable.Select();

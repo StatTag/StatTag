@@ -200,6 +200,16 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
+        /// Determine if a command has a macro anywhere in it
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool HasMacroInCommand(string command)
+        {
+            return MacroRegex.IsMatch(command);
+        }
+
+        /// <summary>
         /// Determine if a command may contain a reference to a data file that we could use within a table.  
         /// We perform simple heuristic checks for simplicity.
         /// </summary>
@@ -319,6 +329,23 @@ namespace StatTag.Core.Parser
                 (valueName.IndexOfAny(CalculationOperators) != -1
                 || NumericConstantRegex.IsMatch(valueName));
         }
+
+        /// <summary>
+        /// Given a macro name that appears in a command string, replace it with its expanded value
+        /// </summary>
+        /// <param name="originalString"></param>
+        /// <param name="macro"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string ReplaceMacroWithValue(string originalString, string macro, string value)
+        {
+            var localMacro = string.Format("{0}{1}{2}", MacroDelimiters[0], macro, MacroDelimiters[1]);
+            var globalMacro = string.Format("{0}{1}", MacroDelimiters[2], macro);
+
+            var modifiedString = originalString.Replace(localMacro, value).Replace(globalMacro, value);
+            return modifiedString;
+        }
+
 
         /// <summary>
         /// Given a command string, extract all macros that are present.  This will remove
