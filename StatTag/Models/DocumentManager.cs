@@ -784,9 +784,14 @@ namespace StatTag.Models
                 // specify the right top/left starting position based on the selection's position relative to the page.
                 // Otherwise the verbatim control always shows up at the top (at least in Word 2016, this doesn't seem
                 // to be an issue in Word 2010).
+                // Note that in v3.5 of StatTag we also had to add a tiny offset (+1 point) to the vertical range.  In
+                // Word 2016, we saw verbatim fields going into the paragraph above.  From reading this article:
+                // https://social.msdn.microsoft.com/Forums/office/en-US/f175055e-7b40-4bcb-8409-d4e0910022f4/documentshapesaddtextbox-ignores-anchor-word-2013?forum=worddev
+                // it sounds like putting the top anchor on the position of the cursor was making Word think it was still
+                // in the previous paragraph.  This tiny offset makes all the difference.
                 var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal,
                     (float)selection.Information[WdInformation.wdHorizontalPositionRelativeToPage],
-                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage], 100, 100, range);
+                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage] + 1, 100, 100, range);
                 var textFrame = shape.TextFrame;
                 textFrame.TextRange.Text = result.VerbatimResult;
                 textFrame.AutoSize = -1;
@@ -1512,42 +1517,6 @@ namespace StatTag.Models
                 codeFile.Save();
             }
         }
-
-        //// Define the event handlers.
-        //private void OnChanged(object source, FileSystemEventArgs e)
-        //{
-        //    // Go through all of our managed code files in all open documents.  Any code file that 
-        //    // matches the path of the changed file will be updated.
-        //    Log("OnChanged event for code file " + e.FullPath + " " + e.ChangeType);
-        //}
-
-        //private static void OnRenamed(object source, RenamedEventArgs e)
-        //{
-        //    // Specify what is done when a file is renamed.
-        //    Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
-        //}
-
-        ///// <summary>
-        ///// For a specific code file instance, create a watcher to respond to certain file system events.
-        ///// </summary>
-        ///// <param name="codeFile"></param>
-        ///// <returns></returns>
-        //private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
-        //{
-        //    var watcher = new FileSystemWatcher
-        //    {
-        //        Path = Path.GetDirectoryName(codeFile.FilePath),
-        //        Filter = Path.GetFileName(codeFile.FilePath),
-        //        EnableRaisingEvents = true,
-        //        NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite
-        //    };
-        //    watcher.Changed += new FileSystemEventHandler(OnChanged);
-        //    watcher.Created += new FileSystemEventHandler(OnChanged);
-        //    watcher.Deleted += new FileSystemEventHandler(OnChanged);
-        //    watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-        //    return watcher;
-        //}
 
         private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
         {
