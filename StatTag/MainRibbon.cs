@@ -127,28 +127,31 @@ namespace StatTag
 
         private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
-            try
-            {
-                ManageTagsDialog = new ManageTags(Manager);
-                if (DialogResult.OK == ManageTagsDialog.ShowDialog())
-                {
-                    Manager.SaveAllCodeFiles(ActiveDocument);
-                }
-            }
-            catch (StatTagUserException uex)
-            {
-                UIUtility.ReportException(uex, uex.Message, LogManager);
-            }
-            catch (Exception exc)
-            {
-                UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to manage your tags.",
-                    LogManager);
-            }
-            finally
-            {
-                ManageTagsDialog = null;
-            }
+            var dlg = new TagManager(Manager.GetTags());
+            dlg.Show();
+
+            //try
+            //{
+            //    ManageTagsDialog = new ManageTags(Manager);
+            //    if (DialogResult.OK == ManageTagsDialog.ShowDialog())
+            //    {
+            //        Manager.SaveAllCodeFiles(ActiveDocument);
+            //    }
+            //}
+            //catch (StatTagUserException uex)
+            //{
+            //    UIUtility.ReportException(uex, uex.Message, LogManager);
+            //}
+            //catch (Exception exc)
+            //{
+            //    UIUtility.ReportException(exc,
+            //        "There was an unexpected error when trying to manage your tags.",
+            //        LogManager);
+            //}
+            //finally
+            //{
+            //    ManageTagsDialog = null;
+            //}
         }
 
         private void cmdInsertOutput_Click(object sender, RibbonControlEventArgs e)
