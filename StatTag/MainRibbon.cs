@@ -25,7 +25,8 @@ namespace StatTag
         private EditTag EditTagDialog = null;
         private LoadAnalysisCode LoadAnalysisCodeDialog = null;
         private LinkCodeFiles LinkCodeFilesDialog = null;
-        private ManageTags ManageTagsDialog = null;
+        //private ManageTags ManageTagsDialog = null;
+        private TagManager ManageTagsDialog = null;
         private SelectOutput SelectOutputDialog = null;
         private Settings SettingsDialog = null;
         private UpdateOutput UpdateOutputDialog = null;
@@ -127,8 +128,25 @@ namespace StatTag
 
         private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
-            var dlg = new TagManager(Manager.GetTags());
-            dlg.Show();
+            try
+            {
+                ManageTagsDialog = new TagManager(Manager.GetTags(), Manager);
+                ManageTagsDialog.Show();
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to manage your tags.",
+                    LogManager);
+            }
+            finally
+            {
+                ManageTagsDialog = null;
+            }
 
             //try
             //{

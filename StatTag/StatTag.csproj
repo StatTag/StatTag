@@ -516,6 +516,7 @@
     <Content Include="Resources\stats_package_sas.png" />
     <Content Include="Resources\stats_package_stata.png" />
     <None Include="Resources\stats_package_unknown.png" />
+    <None Include="Resources\table_preview.png" />
     <Content Include="Resources\tag-add.png" />
     <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>
