@@ -36,16 +36,18 @@
             this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
+            this.cmdRemoveTags = new System.Windows.Forms.Button();
+            this.cmdDefineTag = new System.Windows.Forms.Button();
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdInsert
             // 
             this.cmdInsert.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdInsert.Location = new System.Drawing.Point(124, 554);
+            this.cmdInsert.Location = new System.Drawing.Point(159, 580);
             this.cmdInsert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdInsert.Name = "cmdInsert";
-            this.cmdInsert.Size = new System.Drawing.Size(213, 30);
+            this.cmdInsert.Size = new System.Drawing.Size(185, 30);
             this.cmdInsert.TabIndex = 1;
             this.cmdInsert.Text = "Insert Selected Tags";
             this.cmdInsert.UseVisualStyleBackColor = true;
@@ -54,10 +56,10 @@
             // cmdUpdate
             // 
             this.cmdUpdate.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdUpdate.Location = new System.Drawing.Point(364, 554);
+            this.cmdUpdate.Location = new System.Drawing.Point(350, 580);
             this.cmdUpdate.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdUpdate.Name = "cmdUpdate";
-            this.cmdUpdate.Size = new System.Drawing.Size(213, 30);
+            this.cmdUpdate.Size = new System.Drawing.Size(185, 30);
             this.cmdUpdate.TabIndex = 2;
             this.cmdUpdate.Text = "Update Selected Tags";
             this.cmdUpdate.UseVisualStyleBackColor = true;
@@ -80,7 +82,7 @@
             this.lvwTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.lvwTags.Name = "lvwTags";
             this.lvwTags.OwnerDraw = true;
-            this.lvwTags.Size = new System.Drawing.Size(672, 493);
+            this.lvwTags.Size = new System.Drawing.Size(672, 487);
             this.lvwTags.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvwTags.TabIndex = 3;
             this.lvwTags.UseCompatibleStateImageBehavior = false;
@@ -117,6 +119,30 @@
             this.cboCodeFiles.TabIndex = 11;
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
             // 
+            // cmdRemoveTags
+            // 
+            this.cmdRemoveTags.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdRemoveTags.Location = new System.Drawing.Point(128, 527);
+            this.cmdRemoveTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cmdRemoveTags.Name = "cmdRemoveTags";
+            this.cmdRemoveTags.Size = new System.Drawing.Size(110, 30);
+            this.cmdRemoveTags.TabIndex = 13;
+            this.cmdRemoveTags.Text = "Remove Tags";
+            this.cmdRemoveTags.UseVisualStyleBackColor = true;
+            this.cmdRemoveTags.Click += new System.EventHandler(this.cmdRemoveTags_Click);
+            // 
+            // cmdDefineTag
+            // 
+            this.cmdDefineTag.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdDefineTag.Location = new System.Drawing.Point(12, 527);
+            this.cmdDefineTag.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cmdDefineTag.Name = "cmdDefineTag";
+            this.cmdDefineTag.Size = new System.Drawing.Size(110, 30);
+            this.cmdDefineTag.TabIndex = 12;
+            this.cmdDefineTag.Text = "Define Tag";
+            this.cmdDefineTag.UseVisualStyleBackColor = true;
+            this.cmdDefineTag.Click += new System.EventHandler(this.cmdDefineTag_Click);
+            // 
             // txtFilter
             // 
             this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -132,7 +158,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(701, 597);
+            this.ClientSize = new System.Drawing.Size(701, 623);
+            this.Controls.Add(this.cmdRemoveTags);
+            this.Controls.Add(this.cmdDefineTag);
             this.Controls.Add(this.cboCodeFiles);
             this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.lvwTags);
@@ -162,5 +190,7 @@
         private System.Windows.Forms.ColumnHeader colProgram;
         private Controls.PlaceholderTextBox txtFilter;
         private System.Windows.Forms.ComboBox cboCodeFiles;
+        private System.Windows.Forms.Button cmdRemoveTags;
+        private System.Windows.Forms.Button cmdDefineTag;
     }
 }

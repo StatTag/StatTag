@@ -6,19 +6,23 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Word;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using StatTag.Models;
+using Font = System.Drawing.Font;
+using Rectangle = System.Drawing.Rectangle;
+using View = System.Windows.Forms.View;
 
 namespace StatTag
 {
     public partial class TagManager : Form
     {
-        private List<Tag> Tags { get; set; }
         private readonly List<Tag> FilteredTags = new List<Tag>();
         private int sortColumn = -1;
         private bool sortAscending = true;
         public DocumentManager Manager { get; set; }
+        public Document ActiveDocument { get; set; }
 
         private const int InnerPadding = 3;
         private const int ItemHeight = 60;
@@ -59,17 +63,17 @@ namespace StatTag
         };
 
 
-        public TagManager(List<Tag> tags, DocumentManager manager)
+        public TagManager(DocumentManager manager)
         {
             InitializeComponent();
             lvwTags.View = View.Details;  // It must always be Details
-            Tags = tags;
             Manager = manager;
 
-            if (Tags != null)
+            if (Manager != null)
             {
+                var codeFiles = Manager.GetCodeFileList();
                 cboCodeFiles.Items.Add("(Tags for all code files)");
-                cboCodeFiles.Items.AddRange(Tags.GroupBy(t => t.CodeFilePath).Select(path => Path.GetFileName(path.Key)).ToArray());
+                cboCodeFiles.Items.AddRange(codeFiles.Select(path => Path.GetFileName(path)).ToArray());
                 cboCodeFiles.SelectedIndex = 0;
             }
         }
@@ -103,11 +107,6 @@ namespace StatTag
 
             UpdateUIForSelection();
         }
-
-        //private static bool IsSelected(ListViewItemStates state)
-        //{
-        //    return ((state & ListViewItemStates.Selected) != 0);
-        //}
 
         private Bitmap GetStatPackageImage(CodeFile file)
         {
@@ -208,8 +207,6 @@ namespace StatTag
                 return;
             }
 
-            //var isSelected = IsSelected(e.ItemState);
-            //var isSelected = e.Item.Selected;
             switch (e.ColumnIndex)
             {
                 case 0:
@@ -307,8 +304,10 @@ namespace StatTag
             bool hasSelection = (selectionCount > 0);
             cmdInsert.Enabled = hasSelection;
             cmdUpdate.Enabled = hasSelection;
-            cmdInsert.Text = string.Format("Insert {0} Selected Tag{1}", selectionCount, (selectionCount > 1 ? "s" : ""));
-            cmdUpdate.Text = string.Format("Update {0} Selected Tag{1}", selectionCount, (selectionCount > 1 ? "s" : ""));
+            cmdRemoveTags.Enabled = hasSelection;
+            cmdInsert.Text = string.Format("Insert {0} Selected Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
+            cmdUpdate.Text = string.Format("Update {0} Selected Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
+            cmdRemoveTags.Text = string.Format("Remove {0} Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
         }
 
         protected class TagListViewItemComparer : IComparer
@@ -417,7 +416,6 @@ namespace StatTag
                 // First, go through and update all of the code files to ensure we have all
                 // refreshed tags.
                 var refreshedFiles = new List<CodeFile>();
-                //var files = Manager.GetCodeFileList(ActiveDocument);
                 var files = tags.Select(x => x.CodeFile).Distinct();
                 foreach (var codeFile in files)
                 {
@@ -455,29 +453,41 @@ namespace StatTag
             }
         }
 
-        //private void LoadList(string filter = "")
-        //{
-        //    dgvItems.Rows.Clear();
-        //    var filteredTags = Tags.Where(x => x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0).OrderBy(x => x.LineStart);
-        //    foreach (var tag in filteredTags)
-        //    {
-        //        AddRow(tag);
-        //    }
-
-        //    // If the list was sorted explicitly, retain that sort order after we've refreshed the data
-        //    if (dgvItems.SortedColumn != null)
-        //    {
-        //        var sortOrder = (dgvItems.SortOrder == SortOrder.Descending)
-        //            ? ListSortDirection.Descending
-        //            : ListSortDirection.Ascending;
-        //        dgvItems.Sort(dgvItems.SortedColumn, sortOrder);
-        //    }
-        //}
-
         private void txtFilter_FilterChanged(object sender, EventArgs e)
         {
-            //LoadList(txtFilter.Text);
             FilterTags();
+        }
+
+        private void cmdDefineTag_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.TopMost = false;
+                this.Visible = false;
+
+                var dialog = new EditTag(true, Manager);
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    Manager.SaveEditedTag(dialog);
+                    var files = Tags.Select(x => x.CodeFile).Distinct();
+                    foreach (var file in files)
+                    {
+                        file.LoadTagsFromContent();
+                    }
+
+                    Manager.CheckForInsertSavedTag(dialog);
+                }
+            }
+            finally
+            {
+                this.Visible = true;
+                this.TopMost = true;
+            }
+        }
+
+        private void cmdRemoveTags_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

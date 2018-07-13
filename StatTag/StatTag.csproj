@@ -497,7 +497,7 @@
     <Content Include="Resources\1455152483_compose.png" />
     <Content Include="Resources\1461792350_checklist.png" />
     <Content Include="Resources\1463081093_icon-148-tag-add.png" />
-    <Content Include="Resources\1463105039_05.Tag.png" />
+    <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />
     <Content Include="Resources\1463105124_icon-clipboard.png" />
