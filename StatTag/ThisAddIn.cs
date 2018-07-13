@@ -24,7 +24,7 @@ namespace StatTag
 
         public LogManager LogManager = new LogManager();
         public SettingsManager SettingsManager = new SettingsManager();
-        public DocumentManager DocumentManager = new DocumentManager();
+        public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
@@ -62,7 +62,7 @@ namespace StatTag
         {
             DocumentManager.SetSettingsManager(SettingsManager);
             StatsManager = new StatsManager(DocumentManager, SettingsManager);
-            DocumentManager.CodeFileChanged += OnCodeFileChanged;
+            DocumentManager.CodeFileContentsChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.

@@ -71,11 +71,66 @@ namespace StatTag
 
             if (Manager != null)
             {
-                var codeFiles = Manager.GetCodeFileList();
-                cboCodeFiles.Items.Add("(Tags for all code files)");
-                cboCodeFiles.Items.AddRange(codeFiles.Select(path => Path.GetFileName(path)).ToArray());
-                cboCodeFiles.SelectedIndex = 0;
+                LoadCodeFileList();
+                Manager.TagListChanged += ManagerOnTagListChanged;
+                Manager.CodeFileListChanged += ManagerOnCodeFileListChanged;
             }
+        }
+
+        /// <summary>
+        /// Load the list of code files (used for filtering tags) from our DocumentManager reference
+        /// </summary>
+        private void LoadCodeFileList()
+        {
+            if (Manager != null)
+            {
+                var selectedItem = string.Empty;
+                if (cboCodeFiles.SelectedIndex >= 0 && cboCodeFiles.SelectedItem != null)
+                {
+                    selectedItem = cboCodeFiles.SelectedItem.ToString();
+                }
+
+                var codeFiles = Manager.GetCodeFileList();
+                cboCodeFiles.Items.Clear();
+                cboCodeFiles.Items.Add("(Tags for all code files)");
+                cboCodeFiles.Items.AddRange(codeFiles.Select(path => Path.GetFileName(path.FilePath)).ToArray());
+
+                if (string.IsNullOrWhiteSpace(selectedItem))
+                {
+                    cboCodeFiles.SelectedIndex = 0;
+                }
+                else
+                {
+                    cboCodeFiles.SelectedItem = selectedItem;
+
+                    // If the selection we tried is no longer valid, default to the "all tags" filter selection
+                    if (cboCodeFiles.SelectedItem == null)
+                    {
+                        cboCodeFiles.SelectedIndex = 0;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle notifications from the DocumentManager when our list of code files has changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void ManagerOnCodeFileListChanged(object sender, EventArgs eventArgs)
+        {
+            LoadCodeFileList();
+            FilterTags();
+        }
+
+        /// <summary>
+        /// Handle notifications from the DocumentManager when the list and/or content of tags has changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void ManagerOnTagListChanged(object sender, EventArgs eventArgs)
+        {
+            FilterTags();
         }
 
         private void TagManager_Load(object sender, EventArgs e)
@@ -85,17 +140,22 @@ namespace StatTag
             FilterTags();
         }
 
+        /// <summary>
+        /// Filter the list of tags that is displayed based off of the code file filter, as well as the
+        /// search string filter.
+        /// </summary>
         private void FilterTags()
         {
             FilteredTags.Clear();
             lvwTags.Items.Clear();
 
-            bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0);
+            bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0 || cboCodeFiles.SelectedItem == null);
             bool noFilter = string.IsNullOrWhiteSpace(txtFilter.Text);
             var filter = txtFilter.Text;
-            if (Tags != null)
+            if (Manager != null)
             {
-                FilteredTags.AddRange(Tags.Where(x => 
+                var tags = Manager.GetTags();
+                FilteredTags.AddRange(tags.Where(x => 
                     (allCodeFiles || x.CodeFilePath.EndsWith(cboCodeFiles.SelectedItem.ToString())) 
                     && (noFilter || x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)).ToArray());
             }
@@ -108,6 +168,12 @@ namespace StatTag
             UpdateUIForSelection();
         }
 
+        /// <summary>
+        /// Helper to safely return a Bitmap to represent the statistical package used to run
+        /// the CodeFile file
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private Bitmap GetStatPackageImage(CodeFile file)
         {
             if (file != null && StatPackageImages.ContainsKey(file.StatisticalPackage))
@@ -118,6 +184,11 @@ namespace StatTag
             return StatPackageImages[string.Empty];
         }
 
+        /// <summary>
+        /// For a given tag, return a string that describes how it will be formatted.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
         private string GenerateFormatDescriptionFromTag(Tag tag)
         {
             if (tag == null)
@@ -143,6 +214,12 @@ namespace StatTag
             }
         }
 
+        /// <summary>
+        /// For a given tag, return a string that represents its preview - this accounts
+        /// for things like numeric formatting.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
         private string GeneratePreviewTextFromTag(Tag tag)
         {
             if (tag == null)
@@ -468,14 +545,14 @@ namespace StatTag
                 var dialog = new EditTag(true, Manager);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    Manager.SaveEditedTag(dialog);
-                    var files = Tags.Select(x => x.CodeFile).Distinct();
-                    foreach (var file in files)
-                    {
-                        file.LoadTagsFromContent();
-                    }
+                    //Manager.SaveEditedTag(dialog);
+                    //var files = Tags.Select(x => x.CodeFile).Distinct();
+                    //foreach (var file in files)
+                    //{
+                    //    file.LoadTagsFromContent();
+                    //}
 
-                    Manager.CheckForInsertSavedTag(dialog);
+                    //Manager.CheckForInsertSavedTag(dialog);
                 }
             }
             finally

@@ -23,9 +23,25 @@ namespace StatTag.Models
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and tags.
     /// </summary>
-    public class DocumentManager : BaseManager, IDisposable
+    public sealed class DocumentManager : BaseManager, IDisposable
     {
-        public event EventHandler CodeFileChanged;
+        /// <summary>
+        /// Sent whenever the contents of a single code file have changed.
+        /// </summary>
+        public event EventHandler CodeFileContentsChanged;
+
+        /// <summary>
+        /// Sent whenever the number of tags or the content of one or more tags changes.  This will alert
+        /// the listener that they should refresh any and all lists of tags or displays of a tag.
+        /// </summary>
+        public event EventHandler TagListChanged;
+
+        /// <summary>
+        /// Sent whenever the number of code files changes.  This will alert the listener that they should
+        /// refresh any and all lists of code files, as well as associated tag lists.  The listener will want
+        /// to perform the same actions for TagListChanged events when this is received.
+        /// </summary>
+        public event EventHandler CodeFileListChanged;
 
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
         public TagManager TagManager { get; set; }
@@ -35,7 +51,19 @@ namespace StatTag.Models
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
-        public DocumentManager()
+        // Singleton pattern implementation informed by: http://csharpindepth.com/Articles/General/Singleton.aspx#cctor
+        private static readonly DocumentManager instance = new DocumentManager();
+        // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
+        static DocumentManager() {}
+        public static DocumentManager Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
+        private DocumentManager()
         {
             SettingsManager = null;
             DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
@@ -62,7 +90,7 @@ namespace StatTag.Models
         /// <remarks>Needed because Word interop doesn't provide a nice check mechanism, and uses exceptions instead.</remarks>
         /// <param name="variable">The variable to check</param>
         /// <returns>True if a variable exists and has a value, false otherwise</returns>
-        protected bool DocumentVariableExists(Variable variable)
+        private bool DocumentVariableExists(Variable variable)
         {
             try
             {
@@ -80,7 +108,7 @@ namespace StatTag.Models
         /// used to create the Word document.
         /// </summary>
         /// <returns></returns>
-        protected DocumentMetadata CreateDocumentMetadata()
+        private DocumentMetadata CreateDocumentMetadata()
         {
             var metadata = new DocumentMetadata()
             {
@@ -253,6 +281,13 @@ namespace StatTag.Models
                 {
                     DocumentCodeFiles[document.FullName] = new List<MonitoredCodeFile>();
                     Log("Document variable does not exist, no code files loaded");
+                }
+
+                // Alert our listeners that the list of code files has changed
+                if (CodeFileListChanged != null)
+                {
+                    Log("Alerting listeners that the list of code files has changed");
+                    CodeFileListChanged(this, new EventArgs());
                 }
             }
             finally
@@ -1207,6 +1242,12 @@ namespace StatTag.Models
                 // be a new tag, or an updated one.
                 codeFile.AddTag(dialog.Tag, existingTag);
                 codeFile.Save();
+
+                // Alert our listeners that at least one tag has changed
+                if (TagListChanged != null)
+                {
+                    TagListChanged(this, new EventArgs());
+                }
             }
         }
 
@@ -1369,11 +1410,22 @@ namespace StatTag.Models
             return TagManager.FindAllUnlinkedTags();
         }
 
+        /// <summary>
+        /// For all of the code files associated with the current document, get all of the
+        /// tags as a single list.
+        /// </summary>
+        /// <returns>A List of Tag objects from all code files</returns>
         public List<Tag> GetTags()
         {
             return TagManager.GetTags();
         }
 
+        /// <summary>
+        /// Find the master reference of an tag, which is contained in the code files
+        /// associated with the current document
+        /// </summary>
+        /// <param name="id">The tag identifier to search for</param>
+        /// <returns>The found Tag, or null of no tag was found</returns>
         public Tag FindTag(string id)
         {
             return TagManager.FindTag(id);
@@ -1395,6 +1447,12 @@ namespace StatTag.Models
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
             TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByCodeFile, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1414,6 +1472,12 @@ namespace StatTag.Models
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
             TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByTag, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1435,6 +1499,12 @@ namespace StatTag.Models
                     var codeFiles = GetCodeFileList();
                     var updatedCodeFileList = codeFiles.Where(x => !filesToRemove.Contains(x.FilePath)).ToList();
                     SetCodeFileList(updatedCodeFileList);
+
+                    // Alert our listeners that at least one code file has changed
+                    if (CodeFileListChanged != null)
+                    {
+                        CodeFileListChanged(this, new EventArgs());
+                    }
                 }
             }
         }
@@ -1465,6 +1535,12 @@ namespace StatTag.Models
                 monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
                 files.Add(monitoredCodeFile);
                 Log(string.Format("Added code file {0}", fileName));
+
+                // Alert our listeners that we have added a code file
+                if (CodeFileListChanged != null)
+                {
+                    CodeFileListChanged(this, new EventArgs());
+                }
             }
             catch (Exception exc)
             {
@@ -1486,9 +1562,9 @@ namespace StatTag.Models
                 return;
             }
 
-            if (CodeFileChanged != null)
+            if (CodeFileContentsChanged != null)
             {
-                CodeFileChanged(monitoredCodeFile, args);
+                CodeFileContentsChanged(monitoredCodeFile, args);
             }
         }
 
@@ -1510,6 +1586,12 @@ namespace StatTag.Models
                 // Add the tag to the code file - replacing the old one.  Note that we require the
                 // exact line match, so we don't accidentally replace the wrong duplicate named tag.
                 codeFile.AddTag(update.New, update.Old, true);
+            }
+
+            // Alert our listeners that tags have been updated
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
             }
 
             foreach (var codeFile in affectedCodeFiles)
@@ -1657,6 +1739,11 @@ namespace StatTag.Models
             }
 
             RefreshCodeFileListForDocument(document, files);
+
+            if (CodeFileListChanged != null)
+            {
+                CodeFileListChanged(this, new EventArgs());
+            }
         }
 
         public void Dispose()

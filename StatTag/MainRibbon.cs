@@ -124,6 +124,9 @@ namespace StatTag
 
         private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
+            // This is a pseudo-singleton implementation.  We are controlling the single instance from
+            // the code here instead of the class because we need to provide it with the reference to
+            // the DocumentManager object when we create it the first time.
             if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
             {
                 try
@@ -146,67 +149,7 @@ namespace StatTag
                     ManageTagsDialog = null;
                 }
             }
-
-            //try
-            //{
-            //    ManageTagsDialog = new ManageTags(Manager);
-            //    if (DialogResult.OK == ManageTagsDialog.ShowDialog())
-            //    {
-            //        Manager.SaveAllCodeFiles(ActiveDocument);
-            //    }
-            //}
-            //catch (StatTagUserException uex)
-            //{
-            //    UIUtility.ReportException(uex, uex.Message, LogManager);
-            //}
-            //catch (Exception exc)
-            //{
-            //    UIUtility.ReportException(exc,
-            //        "There was an unexpected error when trying to manage your tags.",
-            //        LogManager);
-            //}
-            //finally
-            //{
-            //    ManageTagsDialog = null;
-            //}
         }
-
-        //private void cmdInsertOutput_Click(object sender, RibbonControlEventArgs e)
-        //{
-        //    try
-        //    {
-        //        var files = Manager.GetCodeFileList(ActiveDocument);
-        //        SelectOutputDialog = new SelectOutput(files);
-        //        if (DialogResult.OK == SelectOutputDialog.ShowDialog())
-        //        {
-        //            try
-        //            {
-        //                var tags = SelectOutputDialog.GetSelectedTags();
-        //                LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-        //                Manager.InsertTagsInDocument(tags);
-        //            }
-        //            catch (StatTagUserException uex)
-        //            {
-        //                UIUtility.ReportException(uex, uex.Message, LogManager);
-        //            }
-        //            catch (Exception exc)
-        //            {
-        //                UIUtility.ReportException(exc,
-        //                    "There was an unexpected error when trying to insert the tag output into the document.",
-        //                    LogManager);
-        //            }
-        //            finally
-        //            {
-        //                Globals.ThisAddIn.Application.ScreenUpdating = true;
-        //                Cursor.Current = Cursors.Default;
-        //            }
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        SelectOutputDialog = null;
-        //    }
-        //}
 
         private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
@@ -236,92 +179,6 @@ namespace StatTag
             }
         }
 
-        //private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
-        //{
-        //    try
-        //    {
-        //        UpdateOutputDialog = new UpdateOutput(Manager.GetTags());
-        //        if (DialogResult.OK != UpdateOutputDialog.ShowDialog())
-        //        {
-        //            return;
-        //        }
-
-        //        var tags = UpdateOutputDialog.SelectedTags;
-
-        //        // Clear the dialog object once we no longer need it.  This allows us to better track which
-        //        // dialogs are active and open.
-        //        UpdateOutputDialog = null;
-        //        Cursor.Current = Cursors.WaitCursor;
-        //        Globals.ThisAddIn.Application.ScreenUpdating = false;
-                
-        //        // First, go through and update all of the code files to ensure we have all
-        //        // refreshed tags.
-        //        var refreshedFiles = new List<CodeFile>();
-        //        var files = Manager.GetCodeFileList(ActiveDocument);
-        //        foreach (var codeFile in files)
-        //        {
-        //            if (!refreshedFiles.Contains(codeFile))
-        //            {
-        //                var result = StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
-        //                if (!result.Success)
-        //                {
-        //                    break;
-        //                }
-
-        //                refreshedFiles.Add(codeFile);
-        //            }
-        //        }
-
-        //        // Now we will refresh all of the tags that are fields.  Since we most likely
-        //        // have more fields than tags, we are going to use the approach of looping
-        //        // through all fields and updating them (via the DocumentManager).
-        //        Manager.UpdateFields();
-        //    }
-        //    catch (StatTagUserException uex)
-        //    {
-        //        UIUtility.ReportException(uex, uex.Message, LogManager);
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        UIUtility.ReportException(exc,
-        //            "There was an unexpected error when trying to update values in your document.",
-        //            LogManager);
-        //    }
-        //    finally
-        //    {
-        //        Globals.ThisAddIn.Application.ScreenUpdating = true;
-        //        Cursor.Current = Cursors.Default;
-
-        //        // First, go through and update all of the code files to ensure we have all
-        //        // refreshed tags.
-        //        UpdateOutputDialog = null;
-        //    }
-        //}
-
-        //private void cmdValidateDocument_Click(object sender, RibbonControlEventArgs e)
-        //{
-        //    Cursor.Current = Cursors.WaitCursor;
-        //    try
-        //    {
-        //        Manager.PerformDocumentCheck(ActiveDocument, ref CheckDocumentDialog);
-        //    }
-        //    catch (StatTagUserException uex)
-        //    {
-        //        UIUtility.ReportException(uex, uex.Message, LogManager);
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        UIUtility.ReportException(exc,
-        //            "There was an unexpected error when performing a validity check on this document.",
-        //            LogManager);
-        //    }
-        //    finally
-        //    {
-        //        Cursor.Current = Cursors.Default;
-        //        CheckDocumentDialog = null;
-        //    }
-        //}
-
         /// <summary>
         /// Called when we need to forcibly close any and all open dialogs, such as
         /// for system shutdown, or when a linked code file has been changed.
@@ -332,10 +189,7 @@ namespace StatTag
             ManageCloseDialog(LoadAnalysisCodeDialog);
             ManageCloseDialog(LinkCodeFilesDialog);
             ManageCloseDialog(ManageTagsDialog);
-            //ManageCloseDialog(SelectOutputDialog);
             ManageCloseDialog(SettingsDialog);
-            //ManageCloseDialog(UpdateOutputDialog);
-            //ManageCloseDialog(CheckDocumentDialog);
         }
 
         /// <summary>
@@ -359,29 +213,6 @@ namespace StatTag
                 // For now we are eating the exception.
             }
         }
-
-        //private void cmdDefineTag_Click(object sender, RibbonControlEventArgs e)
-        //{
-        //    try
-        //    {
-        //        EditTagDialog = new EditTag(true, Manager);
-        //        if (DialogResult.OK == EditTagDialog.ShowDialog())
-        //        {
-        //            Manager.SaveEditedTag(EditTagDialog);
-        //            var files = Manager.GetCodeFileList(ActiveDocument);
-        //            foreach (var file in files)
-        //            {
-        //                file.LoadTagsFromContent();
-        //            }
-
-        //            Manager.CheckForInsertSavedTag(EditTagDialog);
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        EditTagDialog = null;
-        //    }
-        //}
 
         private void cmdHelp_Click(object sender, RibbonControlEventArgs e)
         {
