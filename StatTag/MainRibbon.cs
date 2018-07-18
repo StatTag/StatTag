@@ -126,28 +126,33 @@ namespace StatTag
         {
             // This is a pseudo-singleton implementation.  We are controlling the single instance from
             // the code here instead of the class because we need to provide it with the reference to
-            // the DocumentManager object when we create it the first time.
-            if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
+            // the DocumentManager object when we create it the first time.  This also allows us to
+            // perform a check so that if the user clicks on this again, the singleton is already created
+            // but just isn't shown, we're able to make it visible again.
+            try
             {
-                try
+                if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
                     ManageTagsDialog = new TagManager(Manager);
                     ManageTagsDialog.Show();
                 }
-                catch (StatTagUserException uex)
+                else
                 {
-                    UIUtility.ReportException(uex, uex.Message, LogManager);
+                    ManageTagsDialog.Visible = true;
+                    ManageTagsDialog.Focus();
                 }
-                catch (Exception exc)
-                {
-                    UIUtility.ReportException(exc,
-                        "There was an unexpected error when trying to manage your tags.",
-                        LogManager);
-                }
-                finally
-                {
-                    ManageTagsDialog = null;
-                }
+            }
+            catch (StatTagUserException uex)
+            {
+                ManageTagsDialog = null;
+                UIUtility.ReportException(uex, uex.Message, LogManager);
+            }
+            catch (Exception exc)
+            {
+                ManageTagsDialog = null;
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to manage your tags.",
+                    LogManager);
             }
         }
 
@@ -188,7 +193,7 @@ namespace StatTag
             ManageCloseDialog(EditTagDialog);
             ManageCloseDialog(LoadAnalysisCodeDialog);
             ManageCloseDialog(LinkCodeFilesDialog);
-            ManageCloseDialog(ManageTagsDialog);
+            //ManageCloseDialog(ManageTagsDialog);
             ManageCloseDialog(SettingsDialog);
         }
 

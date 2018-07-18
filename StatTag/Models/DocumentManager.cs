@@ -43,7 +43,35 @@ namespace StatTag.Models
         /// </summary>
         public event EventHandler CodeFileListChanged;
 
+        /// <summary>
+        /// Sent whenever the active document within Microsoft Word has changed.  This will alert any
+        /// listeners that they should update their content for the current active document.
+        /// </summary>
+        public event EventHandler ActiveDocumentChanged;
+
+        /// <summary>
+        /// Sent whenever a tag is being edited.
+        /// </summary>
+        public class TagEventArgs : EventArgs { public Tag Tag { get; set; } }
+        public event EventHandler<TagEventArgs> EditingTag;
+        public event EventHandler<TagEventArgs> EditedTag;
+
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
+
+        private Document activeDocument = null;
+        public Document ActiveDocument
+        {
+            get { return activeDocument; }
+            
+            set
+            {
+                activeDocument = value;
+                if (ActiveDocumentChanged != null)
+                {
+                    ActiveDocumentChanged(this, new EventArgs());
+                }
+            }
+        }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
         public SettingsManager SettingsManager { get; set; }
@@ -1165,6 +1193,12 @@ namespace StatTag.Models
 
             try
             {
+                // Alert all listeners that we are beginning to edit a tag
+                if (EditingTag != null)
+                {
+                    EditingTag(this, new TagEventArgs() { Tag = tag });
+                }
+
                 var dialog = new EditTag(false, this);
 
                 var document = Globals.ThisAddIn.SafeGetActiveDocument();
@@ -1207,8 +1241,22 @@ namespace StatTag.Models
                         UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
                     }
 
+                    // Alert all listeners that we are done editing a tag
+                    if (EditedTag != null)
+                    {
+                        Log("Alerting listener that tag editing is complete");
+                        EditedTag(this, new TagEventArgs() { Tag = tag });
+                    }
+
                     Log("EditTag - Finished (action)");
                     return true;
+                }
+
+                // Alert all listeners that we are done editing a tag
+                if (EditedTag != null)
+                {
+                    Log("Alerting listener that tag editing is complete");
+                    EditedTag(this, new TagEventArgs() { Tag = tag });
                 }
             }
             catch (Exception exc)
@@ -1487,6 +1535,7 @@ namespace StatTag.Models
         /// <param name="unlinkedAffectedCodeFiles">The list of code files that have been unlinked from one or more tags</param>
         public void ProcessUnlinkedCodeFiles(List<string> unlinkedAffectedCodeFiles)
         {
+            Log("ProcessUnlinkedCodeFiles - Start");
             // If we replaced a code file, we are going to check to see if all references to that old code file are gone.
             // If so, we can remove the code file reference from the document, so a potentially unused (or invalid)
             // code file reference doesn't get carried aong.
@@ -1503,10 +1552,12 @@ namespace StatTag.Models
                     // Alert our listeners that at least one code file has changed
                     if (CodeFileListChanged != null)
                     {
+                        Log("Alerting listeners that the list of code files has changed");
                         CodeFileListChanged(this, new EventArgs());
                     }
                 }
             }
+            Log("ProcessUnlinkedCodeFiles - Finished");
         }
 
         /// <summary>
@@ -1539,6 +1590,7 @@ namespace StatTag.Models
                 // Alert our listeners that we have added a code file
                 if (CodeFileListChanged != null)
                 {
+                    Log("Alerting listeners that the list of code files has changed");
                     CodeFileListChanged(this, new EventArgs());
                 }
             }
@@ -1658,6 +1710,13 @@ namespace StatTag.Models
                     codeFile.StartMonitoring();
                 }
             }
+
+            if (CodeFileListChanged != null)
+            {
+                Log("Alerting listeners that the list of code files has changed");
+                CodeFileListChanged(this, new EventArgs());
+            }
+
             Log("RefreshContentInDocumentCodeFiles - Finish");
         }
 
@@ -1742,6 +1801,7 @@ namespace StatTag.Models
 
             if (CodeFileListChanged != null)
             {
+                Log("Alerting listeners that the list of code files has changed");
                 CodeFileListChanged(this, new EventArgs());
             }
         }

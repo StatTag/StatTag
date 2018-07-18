@@ -31,6 +31,7 @@ namespace StatTag
         private const string DefaultFormat = "Default";
         private const string DefaultPreviewText = "(Exactly as Generated)";
         private const int TagTypeImageDimension = 32;
+        private const string BaseDialogTitle = "StatTag - Tag Manager";
 
         private static readonly Brush AlternateBackgroundBrush = new SolidBrush(Color.FromArgb(255, 245, 245, 245));
         private static readonly Brush HighlightBrush = new SolidBrush(Color.FromArgb(255, 17, 108, 214));
@@ -71,44 +72,127 @@ namespace StatTag
 
             if (Manager != null)
             {
-                LoadCodeFileList();
+                SetDialogTitle();
+                LoadCodeFileList(this);
                 Manager.TagListChanged += ManagerOnTagListChanged;
                 Manager.CodeFileListChanged += ManagerOnCodeFileListChanged;
+                Manager.ActiveDocumentChanged += ManagerOnActiveDocumentChanged;
+                Manager.EditingTag += ManagerOnEditingTag;
+                Manager.EditedTag += ManagerOnEditedTag;
             }
+        }
+
+        /// <summary>
+        /// Solution from: https://stackoverflow.com/a/8849636/
+        /// </summary>
+        /// <param name="lvwList"></param>
+        /// <returns></returns>
+        private delegate void SelectListItem(ListView lvwList, Tag tag);
+        private void SelectTagInList(ListView lvwList, Tag tag)
+        {
+            if (!lvwList.InvokeRequired)
+            {
+                var items = lvwList.Items.OfType<ListViewItem>();
+                var selectableItem = items.FirstOrDefault(x => x.Tag.Equals(tag));
+                if (selectableItem != null)
+                {
+                    lvwList.SelectedItems.Clear();
+                    selectableItem.Selected = true;
+                }
+            }
+            else
+            {
+                this.Invoke(new SelectListItem(SelectTagInList), new object[] { lvwList, tag });
+            }
+        }
+
+        private delegate void ManageVisibility(Form form, bool visible);
+        private void SetTagManagerVisibility(Form form, bool visible)
+        {
+            if (!form.InvokeRequired)
+            {
+                form.Visible = visible;
+            }
+            else
+            {
+                this.Invoke(new ManageVisibility(SetTagManagerVisibility), new object[] { form, visible });
+            }
+        }
+
+        private void ManagerOnEditingTag(object sender, DocumentManager.TagEventArgs tagEventArgs)
+        {
+            SetTagManagerVisibility(this, false);
+        }
+
+        private void ManagerOnEditedTag(object sender, DocumentManager.TagEventArgs tagEventArgs)
+        {
+            SetTagManagerVisibility(this, true);
+            SelectTagInList(lvwTags, tagEventArgs.Tag);
+        }
+
+        /// <summary>
+        /// Event handler called when the active Word document changes.  Our response is to update
+        /// the document title, code file list and tag list to reflect the new document's metadata.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void ManagerOnActiveDocumentChanged(object sender, EventArgs eventArgs)
+        {
+            SetDialogTitle();
+            LoadCodeFileList(this);
+            FilterTags(this);
+        }
+
+        /// <summary>
+        /// Update the title of the dialog to reflect the currently active document name
+        /// </summary>
+        private void SetDialogTitle()
+        {
+            var activeDocument = Manager.ActiveDocument;
+            Text = string.Format("{0}{1}", BaseDialogTitle,
+                (activeDocument != null) ? string.Format(" - {0}", activeDocument.FullName) : string.Empty);
         }
 
         /// <summary>
         /// Load the list of code files (used for filtering tags) from our DocumentManager reference
         /// </summary>
-        private void LoadCodeFileList()
+        private delegate void CodeFileListDelegate(StatTag.TagManager form);
+        private void LoadCodeFileList(StatTag.TagManager form)
         {
-            if (Manager != null)
+            if (!form.InvokeRequired)
             {
-                var selectedItem = string.Empty;
-                if (cboCodeFiles.SelectedIndex >= 0 && cboCodeFiles.SelectedItem != null)
+                if (Manager != null)
                 {
-                    selectedItem = cboCodeFiles.SelectedItem.ToString();
-                }
+                    var selectedItem = string.Empty;
+                    if (cboCodeFiles.SelectedIndex >= 0 && cboCodeFiles.SelectedItem != null)
+                    {
+                        selectedItem = cboCodeFiles.SelectedItem.ToString();
+                    }
 
-                var codeFiles = Manager.GetCodeFileList();
-                cboCodeFiles.Items.Clear();
-                cboCodeFiles.Items.Add("(Tags for all code files)");
-                cboCodeFiles.Items.AddRange(codeFiles.Select(path => Path.GetFileName(path.FilePath)).ToArray());
+                    var codeFiles = Manager.GetCodeFileList();
+                    cboCodeFiles.Items.Clear();
+                    cboCodeFiles.Items.Add("(Tags for all code files)");
+                    cboCodeFiles.Items.AddRange(codeFiles.Select(path => Path.GetFileName(path.FilePath)).ToArray());
 
-                if (string.IsNullOrWhiteSpace(selectedItem))
-                {
-                    cboCodeFiles.SelectedIndex = 0;
-                }
-                else
-                {
-                    cboCodeFiles.SelectedItem = selectedItem;
-
-                    // If the selection we tried is no longer valid, default to the "all tags" filter selection
-                    if (cboCodeFiles.SelectedItem == null)
+                    if (string.IsNullOrWhiteSpace(selectedItem))
                     {
                         cboCodeFiles.SelectedIndex = 0;
                     }
+                    else
+                    {
+                        cboCodeFiles.SelectedItem = selectedItem;
+
+                        // If the selection we tried is no longer valid, default to the "all tags" filter selection
+                        if (cboCodeFiles.SelectedItem == null)
+                        {
+                            cboCodeFiles.SelectedIndex = 0;
+                        }
+                    }
                 }
+            }
+            else
+            {
+                this.Invoke(new CodeFileListDelegate(LoadCodeFileList), new object[] { form });
             }
         }
 
@@ -119,8 +203,8 @@ namespace StatTag
         /// <param name="eventArgs"></param>
         private void ManagerOnCodeFileListChanged(object sender, EventArgs eventArgs)
         {
-            LoadCodeFileList();
-            FilterTags();
+            LoadCodeFileList(this);
+            FilterTags(this);
         }
 
         /// <summary>
@@ -130,42 +214,50 @@ namespace StatTag
         /// <param name="eventArgs"></param>
         private void ManagerOnTagListChanged(object sender, EventArgs eventArgs)
         {
-            FilterTags();
+            FilterTags(this);
         }
 
         private void TagManager_Load(object sender, EventArgs e)
         {
             var imgList = new ImageList {ImageSize = new Size(1, ItemHeight)};
             lvwTags.SmallImageList = imgList;
-            FilterTags();
+            FilterTags(this);
         }
 
         /// <summary>
         /// Filter the list of tags that is displayed based off of the code file filter, as well as the
         /// search string filter.
         /// </summary>
-        private void FilterTags()
+        private delegate void FilterTagsDelegate(StatTag.TagManager form);
+        private void FilterTags(StatTag.TagManager form)
         {
-            FilteredTags.Clear();
-            lvwTags.Items.Clear();
-
-            bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0 || cboCodeFiles.SelectedItem == null);
-            bool noFilter = string.IsNullOrWhiteSpace(txtFilter.Text);
-            var filter = txtFilter.Text;
-            if (Manager != null)
+            if (!form.InvokeRequired)
             {
-                var tags = Manager.GetTags();
-                FilteredTags.AddRange(tags.Where(x => 
-                    (allCodeFiles || x.CodeFilePath.EndsWith(cboCodeFiles.SelectedItem.ToString())) 
-                    && (noFilter || x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)).ToArray());
-            }
+                FilteredTags.Clear();
+                lvwTags.Items.Clear();
 
-            foreach (var tag in FilteredTags)
+                bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0 || cboCodeFiles.SelectedItem == null);
+                bool noFilter = string.IsNullOrWhiteSpace(txtFilter.Text);
+                var filter = txtFilter.Text;
+                if (Manager != null)
+                {
+                    var tags = Manager.GetTags();
+                    FilteredTags.AddRange(tags.Where(x =>
+                        (allCodeFiles || x.CodeFilePath.EndsWith(cboCodeFiles.SelectedItem.ToString()))
+                        && (noFilter || x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)).ToArray());
+                }
+
+                foreach (var tag in FilteredTags)
+                {
+                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type }) { Tag = tag });
+                }
+
+                UpdateUIForSelection();
+            }
+            else
             {
-                lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type }) { Tag = tag });
+                this.Invoke(new FilterTagsDelegate(FilterTags), new object[] { form });
             }
-
-            UpdateUIForSelection();
         }
 
         /// <summary>
@@ -312,7 +404,7 @@ namespace StatTag
 
         private void cboCodeFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            FilterTags();
+            FilterTags(this);
         }
 
         private void lvwTags_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
@@ -532,7 +624,7 @@ namespace StatTag
 
         private void txtFilter_FilterChanged(object sender, EventArgs e)
         {
-            FilterTags();
+            FilterTags(this);
         }
 
         private void cmdDefineTag_Click(object sender, EventArgs e)
@@ -545,7 +637,7 @@ namespace StatTag
                 var dialog = new EditTag(true, Manager);
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
-                    //Manager.SaveEditedTag(dialog);
+                    Manager.SaveEditedTag(dialog);
                     //var files = Tags.Select(x => x.CodeFile).Distinct();
                     //foreach (var file in files)
                     //{
