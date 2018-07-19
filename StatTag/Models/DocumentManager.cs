@@ -58,6 +58,8 @@ namespace StatTag.Models
 
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
 
+        private EditTag EditTagForm { get; set; }
+
         private Document activeDocument = null;
         public Document ActiveDocument
         {
@@ -1196,10 +1198,10 @@ namespace StatTag.Models
                 // Alert all listeners that we are beginning to edit a tag
                 if (EditingTag != null)
                 {
-                    EditingTag(this, new TagEventArgs() { Tag = tag });
+                    EditingTag(this, new TagEventArgs() {Tag = tag});
                 }
 
-                var dialog = new EditTag(false, this);
+                EditTagForm = new EditTag(false, this);
 
                 var document = Globals.ThisAddIn.SafeGetActiveDocument();
                 var metadata = LoadMetadataFromDocument(document, true);
@@ -1207,45 +1209,45 @@ namespace StatTag.Models
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
 
-                dialog.Tag = new Tag(tag);
+                EditTagForm.Tag = new Tag(tag);
                 var wrapper = new WindowWrapper(hwnd);
                 Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
-                if (DialogResult.OK == dialog.ShowDialog(wrapper))
+                if (DialogResult.OK == EditTagForm.ShowDialog(wrapper))
                 {
                     // Save the tag first, before trying to update the tags.  This way even if there is
                     // an error during the updates, our results are saved.
-                    SaveEditedTag(dialog, tag);
+                    SaveEditedTag(EditTagForm, tag);
 
                     // If the value format has changed, refresh the values in the document with the
                     // new formatting of the results.
                     // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
-                    if (dialog.Tag.ValueFormat != tag.ValueFormat)
+                    if (EditTagForm.Tag.ValueFormat != tag.ValueFormat)
                     {
                         Log("Updating fields after tag value format changed");
-                        if (dialog.Tag.TableFormat != tag.TableFormat)
+                        if (EditTagForm.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Tag.UpdateFormattedTableData(metadata);
+                            EditTagForm.Tag.UpdateFormattedTableData(metadata);
                         }
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
                     }
-                    else if (dialog.Tag.TableFormat != tag.TableFormat)
+                    else if (EditTagForm.Tag.TableFormat != tag.TableFormat)
                     {
                         Log("Updating fields after tag table format changed");
-                        dialog.Tag.UpdateFormattedTableData(metadata);
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        EditTagForm.Tag.UpdateFormattedTableData(metadata);
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
                     }
-                    else if (dialog.Tag.Id != tag.Id)
+                    else if (EditTagForm.Tag.Id != tag.Id)
                     {
                         Log("Updating fields after tag renamed");
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
                     }
 
                     // Alert all listeners that we are done editing a tag
                     if (EditedTag != null)
                     {
                         Log("Alerting listener that tag editing is complete");
-                        EditedTag(this, new TagEventArgs() { Tag = tag });
+                        EditedTag(this, new TagEventArgs() {Tag = tag});
                     }
 
                     Log("EditTag - Finished (action)");
@@ -1256,13 +1258,17 @@ namespace StatTag.Models
                 if (EditedTag != null)
                 {
                     Log("Alerting listener that tag editing is complete");
-                    EditedTag(this, new TagEventArgs() { Tag = tag });
+                    EditedTag(this, new TagEventArgs() {Tag = tag});
                 }
             }
             catch (Exception exc)
             {
                 Log("An exception was caught while trying to edit an tag");
                 LogException(exc);
+            }
+            finally
+            {
+                EditTagForm = null;
             }
 
             Log("EditTag - Finished (no action)");
@@ -1828,6 +1834,15 @@ namespace StatTag.Models
                     docFile.Value.ForEach(x => x.Dispose());
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when we need to forcibly close any and all open dialogs, such as
+        /// for system shutdown, or when a linked code file has been changed.
+        /// </summary>
+        public void CloseAllChildDialogs()
+        {
+            UIUtility.ManageCloseDialog(EditTagForm);
         }
     }
 }

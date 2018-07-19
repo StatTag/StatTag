@@ -18,6 +18,10 @@ namespace StatTag
 {
     public partial class TagManager : Form
     {
+        // These internal members are used to track if and when we have child forms
+        // open.  This will allow us to manage closing them if a code file changes
+        private EditTag EditTagForm { get; set; }
+
         private readonly List<Tag> FilteredTags = new List<Tag>();
         public DocumentManager Manager { get; set; }
         public Document ActiveDocument { get; set; }
@@ -583,17 +587,18 @@ namespace StatTag
                 this.TopMost = false;
                 this.Visible = false;
 
-                var dialog = new EditTag(true, Manager);
-                if (DialogResult.OK == dialog.ShowDialog())
+                EditTagForm = new EditTag(true, Manager);
+                if (DialogResult.OK == EditTagForm.ShowDialog())
                 {
-                    Manager.SaveEditedTag(dialog);
-                    Manager.CheckForInsertSavedTag(dialog);
+                    Manager.SaveEditedTag(EditTagForm);
+                    Manager.CheckForInsertSavedTag(EditTagForm);
                 }
             }
             finally
             {
                 this.Visible = true;
                 this.TopMost = true;
+                EditTagForm = null;
             }
         }
 
@@ -608,6 +613,16 @@ namespace StatTag
             }
 
             Manager.RemoveTags(removedTags);
+        }
+
+        /// <summary>
+        /// Called when we need to forcibly close any and all open dialogs, such as
+        /// for system shutdown, or when a linked code file has been changed.
+        /// </summary>
+        public void CloseAllChildDialogs()
+        {
+            UIUtility.ManageCloseDialog(EditTagForm);
+            Manager.CloseAllChildDialogs();
         }
     }
 }

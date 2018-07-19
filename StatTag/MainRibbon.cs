@@ -190,32 +190,14 @@ namespace StatTag
         /// </summary>
         public void CloseAllOpenDialogs()
         {
-            ManageCloseDialog(EditTagDialog);
-            ManageCloseDialog(LoadAnalysisCodeDialog);
-            ManageCloseDialog(LinkCodeFilesDialog);
-            //ManageCloseDialog(ManageTagsDialog);
-            ManageCloseDialog(SettingsDialog);
-        }
+            UIUtility.ManageCloseDialog(EditTagDialog);
+            UIUtility.ManageCloseDialog(LoadAnalysisCodeDialog);
+            UIUtility.ManageCloseDialog(LinkCodeFilesDialog);
+            UIUtility.ManageCloseDialog(SettingsDialog);
 
-        /// <summary>
-        /// Utility function to invoke the Close method in a given dialog/form.
-        /// </summary>
-        /// <remarks>Because this
-        /// uses messaging, it isn't an immediate close of the dialog, but will result in it
-        /// being closed when all threads and message queues are processed.</remarks>
-        /// <param name="dialog">The dialog/form to be closed</param>
-        private void ManageCloseDialog(Form dialog)
-        {
-            try
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
             {
-                if (dialog != null && !dialog.IsDisposed)
-                {
-                    dialog.Invoke((MethodInvoker) (dialog.Close));
-                }
-            }
-            catch (Exception exc)
-            {
-                // For now we are eating the exception.
+                ManageTagsDialog.CloseAllChildDialogs();
             }
         }
 
