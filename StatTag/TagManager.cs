@@ -19,8 +19,6 @@ namespace StatTag
     public partial class TagManager : Form
     {
         private readonly List<Tag> FilteredTags = new List<Tag>();
-        private int sortColumn = -1;
-        private bool sortAscending = true;
         public DocumentManager Manager { get; set; }
         public Document ActiveDocument { get; set; }
 
@@ -64,10 +62,14 @@ namespace StatTag
         };
 
 
+        private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
+
+
         public TagManager(DocumentManager manager)
         {
             InitializeComponent();
             lvwTags.View = View.Details;  // It must always be Details
+            lvwTags.ListViewItemSorter = ListViewSorter;
             Manager = manager;
 
             if (Manager != null)
@@ -423,11 +425,7 @@ namespace StatTag
                 }
 
                 format.LineAlignment = StringAlignment.Center;
-
-                // Draw the standard header background.
                 e.DrawBackground();
-
-                // Draw the header text.
                 e.Graphics.DrawString(e.Header.Text, NormalFont, Brushes.Black, e.Bounds, format);
             }
         }
@@ -447,7 +445,6 @@ namespace StatTag
                 this.Visible = false;
                 if (Manager.EditTag(existingTag))
                 {
-                    //ReloadTags();
                     lvwTags.Refresh();
                 }
             }
@@ -479,57 +476,9 @@ namespace StatTag
             cmdRemoveTags.Text = string.Format("Remove {0} Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
         }
 
-        protected class TagListViewItemComparer : IComparer
-        {
-            private readonly int sortColumn = -1;
-            private readonly bool sortAscending = true;
-
-            public TagListViewItemComparer(int column, bool ascending)
-            {
-                sortColumn = column;
-                sortAscending = ascending;
-            }
-
-            public int Compare(object x, object y)
-            {
-                var firstItem = x as ListViewItem;
-                var secondItem = y as ListViewItem;
-                int value = 0;
-                if (firstItem == null && secondItem == null)
-                {
-                    value = 0;
-                }
-                else if (firstItem == null)
-                {
-                    value = 1;
-                }
-                else if (secondItem == null)
-                {
-                    value = -1;
-                }
-                else
-                {
-                    value = string.Compare(firstItem.SubItems[sortColumn].Text, secondItem.SubItems[sortColumn].Text, StringComparison.CurrentCulture);
-                }
-
-                return (sortAscending ? value : (-1*value));
-            }
-        }
-
         private void lvwTags_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            if (e.Column == sortColumn)
-            {
-                sortAscending = !sortAscending;
-            }
-            else
-            {
-                sortColumn = e.Column;
-                sortAscending = true;
-            }
-
-            lvwTags.ListViewItemSorter = new TagListViewItemComparer(e.Column, sortAscending);
-            lvwTags.Sort();
+            ListViewSorter.HandleSort(e.Column, lvwTags);
         }
 
         /// <summary>
@@ -638,13 +587,7 @@ namespace StatTag
                 if (DialogResult.OK == dialog.ShowDialog())
                 {
                     Manager.SaveEditedTag(dialog);
-                    //var files = Tags.Select(x => x.CodeFile).Distinct();
-                    //foreach (var file in files)
-                    //{
-                    //    file.LoadTagsFromContent();
-                    //}
-
-                    //Manager.CheckForInsertSavedTag(dialog);
+                    Manager.CheckForInsertSavedTag(dialog);
                 }
             }
             finally
@@ -656,7 +599,15 @@ namespace StatTag
 
         private void cmdRemoveTags_Click(object sender, EventArgs e)
         {
+            var removedTags = new List<Tag>();
+            var selectedIndices = lvwTags.SelectedIndices;
+            for (int index = (selectedIndices.Count - 1); index >= 0; index--)
+            {
+                removedTags.Add((Tag)lvwTags.Items[selectedIndices[index]].Tag);
+                lvwTags.Items.RemoveAt(selectedIndices[index]);
+            }
 
+            Manager.RemoveTags(removedTags);
         }
     }
 }

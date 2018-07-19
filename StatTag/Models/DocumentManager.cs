@@ -1270,6 +1270,17 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Helper function to remove tags.  While not very difficult, it wraps
+        /// up the responsibility of what needs to be done to clean up tags so
+        /// it's done consistently in all instances.
+        /// </summary>
+        /// <param name="tags"></param>
+        public void RemoveTags(List<Tag> tags)
+        {
+            TagManager.RemoveTags(tags);
+        }
+
+        /// <summary>
         /// After an tag has been edited in a dialog, handle all reference updates and saving
         /// that tag in its source file.
         /// </summary>
