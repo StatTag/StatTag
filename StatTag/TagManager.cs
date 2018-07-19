@@ -117,7 +117,10 @@ namespace StatTag
         {
             if (!form.InvokeRequired)
             {
-                form.Visible = visible;
+                if (!form.IsDisposed)
+                {
+                    form.Visible = visible;
+                }
             }
             else
             {
@@ -623,6 +626,35 @@ namespace StatTag
         {
             UIUtility.ManageCloseDialog(EditTagForm);
             Manager.CloseAllChildDialogs();
+        }
+
+        private void cmdCheckUnlinkedTags_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.TopMost = false;
+                this.Visible = false;
+
+                Manager.PerformDocumentCheck(Manager.ActiveDocument);
+            }
+            finally
+            {
+                this.Visible = true;
+                this.TopMost = true;
+                EditTagForm = null;
+            }
+        }
+
+        private void TagManager_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (Manager != null)
+            {
+                Manager.TagListChanged -= ManagerOnTagListChanged;
+                Manager.CodeFileListChanged -= ManagerOnCodeFileListChanged;
+                Manager.ActiveDocumentChanged -= ManagerOnActiveDocumentChanged;
+                Manager.EditingTag -= ManagerOnEditingTag;
+                Manager.EditedTag -= ManagerOnEditedTag;
+            }
         }
     }
 }

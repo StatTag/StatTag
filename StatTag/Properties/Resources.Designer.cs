@@ -93,26 +93,6 @@ namespace StatTag.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _1447149705_Gnome_System_File_Manager_64 {
-            get {
-                object obj = ResourceManager.GetObject("1447149705_Gnome-System-File-Manager-64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap _1447149791_file_manager {
-            get {
-                object obj = ResourceManager.GetObject("1447149791_file-manager", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap _1463104680_13_Clipboard {
             get {
                 object obj = ResourceManager.GetObject("1463104680_13.Clipboard", resourceCulture);
@@ -136,6 +116,26 @@ namespace StatTag.Properties {
         internal static System.Drawing.Bitmap figure_preview {
             get {
                 object obj = ResourceManager.GetObject("figure_preview", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap minus {
+            get {
+                object obj = ResourceManager.GetObject("minus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap plus {
+            get {
+                object obj = ResourceManager.GetObject("plus", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -186,6 +186,16 @@ namespace StatTag.Properties {
         internal static System.Drawing.Bitmap table_preview {
             get {
                 object obj = ResourceManager.GetObject("table_preview", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap unlinked_tag_button {
+            get {
+                object obj = ResourceManager.GetObject("unlinked_tag_button", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

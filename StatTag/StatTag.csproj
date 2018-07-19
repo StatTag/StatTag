@@ -497,6 +497,8 @@
     <Content Include="Resources\1455152483_compose.png" />
     <Content Include="Resources\1461792350_checklist.png" />
     <Content Include="Resources\1463081093_icon-148-tag-add.png" />
+    <None Include="Resources\plus.png" />
+    <None Include="Resources\minus.png" />
     <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />
@@ -511,6 +513,7 @@
     <Content Include="Resources\1463107707_icon-148-tag-add.png" />
     <Content Include="Resources\1463181117_icon-loop.png" />
     <Content Include="Resources\1463181737_seo_programming.png" />
+    <None Include="Resources\unlinked_tag_button.png" />
     <None Include="Resources\figure_preview.png" />
     <Content Include="Resources\stats_package_r.png" />
     <Content Include="Resources\stats_package_sas.png" />

@@ -38,6 +38,7 @@
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.cmdRemoveTags = new System.Windows.Forms.Button();
             this.cmdDefineTag = new System.Windows.Forms.Button();
+            this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
@@ -121,27 +122,45 @@
             // 
             // cmdRemoveTags
             // 
-            this.cmdRemoveTags.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdRemoveTags.Location = new System.Drawing.Point(128, 527);
+            this.cmdRemoveTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cmdRemoveTags.Image = global::StatTag.Properties.Resources.minus;
+            this.cmdRemoveTags.Location = new System.Drawing.Point(153, 527);
             this.cmdRemoveTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdRemoveTags.Name = "cmdRemoveTags";
-            this.cmdRemoveTags.Size = new System.Drawing.Size(110, 30);
+            this.cmdRemoveTags.Size = new System.Drawing.Size(135, 30);
             this.cmdRemoveTags.TabIndex = 13;
-            this.cmdRemoveTags.Text = "Remove Tags";
+            this.cmdRemoveTags.Text = "   Remove Tags";
+            this.cmdRemoveTags.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.cmdRemoveTags.UseVisualStyleBackColor = true;
             this.cmdRemoveTags.Click += new System.EventHandler(this.cmdRemoveTags_Click);
             // 
             // cmdDefineTag
             // 
-            this.cmdDefineTag.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdDefineTag.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cmdDefineTag.Image = global::StatTag.Properties.Resources.plus;
             this.cmdDefineTag.Location = new System.Drawing.Point(12, 527);
             this.cmdDefineTag.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdDefineTag.Name = "cmdDefineTag";
-            this.cmdDefineTag.Size = new System.Drawing.Size(110, 30);
+            this.cmdDefineTag.Size = new System.Drawing.Size(135, 30);
             this.cmdDefineTag.TabIndex = 12;
-            this.cmdDefineTag.Text = "Define Tag";
+            this.cmdDefineTag.Text = "   Define Tag";
+            this.cmdDefineTag.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.cmdDefineTag.UseVisualStyleBackColor = true;
             this.cmdDefineTag.Click += new System.EventHandler(this.cmdDefineTag_Click);
+            // 
+            // cmdCheckUnlinkedTags
+            // 
+            this.cmdCheckUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdCheckUnlinkedTags.Image = global::StatTag.Properties.Resources.unlinked_tag_button;
+            this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(487, 527);
+            this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
+            this.cmdCheckUnlinkedTags.Size = new System.Drawing.Size(197, 30);
+            this.cmdCheckUnlinkedTags.TabIndex = 14;
+            this.cmdCheckUnlinkedTags.Text = "   Check Unlinked Tags";
+            this.cmdCheckUnlinkedTags.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.cmdCheckUnlinkedTags.UseVisualStyleBackColor = true;
+            this.cmdCheckUnlinkedTags.Click += new System.EventHandler(this.cmdCheckUnlinkedTags_Click);
             // 
             // txtFilter
             // 
@@ -159,6 +178,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(701, 623);
+            this.Controls.Add(this.cmdCheckUnlinkedTags);
             this.Controls.Add(this.cmdRemoveTags);
             this.Controls.Add(this.cmdDefineTag);
             this.Controls.Add(this.cboCodeFiles);
@@ -175,6 +195,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "StatTag - Tag Manager";
             this.TopMost = true;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TagManager_FormClosed);
             this.Load += new System.EventHandler(this.TagManager_Load);
             this.ResumeLayout(false);
 
@@ -192,5 +213,6 @@
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private System.Windows.Forms.Button cmdRemoveTags;
         private System.Windows.Forms.Button cmdDefineTag;
+        private System.Windows.Forms.Button cmdCheckUnlinkedTags;
     }
 }

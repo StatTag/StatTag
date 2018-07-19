@@ -75,9 +75,6 @@ namespace StatTag
         {
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);
-            //cmdDefineTag.Enabled = enabled;
-            //cmdInsertOutput.Enabled = enabled;
-            //cmdUpdateOutput.Enabled = enabled;
             cmdManageTags.Enabled = enabled;
         }
 
