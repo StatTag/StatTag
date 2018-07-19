@@ -33,7 +33,9 @@ namespace StatTag
         private const string DefaultFormat = "Default";
         private const string DefaultPreviewText = "(Exactly as Generated)";
         private const int TagTypeImageDimension = 32;
+        private const int TagAlertImageDimension = 16;
         private const string BaseDialogTitle = "StatTag - Tag Manager";
+        private const string DuplicateTagIndicator = "StatTag|DuplicateTag";
 
         private static readonly Brush AlternateBackgroundBrush = new SolidBrush(Color.FromArgb(255, 245, 245, 245));
         private static readonly Brush HighlightBrush = new SolidBrush(Color.FromArgb(255, 17, 108, 214));
@@ -64,6 +66,8 @@ namespace StatTag
             {Constants.TagType.Verbatim, new Bitmap(1,1)},
             {string.Empty, new Bitmap(1,1)}
         };
+
+        private static readonly Bitmap TagAlertImage = new Bitmap(StatTag.Properties.Resources.warning);
 
 
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
@@ -258,7 +262,8 @@ namespace StatTag
 
                 foreach (var tag in FilteredTags)
                 {
-                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type }) { Tag = tag });
+                    var isDuplicate = (FilteredTags.Count(x => x.Id.Equals(tag.Id)) > 1);
+                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, isDuplicate ? DuplicateTagIndicator : string.Empty }) { Tag = tag });
                 }
 
                 UpdateUIForSelection();
@@ -408,6 +413,16 @@ namespace StatTag
                     typeImageRect.Height = TagTypeImageDimension;
                     e.Graphics.DrawImage(TagTypeImages[tag.Type], typeImageRect);
                     break;
+                case 3:
+                    if (e.SubItem.Text.Equals(DuplicateTagIndicator))
+                    {
+                        var imageRect = e.SubItem.Bounds;
+                        imageRect.Offset(InnerPadding, InnerPadding);
+                        imageRect.Height = TagAlertImageDimension;
+                        imageRect.Width = TagAlertImageDimension;
+                        e.Graphics.DrawImage(TagAlertImage, imageRect);
+                    }
+                    break;
             }
         }
 
@@ -437,7 +452,7 @@ namespace StatTag
             }
         }
 
-        private void lvwTags_DoubleClick(object sender, EventArgs e)
+        private void lvwTags_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (lvwTags.SelectedItems.Count == 0)
             {
@@ -450,7 +465,13 @@ namespace StatTag
             {
                 this.TopMost = false;
                 this.Visible = false;
-                if (Manager.EditTag(existingTag))
+
+                var hit = lvwTags.HitTest(e.Location);
+                if (hit.SubItem != null && hit.SubItem.Text.Equals(DuplicateTagIndicator))
+                {
+                    Manager.PerformDocumentCheck(Manager.ActiveDocument, false, CheckDocument.DefaultTab.DuplicateTags);
+                }
+                else if (Manager.EditTag(existingTag))
                 {
                     lvwTags.Refresh();
                 }

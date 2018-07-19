@@ -1283,7 +1283,26 @@ namespace StatTag.Models
         /// <param name="tags"></param>
         public void RemoveTags(List<Tag> tags)
         {
+            if (tags == null || tags.Count == 0)
+            {
+                return;
+            }
+
             TagManager.RemoveTags(tags);
+
+            // The TagManager will remove the references between the tags and the code files.
+            // We also need to save this change to the code files themselves.
+            var codeFiles = tags.Select(x => x.CodeFile).Distinct();
+            foreach (var codeFile in codeFiles)
+            {
+                codeFile.Save();
+            }
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1436,10 +1455,10 @@ namespace StatTag.Models
         /// <param name="document">The Word document to analyze.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
 
-        public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
+        public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false, CheckDocument.DefaultTab defaultTab = CheckDocument.DefaultTab.FirstWithData)
         {
             CheckDocument checkDocumentDialog = null;
-            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound);
+            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound, defaultTab);
         }
 
         /// <summary>
@@ -1450,7 +1469,7 @@ namespace StatTag.Models
         /// <param name="checkDocumentDialog">A reference to use for the CheckDocument form.  This method will create the dialog, but the
         /// reference allows the caller to have a reference when the method completes.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
-        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false)
+        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false, CheckDocument.DefaultTab defaultTab = CheckDocument.DefaultTab.FirstWithData)
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
@@ -1461,7 +1480,7 @@ namespace StatTag.Models
                 return;
             }
 
-            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
+            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document), defaultTab);
             if (DialogResult.OK == checkDocumentDialog.ShowDialog())
             {
                 UpdateUnlinkedTagsByTag(checkDocumentDialog.UnlinkedTagUpdates, checkDocumentDialog.UnlinkedAffectedCodeFiles);

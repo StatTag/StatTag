@@ -35,10 +35,11 @@
             this.colProgram = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colDuplicate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
+            this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.cmdRemoveTags = new System.Windows.Forms.Button();
             this.cmdDefineTag = new System.Windows.Forms.Button();
-            this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
@@ -76,7 +77,8 @@
             this.lvwTags.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colProgram,
             this.colTag,
-            this.colType});
+            this.colType,
+            this.colDuplicate});
             this.lvwTags.FullRowSelect = true;
             this.lvwTags.HideSelection = false;
             this.lvwTags.Location = new System.Drawing.Point(12, 38);
@@ -92,7 +94,7 @@
             this.lvwTags.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwTags_DrawColumnHeader);
             this.lvwTags.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwTags_DrawSubItem);
             this.lvwTags.SelectedIndexChanged += new System.EventHandler(this.lvwTags_SelectedIndexChanged);
-            this.lvwTags.DoubleClick += new System.EventHandler(this.lvwTags_DoubleClick);
+            this.lvwTags.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseDoubleClick);
             // 
             // colProgram
             // 
@@ -109,6 +111,11 @@
             this.colType.Text = "Type";
             this.colType.Width = 250;
             // 
+            // colDuplicate
+            // 
+            this.colDuplicate.Text = "";
+            this.colDuplicate.Width = 30;
+            // 
             // cboCodeFiles
             // 
             this.cboCodeFiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -119,6 +126,20 @@
             this.cboCodeFiles.Sorted = true;
             this.cboCodeFiles.TabIndex = 11;
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
+            // 
+            // cmdCheckUnlinkedTags
+            // 
+            this.cmdCheckUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdCheckUnlinkedTags.Image = global::StatTag.Properties.Resources.unlinked_tag_button;
+            this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(491, 527);
+            this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
+            this.cmdCheckUnlinkedTags.Size = new System.Drawing.Size(193, 30);
+            this.cmdCheckUnlinkedTags.TabIndex = 14;
+            this.cmdCheckUnlinkedTags.Text = "   Troubleshoot Tags";
+            this.cmdCheckUnlinkedTags.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.cmdCheckUnlinkedTags.UseVisualStyleBackColor = true;
+            this.cmdCheckUnlinkedTags.Click += new System.EventHandler(this.cmdCheckUnlinkedTags_Click);
             // 
             // cmdRemoveTags
             // 
@@ -147,20 +168,6 @@
             this.cmdDefineTag.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.cmdDefineTag.UseVisualStyleBackColor = true;
             this.cmdDefineTag.Click += new System.EventHandler(this.cmdDefineTag_Click);
-            // 
-            // cmdCheckUnlinkedTags
-            // 
-            this.cmdCheckUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdCheckUnlinkedTags.Image = global::StatTag.Properties.Resources.unlinked_tag_button;
-            this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(487, 527);
-            this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
-            this.cmdCheckUnlinkedTags.Size = new System.Drawing.Size(197, 30);
-            this.cmdCheckUnlinkedTags.TabIndex = 14;
-            this.cmdCheckUnlinkedTags.Text = "   Check Unlinked Tags";
-            this.cmdCheckUnlinkedTags.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.cmdCheckUnlinkedTags.UseVisualStyleBackColor = true;
-            this.cmdCheckUnlinkedTags.Click += new System.EventHandler(this.cmdCheckUnlinkedTags_Click);
             // 
             // txtFilter
             // 
@@ -214,5 +221,6 @@
         private System.Windows.Forms.Button cmdRemoveTags;
         private System.Windows.Forms.Button cmdDefineTag;
         private System.Windows.Forms.Button cmdCheckUnlinkedTags;
+        private System.Windows.Forms.ColumnHeader colDuplicate;
     }
 }
