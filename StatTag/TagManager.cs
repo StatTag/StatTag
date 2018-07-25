@@ -517,8 +517,15 @@ namespace StatTag
         /// <returns></returns>
         private List<Tag> GetSelectedTags()
         {
+            // When tags get inserted into the document, the cursor ends up before the newly inserted field.  I tried
+            // to move the cursor after the inserted field (I promise!), but to no avail.  Our workaround so that the
+            // tags are inserted in the order they are in the list is to do it in reverse order (which is why it's
+            // OrderByDescending).
             var selectedItems = lvwTags.SelectedItems;
-            return selectedItems.OfType<ListViewItem>().Select(x => x.Tag as Tag).Where(x => x != null).ToList();
+            return selectedItems.OfType<ListViewItem>()
+                .OrderByDescending(x => x.Index)
+                .Select(x => x.Tag as Tag)
+                .Where(x => x != null).ToList();
         }
 
         /// <summary>
@@ -537,7 +544,7 @@ namespace StatTag
 
                 var tags = GetSelectedTags();
                 Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-                Manager.InsertTagsInDocument(tags);
+                Manager.InsertTagPlaceholdersInDocument(tags);
 
                 progress.TopMost = false;
                 progress.Close();
@@ -564,6 +571,12 @@ namespace StatTag
         {
             try
             {
+
+                var progress = new ExecutionProgressForm(Manager);
+                this.TopMost = false;
+                progress.TopMost = true;
+                progress.Show();
+
                 var tags = GetSelectedTags();
 
                 Cursor.Current = Cursors.WaitCursor;
@@ -590,7 +603,11 @@ namespace StatTag
                 // Now we will refresh all of the tags that are fields.  Since we most likely
                 // have more fields than tags, we are going to use the approach of looping
                 // through all fields and updating them (via the DocumentManager).
-                Manager.UpdateFields();
+                Manager.UpdateFields(tags);
+
+                progress.TopMost = false;
+                progress.Close();
+                this.TopMost = true;
             }
             catch (StatTagUserException uex)
             {

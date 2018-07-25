@@ -654,12 +654,13 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(shapes);
         }
 
-        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition)
+        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition, List<Tag> tagFilter)
         {
+            bool hasTagFilter = (tagFilter != null && tagFilter.Count > 0);
             var fieldsCount = fields.Count;
             // Fields is a 1-based index
             Log(string.Format("Preparing to process {0} fields", fieldsCount));
-            for (int index = 1; index <= fieldsCount; index++)
+            for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
@@ -698,6 +699,14 @@ namespace StatTag.Models
                     tag = new FieldTag(tagUpdatePair.New, tag);
                     TagManager.UpdateTagFieldData(field, tag);
                 }
+                else if (hasTagFilter)
+                {
+                    if (!tagFilter.Contains(tag))
+                    {
+                        Log(string.Format("Tag {0} is not in update filter, skipping", tag.Name));
+                        continue;
+                    }
+                }
 
                 Log(string.Format("Inserting field for tag: {0}", tag.Name));
                 field.Select();
@@ -705,6 +714,11 @@ namespace StatTag.Models
 
                 Marshal.ReleaseComObject(field);
             }
+        }
+
+        public void UpdateFields(List<Tag> tagFilter)
+        {
+            UpdateFields(null, false, tagFilter);
         }
 
 
@@ -719,7 +733,7 @@ namespace StatTag.Models
         /// <param name="matchOnPosition">If set to true, an tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
         /// after disambiguating two tags with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false)
+        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false, List<Tag> tagFilter = null)
         {
             Log("UpdateFields - Started");
 
@@ -730,17 +744,19 @@ namespace StatTag.Models
             List<string> shapesNotUpdated = null;
             try
             {
-                var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
-                if (tableDimensionChange && tagUpdatePair != null)
+                if (tagUpdatePair != null)
                 {
-                    Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
-                    if (RefreshTableTagFields(tagUpdatePair.New, document))
+                    var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
+                    if (tableDimensionChange)
                     {
-                        Log("Completed refreshing table - leaving UpdateFields");
-                        return;
+                        Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
+                        if (RefreshTableTagFields(tagUpdatePair.New, document))
+                        {
+                            Log("Completed refreshing table - leaving UpdateFields");
+                            return;
+                        }
                     }
                 }
-
 
                 shapesNotUpdated = UpdateInlineShapes(document);
 
@@ -752,7 +768,7 @@ namespace StatTag.Models
                     var fields = WordUtil.SafeGetFieldsFromShape(shape);
                     if (fields != null)
                     {
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
                         Marshal.ReleaseComObject(fields);
                     }
                 }
@@ -762,7 +778,7 @@ namespace StatTag.Models
                     if (story.Fields != null)
                     {
                         var fields = story.Fields;
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
                         Marshal.ReleaseComObject(fields);
                     }
                 }
@@ -1095,6 +1111,12 @@ namespace StatTag.Models
             InsertField(new FieldTag(tag));
         }
 
+        public void InsertFieldPlaceholder(Tag tag)
+        {
+            Log("InsertFieldPlaceholder for Tag");
+            InsertFieldPlaceholder(new FieldTag(tag));
+        }
+
         /// <summary>
         /// Given an tag, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the tag result is already refreshed.  It does not
@@ -1132,6 +1154,7 @@ namespace StatTag.Models
                 if (tag.Type == Constants.TagType.Verbatim)
                 {
                     Log("Inserting verbatim output");
+                    selection.Delete();
                     InsertVerbatim(selection, tag);
                 }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
@@ -1157,6 +1180,40 @@ namespace StatTag.Models
             }
 
             Log("InsertField - Finished");
+        }
+
+        public void InsertFieldPlaceholder(FieldTag tag)
+        {
+            Log("InsertFieldPlaceholder - Started");
+
+            if (tag == null)
+            {
+                Log("The tag is null");
+                return;
+            }
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            try
+            {
+                var selection = application.Selection;
+                if (selection == null)
+                {
+                    Log("There is no active selection");
+                    return;
+                }
+
+                Log("Inserting a single tag field placeholder");
+                var range = selection.Range;
+                CreateTagField(range, tag.Name, string.Format("[ {0} ]", tag.Name), tag);
+                Marshal.ReleaseComObject(range);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
+
+            Log("InsertFieldPlaceholder - Finished");
         }
 
         /// <summary>
@@ -1478,6 +1535,49 @@ namespace StatTag.Models
                 Cursor.Current = Cursors.Default;
             }
         }
+
+        /// <summary>
+        /// Inserts placeholders for tag results in the document as fields
+        /// </summary>
+        /// <param name="tags"></param>
+        public void InsertTagPlaceholdersInDocument(List<Tag> tags)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+            try
+            {
+                for (int index = 0; index < tags.Count; index++)
+                {
+                    var tag = tags[index];
+                    if (ExecutionUpdated != null)
+                    {
+                        ExecutionUpdated(this, new ProgressEventArgs()
+                        {
+                            Index = (index + 1),
+                            TotalItems = tags.Count,
+                            Description = string.Format("Inserting tag placeholder {0} of {1}", (index + 1), tags.Count)
+                        });
+                    }
+                    InsertFieldPlaceholder(tag);
+                }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, Logger);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to insert the tag placeholder into the Word document.",
+                    Logger);
+            }
+            finally
+            {
+                Globals.ThisAddIn.Application.ScreenUpdating = true;
+                Cursor.Current = Cursors.Default;
+            }
+        }
+
 
         /// <summary>
         /// Conduct an assessment of the active document to see if there are any inserted
