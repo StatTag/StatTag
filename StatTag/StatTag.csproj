@@ -276,6 +276,12 @@
     <Compile Include="EditTag.Designer.cs">
       <DependentUpon>EditTag.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExecutionProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExecutionProgressForm.Designer.cs">
+      <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -322,6 +328,12 @@
     </Compile>
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TagManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TagManager.Designer.cs">
+      <DependentUpon>TagManager.cs</DependentUpon>
     </Compile>
     <Compile Include="UIUtility.cs" />
     <Compile Include="UpdateOutput.cs">
@@ -372,6 +384,9 @@
     <EmbeddedResource Include="EditTag.resx">
       <DependentUpon>EditTag.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ExecutionProgressForm.resx">
+      <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LinkCodeFiles.resx">
       <DependentUpon>LinkCodeFiles.cs</DependentUpon>
     </EmbeddedResource>
@@ -399,6 +414,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TagManager.resx">
+      <DependentUpon>TagManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UpdateOutput.resx">
       <DependentUpon>UpdateOutput.cs</DependentUpon>
@@ -488,7 +506,10 @@
     <Content Include="Resources\1455152483_compose.png" />
     <Content Include="Resources\1461792350_checklist.png" />
     <Content Include="Resources\1463081093_icon-148-tag-add.png" />
-    <Content Include="Resources\1463105039_05.Tag.png" />
+    <None Include="Resources\warning.png" />
+    <None Include="Resources\plus.png" />
+    <None Include="Resources\minus.png" />
+    <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />
     <Content Include="Resources\1463105124_icon-clipboard.png" />
@@ -502,9 +523,13 @@
     <Content Include="Resources\1463107707_icon-148-tag-add.png" />
     <Content Include="Resources\1463181117_icon-loop.png" />
     <Content Include="Resources\1463181737_seo_programming.png" />
+    <None Include="Resources\unlinked_tag_button.png" />
+    <None Include="Resources\figure_preview.png" />
     <Content Include="Resources\stats_package_r.png" />
     <Content Include="Resources\stats_package_sas.png" />
     <Content Include="Resources\stats_package_stata.png" />
+    <None Include="Resources\stats_package_unknown.png" />
+    <None Include="Resources\table_preview.png" />
     <Content Include="Resources\tag-add.png" />
     <None Include="Resources\1463104680_13.Clipboard.png" />
   </ItemGroup>

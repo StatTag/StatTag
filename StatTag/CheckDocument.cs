@@ -14,6 +14,13 @@ namespace StatTag
 {
     public sealed partial class CheckDocument : Form
     {
+        public enum DefaultTab
+        {
+            FirstWithData,
+            UnlinkedTags,
+            DuplicateTags
+        }
+
         /// <summary>
         /// The collection of actions that the user has indicated they wish to proceed with.
         /// </summary>
@@ -44,6 +51,7 @@ namespace StatTag
         public List<string> UnlinkedAffectedCodeFiles { get; set; } 
 
         private readonly List<CodeFile> Files;
+        private DefaultTab InitDefaultTab { get; set; }
 
         private const int ColUnlinkedTag = 0;
         private const int ColUnlinkedCodeFile = 1;
@@ -62,7 +70,7 @@ namespace StatTag
             public Tag Second { get; set; }
         }
 
-        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files)
+        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files, DefaultTab defaultTab)
         {
             InitializeComponent();
             UIUtility.ScaleFont(this);
@@ -73,6 +81,7 @@ namespace StatTag
             UnlinkedTagUpdates = new Dictionary<string, CodeFileAction>();
             DuplicateTagUpdates = new List<UpdatePair<Tag>>();
             UIUtility.SetDialogTitle(this);
+            InitDefaultTab = defaultTab;
         }
 
         private void CheckDocument_Load(object sender, EventArgs e)
@@ -125,8 +134,30 @@ namespace StatTag
 
             if (dgvDuplicateTags.RowCount > 0)
             {
-                defaultTab = 1;
+                // If the default tab wasn't already assigned, then we will update it.  Since
+                // this is the second tab, we don't want to overwrite the default tab if it
+                // is supposed to be the first tab.  Otherwise the second tab shows as selected
+                // when we want to select the first tab with data.
+                if (!defaultTab.HasValue)
+                {
+                    defaultTab = 1;
+                }
                 tabDuplicate.Text += string.Format(" ({0})", dgvDuplicateTags.RowCount);
+            }
+
+            // If a default tab hasn't been assigned (based on the first to have data), then we need
+            // to check if we were initialized to show a specific tab.
+            if ((InitDefaultTab != DefaultTab.FirstWithData))
+            {
+                switch (InitDefaultTab)
+                {
+                    case DefaultTab.UnlinkedTags:
+                        defaultTab = 0;
+                        break;
+                    case DefaultTab.DuplicateTags:
+                        defaultTab = 1;
+                        break;
+                }
             }
 
             if (defaultTab.HasValue)

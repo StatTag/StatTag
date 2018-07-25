@@ -25,11 +25,8 @@ namespace StatTag
         private EditTag EditTagDialog = null;
         private LoadAnalysisCode LoadAnalysisCodeDialog = null;
         private LinkCodeFiles LinkCodeFilesDialog = null;
-        private ManageTags ManageTagsDialog = null;
-        private SelectOutput SelectOutputDialog = null;
+        private TagManager ManageTagsDialog = null;
         private Settings SettingsDialog = null;
-        private UpdateOutput UpdateOutputDialog = null;
-        private CheckDocument CheckDocumentDialog = null;
 
         public DocumentManager Manager
         {
@@ -78,9 +75,6 @@ namespace StatTag
         {
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);
-            cmdDefineTag.Enabled = enabled;
-            cmdInsertOutput.Enabled = enabled;
-            cmdUpdateOutput.Enabled = enabled;
             cmdManageTags.Enabled = enabled;
         }
 
@@ -127,64 +121,35 @@ namespace StatTag
 
         private void cmdManageTags_Click(object sender, RibbonControlEventArgs e)
         {
+            // This is a pseudo-singleton implementation.  We are controlling the single instance from
+            // the code here instead of the class because we need to provide it with the reference to
+            // the DocumentManager object when we create it the first time.  This also allows us to
+            // perform a check so that if the user clicks on this again, the singleton is already created
+            // but just isn't shown, we're able to make it visible again.
             try
             {
-                ManageTagsDialog = new ManageTags(Manager);
-                if (DialogResult.OK == ManageTagsDialog.ShowDialog())
+                if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
-                    Manager.SaveAllCodeFiles(ActiveDocument);
+                    ManageTagsDialog = new TagManager(Manager);
+                    ManageTagsDialog.Show();
+                }
+                else
+                {
+                    ManageTagsDialog.Visible = true;
+                    ManageTagsDialog.Focus();
                 }
             }
             catch (StatTagUserException uex)
             {
+                ManageTagsDialog = null;
                 UIUtility.ReportException(uex, uex.Message, LogManager);
             }
             catch (Exception exc)
             {
+                ManageTagsDialog = null;
                 UIUtility.ReportException(exc,
                     "There was an unexpected error when trying to manage your tags.",
                     LogManager);
-            }
-            finally
-            {
-                ManageTagsDialog = null;
-            }
-        }
-
-        private void cmdInsertOutput_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                var files = Manager.GetCodeFileList(ActiveDocument);
-                SelectOutputDialog = new SelectOutput(files);
-                if (DialogResult.OK == SelectOutputDialog.ShowDialog())
-                {
-                    try
-                    {
-                        var tags = SelectOutputDialog.GetSelectedTags();
-                        LogManager.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-                        Manager.InsertTagsInDocument(tags);
-                    }
-                    catch (StatTagUserException uex)
-                    {
-                        UIUtility.ReportException(uex, uex.Message, LogManager);
-                    }
-                    catch (Exception exc)
-                    {
-                        UIUtility.ReportException(exc,
-                            "There was an unexpected error when trying to insert the tag output into the document.",
-                            LogManager);
-                    }
-                    finally
-                    {
-                        Globals.ThisAddIn.Application.ScreenUpdating = true;
-                        Cursor.Current = Cursors.Default;
-                    }
-                }
-            }
-            finally
-            {
-                SelectOutputDialog = null;
             }
         }
 
@@ -216,150 +181,20 @@ namespace StatTag
             }
         }
 
-        private void cmdUpdateOutput_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                UpdateOutputDialog = new UpdateOutput(Manager.GetTags());
-                if (DialogResult.OK != UpdateOutputDialog.ShowDialog())
-                {
-                    return;
-                }
-
-                var tags = UpdateOutputDialog.SelectedTags;
-
-                // Clear the dialog object once we no longer need it.  This allows us to better track which
-                // dialogs are active and open.
-                UpdateOutputDialog = null;
-                Cursor.Current = Cursors.WaitCursor;
-                Globals.ThisAddIn.Application.ScreenUpdating = false;
-                
-                // First, go through and update all of the code files to ensure we have all
-                // refreshed tags.
-                var refreshedFiles = new List<CodeFile>();
-                var files = Manager.GetCodeFileList(ActiveDocument);
-                foreach (var codeFile in files)
-                {
-                    if (!refreshedFiles.Contains(codeFile))
-                    {
-                        var result = StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
-                        if (!result.Success)
-                        {
-                            break;
-                        }
-
-                        refreshedFiles.Add(codeFile);
-                    }
-                }
-
-                // Now we will refresh all of the tags that are fields.  Since we most likely
-                // have more fields than tags, we are going to use the approach of looping
-                // through all fields and updating them (via the DocumentManager).
-                Manager.UpdateFields();
-            }
-            catch (StatTagUserException uex)
-            {
-                UIUtility.ReportException(uex, uex.Message, LogManager);
-            }
-            catch (Exception exc)
-            {
-                UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to update values in your document.",
-                    LogManager);
-            }
-            finally
-            {
-                Globals.ThisAddIn.Application.ScreenUpdating = true;
-                Cursor.Current = Cursors.Default;
-
-                // First, go through and update all of the code files to ensure we have all
-                // refreshed tags.
-                UpdateOutputDialog = null;
-            }
-        }
-
-        private void cmdValidateDocument_Click(object sender, RibbonControlEventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            try
-            {
-                Manager.PerformDocumentCheck(ActiveDocument, ref CheckDocumentDialog);
-            }
-            catch (StatTagUserException uex)
-            {
-                UIUtility.ReportException(uex, uex.Message, LogManager);
-            }
-            catch (Exception exc)
-            {
-                UIUtility.ReportException(exc,
-                    "There was an unexpected error when performing a validity check on this document.",
-                    LogManager);
-            }
-            finally
-            {
-                Cursor.Current = Cursors.Default;
-                CheckDocumentDialog = null;
-            }
-        }
-
         /// <summary>
         /// Called when we need to forcibly close any and all open dialogs, such as
         /// for system shutdown, or when a linked code file has been changed.
         /// </summary>
         public void CloseAllOpenDialogs()
         {
-            ManageCloseDialog(EditTagDialog);
-            ManageCloseDialog(LoadAnalysisCodeDialog);
-            ManageCloseDialog(LinkCodeFilesDialog);
-            ManageCloseDialog(ManageTagsDialog);
-            ManageCloseDialog(SelectOutputDialog);
-            ManageCloseDialog(SettingsDialog);
-            ManageCloseDialog(UpdateOutputDialog);
-            ManageCloseDialog(CheckDocumentDialog);
-        }
+            UIUtility.ManageCloseDialog(EditTagDialog);
+            UIUtility.ManageCloseDialog(LoadAnalysisCodeDialog);
+            UIUtility.ManageCloseDialog(LinkCodeFilesDialog);
+            UIUtility.ManageCloseDialog(SettingsDialog);
 
-        /// <summary>
-        /// Utility function to invoke the Close method in a given dialog/form.
-        /// </summary>
-        /// <remarks>Because this
-        /// uses messaging, it isn't an immediate close of the dialog, but will result in it
-        /// being closed when all threads and message queues are processed.</remarks>
-        /// <param name="dialog">The dialog/form to be closed</param>
-        private void ManageCloseDialog(Form dialog)
-        {
-            try
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
             {
-                if (dialog != null && !dialog.IsDisposed)
-                {
-                    dialog.Invoke((MethodInvoker) (dialog.Close));
-                }
-            }
-            catch (Exception exc)
-            {
-                // For now we are eating the exception.
-            }
-        }
-
-        private void cmdDefineTag_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                EditTagDialog = new EditTag(true, Manager);
-                if (DialogResult.OK == EditTagDialog.ShowDialog())
-                {
-                    Manager.SaveEditedTag(EditTagDialog);
-                    var files = Manager.GetCodeFileList(ActiveDocument);
-                    foreach (var file in files)
-                    {
-                        file.LoadTagsFromContent();
-                    }
-
-                    Manager.CheckForInsertSavedTag(EditTagDialog);
-                }
-            }
-            finally
-            {
-                EditTagDialog = null;
+                ManageTagsDialog.CloseAllChildDialogs();
             }
         }
 

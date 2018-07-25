@@ -36,57 +36,33 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainRibbon));
             this.tab1 = this.Factory.CreateRibbonTab();
-            this.codeGroup = this.Factory.CreateRibbonGroup();
             this.group1 = this.Factory.CreateRibbonGroup();
-            this.group2 = this.Factory.CreateRibbonGroup();
             this.cmdLoadCode = this.Factory.CreateRibbonButton();
-            this.cmdDefineTag = this.Factory.CreateRibbonButton();
-            this.cmdInsertOutput = this.Factory.CreateRibbonButton();
-            this.cmdUpdateOutput = this.Factory.CreateRibbonButton();
             this.cmdManageTags = this.Factory.CreateRibbonButton();
             this.cmdDocumentProperties = this.Factory.CreateRibbonButton();
-            this.cmdValidateDocument = this.Factory.CreateRibbonButton();
+            this.group2 = this.Factory.CreateRibbonGroup();
             this.cmdSettings = this.Factory.CreateRibbonButton();
             this.cmdAbout = this.Factory.CreateRibbonButton();
             this.cmdHelp = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
-            this.codeGroup.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
             // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.codeGroup);
             this.tab1.Groups.Add(this.group1);
             this.tab1.Groups.Add(this.group2);
             this.tab1.Label = "StatTag";
             this.tab1.Name = "tab1";
             // 
-            // codeGroup
-            // 
-            this.codeGroup.Items.Add(this.cmdLoadCode);
-            this.codeGroup.Items.Add(this.cmdDefineTag);
-            this.codeGroup.Items.Add(this.cmdInsertOutput);
-            this.codeGroup.Label = "Build";
-            this.codeGroup.Name = "codeGroup";
-            // 
             // group1
             // 
-            this.group1.Items.Add(this.cmdUpdateOutput);
+            this.group1.Items.Add(this.cmdLoadCode);
             this.group1.Items.Add(this.cmdManageTags);
             this.group1.Items.Add(this.cmdDocumentProperties);
-            this.group1.Items.Add(this.cmdValidateDocument);
             this.group1.Label = "Manage";
             this.group1.Name = "group1";
-            // 
-            // group2
-            // 
-            this.group2.Items.Add(this.cmdSettings);
-            this.group2.Items.Add(this.cmdAbout);
-            this.group2.Items.Add(this.cmdHelp);
-            this.group2.Label = "Support";
-            this.group2.Name = "group2";
             // 
             // cmdLoadCode
             // 
@@ -98,41 +74,11 @@
             this.cmdLoadCode.SuperTip = "Manage the list of analysis source code files used within this document.";
             this.cmdLoadCode.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdLoadCode_Click);
             // 
-            // cmdDefineTag
-            // 
-            this.cmdDefineTag.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdDefineTag.Image = ((System.Drawing.Image)(resources.GetObject("cmdDefineTag.Image")));
-            this.cmdDefineTag.Label = "Define Tag";
-            this.cmdDefineTag.Name = "cmdDefineTag";
-            this.cmdDefineTag.ShowImage = true;
-            this.cmdDefineTag.SuperTip = "Manage the list of tags that are used and referenced within this document.";
-            this.cmdDefineTag.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdDefineTag_Click);
-            // 
-            // cmdInsertOutput
-            // 
-            this.cmdInsertOutput.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdInsertOutput.Image = ((System.Drawing.Image)(resources.GetObject("cmdInsertOutput.Image")));
-            this.cmdInsertOutput.Label = "Insert Tag Output";
-            this.cmdInsertOutput.Name = "cmdInsertOutput";
-            this.cmdInsertOutput.ShowImage = true;
-            this.cmdInsertOutput.SuperTip = "Insert output from your statistical analysis into the document at the current cur" +
-    "sor location.";
-            this.cmdInsertOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdInsertOutput_Click);
-            // 
-            // cmdUpdateOutput
-            // 
-            this.cmdUpdateOutput.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdUpdateOutput.Image = ((System.Drawing.Image)(resources.GetObject("cmdUpdateOutput.Image")));
-            this.cmdUpdateOutput.Label = "Update Tag Output";
-            this.cmdUpdateOutput.Name = "cmdUpdateOutput";
-            this.cmdUpdateOutput.ShowImage = true;
-            this.cmdUpdateOutput.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdUpdateOutput_Click);
-            // 
             // cmdManageTags
             // 
             this.cmdManageTags.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.cmdManageTags.Image = ((System.Drawing.Image)(resources.GetObject("cmdManageTags.Image")));
-            this.cmdManageTags.Label = "Manage Tags";
+            this.cmdManageTags.Label = "Tags";
             this.cmdManageTags.Name = "cmdManageTags";
             this.cmdManageTags.ShowImage = true;
             this.cmdManageTags.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdManageTags_Click);
@@ -146,16 +92,13 @@
             this.cmdDocumentProperties.ShowImage = true;
             this.cmdDocumentProperties.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdDocumentProperties_Click);
             // 
-            // cmdValidateDocument
+            // group2
             // 
-            this.cmdValidateDocument.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.cmdValidateDocument.Image = ((System.Drawing.Image)(resources.GetObject("cmdValidateDocument.Image")));
-            this.cmdValidateDocument.Label = "Troubleshoot Tags";
-            this.cmdValidateDocument.Name = "cmdValidateDocument";
-            this.cmdValidateDocument.ScreenTip = "Perform a set of validations on the current document to ensure it is properly con" +
-    "figured for use with StatTag.";
-            this.cmdValidateDocument.ShowImage = true;
-            this.cmdValidateDocument.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.cmdValidateDocument_Click);
+            this.group2.Items.Add(this.cmdSettings);
+            this.group2.Items.Add(this.cmdAbout);
+            this.group2.Items.Add(this.cmdHelp);
+            this.group2.Label = "Support";
+            this.group2.Name = "group2";
             // 
             // cmdSettings
             // 
@@ -193,8 +136,6 @@
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.MainRibbon_Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
-            this.codeGroup.ResumeLayout(false);
-            this.codeGroup.PerformLayout();
             this.group1.ResumeLayout(false);
             this.group1.PerformLayout();
             this.group2.ResumeLayout(false);
@@ -205,13 +146,8 @@
         #endregion
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup codeGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdLoadCode;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdDefineTag;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdInsertOutput;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdSettings;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdUpdateOutput;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdValidateDocument;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdManageTags;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton cmdHelp;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;

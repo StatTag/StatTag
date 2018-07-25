@@ -24,7 +24,7 @@ namespace StatTag
 
         public LogManager LogManager = new LogManager();
         public SettingsManager SettingsManager = new SettingsManager();
-        public DocumentManager DocumentManager = new DocumentManager();
+        public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
@@ -62,7 +62,7 @@ namespace StatTag
         {
             DocumentManager.SetSettingsManager(SettingsManager);
             StatsManager = new StatsManager(DocumentManager, SettingsManager);
-            DocumentManager.CodeFileChanged += OnCodeFileChanged;
+            DocumentManager.CodeFileContentsChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
             // a change and then confirms it through the Settings dialog.
@@ -310,6 +310,13 @@ namespace StatTag
             }
         }
 
+        /// <summary>
+        /// Event handler for when the Word window is activated.  This has some potential overlap with
+        /// DocumentChanged events, but our intent here is to explicitly capture when a document has
+        /// been given focus as the trigger to check for code file changes.
+        /// </summary>
+        /// <param name="activeDocument"></param>
+        /// <param name="window"></param>
         void Application_WindowActivate(Word.Document activeDocument, Word.Window window)
         {
             try
@@ -428,6 +435,15 @@ namespace StatTag
             return value;
         }
 
+        /// <summary>
+        /// Event handler for when a new document is created, a document is opened, or the active document
+        /// is set to another document (toggling between documents).
+        /// </summary>
+        public void Application_DocumentChange()
+        {
+            DocumentManager.ActiveDocument = SafeGetActiveDocument();
+        }
+
         #region VSTO generated code
 
         /// <summary>
@@ -446,6 +462,7 @@ namespace StatTag
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/34c6abe2-2544-4f47-aff7-74ec5e08b814/ambiguity-between-microsoftofficeinteropwordapplicationnewdocument-and?forum=vsto
             ((Microsoft.Office.Interop.Word.ApplicationEvents4_Event)this.Application).NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(Application_NewDocument);
             this.Application.WindowActivate += new Word.ApplicationEvents4_WindowActivateEventHandler(Application_WindowActivate);
+            this.Application.DocumentChange += new Word.ApplicationEvents4_DocumentChangeEventHandler(Application_DocumentChange);
         }
 
         #endregion
