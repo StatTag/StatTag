@@ -50,6 +50,17 @@ namespace StatTag.Models
         public event EventHandler ActiveDocumentChanged;
 
         /// <summary>
+        /// Sent as progress changes in the code execution phases
+        /// </summary>
+        public class ProgressEventArgs : EventArgs
+        {
+            public int Index { get; set; }
+            public int TotalItems { get; set; }
+            public string Description { get; set; }
+        }
+        public event EventHandler<ProgressEventArgs> ExecutionUpdated;
+
+        /// <summary>
         /// Sent whenever a tag is being edited.
         /// </summary>
         public class TagEventArgs : EventArgs { public Tag Tag { get; set; } }
@@ -1402,23 +1413,43 @@ namespace StatTag.Models
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
-                var updatedTags = new List<Tag>();
-                var refreshedFiles = new List<CodeFile>();
-                foreach (var tag in tags)
+                // Get all of our unique code files that need to be run.  We are going to execute these in the first
+                // phase.
+                var codeFiles = tags.Select(x => x.CodeFile).Distinct().ToArray();
+                for (int index = 0; index < codeFiles.Length; index++)
                 {
-                    if (!refreshedFiles.Contains(tag.CodeFile))
+                    var codeFile = codeFiles[index];
+                    if (ExecutionUpdated != null)
                     {
-                        var result = StatsManager.ExecuteStatPackage(tag.CodeFile,
-                            Constants.ParserFilterMode.TagList, tags);
-                        if (!result.Success)
+                        ExecutionUpdated(this, new ProgressEventArgs()
                         {
-                            break;
-                        }
-
-                        updatedTags.AddRange(result.UpdatedTags);
-                        refreshedFiles.Add(tag.CodeFile);
+                            Index = (index + 1),
+                            TotalItems = codeFiles.Length,
+                            Description = string.Format("Executing code file {0} of {1}", (index + 1), codeFiles.Length)
+                        });
                     }
+                    var result = StatsManager.ExecuteStatPackage(codeFile,
+                            Constants.ParserFilterMode.TagList, tags);
+                    if (!result.Success)
+                    {
+                        break;
+                    }
+                }
 
+
+                var updatedTags = new List<Tag>();
+                for (int index = 0; index < tags.Count; index++)
+                {
+                    var tag = tags[index];
+                    if (ExecutionUpdated != null)
+                    {
+                        ExecutionUpdated(this, new ProgressEventArgs()
+                        {
+                            Index = (index + 1),
+                            TotalItems = tags.Count,
+                            Description = string.Format("Inserting tag {0} of {1}", (index + 1), tags.Count)
+                        });
+                    }
                     InsertField(tag);
                 }
 

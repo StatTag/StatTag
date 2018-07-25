@@ -400,12 +400,13 @@ namespace StatTag
                     break;
                 case 1:
                     e.Graphics.DrawString(tag.Name, NameFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, Brushes.Gray, row2, TextFormat);
+                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, (isSelected ? Brushes.White : Brushes.Gray), row2, TextFormat);
                     break;
                 case 2:
+                    var selectedSubBrush = (isSelected ? Brushes.White : Brushes.Gray);
                     e.Graphics.DrawString(tag.Type, NormalFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, Brushes.Gray, row2, TextFormat);
-                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, Brushes.Gray, row3, TextFormat);
+                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, selectedSubBrush, row2, TextFormat);
+                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, selectedSubBrush, row3, TextFormat);
                     var typeImageRect = e.Bounds;
                     typeImageRect.Offset((e.Bounds.Width - TagTypeImageDimension - (2 * InnerPadding)),
                         (e.Bounds.Height - TagTypeImageDimension) / 2);
@@ -529,9 +530,18 @@ namespace StatTag
         {
             try
             {
+                var progress = new ExecutionProgressForm(Manager);
+                this.TopMost = false;
+                progress.TopMost = true;
+                progress.Show();
+
                 var tags = GetSelectedTags();
                 Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
                 Manager.InsertTagsInDocument(tags);
+
+                progress.TopMost = false;
+                progress.Close();
+                this.TopMost = true;
             }
             catch (StatTagUserException uex)
             {
@@ -675,6 +685,17 @@ namespace StatTag
                 Manager.ActiveDocumentChanged -= ManagerOnActiveDocumentChanged;
                 Manager.EditingTag -= ManagerOnEditingTag;
                 Manager.EditedTag -= ManagerOnEditedTag;
+            }
+        }
+
+        private void lvwTags_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.A && e.Control)
+            {
+                foreach (ListViewItem item in lvwTags.Items)
+                {
+                    item.Selected = true;
+                }
             }
         }
     }

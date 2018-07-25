@@ -276,6 +276,12 @@
     <Compile Include="EditTag.Designer.cs">
       <DependentUpon>EditTag.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExecutionProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExecutionProgressForm.Designer.cs">
+      <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -377,6 +383,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditTag.resx">
       <DependentUpon>EditTag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExecutionProgressForm.resx">
+      <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LinkCodeFiles.resx">
       <DependentUpon>LinkCodeFiles.cs</DependentUpon>
