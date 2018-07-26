@@ -674,5 +674,38 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsCapturableBlock("set maxvar 5000000"));
             Assert.IsFalse(parser.IsCapturableBlock("set maxvar 1000\r\nset maxvar 1000\r\ntest 1\r\n test2"));
         }
+
+        [TestMethod]
+        public void ReplaceMacroWithValue()
+        {
+            var parser = new StataParser();
+            // Test for the `macro' syntax
+            Assert.AreEqual("C:\\test\\./test.csv", parser.ReplaceMacroWithValue("`Path'./test.csv", "Path", "C:\\test\\"));
+
+            // Test for the $macro syntax
+            Assert.AreEqual("C:\\test\\./test.csv", parser.ReplaceMacroWithValue("$Path./test.csv", "Path", "C:\\test\\"));
+
+            // Not actually a macro, so no replacement
+            Assert.AreEqual("Path'./test.csv", parser.ReplaceMacroWithValue("Path'./test.csv", "Path", "C:\\test\\"));
+
+            // Test multiple replacements.  Probably not a realistic code example, but verifying what we expect for output
+            // from the function.
+            Assert.AreEqual("C:\\test\\test.csv", parser.ReplaceMacroWithValue("C:\\$Path\\$Path.csv", "Path", "test"));
+            Assert.AreEqual("C:\\test\\test.csv", parser.ReplaceMacroWithValue("C:\\`Path'\\`Path'.csv", "Path", "test"));
+            Assert.AreEqual("C:\\test\\test.csv", parser.ReplaceMacroWithValue("C:\\`Path'\\$Path.csv", "Path", "test"));
+        }
+
+        [TestMethod]
+        public void HasMacroInCommand()
+        {
+            var parser = new StataParser();
+            Assert.IsTrue(parser.HasMacroInCommand("di $Path"));
+            Assert.IsTrue(parser.HasMacroInCommand("di `Path'"));
+            Assert.IsTrue(parser.HasMacroInCommand("di `Path'  ** Test here"));
+            Assert.IsTrue(parser.HasMacroInCommand("  ** Yes, even commented out code: di `Path'  "));
+
+            Assert.IsFalse(parser.HasMacroInCommand("di Path'"));
+            Assert.IsFalse(parser.HasMacroInCommand("di `Path "));
+        }
     }
 }

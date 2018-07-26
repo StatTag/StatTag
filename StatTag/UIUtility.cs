@@ -300,5 +300,27 @@ namespace StatTag
         {
             return new System.Drawing.Font(control.Font, bold ? FontStyle.Bold : FontStyle.Regular);
         }
+
+        /// <summary>
+        /// Utility function to invoke the Close method in a given dialog/form.
+        /// </summary>
+        /// <remarks>Because this
+        /// uses messaging, it isn't an immediate close of the dialog, but will result in it
+        /// being closed when all threads and message queues are processed.</remarks>
+        /// <param name="dialog">The dialog/form to be closed</param>
+        public static void ManageCloseDialog(Form dialog)
+        {
+            try
+            {
+                if (dialog != null && !dialog.IsDisposed)
+                {
+                    dialog.Invoke((MethodInvoker)(dialog.Close));
+                }
+            }
+            catch (Exception exc)
+            {
+                // For now we are eating the exception.
+            }
+        }
     }
 }

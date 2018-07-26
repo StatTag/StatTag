@@ -23,11 +23,68 @@ namespace StatTag.Models
     /// <summary>
     /// Manages interactions with the Word document, including managing attributes and tags.
     /// </summary>
-    public class DocumentManager : BaseManager, IDisposable
+    public sealed class DocumentManager : BaseManager, IDisposable
     {
-        public event EventHandler CodeFileChanged;
+        /// <summary>
+        /// Sent whenever the contents of a single code file have changed.
+        /// </summary>
+        public event EventHandler CodeFileContentsChanged;
+
+        /// <summary>
+        /// Sent whenever the number of tags or the content of one or more tags changes.  This will alert
+        /// the listener that they should refresh any and all lists of tags or displays of a tag.
+        /// </summary>
+        public event EventHandler TagListChanged;
+
+        /// <summary>
+        /// Sent whenever the number of code files changes.  This will alert the listener that they should
+        /// refresh any and all lists of code files, as well as associated tag lists.  The listener will want
+        /// to perform the same actions for TagListChanged events when this is received.
+        /// </summary>
+        public event EventHandler CodeFileListChanged;
+
+        /// <summary>
+        /// Sent whenever the active document within Microsoft Word has changed.  This will alert any
+        /// listeners that they should update their content for the current active document.
+        /// </summary>
+        public event EventHandler ActiveDocumentChanged;
+
+        /// <summary>
+        /// Sent as progress changes in the code execution phases
+        /// </summary>
+        public class ProgressEventArgs : EventArgs
+        {
+            public int Index { get; set; }
+            public int TotalItems { get; set; }
+            public string Description { get; set; }
+        }
+        public event EventHandler<ProgressEventArgs> ExecutionUpdated;
+
+        /// <summary>
+        /// Sent whenever a tag is being edited.
+        /// </summary>
+        public class TagEventArgs : EventArgs { public Tag Tag { get; set; } }
+        public event EventHandler<TagEventArgs> EditingTag;
+        public event EventHandler<TagEventArgs> EditedTag;
 
         private Dictionary<string, List<MonitoredCodeFile>> DocumentCodeFiles { get; set; }
+
+        private EditTag EditTagForm { get; set; }
+
+        private Document activeDocument = null;
+        public Document ActiveDocument
+        {
+            get { return activeDocument; }
+            
+            set
+            {
+                activeDocument = value;
+                if (ActiveDocumentChanged != null)
+                {
+                    ActiveDocumentChanged(this, new EventArgs());
+                }
+            }
+        }
         public TagManager TagManager { get; set; }
         public StatsManager StatsManager { get; set; }
         public SettingsManager SettingsManager { get; set; }
@@ -35,7 +92,19 @@ namespace StatTag.Models
         public const string ConfigurationAttribute = "StatTag Configuration";
         public const string MetadataAttribute = "StatTag Metadata";
 
-        public DocumentManager()
+        // Singleton pattern implementation informed by: http://csharpindepth.com/Articles/General/Singleton.aspx#cctor
+        private static readonly DocumentManager instance = new DocumentManager();
+        // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
+        static DocumentManager() {}
+        public static DocumentManager Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
+        private DocumentManager()
         {
             SettingsManager = null;
             DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
@@ -62,7 +131,7 @@ namespace StatTag.Models
         /// <remarks>Needed because Word interop doesn't provide a nice check mechanism, and uses exceptions instead.</remarks>
         /// <param name="variable">The variable to check</param>
         /// <returns>True if a variable exists and has a value, false otherwise</returns>
-        protected bool DocumentVariableExists(Variable variable)
+        private bool DocumentVariableExists(Variable variable)
         {
             try
             {
@@ -80,7 +149,7 @@ namespace StatTag.Models
         /// used to create the Word document.
         /// </summary>
         /// <returns></returns>
-        protected DocumentMetadata CreateDocumentMetadata()
+        private DocumentMetadata CreateDocumentMetadata()
         {
             var metadata = new DocumentMetadata()
             {
@@ -253,6 +322,13 @@ namespace StatTag.Models
                 {
                     DocumentCodeFiles[document.FullName] = new List<MonitoredCodeFile>();
                     Log("Document variable does not exist, no code files loaded");
+                }
+
+                // Alert our listeners that the list of code files has changed
+                if (CodeFileListChanged != null)
+                {
+                    Log("Alerting listeners that the list of code files has changed");
+                    CodeFileListChanged(this, new EventArgs());
                 }
             }
             finally
@@ -578,12 +654,13 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(shapes);
         }
 
-        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition)
+        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition, List<Tag> tagFilter)
         {
+            bool hasTagFilter = (tagFilter != null && tagFilter.Count > 0);
             var fieldsCount = fields.Count;
             // Fields is a 1-based index
             Log(string.Format("Preparing to process {0} fields", fieldsCount));
-            for (int index = 1; index <= fieldsCount; index++)
+            for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
                 if (field == null)
@@ -622,6 +699,14 @@ namespace StatTag.Models
                     tag = new FieldTag(tagUpdatePair.New, tag);
                     TagManager.UpdateTagFieldData(field, tag);
                 }
+                else if (hasTagFilter)
+                {
+                    if (!tagFilter.Contains(tag))
+                    {
+                        Log(string.Format("Tag {0} is not in update filter, skipping", tag.Name));
+                        continue;
+                    }
+                }
 
                 Log(string.Format("Inserting field for tag: {0}", tag.Name));
                 field.Select();
@@ -629,6 +714,11 @@ namespace StatTag.Models
 
                 Marshal.ReleaseComObject(field);
             }
+        }
+
+        public void UpdateFields(List<Tag> tagFilter)
+        {
+            UpdateFields(null, false, tagFilter);
         }
 
 
@@ -643,7 +733,7 @@ namespace StatTag.Models
         /// <param name="matchOnPosition">If set to true, an tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
         /// after disambiguating two tags with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false)
+        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false, List<Tag> tagFilter = null)
         {
             Log("UpdateFields - Started");
 
@@ -654,17 +744,19 @@ namespace StatTag.Models
             List<string> shapesNotUpdated = null;
             try
             {
-                var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
-                if (tableDimensionChange && tagUpdatePair != null)
+                if (tagUpdatePair != null)
                 {
-                    Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
-                    if (RefreshTableTagFields(tagUpdatePair.New, document))
+                    var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
+                    if (tableDimensionChange)
                     {
-                        Log("Completed refreshing table - leaving UpdateFields");
-                        return;
+                        Log(string.Format("Attempting to refresh table with tag name: {0}", tagUpdatePair.New.Name));
+                        if (RefreshTableTagFields(tagUpdatePair.New, document))
+                        {
+                            Log("Completed refreshing table - leaving UpdateFields");
+                            return;
+                        }
                     }
                 }
-
 
                 shapesNotUpdated = UpdateInlineShapes(document);
 
@@ -676,7 +768,7 @@ namespace StatTag.Models
                     var fields = WordUtil.SafeGetFieldsFromShape(shape);
                     if (fields != null)
                     {
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
                         Marshal.ReleaseComObject(fields);
                     }
                 }
@@ -686,7 +778,7 @@ namespace StatTag.Models
                     if (story.Fields != null)
                     {
                         var fields = story.Fields;
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition);
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
                         Marshal.ReleaseComObject(fields);
                     }
                 }
@@ -784,9 +876,14 @@ namespace StatTag.Models
                 // specify the right top/left starting position based on the selection's position relative to the page.
                 // Otherwise the verbatim control always shows up at the top (at least in Word 2016, this doesn't seem
                 // to be an issue in Word 2010).
+                // Note that in v3.5 of StatTag we also had to add a tiny offset (+1 point) to the vertical range.  In
+                // Word 2016, we saw verbatim fields going into the paragraph above.  From reading this article:
+                // https://social.msdn.microsoft.com/Forums/office/en-US/f175055e-7b40-4bcb-8409-d4e0910022f4/documentshapesaddtextbox-ignores-anchor-word-2013?forum=worddev
+                // it sounds like putting the top anchor on the position of the cursor was making Word think it was still
+                // in the previous paragraph.  This tiny offset makes all the difference.
                 var shape = selection.Document.Shapes.AddTextbox(MsoTextOrientation.msoTextOrientationHorizontal,
                     (float)selection.Information[WdInformation.wdHorizontalPositionRelativeToPage],
-                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage], 100, 100, range);
+                    (float)selection.Information[WdInformation.wdVerticalPositionRelativeToPage] + 1, 100, 100, range);
                 var textFrame = shape.TextFrame;
                 textFrame.TextRange.Text = result.VerbatimResult;
                 textFrame.AutoSize = -1;
@@ -957,6 +1054,12 @@ namespace StatTag.Models
                 int columnCount = dimensions[1];
 
                 Log(string.Format("Table dimensions r={0}, c={1}", rowCount, columnCount));
+                if (rowCount == 0 && columnCount == 0)
+                {
+                    Log("Invalid row/column count - throwing exception");
+                    throw new StatTagUserException(string.Format("The number of rows and columns ({0} x {1}) are not valid for creating a table.\r\n\r\nPlease make sure your statistical code runs properly.  If the table data is coming from a file, please make sure that the file was created and that StatTag has permissions to read it.\r\n\r\nIf the table is being created correctly, please inform the StatTag team (StatTag@northwestern.edu).",
+                        rowCount, columnCount));
+                }
 
                 var wordTable = document.Tables.Add(selection.Range, rowCount, columnCount);
                 wordTable.Select();
@@ -1008,6 +1111,12 @@ namespace StatTag.Models
             InsertField(new FieldTag(tag));
         }
 
+        public void InsertFieldPlaceholder(Tag tag)
+        {
+            Log("InsertFieldPlaceholder for Tag");
+            InsertFieldPlaceholder(new FieldTag(tag));
+        }
+
         /// <summary>
         /// Given an tag, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the tag result is already refreshed.  It does not
@@ -1045,6 +1154,7 @@ namespace StatTag.Models
                 if (tag.Type == Constants.TagType.Verbatim)
                 {
                     Log("Inserting verbatim output");
+                    selection.Delete();
                     InsertVerbatim(selection, tag);
                 }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
@@ -1070,6 +1180,40 @@ namespace StatTag.Models
             }
 
             Log("InsertField - Finished");
+        }
+
+        public void InsertFieldPlaceholder(FieldTag tag)
+        {
+            Log("InsertFieldPlaceholder - Started");
+
+            if (tag == null)
+            {
+                Log("The tag is null");
+                return;
+            }
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+            try
+            {
+                var selection = application.Selection;
+                if (selection == null)
+                {
+                    Log("There is no active selection");
+                    return;
+                }
+
+                Log("Inserting a single tag field placeholder");
+                var range = selection.Range;
+                CreateTagField(range, tag.Name, string.Format("[ {0} ]", tag.Name), tag);
+                Marshal.ReleaseComObject(range);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+            }
+
+            Log("InsertFieldPlaceholder - Finished");
         }
 
         /// <summary>
@@ -1119,7 +1263,13 @@ namespace StatTag.Models
 
             try
             {
-                var dialog = new EditTag(false, this);
+                // Alert all listeners that we are beginning to edit a tag
+                if (EditingTag != null)
+                {
+                    EditingTag(this, new TagEventArgs() {Tag = tag});
+                }
+
+                EditTagForm = new EditTag(false, this);
 
                 var document = Globals.ThisAddIn.SafeGetActiveDocument();
                 var metadata = LoadMetadataFromDocument(document, true);
@@ -1127,42 +1277,56 @@ namespace StatTag.Models
                 IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
                 Log(string.Format("Established main window handle of {0}", hwnd.ToString()));
 
-                dialog.Tag = new Tag(tag);
+                EditTagForm.Tag = new Tag(tag);
                 var wrapper = new WindowWrapper(hwnd);
                 Log(string.Format("WindowWrapper established as: {0}", wrapper.ToString()));
-                if (DialogResult.OK == dialog.ShowDialog(wrapper))
+                if (DialogResult.OK == EditTagForm.ShowDialog(wrapper))
                 {
                     // Save the tag first, before trying to update the tags.  This way even if there is
                     // an error during the updates, our results are saved.
-                    SaveEditedTag(dialog, tag);
+                    SaveEditedTag(EditTagForm, tag);
 
                     // If the value format has changed, refresh the values in the document with the
                     // new formatting of the results.
                     // TODO: Sometimes date/time format are null in one and blank strings in the other.  This is causing extra update cycles that aren't needed.
-                    if (dialog.Tag.ValueFormat != tag.ValueFormat)
+                    if (EditTagForm.Tag.ValueFormat != tag.ValueFormat)
                     {
                         Log("Updating fields after tag value format changed");
-                        if (dialog.Tag.TableFormat != tag.TableFormat)
+                        if (EditTagForm.Tag.TableFormat != tag.TableFormat)
                         {
                             Log("Updating formatted table data");
-                            dialog.Tag.UpdateFormattedTableData(metadata);
+                            EditTagForm.Tag.UpdateFormattedTableData(metadata);
                         }
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
                     }
-                    else if (dialog.Tag.TableFormat != tag.TableFormat)
+                    else if (EditTagForm.Tag.TableFormat != tag.TableFormat)
                     {
                         Log("Updating fields after tag table format changed");
-                        dialog.Tag.UpdateFormattedTableData(metadata);
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        EditTagForm.Tag.UpdateFormattedTableData(metadata);
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
                     }
-                    else if (dialog.Tag.Id != tag.Id)
+                    else if (EditTagForm.Tag.Id != tag.Id)
                     {
                         Log("Updating fields after tag renamed");
-                        UpdateFields(new UpdatePair<Tag>(tag, dialog.Tag));
+                        UpdateFields(new UpdatePair<Tag>(tag, EditTagForm.Tag));
+                    }
+
+                    // Alert all listeners that we are done editing a tag
+                    if (EditedTag != null)
+                    {
+                        Log("Alerting listener that tag editing is complete");
+                        EditedTag(this, new TagEventArgs() {Tag = tag});
                     }
 
                     Log("EditTag - Finished (action)");
                     return true;
+                }
+
+                // Alert all listeners that we are done editing a tag
+                if (EditedTag != null)
+                {
+                    Log("Alerting listener that tag editing is complete");
+                    EditedTag(this, new TagEventArgs() {Tag = tag});
                 }
             }
             catch (Exception exc)
@@ -1170,9 +1334,43 @@ namespace StatTag.Models
                 Log("An exception was caught while trying to edit an tag");
                 LogException(exc);
             }
+            finally
+            {
+                EditTagForm = null;
+            }
 
             Log("EditTag - Finished (no action)");
             return false;
+        }
+
+        /// <summary>
+        /// Helper function to remove tags.  While not very difficult, it wraps
+        /// up the responsibility of what needs to be done to clean up tags so
+        /// it's done consistently in all instances.
+        /// </summary>
+        /// <param name="tags"></param>
+        public void RemoveTags(List<Tag> tags)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                return;
+            }
+
+            TagManager.RemoveTags(tags);
+
+            // The TagManager will remove the references between the tags and the code files.
+            // We also need to save this change to the code files themselves.
+            var codeFiles = tags.Select(x => x.CodeFile).Distinct();
+            foreach (var codeFile in codeFiles)
+            {
+                codeFile.Save();
+            }
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1196,6 +1394,12 @@ namespace StatTag.Models
                 // be a new tag, or an updated one.
                 codeFile.AddTag(dialog.Tag, existingTag);
                 codeFile.Save();
+
+                // Alert our listeners that at least one tag has changed
+                if (TagListChanged != null)
+                {
+                    TagListChanged(this, new EventArgs());
+                }
             }
         }
 
@@ -1266,23 +1470,43 @@ namespace StatTag.Models
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
-                var updatedTags = new List<Tag>();
-                var refreshedFiles = new List<CodeFile>();
-                foreach (var tag in tags)
+                // Get all of our unique code files that need to be run.  We are going to execute these in the first
+                // phase.
+                var codeFiles = tags.Select(x => x.CodeFile).Distinct().ToArray();
+                for (int index = 0; index < codeFiles.Length; index++)
                 {
-                    if (!refreshedFiles.Contains(tag.CodeFile))
+                    var codeFile = codeFiles[index];
+                    if (ExecutionUpdated != null)
                     {
-                        var result = StatsManager.ExecuteStatPackage(tag.CodeFile,
-                            Constants.ParserFilterMode.TagList, tags);
-                        if (!result.Success)
+                        ExecutionUpdated(this, new ProgressEventArgs()
                         {
-                            break;
-                        }
-
-                        updatedTags.AddRange(result.UpdatedTags);
-                        refreshedFiles.Add(tag.CodeFile);
+                            Index = (index + 1),
+                            TotalItems = codeFiles.Length,
+                            Description = string.Format("Executing code file {0} of {1}", (index + 1), codeFiles.Length)
+                        });
                     }
+                    var result = StatsManager.ExecuteStatPackage(codeFile,
+                            Constants.ParserFilterMode.TagList, tags);
+                    if (!result.Success)
+                    {
+                        break;
+                    }
+                }
 
+
+                var updatedTags = new List<Tag>();
+                for (int index = 0; index < tags.Count; index++)
+                {
+                    var tag = tags[index];
+                    if (ExecutionUpdated != null)
+                    {
+                        ExecutionUpdated(this, new ProgressEventArgs()
+                        {
+                            Index = (index + 1),
+                            TotalItems = tags.Count,
+                            Description = string.Format("Inserting tag {0} of {1}", (index + 1), tags.Count)
+                        });
+                    }
                     InsertField(tag);
                 }
 
@@ -1313,16 +1537,59 @@ namespace StatTag.Models
         }
 
         /// <summary>
+        /// Inserts placeholders for tag results in the document as fields
+        /// </summary>
+        /// <param name="tags"></param>
+        public void InsertTagPlaceholdersInDocument(List<Tag> tags)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+            try
+            {
+                for (int index = 0; index < tags.Count; index++)
+                {
+                    var tag = tags[index];
+                    if (ExecutionUpdated != null)
+                    {
+                        ExecutionUpdated(this, new ProgressEventArgs()
+                        {
+                            Index = (index + 1),
+                            TotalItems = tags.Count,
+                            Description = string.Format("Inserting tag placeholder {0} of {1}", (index + 1), tags.Count)
+                        });
+                    }
+                    InsertFieldPlaceholder(tag);
+                }
+            }
+            catch (StatTagUserException uex)
+            {
+                UIUtility.ReportException(uex, uex.Message, Logger);
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
+                    "There was an unexpected error when trying to insert the tag placeholder into the Word document.",
+                    Logger);
+            }
+            finally
+            {
+                Globals.ThisAddIn.Application.ScreenUpdating = true;
+                Cursor.Current = Cursors.Default;
+            }
+        }
+
+
+        /// <summary>
         /// Conduct an assessment of the active document to see if there are any inserted
         /// tags that do not have an associated code file in the document.
         /// </summary>
         /// <param name="document">The Word document to analyze.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
 
-        public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false)
+        public void PerformDocumentCheck(Document document, bool onlyShowDialogIfResultsFound = false, CheckDocument.DefaultTab defaultTab = CheckDocument.DefaultTab.FirstWithData)
         {
             CheckDocument checkDocumentDialog = null;
-            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound);
+            PerformDocumentCheck(document, ref checkDocumentDialog, onlyShowDialogIfResultsFound, defaultTab);
         }
 
         /// <summary>
@@ -1333,7 +1600,7 @@ namespace StatTag.Models
         /// <param name="checkDocumentDialog">A reference to use for the CheckDocument form.  This method will create the dialog, but the
         /// reference allows the caller to have a reference when the method completes.</param>
         /// <param name="onlyShowDialogIfResultsFound">If true, the results dialog will only display if there is something to report</param>
-        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false)
+        public void PerformDocumentCheck(Document document, ref CheckDocument checkDocumentDialog, bool onlyShowDialogIfResultsFound = false, CheckDocument.DefaultTab defaultTab = CheckDocument.DefaultTab.FirstWithData)
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
@@ -1344,7 +1611,7 @@ namespace StatTag.Models
                 return;
             }
 
-            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document));
+            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document), defaultTab);
             if (DialogResult.OK == checkDocumentDialog.ShowDialog())
             {
                 UpdateUnlinkedTagsByTag(checkDocumentDialog.UnlinkedTagUpdates, checkDocumentDialog.UnlinkedAffectedCodeFiles);
@@ -1358,11 +1625,22 @@ namespace StatTag.Models
             return TagManager.FindAllUnlinkedTags();
         }
 
+        /// <summary>
+        /// For all of the code files associated with the current document, get all of the
+        /// tags as a single list.
+        /// </summary>
+        /// <returns>A List of Tag objects from all code files</returns>
         public List<Tag> GetTags()
         {
             return TagManager.GetTags();
         }
 
+        /// <summary>
+        /// Find the master reference of an tag, which is contained in the code files
+        /// associated with the current document
+        /// </summary>
+        /// <param name="id">The tag identifier to search for</param>
+        /// <returns>The found Tag, or null of no tag was found</returns>
         public Tag FindTag(string id)
         {
             return TagManager.FindTag(id);
@@ -1384,6 +1662,12 @@ namespace StatTag.Models
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByCodeFile, actions);
             TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByCodeFile, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1403,6 +1687,12 @@ namespace StatTag.Models
             TagManager.ProcessStatTagFields(TagManager.UpdateUnlinkedTagsByTag, actions);
             TagManager.ProcessStatTagShapes(TagManager.UpdateUnlinkedShapesByTag, actions);
             ProcessUnlinkedCodeFiles(unlinkedAffectedCodeFiles);
+
+            // Alert our listeners that at least one tag has changed
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -1412,6 +1702,7 @@ namespace StatTag.Models
         /// <param name="unlinkedAffectedCodeFiles">The list of code files that have been unlinked from one or more tags</param>
         public void ProcessUnlinkedCodeFiles(List<string> unlinkedAffectedCodeFiles)
         {
+            Log("ProcessUnlinkedCodeFiles - Start");
             // If we replaced a code file, we are going to check to see if all references to that old code file are gone.
             // If so, we can remove the code file reference from the document, so a potentially unused (or invalid)
             // code file reference doesn't get carried aong.
@@ -1424,8 +1715,16 @@ namespace StatTag.Models
                     var codeFiles = GetCodeFileList();
                     var updatedCodeFileList = codeFiles.Where(x => !filesToRemove.Contains(x.FilePath)).ToList();
                     SetCodeFileList(updatedCodeFileList);
+
+                    // Alert our listeners that at least one code file has changed
+                    if (CodeFileListChanged != null)
+                    {
+                        Log("Alerting listeners that the list of code files has changed");
+                        CodeFileListChanged(this, new EventArgs());
+                    }
                 }
             }
+            Log("ProcessUnlinkedCodeFiles - Finished");
         }
 
         /// <summary>
@@ -1454,6 +1753,13 @@ namespace StatTag.Models
                 monitoredCodeFile.CodeFileChanged += OnCodeFileChanged;
                 files.Add(monitoredCodeFile);
                 Log(string.Format("Added code file {0}", fileName));
+
+                // Alert our listeners that we have added a code file
+                if (CodeFileListChanged != null)
+                {
+                    Log("Alerting listeners that the list of code files has changed");
+                    CodeFileListChanged(this, new EventArgs());
+                }
             }
             catch (Exception exc)
             {
@@ -1475,9 +1781,9 @@ namespace StatTag.Models
                 return;
             }
 
-            if (CodeFileChanged != null)
+            if (CodeFileContentsChanged != null)
             {
-                CodeFileChanged(monitoredCodeFile, args);
+                CodeFileContentsChanged(monitoredCodeFile, args);
             }
         }
 
@@ -1501,47 +1807,17 @@ namespace StatTag.Models
                 codeFile.AddTag(update.New, update.Old, true);
             }
 
+            // Alert our listeners that tags have been updated
+            if (TagListChanged != null)
+            {
+                TagListChanged(this, new EventArgs());
+            }
+
             foreach (var codeFile in affectedCodeFiles)
             {
                 codeFile.Save();
             }
         }
-
-        //// Define the event handlers.
-        //private void OnChanged(object source, FileSystemEventArgs e)
-        //{
-        //    // Go through all of our managed code files in all open documents.  Any code file that 
-        //    // matches the path of the changed file will be updated.
-        //    Log("OnChanged event for code file " + e.FullPath + " " + e.ChangeType);
-        //}
-
-        //private static void OnRenamed(object source, RenamedEventArgs e)
-        //{
-        //    // Specify what is done when a file is renamed.
-        //    Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
-        //}
-
-        ///// <summary>
-        ///// For a specific code file instance, create a watcher to respond to certain file system events.
-        ///// </summary>
-        ///// <param name="codeFile"></param>
-        ///// <returns></returns>
-        //private FileSystemWatcher CreateCodeFileWatcher(CodeFile codeFile)
-        //{
-        //    var watcher = new FileSystemWatcher
-        //    {
-        //        Path = Path.GetDirectoryName(codeFile.FilePath),
-        //        Filter = Path.GetFileName(codeFile.FilePath),
-        //        EnableRaisingEvents = true,
-        //        NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite
-        //    };
-        //    watcher.Changed += new FileSystemEventHandler(OnChanged);
-        //    watcher.Created += new FileSystemEventHandler(OnChanged);
-        //    watcher.Deleted += new FileSystemEventHandler(OnChanged);
-        //    watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-        //    return watcher;
-        //}
 
         private void RefreshCodeFileListForDocument(Document document, List<CodeFile> files)
         {
@@ -1601,6 +1877,13 @@ namespace StatTag.Models
                     codeFile.StartMonitoring();
                 }
             }
+
+            if (CodeFileListChanged != null)
+            {
+                Log("Alerting listeners that the list of code files has changed");
+                CodeFileListChanged(this, new EventArgs());
+            }
+
             Log("RefreshContentInDocumentCodeFiles - Finish");
         }
 
@@ -1682,6 +1965,12 @@ namespace StatTag.Models
             }
 
             RefreshCodeFileListForDocument(document, files);
+
+            if (CodeFileListChanged != null)
+            {
+                Log("Alerting listeners that the list of code files has changed");
+                CodeFileListChanged(this, new EventArgs());
+            }
         }
 
         public void Dispose()
@@ -1695,6 +1984,15 @@ namespace StatTag.Models
                     docFile.Value.ForEach(x => x.Dispose());
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when we need to forcibly close any and all open dialogs, such as
+        /// for system shutdown, or when a linked code file has been changed.
+        /// </summary>
+        public void CloseAllChildDialogs()
+        {
+            UIUtility.ManageCloseDialog(EditTagForm);
         }
     }
 }

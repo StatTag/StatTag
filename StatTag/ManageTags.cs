@@ -112,9 +112,20 @@ namespace StatTag
         private void EditTag(int rowIndex)
         {
             var existingTag = dgvItems.Rows[rowIndex].Tag as Tag;
-            if (Manager.EditTag(existingTag))
+            try
             {
-                ReloadTags();
+                this.TopMost = false;
+                this.Visible = false;
+                if (Manager.EditTag(existingTag))
+                {
+                    ReloadTags();
+                }
+            }
+            catch (Exception exc)
+            {
+                this.TopMost = true;
+                this.Visible = true;
+                throw exc;
             }
         }
 

@@ -787,5 +787,19 @@ namespace StatTag.Models
                     && !string.IsNullOrWhiteSpace(shape.Name)
                     && shape.Name.Contains(Tag.IdentifierDelimiter));
         }
+        
+        /// <summary>
+        /// Helper function to remove tags.  While not very difficult, it wraps
+        /// up the responsibility of what needs to be done to clean up tags so
+        /// it's done consistently in all instances.
+        /// </summary>
+        /// <param name="tags"></param>
+        public void RemoveTags(List<Tag> tags)
+        {
+            foreach (var tag in tags)
+            {
+                tag.CodeFile.RemoveTag(tag);
+            }
+        }
     }
 }
