@@ -1213,7 +1213,7 @@ namespace StatTag.Models
 
                 Log("Inserting a single tag field placeholder");
                 var range = selection.Range;
-                CreateTagField(range, tag.Name, string.Format("[ {0} ]", tag.Name), tag);
+                CreateTagField(range, tag.Name, string.Format("[ {0} ]", tag.Name), tag, true);
                 Marshal.ReleaseComObject(range);
             }
             finally
@@ -1231,10 +1231,11 @@ namespace StatTag.Models
         /// <param name="tagIdentifier">The visible identifier of the tag (does not need to be globablly unique)</param>
         /// <param name="displayValue">The value that should display when the field is shown.</param>
         /// <param name="tag">The tag to be inserted</param>
-        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag)
+        /// <param name="placeholder">Is the field a placeholder field or not</param>
+        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, FieldTag tag, bool placeholder = false)
         {
             Log("CreateTagField - Started");
-            if (tag.Type == Constants.TagType.Verbatim)
+            if (tag.Type == Constants.TagType.Verbatim && !placeholder)
             {
                 FieldGenerator.GenerateField(range, tagIdentifier, displayValue, tag);
                 return;
@@ -1252,9 +1253,10 @@ namespace StatTag.Models
         /// <param name="tagIdentifier">The visible identifier of the tag (does not need to be globablly unique)</param>
         /// <param name="displayValue">The value that should display when the field is shown.</param>
         /// <param name="tag">The tag to be inserted</param>
-        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, Tag tag)
+        /// <param name="placeholder">Is the field a placeholder field or not</param>
+        protected void CreateTagField(Range range, string tagIdentifier, string displayValue, Tag tag, bool placeholder = false)
         {
-            CreateTagField(range, tagIdentifier, displayValue, new FieldTag(tag));
+            CreateTagField(range, tagIdentifier, displayValue, new FieldTag(tag), placeholder);
         }
 
         /// <summary>
