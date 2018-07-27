@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -79,6 +80,13 @@ namespace StatTag.Models
             set
             {
                 activeDocument = value;
+
+                if (activeDocument != null && !DocumentCodeFiles.ContainsKey(activeDocument.FullName))
+                {
+                    Log("Active document changed - not in cache, so we will load it");
+                    GetManagedCodeFileList(activeDocument);
+                }
+
                 if (ActiveDocumentChanged != null)
                 {
                     ActiveDocumentChanged(this, new EventArgs());
@@ -1482,7 +1490,7 @@ namespace StatTag.Models
                         {
                             Index = (index + 1),
                             TotalItems = codeFiles.Length,
-                            Description = string.Format("Executing code file {0} of {1}", (index + 1), codeFiles.Length)
+                            Description = string.Format("Running code file {0} of {1}", (index + 1), codeFiles.Length)
                         });
                     }
                     var result = StatsManager.ExecuteStatPackage(codeFile,
@@ -1912,6 +1920,18 @@ namespace StatTag.Models
                 Log(string.Format("Code file list for {0} is not yet cached.", fullName));
                 DocumentCodeFiles.Add(fullName, new List<MonitoredCodeFile>());
                 LoadCodeFileListFromDocument(document);
+                var files = DocumentCodeFiles[fullName];
+                foreach (var file in files)
+                {
+                    if (!File.Exists(file.FilePath))
+                    {
+                        Log(string.Format("Code file: {0} not found", file.FilePath));
+                    }
+                    else
+                    {
+                        file.LoadTagsFromContent(false); // Skip saving the cache, since this is the first load
+                    }
+                }
                 Log(string.Format("Loaded {0} code files from document", DocumentCodeFiles[fullName].Count));
             }
 

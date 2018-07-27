@@ -60,7 +60,7 @@
             this.lblDescription.Name = "lblDescription";
             this.lblDescription.Size = new System.Drawing.Size(406, 17);
             this.lblDescription.TabIndex = 2;
-            this.lblDescription.Text = "Executing your code";
+            this.lblDescription.Text = "Running your code";
             // 
             // ExecutionProgressForm
             // 
