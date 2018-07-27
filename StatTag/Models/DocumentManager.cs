@@ -1455,7 +1455,7 @@ namespace StatTag.Models
         public void CheckForInsertSavedTag(EditTag dialog)
         {
             // If the user clicked the "Save and Insert", we will perform the insertion now.
-            if (dialog.InsertInDocument)
+            if (dialog.DefineAnother)
             {
                 Log("Inserting into document after defining tag");
 

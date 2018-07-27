@@ -37,7 +37,7 @@ namespace StatTag
         private Tag OriginalTag { get; set; }
         public new Tag Tag { get; set; }
         public string CodeText { get; set; }
-        public bool InsertInDocument { get; private set; }
+        public bool DefineAnother { get; private set; }
 
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
@@ -522,14 +522,9 @@ namespace StatTag
             }
         }
 
-        private void cmdSaveAndInsert_Click(object sender, EventArgs e)
+        private void HandleOkClick(bool defineAnother)
         {
-            HandleOkClick(true);
-        }
-
-        private void HandleOkClick(bool insertInDocument)
-        {
-            InsertInDocument = insertInDocument;
+            DefineAnother = defineAnother;
 
             if (Tag == null)
             {
@@ -585,13 +580,27 @@ namespace StatTag
         private void RefreshButtons()
         {
             var saveEnabled = !(string.IsNullOrWhiteSpace(txtName.Text));
-            cmdOK.Enabled = saveEnabled;
-            cmdSaveAndInsert.Enabled = saveEnabled && AllowInsertInDocument;
+            cmdSave.Enabled = saveEnabled;
         }
 
         private void txtName_TextChanged(object sender, EventArgs e)
         {
             RefreshButtons();
+        }
+
+        private void tsmSaveAndDefine_Click(object sender, EventArgs e)
+        {
+            HandleOkClick(true);
+
+            // We only have one OK button, so when we want to save and define another tag,
+            // we manually tell it we meant to click OK, and then close the dialog.
+            this.DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void cmdSave_Click(object sender, EventArgs e)
+        {
+            HandleOkClick(false);
         }
     }
 }

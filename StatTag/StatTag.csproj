@@ -240,6 +240,9 @@
     <Compile Include="Controls\PlaceholderTextBox.Designer.cs">
       <DependentUpon>PlaceholderTextBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SplitButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\TableProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>

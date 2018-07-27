@@ -638,12 +638,20 @@ namespace StatTag
                 this.TopMost = false;
                 this.Visible = false;
 
-                EditTagForm = new EditTag(true, Manager);
-                if (DialogResult.OK == EditTagForm.ShowDialog())
+                bool defineAnother = false;
+                do
                 {
-                    Manager.SaveEditedTag(EditTagForm);
-                    Manager.CheckForInsertSavedTag(EditTagForm);
-                }
+                    EditTagForm = new EditTag(true, Manager);
+                    if (DialogResult.OK == EditTagForm.ShowDialog())
+                    {
+                        Manager.SaveEditedTag(EditTagForm);
+                        defineAnother = EditTagForm.DefineAnother;
+                    }
+                    else
+                    {
+                        defineAnother = false;
+                    }
+                } while (defineAnother);
             }
             finally
             {
