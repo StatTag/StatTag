@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 using StatTag.Models;
 
@@ -13,23 +6,26 @@ namespace StatTag
 {
     public partial class ExecutionProgressForm : Form
     {
-        private DocumentManager Manager { get; set; }
-        public ExecutionProgressForm(DocumentManager manager)
+        private BackgroundWorker Worker { get; set; }
+        public ExecutionProgressForm(BackgroundWorker worker)
         {
             InitializeComponent();
-            Manager = manager;
-
-            if (Manager != null)
-            {
-                Manager.ExecutionUpdated += ManagerOnExecutionUpdated;
-            }
+            Worker = worker;
         }
 
-        private void ManagerOnExecutionUpdated(object sender, DocumentManager.ProgressEventArgs progressEventArgs)
+        public void UpdateProgress(int percent, string description)
         {
-            lblDescription.Text = progressEventArgs.Description;
-            pbrProgress.Maximum = progressEventArgs.TotalItems;
-            pbrProgress.Value = progressEventArgs.Index;
+            pbrProgress.Value = percent;
+            pbrProgress.Maximum = 100;
+            lblDescription.Text = description;
+        }
+
+        private void cmdCancel_Click(object sender, System.EventArgs e)
+        {
+            if (Worker != null)
+            {
+                Worker.CancelAsync();
+            }
         }
     }
 }

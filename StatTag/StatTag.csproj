@@ -285,6 +285,7 @@
     <Compile Include="ExecutionProgressForm.Designer.cs">
       <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="IProgressReporter.cs" />
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -309,6 +310,7 @@
     <Compile Include="ManageTags.Designer.cs">
       <DependentUpon>ManageTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\BackgroundWorkerProgressReporter.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />

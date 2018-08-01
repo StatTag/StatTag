@@ -662,7 +662,7 @@ namespace StatTag.Models
             Marshal.ReleaseComObject(shapes);
         }
 
-        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition, List<Tag> tagFilter)
+        private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition, List<Tag> tagFilter, IProgressReporter reporter = null)
         {
             bool hasTagFilter = (tagFilter != null && tagFilter.Count > 0);
             var fieldsCount = fields.Count;
@@ -671,6 +671,18 @@ namespace StatTag.Models
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
+                if (reporter != null)
+                {
+                    if (reporter.IsCancelling())
+                    {
+                        return;
+                    }
+                    
+                    int progressIndex = (fieldsCount - index + 1);
+                    var progressMessage = string.Format("Updating field {0} of {1}", progressIndex, fieldsCount);
+                    reporter.ReportProgress((int)(((progressIndex*1.0)/fieldsCount) * 100), progressMessage);
+                }
+
                 if (field == null)
                 {
                     Log(string.Format("Null field detected at index {0}", index));
@@ -724,9 +736,9 @@ namespace StatTag.Models
             }
         }
 
-        public void UpdateFields(List<Tag> tagFilter)
+        public void UpdateFields(List<Tag> tagFilter, IProgressReporter reporter)
         {
-            UpdateFields(null, false, tagFilter);
+            UpdateFields(null, false, tagFilter, reporter);
         }
 
 
@@ -741,7 +753,7 @@ namespace StatTag.Models
         /// <param name="matchOnPosition">If set to true, an tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
         /// after disambiguating two tags with the same name, but isn't needed otherwise.</param>
         /// </summary>
-        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false, List<Tag> tagFilter = null)
+        public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false, List<Tag> tagFilter = null, IProgressReporter reporter = null)
         {
             Log("UpdateFields - Started");
 
@@ -752,6 +764,8 @@ namespace StatTag.Models
             List<string> shapesNotUpdated = null;
             try
             {
+                if (reporter != null) { reporter.ReportProgress(0, "Beginning to update your document"); }
+
                 if (tagUpdatePair != null)
                 {
                     var tableDimensionChange = IsTableTagChangingDimensions(tagUpdatePair);
@@ -766,30 +780,48 @@ namespace StatTag.Models
                     }
                 }
 
+                if (reporter != null) { reporter.ReportProgress(10, "Updating all embedded Word shapes"); }
                 shapesNotUpdated = UpdateInlineShapes(document);
+                if (reporter != null) { reporter.ReportProgress(25, "Updated all Word shapes"); }
 
+                if (reporter != null) { reporter.ReportProgress(26, "Updating all verbatim results"); }
                 UpdateVerbatimEntries(document, tagUpdatePair);
+                if (reporter != null) { reporter.ReportProgress(50, "Updated all verbatim results"); }
 
+                if (reporter != null) { reporter.ReportProgress(51, "Updating all shapes and images"); }
                 var shapes = document.Shapes;
                 foreach (var shape in shapes.OfType<Microsoft.Office.Interop.Word.Shape>())
                 {
                     var fields = WordUtil.SafeGetFieldsFromShape(shape);
                     if (fields != null)
                     {
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter, reporter);
                         Marshal.ReleaseComObject(fields);
                     }
                 }
+                if (reporter != null) { reporter.ReportProgress(75, "Updated all shapes and images"); }
 
+                if (reporter != null) { reporter.ReportProgress(76, "Updating all tagged fields"); }
+                int totalFields = 0;
                 foreach (var story in document.StoryRanges.OfType<Range>())
                 {
                     if (story.Fields != null)
                     {
                         var fields = story.Fields;
-                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter);
+                        totalFields += fields.Count;
                         Marshal.ReleaseComObject(fields);
                     }
                 }
+                foreach (var story in document.StoryRanges.OfType<Range>())
+                {
+                    if (story.Fields != null)
+                    {
+                        var fields = story.Fields;
+                        HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter, reporter);
+                        Marshal.ReleaseComObject(fields);
+                    }
+                }
+                if (reporter != null) { reporter.ReportProgress(100, "Update all tagged fields"); }
             }
             finally
             {
@@ -873,6 +905,12 @@ namespace StatTag.Models
             if (tag == null)
             {
                 Log("Unable to insert the verbatim output because the tag is null");
+                return;
+            }
+
+            if (tag.CachedResult == null)
+            {
+                Log("Unable to insert the verbatim output because the tag cached result is null");
                 return;
             }
 
@@ -1550,23 +1588,26 @@ namespace StatTag.Models
         /// Inserts placeholders for tag results in the document as fields
         /// </summary>
         /// <param name="tags"></param>
-        public void InsertTagPlaceholdersInDocument(List<Tag> tags)
+        /// <param name="reporter"></param>
+        public void InsertTagPlaceholdersInDocument(List<Tag> tags, IProgressReporter reporter)
         {
             Cursor.Current = Cursors.WaitCursor;
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             try
             {
-                for (int index = 0; index < tags.Count; index++)
+                int tagCount = tags.Count;
+                for (int index = 0; index < tagCount; index++)
                 {
                     var tag = tags[index];
-                    if (ExecutionUpdated != null)
+                    if (reporter != null)
                     {
-                        ExecutionUpdated(this, new ProgressEventArgs()
+                        if (reporter.IsCancelling())
                         {
-                            Index = (index + 1),
-                            TotalItems = tags.Count,
-                            Description = string.Format("Inserting tag placeholder {0} of {1}", (index + 1), tags.Count)
-                        });
+                            return;
+                        }
+
+                        reporter.ReportProgress((int)(((index + 1 * 1.0)/tagCount)*100),
+                            string.Format("Inserting tag placeholder {0} of {1}", (index + 1), tagCount));
                     }
                     InsertFieldPlaceholder(tag);
                 }
