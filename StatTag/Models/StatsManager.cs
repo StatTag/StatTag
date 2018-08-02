@@ -35,6 +35,12 @@ namespace StatTag.Models
             /// were originally inserted into the document
             /// </summary>
             public List<Tag> UpdatedTags { get; set; }
+
+            /// <summary>
+            /// If Success is false, this may contain a description of the error
+            /// which can be displayed to the user.
+            /// </summary>
+            public string ErrorMessage { get; set; }
         }
 
         /// <summary>
@@ -196,7 +202,7 @@ namespace StatTag.Models
                     }
 
                     var message = automation.FormatErrorMessageFromExecution(exc);
-                    MessageBox.Show(message, UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    result.ErrorMessage = message;
                     return result;
                 }
             }

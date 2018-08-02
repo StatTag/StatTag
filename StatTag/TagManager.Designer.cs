@@ -41,6 +41,8 @@
             this.cmdRemoveTags = new System.Windows.Forms.Button();
             this.cmdDefineTag = new System.Windows.Forms.Button();
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
+            this.updateBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.insertBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // cmdInsert
@@ -181,6 +183,22 @@
             this.txtFilter.TabIndex = 10;
             this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
+            // updateBackgroundWorker
+            // 
+            this.updateBackgroundWorker.WorkerReportsProgress = true;
+            this.updateBackgroundWorker.WorkerSupportsCancellation = true;
+            this.updateBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.updateBackgroundWorker_DoWork);
+            this.updateBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
+            this.updateBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
+            // insertBackgroundWorker
+            // 
+            this.insertBackgroundWorker.WorkerReportsProgress = true;
+            this.insertBackgroundWorker.WorkerSupportsCancellation = true;
+            this.insertBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.insertBackgroundWorker_DoWork);
+            this.insertBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
+            this.insertBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
             // TagManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -223,5 +241,7 @@
         private System.Windows.Forms.Button cmdDefineTag;
         private System.Windows.Forms.Button cmdCheckUnlinkedTags;
         private System.Windows.Forms.ColumnHeader colDuplicate;
+        private System.ComponentModel.BackgroundWorker updateBackgroundWorker;
+        private System.ComponentModel.BackgroundWorker insertBackgroundWorker;
     }
 }

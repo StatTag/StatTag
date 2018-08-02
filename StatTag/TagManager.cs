@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -71,7 +72,7 @@ namespace StatTag
 
 
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
-
+        private ExecutionProgressForm CurrentProgress;
 
         public TagManager(DocumentManager manager)
         {
@@ -537,18 +538,10 @@ namespace StatTag
         {
             try
             {
-                var progress = new ExecutionProgressForm(Manager);
-                this.TopMost = false;
-                progress.TopMost = true;
-                progress.Show();
+                InitializeProgressDialog(insertBackgroundWorker);
 
                 var tags = GetSelectedTags();
-                Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-                Manager.InsertTagPlaceholdersInDocument(tags);
-
-                progress.TopMost = false;
-                progress.Close();
-                this.TopMost = true;
+                insertBackgroundWorker.RunWorkerAsync(tags);
             }
             catch (StatTagUserException uex)
             {
@@ -567,62 +560,44 @@ namespace StatTag
             }
         }
 
+        private void InitializeProgressDialog(BackgroundWorker worker)
+        {
+            if (CurrentProgress != null && !CurrentProgress.IsDisposed)
+            {
+                CurrentProgress.Close();
+                CurrentProgress = null;
+            }
+
+            CurrentProgress = new ExecutionProgressForm(worker);
+            this.TopMost = false;
+            this.Visible = false;
+            CurrentProgress.TopMost = true;
+            CurrentProgress.Show();
+        }
+
         private void cmdUpdate_Click(object sender, EventArgs e)
         {
             try
             {
-
-                var progress = new ExecutionProgressForm(Manager);
-                this.TopMost = false;
-                progress.TopMost = true;
-                progress.Show();
-
-                var tags = GetSelectedTags();
+                InitializeProgressDialog(updateBackgroundWorker);
 
                 Cursor.Current = Cursors.WaitCursor;
                 Globals.ThisAddIn.Application.ScreenUpdating = false;
 
-                // First, go through and update all of the code files to ensure we have all
-                // refreshed tags.
-                var refreshedFiles = new List<CodeFile>();
-                var files = tags.Select(x => x.CodeFile).Distinct();
-                foreach (var codeFile in files)
-                {
-                    if (!refreshedFiles.Contains(codeFile))
-                    {
-                        var result = Manager.StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
-                        if (!result.Success)
-                        {
-                            break;
-                        }
-
-                        refreshedFiles.Add(codeFile);
-                    }
-                }
-
-                // Now we will refresh all of the tags that are fields.  Since we most likely
-                // have more fields than tags, we are going to use the approach of looping
-                // through all fields and updating them (via the DocumentManager).
-                Manager.UpdateFields(tags);
-
-                progress.TopMost = false;
-                progress.Close();
-                this.TopMost = true;
+                var tags = GetSelectedTags();
+                updateBackgroundWorker.RunWorkerAsync(tags);
             }
             catch (StatTagUserException uex)
             {
                 UIUtility.ReportException(uex, uex.Message, Manager.Logger);
+                CompletedBackgroundWorker();
             }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc,
                     "There was an unexpected error when trying to update values in your document.",
                     Manager.Logger);
-            }
-            finally
-            {
-                Globals.ThisAddIn.Application.ScreenUpdating = true;
-                Cursor.Current = Cursors.Default;
+                CompletedBackgroundWorker();
             }
         }
 
@@ -638,12 +613,22 @@ namespace StatTag
                 this.TopMost = false;
                 this.Visible = false;
 
-                EditTagForm = new EditTag(true, Manager);
-                if (DialogResult.OK == EditTagForm.ShowDialog())
+                CodeFile lastSelectedCodeFile = null;
+                bool defineAnother = false;
+                do
                 {
-                    Manager.SaveEditedTag(EditTagForm);
-                    Manager.CheckForInsertSavedTag(EditTagForm);
-                }
+                    EditTagForm = new EditTag(true, Manager, lastSelectedCodeFile);
+                    if (DialogResult.OK == EditTagForm.ShowDialog())
+                    {
+                        Manager.SaveEditedTag(EditTagForm);
+                        defineAnother = EditTagForm.DefineAnother;
+                        lastSelectedCodeFile = EditTagForm.Tag.CodeFile;
+                    }
+                    else
+                    {
+                        defineAnother = false;
+                    }
+                } while (defineAnother);
             }
             finally
             {
@@ -705,6 +690,11 @@ namespace StatTag
             }
         }
 
+        /// <summary>
+        /// Needed to handle Ctrl+A as a select-all hotkey
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void lvwTags_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.A && e.Control)
@@ -714,6 +704,125 @@ namespace StatTag
                     item.Selected = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// General event handler for all background processors to update the progress dialog (if it's shown)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            if (CurrentProgress != null)
+            {
+                CurrentProgress.UpdateProgress(e.ProgressPercentage, e.UserState.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Event handler started for the background worker that updates inserted tags within the Word document.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void updateBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            // First, go through and update all of the code files to ensure we have all
+            // refreshed tags.
+            var worker = (BackgroundWorker) sender;
+            var progressReporter = new BackgroundWorkerProgressReporter(worker);
+            var tags = (List<Tag>)e.Argument;
+            var refreshedFiles = new List<CodeFile>();
+            var files = tags.Select(x => x.CodeFile).Distinct().ToArray();
+            int length = files.Length;
+            for (int index = 0; index < length; index++)
+            {
+                // If the user cancels while running code files, exit right away so we don't do any of
+                // the later tag processing/updates.
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                var codeFile = files[index]; 
+                int progressBefore = (int)((((index * 1.0 + 1) / length) / 2.0) * 100);
+                worker.ReportProgress(progressBefore, string.Format("Running '{0}' (code file {1} of {2})", Path.GetFileName(codeFile.FilePath), (index + 1), length));
+
+                if (!refreshedFiles.Contains(codeFile))
+                {
+                    var result = Manager.StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
+                    if (!result.Success)
+                    {
+                        throw new StatTagUserException(result.ErrorMessage);
+                    }
+
+                    refreshedFiles.Add(codeFile);
+                }
+
+                int progressAfter = (int)(((index * 1.0 + 1) / length) * 100);
+                worker.ReportProgress(progressAfter, string.Format("Completed code file {0} of {1}", (index + 1), length));
+            }
+
+            // Now we will refresh all of the tags that are fields.  Since we most likely
+            // have more fields than tags, we are going to use the approach of looping
+            // through all fields and updating them (via the DocumentManager).
+            Manager.UpdateFields(tags, progressReporter);
+            e.Cancel = worker.CancellationPending;
+        }
+
+        /// <summary>
+        /// General event handler called when a background worker has completed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            CompletedBackgroundWorker(e.Error, e.Cancelled);
+        }
+
+        /// <summary>
+        /// Helper function to manage cleanup & completion after a background worker is done.
+        /// This resets the state of dialogs/forms, and handles any exception reporting from the work.
+        /// </summary>
+        /// <param name="exception"></param>
+        private void CompletedBackgroundWorker(Exception exception = null, bool cancelled = false)
+        {
+            if (CurrentProgress != null)
+            {
+                CurrentProgress.Close();
+                CurrentProgress = null;
+            }
+
+            if (exception != null)
+            {
+                UIUtility.ReportException(exception, exception.Message, Manager.Logger);
+            }
+
+            if (cancelled)
+            {
+                Manager.Logger.WriteMessage("The code execution was cancelled by the user");
+                UIUtility.WarningMessageBox("You have cancelled updates.\r\n\r\nThe values in your document may not be accurate until you update all tags.", Manager.Logger);
+            }
+
+            this.TopMost = true;
+            this.Visible = true;
+            Globals.ThisAddIn.Application.ScreenUpdating = true;
+            Cursor.Current = Cursors.Default;
+        }
+
+        /// <summary>
+        /// Event handler when the background worker for inserting tag placeholders is invoked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void insertBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var worker = (BackgroundWorker)sender;
+            var progressReporter = new BackgroundWorkerProgressReporter(worker);
+            var tags = (List<Tag>)e.Argument;
+            Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
+            Manager.InsertTagPlaceholdersInDocument(tags, progressReporter);
+            e.Cancel = worker.CancellationPending;
         }
     }
 }

@@ -28,15 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditTag));
             this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.lblNoOutputWarning = new System.Windows.Forms.Label();
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
-            this.cmdSaveAndInsert = new System.Windows.Forms.Button();
             this.lblAllowedCommands = new System.Windows.Forms.Label();
             this.lblInstructionTitle = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
@@ -52,37 +51,27 @@
             this.cboResultType = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.cmsSave = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmSaveAndDefine = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmdSave = new Sce.Atf.Controls.SplitButton();
             this.incrementalSearcher1 = new ScintillaNET_FindReplaceDialog.IncrementalSearcher();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.panel1.SuspendLayout();
+            this.cmsSave.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(657, 609);
+            this.cmdCancel.Location = new System.Drawing.Point(571, 610);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(164, 25);
             this.cmdCancel.TabIndex = 7;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
-            // 
-            // cmdOK
-            // 
-            this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Enabled = false;
-            this.cmdOK.Location = new System.Drawing.Point(269, 609);
-            this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cmdOK.Name = "cmdOK";
-            this.cmdOK.Size = new System.Drawing.Size(164, 25);
-            this.cmdOK.TabIndex = 6;
-            this.cmdOK.Text = "Save";
-            this.cmdOK.UseVisualStyleBackColor = true;
-            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // label1
             // 
@@ -133,20 +122,6 @@
             // 
             this.codeCheckWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.codeCheckWorker_DoWork);
             this.codeCheckWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.codeCheckWorker_RunWorkerCompleted);
-            // 
-            // cmdSaveAndInsert
-            // 
-            this.cmdSaveAndInsert.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdSaveAndInsert.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdSaveAndInsert.Enabled = false;
-            this.cmdSaveAndInsert.Location = new System.Drawing.Point(463, 609);
-            this.cmdSaveAndInsert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cmdSaveAndInsert.Name = "cmdSaveAndInsert";
-            this.cmdSaveAndInsert.Size = new System.Drawing.Size(164, 25);
-            this.cmdSaveAndInsert.TabIndex = 26;
-            this.cmdSaveAndInsert.Text = "Save and Insert in Word";
-            this.cmdSaveAndInsert.UseVisualStyleBackColor = true;
-            this.cmdSaveAndInsert.Click += new System.EventHandler(this.cmdSaveAndInsert_Click);
             // 
             // lblAllowedCommands
             // 
@@ -314,6 +289,35 @@
             this.label6.TabIndex = 36;
             this.label6.Text = "Tag Settings";
             // 
+            // cmsSave
+            // 
+            this.cmsSave.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmSaveAndDefine});
+            this.cmsSave.Name = "cmsSave";
+            this.cmsSave.ShowImageMargin = false;
+            this.cmsSave.ShowItemToolTips = false;
+            this.cmsSave.Size = new System.Drawing.Size(180, 48);
+            // 
+            // tsmSaveAndDefine
+            // 
+            this.tsmSaveAndDefine.Name = "tsmSaveAndDefine";
+            this.tsmSaveAndDefine.Size = new System.Drawing.Size(179, 22);
+            this.tsmSaveAndDefine.Text = "Save and Define Another";
+            this.tsmSaveAndDefine.Click += new System.EventHandler(this.tsmSaveAndDefine_Click);
+            // 
+            // cmdSave
+            // 
+            this.cmdSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdSave.ContextMenuStrip = this.cmsSave;
+            this.cmdSave.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdSave.Location = new System.Drawing.Point(355, 610);
+            this.cmdSave.Name = "cmdSave";
+            this.cmdSave.Size = new System.Drawing.Size(173, 25);
+            this.cmdSave.TabIndex = 44;
+            this.cmdSave.Text = "Save";
+            this.cmdSave.UseVisualStyleBackColor = true;
+            this.cmdSave.Click += new System.EventHandler(this.cmdSave_Click);
+            // 
             // incrementalSearcher1
             // 
             this.incrementalSearcher1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -357,21 +361,19 @@
             // 
             // EditTag
             // 
-            this.AcceptButton = this.cmdOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(1091, 647);
+            this.Controls.Add(this.cmdSave);
             this.Controls.Add(this.incrementalSearcher1);
             this.Controls.Add(this.verticalLine1);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.cmdSaveAndInsert);
             this.Controls.Add(this.scintilla1);
             this.Controls.Add(this.lblNoOutputWarning);
             this.Controls.Add(this.cboCodeFiles);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmdCancel);
-            this.Controls.Add(this.cmdOK);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -383,6 +385,7 @@
             this.Load += new System.EventHandler(this.EditTag_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.cmsSave.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -391,14 +394,12 @@
         #endregion
 
         private System.Windows.Forms.Button cmdCancel;
-        private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private System.Windows.Forms.Label lblNoOutputWarning;
         private System.ComponentModel.BackgroundWorker codeCheckWorker;
         private ScintillaNET.Scintilla scintilla1;
-        private System.Windows.Forms.Button cmdSaveAndInsert;
         private System.Windows.Forms.Label lblAllowedCommands;
         private System.Windows.Forms.Label lblInstructionTitle;
         private Controls.ValueProperties valueProperties;
@@ -416,5 +417,8 @@
         private Controls.FigureProperties figureProperties;
         private System.Windows.Forms.Label label5;
         private ScintillaNET_FindReplaceDialog.IncrementalSearcher incrementalSearcher1;
+        private Sce.Atf.Controls.SplitButton cmdSave;
+        private System.Windows.Forms.ContextMenuStrip cmsSave;
+        private System.Windows.Forms.ToolStripMenuItem tsmSaveAndDefine;
     }
 }
