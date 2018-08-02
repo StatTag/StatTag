@@ -42,12 +42,14 @@ namespace StatTag
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
         private bool AllowInsertInDocument { get; set; }
+        private CodeFile DefaultCodeFile { get; set; }
 
-        public EditTag(bool allowInsertInDocument, DocumentManager manager = null)
+        public EditTag(bool allowInsertInDocument, DocumentManager manager = null, CodeFile defaultCodeFile = null)
         {
             try
             {
                 Manager = manager;
+                DefaultCodeFile = defaultCodeFile;
 
                 InitializeComponent();
                 UIUtility.ScaleFont(this);
@@ -206,13 +208,18 @@ namespace StatTag
             {
                 OriginalTag = null;
 
-                // If there is only one file available, select it by default
                 if (Manager != null)
                 {
+                    // If there is only one file available, select it by default.  Otherwise, if there is
+                    // a default code file defined, select that.
                     var files = Manager.GetCodeFileList();
                     if (files != null && files.Count == 1)
                     {
                         cboCodeFiles.SelectedIndex = 0;
+                    }
+                    else if (DefaultCodeFile != null)
+                    {
+                        cboCodeFiles.SelectedItem = DefaultCodeFile;
                     }
                 }
 

@@ -613,14 +613,16 @@ namespace StatTag
                 this.TopMost = false;
                 this.Visible = false;
 
+                CodeFile lastSelectedCodeFile = null;
                 bool defineAnother = false;
                 do
                 {
-                    EditTagForm = new EditTag(true, Manager);
+                    EditTagForm = new EditTag(true, Manager, lastSelectedCodeFile);
                     if (DialogResult.OK == EditTagForm.ShowDialog())
                     {
                         Manager.SaveEditedTag(EditTagForm);
                         defineAnother = EditTagForm.DefineAnother;
+                        lastSelectedCodeFile = EditTagForm.Tag.CodeFile;
                     }
                     else
                     {
@@ -734,6 +736,14 @@ namespace StatTag
             int length = files.Length;
             for (int index = 0; index < length; index++)
             {
+                // If the user cancels while running code files, exit right away so we don't do any of
+                // the later tag processing/updates.
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
                 var codeFile = files[index]; 
                 int progressBefore = (int)((((index * 1.0 + 1) / length) / 2.0) * 100);
                 worker.ReportProgress(progressBefore, string.Format("Running '{0}' (code file {1} of {2})", Path.GetFileName(codeFile.FilePath), (index + 1), length));
@@ -791,7 +801,7 @@ namespace StatTag
             if (cancelled)
             {
                 Manager.Logger.WriteMessage("The code execution was cancelled by the user");
-                UIUtility.WarningMessageBox("We have cancelled running your code file(s) and updating the StatTag fields within your document.  The values within the document may be in an inconsistent state.  You should update all tags at some point to ensure the document is accurate.", Manager.Logger);
+                UIUtility.WarningMessageBox("You have cancelled updates.\r\n\r\nThe values in your document may not be accurate until you update all tags.", Manager.Logger);
             }
 
             this.TopMost = true;
