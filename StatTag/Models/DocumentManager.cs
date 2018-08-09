@@ -539,7 +539,7 @@ namespace StatTag.Models
                         document.Application.Selection.Start = firstFieldLocation;
                         document.Application.Selection.End = firstFieldLocation;
                         Log("Set position, attempting to insert table");
-                        InsertField(tag);
+                        InsertField(tag, false);
                         tableRefreshed = true;
                     }
                 }
@@ -730,7 +730,7 @@ namespace StatTag.Models
 
                 Log(string.Format("Inserting field for tag: {0}", tag.Name));
                 field.Select();
-                InsertField(tag);
+                InsertField(tag, false);
 
                 Marshal.ReleaseComObject(field);
             }
@@ -1151,16 +1151,10 @@ namespace StatTag.Models
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
         /// <param name="tag"></param>
-        public void InsertField(Tag tag)
+        public void InsertField(Tag tag, bool isPlaceholder)
         {
             Log("InsertField for Tag");
-            InsertField(new FieldTag(tag));
-        }
-
-        public void InsertFieldPlaceholder(Tag tag)
-        {
-            Log("InsertFieldPlaceholder for Tag");
-            InsertFieldPlaceholder(new FieldTag(tag));
+            InsertField(new FieldTag(tag), isPlaceholder);
         }
 
         /// <summary>
@@ -1169,9 +1163,10 @@ namespace StatTag.Models
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
         /// <param name="tag"></param>
-        public void InsertField(FieldTag tag)
+        /// <param name="isPlaceholder">If the field to be inserted should be a placeholder, or a value</param>
+        public void InsertField(FieldTag tag, bool isPlaceholder)
         {
-            Log("InsertField - Started");
+            Log(string.Format("InsertField - Started (isPlaceholder = {0})", isPlaceholder));
 
             if (tag == null)
             {
@@ -1179,7 +1174,7 @@ namespace StatTag.Models
                 return;
             }
 
-            if (tag.Type == Constants.TagType.Figure)
+            if (!isPlaceholder && tag.Type == Constants.TagType.Figure)
             {
                 Log("Detected a Figure tag");
                 InsertImage(tag);
@@ -1197,7 +1192,7 @@ namespace StatTag.Models
                     return;
                 }
 
-                if (tag.Type == Constants.TagType.Verbatim)
+                if (!isPlaceholder && tag.Type == Constants.TagType.Verbatim)
                 {
                     Log("Inserting verbatim output");
                     selection.Delete();
@@ -1205,7 +1200,7 @@ namespace StatTag.Models
                 }
                 // If the tag is a table, and the cell index is not set, it means we are inserting the entire
                 // table into the document.  Otherwise, we are able to just insert a single table cell.
-                else if (tag.IsTableTag() && !tag.TableCellIndex.HasValue)
+                else if (!isPlaceholder && tag.IsTableTag() && !tag.TableCellIndex.HasValue)
                 {
                     Log("Inserting a new table tag");
                     InsertTable(selection, tag);
@@ -1214,7 +1209,10 @@ namespace StatTag.Models
                 {
                     Log("Inserting a single tag field");
                     var range = selection.Range;
-                    CreateTagField(range, tag.Name, tag.FormattedResult(LoadMetadataFromDocument(document, true)), tag);
+                    var displayName = (isPlaceholder
+                        ? string.Format("[ {0} ]", tag.Name)
+                        : tag.FormattedResult(LoadMetadataFromDocument(document, true)));
+                    CreateTagField(range, tag.Name, displayName, tag);
                     Marshal.ReleaseComObject(range);
                 }
 
@@ -1226,40 +1224,6 @@ namespace StatTag.Models
             }
 
             Log("InsertField - Finished");
-        }
-
-        public void InsertFieldPlaceholder(FieldTag tag)
-        {
-            Log("InsertFieldPlaceholder - Started");
-
-            if (tag == null)
-            {
-                Log("The tag is null");
-                return;
-            }
-
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
-            try
-            {
-                var selection = application.Selection;
-                if (selection == null)
-                {
-                    Log("There is no active selection");
-                    return;
-                }
-
-                Log("Inserting a single tag field placeholder");
-                var range = selection.Range;
-                CreateTagField(range, tag.Name, string.Format("[ {0} ]", tag.Name), tag, true);
-                Marshal.ReleaseComObject(range);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(document);
-            }
-
-            Log("InsertFieldPlaceholder - Finished");
         }
 
         /// <summary>
@@ -1485,34 +1449,34 @@ namespace StatTag.Models
             }
         }
 
+        //public void CheckForInsertSavedTag(EditTag dialog)
+        //{
+        //    // If the user clicked the "Save and Insert", we will perform the insertion now.
+        //    if (dialog.DefineAnother)
+        //    {
+        //        Log("Inserting into document after defining tag");
+
+        //        var tag = FindTag(dialog.Tag.Id);
+        //        if (tag == null)
+        //        {
+        //            Log(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
+        //            return;
+        //        }
+
+        //        InsertTagsInDocument(new List<Tag>(new[] { tag }));
+        //    }
+        //}
         /// <summary>
         /// This is a specialized utility function to be called whenever the user clicks "Save and Insert"
         /// from the Edit Tag dialog.
         /// </summary>
         /// <param name="dialog"></param>
-        public void CheckForInsertSavedTag(EditTag dialog)
-        {
-            // If the user clicked the "Save and Insert", we will perform the insertion now.
-            if (dialog.DefineAnother)
-            {
-                Log("Inserting into document after defining tag");
-
-                var tag = FindTag(dialog.Tag.Id);
-                if (tag == null)
-                {
-                    Log(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
-                    return;
-                }
-
-                InsertTagsInDocument(new List<Tag>(new[] { tag }));
-            }
-        }
-
         /// <summary>
         /// Performs the insertion of tags into a document as fields.
         /// </summary>
         /// <param name="tags"></param>
-        public void InsertTagsInDocument(List<Tag> tags)
+        /// <param name="reporter"></param>
+        public void InsertTagsInDocument(List<Tag> tags, bool isPlaceholder, IProgressReporter reporter)
         {
             Cursor.Current = Cursors.WaitCursor;
             Globals.ThisAddIn.Application.ScreenUpdating = false;
@@ -1520,51 +1484,61 @@ namespace StatTag.Models
             {
                 // Get all of our unique code files that need to be run.  We are going to execute these in the first
                 // phase.
-                var codeFiles = tags.Select(x => x.CodeFile).Distinct().ToArray();
-                for (int index = 0; index < codeFiles.Length; index++)
+                var updatedTags = new List<Tag>();
+                if (!isPlaceholder)
                 {
-                    var codeFile = codeFiles[index];
-                    if (ExecutionUpdated != null)
+                    var codeFiles = tags.Select(x => x.CodeFile).Distinct().ToArray();
+                    for (int index = 0; index < codeFiles.Length; index++)
                     {
-                        ExecutionUpdated(this, new ProgressEventArgs()
+                        var codeFile = codeFiles[index];
+                        if (ExecutionUpdated != null)
                         {
-                            Index = (index + 1),
-                            TotalItems = codeFiles.Length,
-                            Description = string.Format("Running code file {0} of {1}", (index + 1), codeFiles.Length)
-                        });
-                    }
-                    var result = StatsManager.ExecuteStatPackage(codeFile,
+                            ExecutionUpdated(this, new ProgressEventArgs()
+                            {
+                                Index = (index + 1),
+                                TotalItems = codeFiles.Length,
+                                Description =
+                                    string.Format("Running code file {0} of {1}", (index + 1), codeFiles.Length)
+                            });
+                        }
+                        var result = StatsManager.ExecuteStatPackage(codeFile,
                             Constants.ParserFilterMode.TagList, tags);
-                    if (!result.Success)
-                    {
-                        break;
+                        if (!result.Success)
+                        {
+                            break;
+                        }
+
+                        updatedTags.AddRange(result.UpdatedTags);
                     }
                 }
 
-
-                var updatedTags = new List<Tag>();
-                for (int index = 0; index < tags.Count; index++)
+                int tagCount = tags.Count;
+                for (int index = 0; index < tagCount; index++)
                 {
                     var tag = tags[index];
-                    if (ExecutionUpdated != null)
+                    if (reporter != null)
                     {
-                        ExecutionUpdated(this, new ProgressEventArgs()
+                        if (reporter.IsCancelling())
                         {
-                            Index = (index + 1),
-                            TotalItems = tags.Count,
-                            Description = string.Format("Inserting tag {0} of {1}", (index + 1), tags.Count)
-                        });
+                            return;
+                        }
+
+                        reporter.ReportProgress((int)(((index + 1 * 1.0) / tagCount) * 100),
+                            string.Format("Inserting tag {0} of {1}", (index + 1), tagCount));
                     }
-                    InsertField(tag);
+                    InsertField(tag, true);
                 }
 
                 // Now that all of the fields have been inserted, sweep through and update any existing
                 // tags that changed.  We do this after the fields are inserted to better manage
                 // the cursor position in the document.
-                updatedTags = updatedTags.Distinct().ToList();
-                foreach (var updatedTag in updatedTags)
+                if (!isPlaceholder)
                 {
-                    UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
+                    updatedTags = updatedTags.Distinct().ToList();
+                    foreach (var updatedTag in updatedTags)
+                    {
+                        UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
+                    }
                 }
             }
             catch (StatTagUserException uex)
@@ -1583,52 +1557,6 @@ namespace StatTag.Models
                 Cursor.Current = Cursors.Default;
             }
         }
-
-        /// <summary>
-        /// Inserts placeholders for tag results in the document as fields
-        /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="reporter"></param>
-        public void InsertTagPlaceholdersInDocument(List<Tag> tags, IProgressReporter reporter)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            Globals.ThisAddIn.Application.ScreenUpdating = false;
-            try
-            {
-                int tagCount = tags.Count;
-                for (int index = 0; index < tagCount; index++)
-                {
-                    var tag = tags[index];
-                    if (reporter != null)
-                    {
-                        if (reporter.IsCancelling())
-                        {
-                            return;
-                        }
-
-                        reporter.ReportProgress((int)(((index + 1 * 1.0)/tagCount)*100),
-                            string.Format("Inserting tag placeholder {0} of {1}", (index + 1), tagCount));
-                    }
-                    InsertFieldPlaceholder(tag);
-                }
-            }
-            catch (StatTagUserException uex)
-            {
-                UIUtility.ReportException(uex, uex.Message, Logger);
-            }
-            catch (Exception exc)
-            {
-                UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to insert the tag placeholder into the Word document.",
-                    Logger);
-            }
-            finally
-            {
-                Globals.ThisAddIn.Application.ScreenUpdating = true;
-                Cursor.Current = Cursors.Default;
-            }
-        }
-
 
         /// <summary>
         /// Conduct an assessment of the active document to see if there are any inserted

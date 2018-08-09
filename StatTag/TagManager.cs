@@ -821,7 +821,7 @@ namespace StatTag
             var progressReporter = new BackgroundWorkerProgressReporter(worker);
             var tags = (List<Tag>)e.Argument;
             Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-            Manager.InsertTagPlaceholdersInDocument(tags, progressReporter);
+            Manager.InsertTagsInDocument(tags, true, progressReporter);
             e.Cancel = worker.CancellationPending;
         }
     }
