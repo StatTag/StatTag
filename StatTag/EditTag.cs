@@ -283,10 +283,80 @@ namespace StatTag
             };
         }
 
+        /// <summary>
+        /// Given the tag that is the center of attention within this form (regardless if it's created new or edited),
+        /// determine if the line(s) selected in the code file collide with another tag.  Since StatTag can't handle
+        /// that situation, this helps prevent it from the front-end.
+        /// </summary>
+        /// <returns></returns>
+        private bool DetectStoppableCollision()
+        {
+            if (Tag == null)
+            {
+                Manager.Logger.WriteMessage("Tag is null - no collision detection performed");
+                return false;
+            }
+
+            var collisionResult = TagUtil.DetectTagCollision(Tag);
+            if (collisionResult == null)
+            {
+                Manager.Logger.WriteMessage("Unable to fully assess tag collision - assuming there are no issues");
+                return false;
+            }
+
+            if (collisionResult.Collision == TagUtil.TagCollisionResult.CollisionType.NoOverlap)
+            {
+                Manager.Logger.WriteMessage("There is no overlap detected with this tag and others");
+                return false;
+            }
+
+            if (collisionResult.CollidingTag == null)
+            {
+                Manager.Logger.WriteMessage(
+                    string.Format(
+                        "A collision of type {0} was detected, but no colliding tag was returned.  Unable to properly inform the user of this scenario.",
+                        collisionResult.Collision));
+                return false;
+            }
+
+            // So now we know there's some type of collision.  If we are editing a tag, and the tag collides
+            // with itself, that's fine.  We will properly remove the old tag boundaries and apply the new ones.
+            if (OriginalTag != null && collisionResult.CollidingTag.Equals(OriginalTag))
+            {
+                Manager.Logger.WriteMessage(
+                    string.Format("Tag collision of type {0}, but tag collides with itself",
+                        collisionResult.Collision));
+                return false;
+            }
+
+            var collidingTag = collisionResult.CollidingTag;
+            Manager.Logger.WriteMessage(
+                string.Format(
+                    "Detected collision: tag {0} ({1}, {2}) {3} existing tag {4} ({5}, {6})",
+                    Tag.Name, Tag.LineStart, Tag.LineEnd,
+                    collisionResult.Collision, collidingTag.Name, collidingTag.LineStart, collidingTag.LineEnd));
+            UIUtility.WarningMessageBox(
+                            string.Format(
+                                "The code that you have selected for your new tag overlaps with an existing tag ('{0}').\r\n\r\nYou may change the code file lines used for this tag definition ('{1}'), or edit/remove the existing tag ('{0}').",
+                                collisionResult.CollidingTag.Name, Tag.Name),
+                            Manager.Logger);
+            return true;
+        }
+
         private void EditTag_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.DialogResult == DialogResult.OK)
             {
+                // First, perform the collision test.  This should always be done when a
+                // result is saved (creating new or editing).
+                if (DetectStoppableCollision())
+                {
+                    this.DialogResult = DialogResult.None;
+                    e.Cancel = true;
+                    return;
+                }
+
+                // Next, determine if we should check for a duplicate label.
                 if (!TagUtil.ShouldCheckForDuplicateLabel(OriginalTag, Tag))
                 {
                     return;
@@ -299,7 +369,9 @@ namespace StatTag
                     if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))
                     {
                         UIUtility.WarningMessageBox(
-                            string.Format("The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.", Tag.Name), 
+                            string.Format(
+                                "The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.",
+                                Tag.Name),
                             Manager.Logger);
                         this.DialogResult = DialogResult.None;
                         e.Cancel = true;
