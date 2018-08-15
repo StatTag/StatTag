@@ -80,20 +80,6 @@ namespace StatTag.Models
             return null;
         }
 
-        public static ICodeFileParser GetCodeFileParser(CodeFile file)
-        {
-            if (file != null)
-            {
-                switch (file.StatisticalPackage)
-                {
-                    case Constants.StatisticalPackages.Stata:
-                        return new StataParser();
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Run the statistical package for a given code file.
         /// </summary>

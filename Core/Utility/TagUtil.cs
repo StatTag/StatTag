@@ -165,7 +165,7 @@ namespace StatTag.Core.Utility
         /// <returns></returns>
         private static bool TagsOverlapExact(Tag tag1, Tag tag2)
         {
-            return (tag1.LineStart == tag2.LineStart && tag1.LineEnd == tag2.LineEnd);
+            return (tag1.LineStart == tag2.LineStart && tag1.LineEnd == tag2.LineEnd && !tag1.Id.Equals(tag2.Id));
         }
 
         /// <summary>
@@ -204,6 +204,41 @@ namespace StatTag.Core.Utility
             return (tag1.LineEnd > tag2.LineEnd && tag1.LineStart <= tag2.LineEnd && tag1.LineStart >= tag2.LineStart);
         }
 
+        public static TagCollisionResult DetectTagCollision(Tag tag1, Tag tag2)
+        {
+            if (tag1 == null || tag2 == null)
+            {
+                return null;
+            }
+
+            if (TagsOutsideEachOther(tag1, tag2))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.NoOverlap };
+            }
+            if (TagsOverlapExact(tag1, tag2))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsExact, CollidingTag = tag2 };
+            }
+            if (TagEmbeddedWithin(tag1, tag2))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.EmbeddedWithin, CollidingTag = tag2 };
+            }
+            if (TagOverlapsFront(tag1, tag2))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsFront, CollidingTag = tag2 };
+            }
+            if (TagOverlapsBack(tag1, tag2))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsBack, CollidingTag = tag2 };
+            }
+            if (TagEmbeddedWithin(tag2, tag1))
+            {
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.Embeds, CollidingTag = tag2 };
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Given a tag, look within the same code file to determine if the tag is embedded within (or overlaps with) another tag.
         /// If so, provide the tag that we overlap with.  Note that we will only provide the first tag if there are multiple nested
@@ -211,21 +246,12 @@ namespace StatTag.Core.Utility
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        public static TagCollisionResult DetectTagCollision(Tag tag)
+        public static TagCollisionResult DetectTagCollision(IEnumerable<Tag> allTags, Tag tag)
         {
             // If the tag is null, if the tag has no code file reference, if the code file has no
             // tags collection, or if the tag has no start or end set we will return null since there 
             // is no way another for us to actually check for tag collisions.
-            if (tag == null || tag.CodeFile == null || tag.CodeFile.Tags == null
-                || !tag.LineStart.HasValue || !tag.LineEnd.HasValue)
-            {
-                return null;
-            }
-
-            // We know that we have a tag file that's linked up.  So now, check to see if there are
-            // any other code files.  If not, we have no overlap.
-            var allTags = tag.CodeFile.Tags;
-            if (allTags.Count == 0)
+            if (tag == null || allTags == null || !allTags.Any())
             {
                 return null;
             }
@@ -238,7 +264,7 @@ namespace StatTag.Core.Utility
             //                 [ - Tag 2 - ]
             if (allTags.All(x => TagsOutsideEachOther(x, tag)))
             {
-                return new TagCollisionResult() {Collision = TagCollisionResult.CollisionType.NoOverlap};
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.NoOverlap };
             }
 
             // 1. Overlaps exact
@@ -247,7 +273,7 @@ namespace StatTag.Core.Utility
             var firstOverlapExact = allTags.FirstOrDefault(x => TagsOverlapExact(x, tag));
             if (firstOverlapExact != null)
             {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsExact, CollidingTag = firstOverlapExact};
+                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsExact, CollidingTag = firstOverlapExact };
             }
 
             // 2. Embedded within
@@ -291,6 +317,35 @@ namespace StatTag.Core.Utility
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Given a tag, look within the same code file to determine if the tag is embedded within (or overlaps with) another tag.
+        /// If so, provide the tag that we overlap with.  Note that we will only provide the first tag if there are multiple nested
+        /// tags.  Calling this multiple times would resolve that scenario.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static TagCollisionResult DetectTagCollision(Tag tag)
+        {
+            // If the tag is null, if the tag has no code file reference, if the code file has no
+            // tags collection, or if the tag has no start or end set we will return null since there 
+            // is no way another for us to actually check for tag collisions.
+            if (tag == null || tag.CodeFile == null || tag.CodeFile.Tags == null
+                || !tag.LineStart.HasValue || !tag.LineEnd.HasValue)
+            {
+                return null;
+            }
+
+            // We know that we have a tag file that's linked up.  So now, check to see if there are
+            // any other code files.  If not, we have no overlap.
+            var allTags = tag.CodeFile.Tags;
+            if (allTags.Count == 0)
+            {
+                return null;
+            }
+
+            return DetectTagCollision(allTags, tag);
         }
     }
 }

@@ -1399,19 +1399,37 @@ namespace StatTag.Models
         /// <param name="tags"></param>
         public void RemoveTags(List<Tag> tags)
         {
+            HandleRemoveTags(tags, TagManager.RemoveTags);
+        }
+
+        /// <summary>
+        /// Helper function to remove tags that collide with other tags.
+        /// This is different from "RemoveTags", which will simply remove
+        /// valid tags.
+        /// </summary>
+        /// <param name="tags"></param>
+        public void RemoveCollidingTags(List<Tag> tags)
+        {
+            HandleRemoveTags(tags, TagManager.RemoveCollidingTags);
+        }
+
+        private void HandleRemoveTags(List<Tag> tags, Action<List<Tag>> removeMethod)
+        {
             if (tags == null || tags.Count == 0)
             {
                 return;
             }
 
-            TagManager.RemoveTags(tags);
+            removeMethod(tags);
 
             // The TagManager will remove the references between the tags and the code files.
-            // We also need to save this change to the code files themselves.
+            // We also need to save this change to the code files themselves, and then refresh
+            // the known tags within the code file.
             var codeFiles = tags.Select(x => x.CodeFile).Distinct();
             foreach (var codeFile in codeFiles)
             {
                 codeFile.Save();
+                codeFile.LoadTagsFromContent(true);
             }
 
             // Alert our listeners that at least one tag has changed
@@ -1442,6 +1460,10 @@ namespace StatTag.Models
                 // be a new tag, or an updated one.
                 codeFile.AddTag(dialog.Tag, existingTag);
                 codeFile.Save();
+
+                // Make sure to reload the tags.  While this does give some overhead, it also provides
+                // assurances that tag indexes will be correct after the new tag is added.
+                codeFile.LoadTagsFromContent(true);
 
                 // Alert our listeners that at least one tag has changed
                 if (TagListChanged != null)
@@ -1655,18 +1677,22 @@ namespace StatTag.Models
         {
             var unlinkedResults = TagManager.FindAllUnlinkedTags();
             var duplicateResults = TagManager.FindAllDuplicateTags();
+            var overlappingResults = TagManager.FindAllOverlappingTags();
             if (onlyShowDialogIfResultsFound 
                 && (unlinkedResults == null || unlinkedResults.Count == 0)
-                && (duplicateResults == null || duplicateResults.Count == 0))
+                && (duplicateResults == null || duplicateResults.Count == 0)
+                && (overlappingResults == null || overlappingResults.Count == 0))
             {
                 return;
             }
 
-            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, GetCodeFileList(document), defaultTab);
+            checkDocumentDialog = new CheckDocument(unlinkedResults, duplicateResults, overlappingResults,
+                GetCodeFileList(document), defaultTab);
             if (DialogResult.OK == checkDocumentDialog.ShowDialog())
             {
                 UpdateUnlinkedTagsByTag(checkDocumentDialog.UnlinkedTagUpdates, checkDocumentDialog.UnlinkedAffectedCodeFiles);
                 UpdateRenamedTags(checkDocumentDialog.DuplicateTagUpdates);
+                RemoveCollidingTags(checkDocumentDialog.CollidingTagUpdates);
             }
         }
 
@@ -1867,6 +1893,16 @@ namespace StatTag.Models
             foreach (var codeFile in affectedCodeFiles)
             {
                 codeFile.Save();
+            }
+        }
+
+        private void RemoveCollidingTags(List<UpdatePair<Tag>> updates)
+        {
+            Logger.WriteMessage(string.Format("Resolving {0} pairs of colliding tags", updates.Count));
+            if (updates.Count > 0)
+            {
+                var tagsToRemove = updates.Select(x => x.Old).ToList();
+                RemoveCollidingTags(tagsToRemove);
             }
         }
 

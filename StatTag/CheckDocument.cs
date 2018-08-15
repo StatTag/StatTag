@@ -18,7 +18,8 @@ namespace StatTag
         {
             FirstWithData,
             UnlinkedTags,
-            DuplicateTags
+            DuplicateTags,
+            CollidingTags
         }
 
         /// <summary>
@@ -31,6 +32,12 @@ namespace StatTag
         /// code files.
         /// </summary>
         public List<UpdatePair<Tag>> DuplicateTagUpdates { get; set; }
+
+        /// <summary>
+        /// The collection of updates that should be applied to tags that were colliding
+        /// (overlapping), so that only one remains.
+        /// </summary>
+        public List<UpdatePair<Tag>> CollidingTagUpdates { get; set; }
 
         /// <summary>
         /// Used as input, this is the list of tags that are not fully linked to the
@@ -48,7 +55,13 @@ namespace StatTag
         /// If there are unlinked tags, this will be a list of the unique code files that
         /// were found to have unlinked tags.
         /// </summary>
-        public List<string> UnlinkedAffectedCodeFiles { get; set; } 
+        public List<string> UnlinkedAffectedCodeFiles { get; set; }
+
+        /// <summary>
+        /// Used as input, this is the list of code files that contain tags which
+        /// overlap with other tag boundaries
+        /// </summary>
+        public OverlappingTagResults OverlappingTags { get; set; }
 
         private readonly List<CodeFile> Files;
         private DefaultTab InitDefaultTab { get; set; }
@@ -62,6 +75,9 @@ namespace StatTag
         private const int ColDuplicateTag = 2;
         private const int ColDuplicateLineNumbers = 3;
 
+        private const int ColCollisionKeepOuter = 0;
+        private const int ColCollisionKeepInner = 3;
+
         private bool IsSelectingFile = false;
 
         private class DuplicateTagPair
@@ -70,13 +86,14 @@ namespace StatTag
             public Tag Second { get; set; }
         }
 
-        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files, DefaultTab defaultTab)
+        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, OverlappingTagResults overlappingTags, List<CodeFile> files, DefaultTab defaultTab)
         {
             InitializeComponent();
             UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UnlinkedTags = unlinkedTags;
             DuplicateTags = duplicateTags;
+            OverlappingTags = overlappingTags;
             Files = files;
             UnlinkedTagUpdates = new Dictionary<string, CodeFileAction>();
             DuplicateTagUpdates = new List<UpdatePair<Tag>>();
@@ -145,6 +162,35 @@ namespace StatTag
                 tabDuplicate.Text += string.Format(" ({0})", dgvDuplicateTags.RowCount);
             }
 
+            if (OverlappingTags != null)
+            {
+                foreach (var item in OverlappingTags)
+                {
+                    foreach (var result in item.Value)
+                    {
+                        int row = dgvOverlappingTags.Rows.Add(new object[]
+                        {
+                            false, result.Key.Name, result.Key.FormatLineNumberRange(),
+                            false, result.Value.Name, result.Value.FormatLineNumberRange()
+                        });
+                        dgvOverlappingTags.Rows[row].Tag = new DuplicateTagPair()
+                        {
+                            First = result.Key,
+                            Second = result.Value
+                        };
+                    }
+                }
+
+                if (dgvOverlappingTags.RowCount > 0)
+                {
+                    if (!defaultTab.HasValue)
+                    {
+                        defaultTab = 2;
+                    }
+                    tabCollision.Text += string.Format(" ({0})", dgvOverlappingTags.RowCount);
+                }
+            }
+
             // If a default tab hasn't been assigned (based on the first to have data), then we need
             // to check if we were initialized to show a specific tab.
             if ((InitDefaultTab != DefaultTab.FirstWithData))
@@ -156,6 +202,9 @@ namespace StatTag
                         break;
                     case DefaultTab.DuplicateTags:
                         defaultTab = 1;
+                        break;
+                    case DefaultTab.CollidingTags:
+                        defaultTab = 2;
                         break;
                 }
             }
@@ -173,6 +222,7 @@ namespace StatTag
             // Make sure we pick up any changes that the data grid view hasn't seen yet
             dgvUnlinkedTags.EndEdit();
             dgvDuplicateTags.EndEdit();
+            dgvOverlappingTags.EndEdit();
             UnlinkedAffectedCodeFiles = new List<string>();
 
             // Iterate the list of unlinked tags and determine the actions that we
@@ -210,7 +260,39 @@ namespace StatTag
                 }
             }
 
+            CollidingTagUpdates = new List<UpdatePair<Tag>>();
+            // Iterate the list of colliding tags and build the list of which tags are going
+            // to be kept, which will be removed, and which the user didn't make a decision on.
+            foreach (var row in dgvOverlappingTags.Rows.OfType<DataGridViewRow>())
+            {
+                var result = CollidingTagResults(row);
+                if (result != null)
+                {
+                    CollidingTagUpdates.Add(result);
+                }
+            }
+
             DuplicateTagUpdates = DuplicateTagUpdates.Where(x => x != null).ToList();
+        }
+
+        private UpdatePair<Tag> CollidingTagResults(DataGridViewRow row)
+        {
+            var tagPair = row.Tag as DuplicateTagPair;
+            if (tagPair == null)
+            {
+                return null;
+            }
+
+            if ((bool) row.Cells[ColCollisionKeepOuter].Value)
+            {
+                return new UpdatePair<Tag>() {Old = tagPair.Second, New = tagPair.First};
+            }
+            else if ((bool) row.Cells[ColCollisionKeepInner].Value)
+            {
+                return new UpdatePair<Tag>() {Old = tagPair.First, New = tagPair.Second};
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -284,6 +366,40 @@ namespace StatTag
 
             }
             IsSelectingFile = false;
+        }
+
+        private void dgvOverlappingTags_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // For now, we only care if the user clicked one of the "Keep" checkboxes
+            if (e.ColumnIndex != ColCollisionKeepOuter && e.ColumnIndex != ColCollisionKeepInner)
+            {
+                return;
+            }
+
+            // Save the changes (otherwise we don't pick them up in the rest of the logic)
+            dgvOverlappingTags.EndEdit();
+
+            // If both "Keep" buttons are checked, just preserve the one that was clicked most recently.
+            if (e.ColumnIndex == ColCollisionKeepOuter)
+            {
+                var keepOuter = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value;
+                var keepInner = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value;
+                if (keepOuter && keepInner)
+                {
+                    dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value = false;
+                    dgvOverlappingTags.EndEdit();
+                }
+            }
+            else if (e.ColumnIndex == ColCollisionKeepInner)
+            {
+                var keepOuter = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value;
+                var keepInner = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value;
+                if (keepOuter && keepInner)
+                {
+                    dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value = false;
+                    dgvOverlappingTags.EndEdit();
+                }
+            }
         }
     }
 }

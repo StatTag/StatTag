@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using StatTag.Core;
 using StatTag.Core.Models;
 using Microsoft.Office.Interop.Word;
 using StatTag.Core.Utility;
@@ -281,6 +282,64 @@ namespace StatTag.Models
                 CodeFile = codeFile
             };
             return tag;
+        }
+
+        public OverlappingTagResults FindAllOverlappingTags()
+        {
+            Log("FindAllOverlappingTags - Started");
+            var results = new OverlappingTagResults();
+
+            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
+            var document = application.ActiveDocument;
+
+            // When checking unlinked tags, we will look to see what tags are present in
+            // linked code files.  Because a code file may be linked but no longer exist, we
+            // need to filter down our list of files to only include those that are found at
+            // the specified path.
+            var files = DocumentManager.GetCodeFileList().Where(x => File.Exists(x.FilePath)).ToList();
+            foreach (var file in files)
+            {
+                var parser = Factories.GetParser(file);
+                if (parser == null)
+                {
+                    Log(string.Format("Unable to find a parser for {0}", file.FilePath));
+                    continue;
+                }
+
+                var tags = parser.ParseIncludingInvalidTags(file);
+
+                // If there are 0 or 1 tags, there's no way we'll have them overlap.  Just continue;
+                if (tags.Length < 2)
+                {
+                    continue;
+                }
+
+                for (int index = 0; index < (tags.Length - 1); index++)
+                {
+                    var tag1 = tags[index];
+                    var tag2 = tags[index + 1];
+                    var result = TagUtil.DetectTagCollision(tag1, tag2);
+                    if (result != null && result.Collision != TagUtil.TagCollisionResult.CollisionType.NoOverlap && result.CollidingTag != null)
+                    {
+                        if (!results.ContainsKey(file))
+                        {
+                            Log(string.Format("Starting a colliding tags collection for {0}", file.FilePath));
+                            results.Add(file, new Dictionary<Tag, Tag>());
+                        }
+
+                        if (!results[file].ContainsKey(tag1))
+                        {
+                            Log(string.Format("Collision: Tag {0} {1} Tag {2}", tag1.Name, result.Collision,
+                                result.CollidingTag.Name));
+                            results[file].Add(tag1, result.CollidingTag);
+                        }
+                    }
+                }
+            }
+
+
+            Log("FindAllUnlinkedTags - Finished");
+            return results;
         }
 
         /// <summary>
@@ -799,6 +858,20 @@ namespace StatTag.Models
             foreach (var tag in tags)
             {
                 tag.CodeFile.RemoveTag(tag);
+            }
+        }
+
+        public void RemoveCollidingTags(List<Tag> tags)
+        {
+            // By removing these in descending order, it helps us manage the
+            // offsets for the tags that we want to remove.  Otherwise, we will
+            // remove the first tag, and when we go to remove the second tag it
+            // is pointing to indices that have changed and it's not aware of.
+            var sortedTags = tags.OrderByDescending(x => x.LineStart);
+
+            foreach (var tag in sortedTags)
+            {
+                tag.CodeFile.RemoveCollidingTag(tag);
             }
         }
     }
