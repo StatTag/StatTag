@@ -6,6 +6,7 @@ namespace StatTag.Core.Interfaces
     public interface ICodeFileParser
     {
         Tag[] Parse(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);
+        Tag[] ParseIncludingInvalidTags(CodeFile file);
         List<ExecutionStep> GetExecutionSteps(CodeFile file, int filterMode = Constants.ParserFilterMode.IncludeAll, List<Tag> tagsToRun = null);
         string[] PreProcessExecutionStepCode(ExecutionStep step);
         bool IsImageExport(string command);

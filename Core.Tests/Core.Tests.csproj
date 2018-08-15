@@ -131,7 +131,7 @@
     <Compile Include="Models\CodeFileTests.cs" />
     <Compile Include="TestUtil.cs" />
     <Compile Include="Utility\GeneralUtilTests.cs" />
-    <Compile Include="Utility\AnnotationUtilTests.cs" />
+    <Compile Include="Utility\TagUtilTests.cs" />
     <Compile Include="Utility\TableUtilTests.cs" />
     <Compile Include="Utility\CodeParserUtilTests.cs" />
     <Compile Include="ValueFormatter\BaseValueFormatterTests.cs" />
