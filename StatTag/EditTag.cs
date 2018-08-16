@@ -336,10 +336,10 @@ namespace StatTag
                     Tag.Name, Tag.LineStart, Tag.LineEnd,
                     collisionResult.Collision, collidingTag.Name, collidingTag.LineStart, collidingTag.LineEnd));
             UIUtility.WarningMessageBox(
-                            string.Format(
-                                "The code that you have selected for your new tag overlaps with an existing tag ('{0}').\r\n\r\nYou may change the code file lines used for this tag definition ('{1}'), or edit/remove the existing tag ('{0}').",
-                                collisionResult.CollidingTag.Name, Tag.Name),
-                            Manager.Logger);
+                string.Format(
+                    "The code that you have selected for your new tag overlaps with an existing tag ('{0}').",
+                    collisionResult.CollidingTag.Name),
+                Manager.Logger);
             return true;
         }
 
