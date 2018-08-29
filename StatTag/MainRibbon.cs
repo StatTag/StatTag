@@ -78,6 +78,14 @@ namespace StatTag
             cmdManageTags.Enabled = enabled;
         }
 
+        public void WindowActivate(bool isActive)
+        {
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
+            {
+                ManageTagsDialog.TopMost = isActive;
+            }
+        }
+
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
             try

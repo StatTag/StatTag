@@ -220,7 +220,6 @@
             this.Name = "TagManager";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "StatTag - Tag Manager";
-            this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TagManager_FormClosed);
             this.Load += new System.EventHandler(this.TagManager_Load);
             this.ResumeLayout(false);
