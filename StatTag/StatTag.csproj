@@ -285,7 +285,7 @@
     <Compile Include="ExecutionProgressForm.Designer.cs">
       <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="IProgressReporter.cs" />
+    <Compile Include="Interfaces\IProgressReporter.cs" />
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -304,12 +304,6 @@
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="ManageTags.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ManageTags.Designer.cs">
-      <DependentUpon>ManageTags.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\BackgroundWorkerProgressReporter.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />
@@ -322,31 +316,19 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SelectOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SelectOutput.Designer.cs">
-      <DependentUpon>SelectOutput.cs</DependentUpon>
-    </Compile>
     <Compile Include="Settings.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="TagManager.cs">
+    <Compile Include="TagManagerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TagManager.Designer.cs">
-      <DependentUpon>TagManager.cs</DependentUpon>
+    <Compile Include="TagManagerForm.Designer.cs">
+      <DependentUpon>TagManagerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UIUtility.cs" />
-    <Compile Include="UpdateOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UpdateOutput.Designer.cs">
-      <DependentUpon>UpdateOutput.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Models\UIUtility.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
@@ -401,9 +383,6 @@
     <EmbeddedResource Include="MainRibbon.resx">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageTags.resx">
-      <DependentUpon>ManageTags.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -414,17 +393,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SelectOutput.resx">
-      <DependentUpon>SelectOutput.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TagManager.resx">
-      <DependentUpon>TagManager.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UpdateOutput.resx">
-      <DependentUpon>UpdateOutput.cs</DependentUpon>
+    <EmbeddedResource Include="TagManagerForm.resx">
+      <DependentUpon>TagManagerForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />

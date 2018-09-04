@@ -25,7 +25,7 @@ namespace StatTag
         private EditTag EditTagDialog = null;
         private LoadAnalysisCode LoadAnalysisCodeDialog = null;
         private LinkCodeFiles LinkCodeFilesDialog = null;
-        private TagManager ManageTagsDialog = null;
+        private TagManagerForm ManageTagsDialog = null;
         private Settings SettingsDialog = null;
 
         public DocumentManager Manager
@@ -130,7 +130,7 @@ namespace StatTag
             {
                 if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
-                    ManageTagsDialog = new TagManager(Manager);
+                    ManageTagsDialog = new TagManagerForm(Manager);
                     ManageTagsDialog.Show();
                 }
                 else
