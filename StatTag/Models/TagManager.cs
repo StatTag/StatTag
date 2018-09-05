@@ -4,13 +4,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using StatTag.Core;
 using StatTag.Core.Models;
-using Microsoft.Office.Interop.Word;
 using StatTag.Core.Utility;
+using Microsoft.Office.Interop.Word;
 
 namespace StatTag.Models
 {
@@ -321,17 +318,36 @@ namespace StatTag.Models
                     var result = TagUtil.DetectTagCollision(tag1, tag2);
                     if (result != null && result.Collision != TagUtil.TagCollisionResult.CollisionType.NoOverlap && result.CollidingTag != null)
                     {
+                        Log(string.Format("Collision: Tag {0} {1} Tag {2}", tag1.Name, result.Collision,
+                                result.CollidingTag.Name)); 
+                        
                         if (!results.ContainsKey(file))
                         {
-                            Log(string.Format("Starting a colliding tags collection for {0}", file.FilePath));
-                            results.Add(file, new Dictionary<Tag, Tag>());
+                            Log(string.Format("Starting a colliding tags collection for code file {0}", file.FilePath));
+                            results.Add(file, new List<List<Tag>>());
                         }
 
-                        if (!results[file].ContainsKey(tag1))
+                        // Our code file entry is established, now we need to figure out if these colliding tags are
+                        // in a collision group already.  If so, we'll add the tags that are missing from the group.
+                        // If not, we will create a new group.
+                        var collection = results[file];
+                        var foundTagGroup1 = collection.FirstOrDefault(x => x.Contains(tag1));
+                        var foundTagGroup2 = collection.FirstOrDefault(x => x.Contains(tag2));
+                        if (foundTagGroup1 == null && foundTagGroup2 == null)
                         {
-                            Log(string.Format("Collision: Tag {0} {1} Tag {2}", tag1.Name, result.Collision,
-                                result.CollidingTag.Name));
-                            results[file].Add(tag1, result.CollidingTag);
+                            Log("Creating a new tag collision group");
+                            var group = new List<Tag> {tag1, tag2};
+                            collection.Add(group);
+                        }
+                        else if (foundTagGroup1 == null)
+                        {
+                            Log("Adding to tag2 collision group");
+                            foundTagGroup2.Add(tag1);
+                        }
+                        else if (foundTagGroup2 == null)
+                        {
+                            Log("Adding to tag1 collision group");
+                            foundTagGroup1.Add(tag2);
                         }
                     }
                 }
@@ -868,7 +884,6 @@ namespace StatTag.Models
             // remove the first tag, and when we go to remove the second tag it
             // is pointing to indices that have changed and it's not aware of.
             var sortedTags = tags.OrderByDescending(x => x.LineStart);
-
             foreach (var tag in sortedTags)
             {
                 tag.CodeFile.RemoveCollidingTag(tag);

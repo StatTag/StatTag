@@ -267,8 +267,7 @@ namespace StatTag
                     var overlappingResults = Manager.TagManager.FindAllOverlappingTags();
                     if (overlappingResults != null)
                     {
-                        overlappingTags.AddRange(overlappingResults.Values.SelectMany(x => x.Keys.ToList()));
-                        overlappingTags.AddRange(overlappingResults.Values.SelectMany(x => x.Values.ToList()));
+                        overlappingTags.AddRange(overlappingResults.Values.SelectMany(x => x.SelectMany(y => y)));
                     }
                 }
 

@@ -334,7 +334,7 @@ namespace StatTag.Core.Models
                 return LineStart.ToString();
             }
 
-            return string.Format("{0} - {1}", LineStart, LineEnd);
+            return string.Format("{0} - {1}", LineStart+1, LineEnd+1);
         }
     }
 }

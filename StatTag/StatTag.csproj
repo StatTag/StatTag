@@ -204,6 +204,12 @@
     <Compile Include="Controls\CodeFileEntry.Designer.cs">
       <DependentUpon>CodeFileEntry.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CollidingTagsGroup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CollidingTagsGroup.Designer.cs">
+      <DependentUpon>CollidingTagsGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DateTimeValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -337,6 +343,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CodeFileEntry.resx">
       <DependentUpon>CodeFileEntry.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CollidingTagsGroup.resx">
+      <DependentUpon>CollidingTagsGroup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>

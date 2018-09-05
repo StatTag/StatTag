@@ -1824,12 +1824,13 @@ namespace StatTag.Models
             }
         }
 
-        private void RemoveCollidingTags(List<UpdatePair<Tag>> updates)
+        private void RemoveCollidingTags(Dictionary<Tag, List<Tag>> updates)
         {
-            Logger.WriteMessage(string.Format("Resolving {0} pairs of colliding tags", updates.Count));
+            Logger.WriteMessage(string.Format("Resolving {0} groups of colliding tags", updates.Count));
             if (updates.Count > 0)
             {
-                var tagsToRemove = updates.Select(x => x.Old).ToList();
+                var tagsToRemove = updates.SelectMany(x => x.Value).ToList();
+                Logger.WriteMessage(string.Format("Removing {0} tags in total", tagsToRemove.Count));
                 RemoveCollidingTags(tagsToRemove);
             }
         }
