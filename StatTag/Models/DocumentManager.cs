@@ -230,6 +230,12 @@ namespace StatTag.Models
         {
             Log("LoadMetadataFromDocument - Started");
             DocumentMetadata metadata = null;
+            if (document == null)
+            {
+                Log("Document is null - exiting method");
+                return metadata;
+            }
+
             // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
             // we just read it and log it so we know a little more about the document.
             var variables = document.Variables;

@@ -167,10 +167,14 @@ namespace StatTag.Models
         public List<CodeFile> FindUnusedCodeFiles()
         {
             Log("FindUnusedCodeFiles - Started");
-            var results = new List<CodeFile>();
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null document - exiting method");
+                return null;
+            }
+
             var usedFiles = new List<string>();
 
             // First iterate over all of the shapes
@@ -205,8 +209,6 @@ namespace StatTag.Models
                     Marshal.ReleaseComObject(fields);
                 }
             }
-
-            Marshal.ReleaseComObject(document);
 
             var unusedFiles = DocumentManager.GetCodeFileList().Where(x => !usedFiles.Contains(x.FilePath)).ToList();
             Log(string.Format("Found {0} unused files", unusedFiles.Count));
@@ -286,8 +288,12 @@ namespace StatTag.Models
             Log("FindAllOverlappingTags - Started");
             var results = new OverlappingTagResults();
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - existing method");
+                return results;
+            }
 
             // When checking unlinked tags, we will look to see what tags are present in
             // linked code files.  Because a code file may be linked but no longer exist, we
@@ -368,8 +374,12 @@ namespace StatTag.Models
             Log("FindAllUnlinkedTags - Started");
             var results = new Dictionary<string, List<Tag>>();
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return results;
+            }
 
             // When checking unlinked tags, we will look to see what tags are present in
             // linked code files.  Because a code file may be linked but no longer exist, we
@@ -450,7 +460,6 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Marshal.ReleaseComObject(shape);
-                    Marshal.ReleaseComObject(document);
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
@@ -470,9 +479,7 @@ namespace StatTag.Models
                 }
                 Marshal.ReleaseComObject(shape);
             }
-
-            Marshal.ReleaseComObject(document);
-
+            
             Log("FindAllUnlinkedTags - Finished");
             return results;
         }
@@ -487,8 +494,12 @@ namespace StatTag.Models
         {
             Log("ProcessStatTagFields - Started");
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return;
+            }
 
             // First iterate over all of the shapes
             var shapes = document.Shapes;
@@ -512,8 +523,6 @@ namespace StatTag.Models
                     Marshal.ReleaseComObject(fields);
                 }
             }
-
-            Marshal.ReleaseComObject(document);
 
             Log("ProcessStatTagFields - Finished");
         }
@@ -565,8 +574,12 @@ namespace StatTag.Models
         {
             Log("ProcessStatTagShapes - Started");
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return;
+            }
 
             var shapes = document.Shapes;
             int shapesCount = shapes.Count;
@@ -594,7 +607,6 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Marshal.ReleaseComObject(shape);
-                    Marshal.ReleaseComObject(document);
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
@@ -603,9 +615,7 @@ namespace StatTag.Models
 
                 Marshal.ReleaseComObject(shape);
             }
-
-            Marshal.ReleaseComObject(document);
-
+            
             Log("ProcessStatTagShapes - Finished");
         }
 

@@ -76,6 +76,8 @@ namespace StatTag
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);
             cmdManageTags.Enabled = enabled;
+            cmdDocumentProperties.Enabled = (ActiveDocument != null);
+            cmdLoadCode.Enabled = (ActiveDocument != null);
         }
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)

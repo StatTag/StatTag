@@ -331,7 +331,7 @@ namespace StatTag.Core.Models
 
             if (LineStart == LineEnd)
             {
-                return LineStart.ToString();
+                return (LineStart + 1).ToString();
             }
 
             return string.Format("{0} - {1}", LineStart+1, LineEnd+1);

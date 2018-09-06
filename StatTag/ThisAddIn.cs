@@ -442,6 +442,7 @@ namespace StatTag
         public void Application_DocumentChange()
         {
             DocumentManager.ActiveDocument = SafeGetActiveDocument();
+            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
         }
 
         #region VSTO generated code
