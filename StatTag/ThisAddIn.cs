@@ -323,7 +323,6 @@ namespace StatTag
             try
             {
                 Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
-                Globals.Ribbons.MainRibbon.WindowActivate(true);
 
                 if (!ModifiedCodeFiles.IsEmpty)
                 {
@@ -391,11 +390,11 @@ namespace StatTag
             }
         }
 
-        private void Application_WindowDeactivate(Word.Document Doc, Word.Window Wn)
+        private void Application_WindowDeactivate(Word.Document document, Word.Window window)
         {
             try
             {
-                Globals.Ribbons.MainRibbon.WindowActivate(false);
+                Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false);
             }
             catch (Exception exc)
             {
@@ -457,7 +456,6 @@ namespace StatTag
         {
             DocumentManager.ActiveDocument = SafeGetActiveDocument();
             Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
-            Globals.Ribbons.MainRibbon.WindowActivate(true);
         }
 
         #region VSTO generated code
