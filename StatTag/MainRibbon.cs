@@ -25,7 +25,7 @@ namespace StatTag
         private EditTag EditTagDialog = null;
         private LoadAnalysisCode LoadAnalysisCodeDialog = null;
         private LinkCodeFiles LinkCodeFilesDialog = null;
-        private TagManager ManageTagsDialog = null;
+        private TagManagerForm ManageTagsDialog = null;
         private Settings SettingsDialog = null;
 
         public DocumentManager Manager
@@ -76,6 +76,8 @@ namespace StatTag
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);
             cmdManageTags.Enabled = enabled;
+            cmdDocumentProperties.Enabled = (ActiveDocument != null);
+            cmdLoadCode.Enabled = (ActiveDocument != null);
         }
 
         public void WindowActivate(bool isActive)
@@ -138,7 +140,7 @@ namespace StatTag
             {
                 if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
-                    ManageTagsDialog = new TagManager(Manager);
+                    ManageTagsDialog = new TagManagerForm(Manager);
                     ManageTagsDialog.Show();
                 }
                 else

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StatTag.Core.Models
 {
-    public class OverlappingTagResults : Dictionary<CodeFile, Dictionary<Tag, Tag>>
+    public class OverlappingTagResults : Dictionary<CodeFile, List<List<Tag>>>
     {
     }
 }

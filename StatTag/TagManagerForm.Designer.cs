@@ -1,6 +1,6 @@
 ﻿namespace StatTag
 {
-    partial class TagManager
+    partial class TagManagerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManager));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManagerForm));
             this.cmdInsert = new System.Windows.Forms.Button();
             this.cmdUpdate = new System.Windows.Forms.Button();
             this.lvwTags = new System.Windows.Forms.ListView();

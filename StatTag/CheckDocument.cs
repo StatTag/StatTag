@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using StatTag.Controls;
 using StatTag.Core.Models;
 using StatTag.Models;
 
@@ -37,7 +38,7 @@ namespace StatTag
         /// The collection of updates that should be applied to tags that were colliding
         /// (overlapping), so that only one remains.
         /// </summary>
-        public List<UpdatePair<Tag>> CollidingTagUpdates { get; set; }
+        public Dictionary<Tag, List<Tag>> CollidingTagUpdates { get; set; }
 
         /// <summary>
         /// Used as input, this is the list of tags that are not fully linked to the
@@ -166,28 +167,28 @@ namespace StatTag
             {
                 foreach (var item in OverlappingTags)
                 {
-                    foreach (var result in item.Value)
+                    foreach (var tagList in item.Value)
                     {
-                        int row = dgvOverlappingTags.Rows.Add(new object[]
+                        var entry = new CollidingTagsGroup()
                         {
-                            false, result.Key.Name, result.Key.FormatLineNumberRange(),
-                            false, result.Value.Name, result.Value.FormatLineNumberRange()
-                        });
-                        dgvOverlappingTags.Rows[row].Tag = new DuplicateTagPair()
-                        {
-                            First = result.Key,
-                            Second = result.Value
+                            Width =
+                                pnlOverlappingTags.Width - pnlOverlappingTags.Margin.Left -
+                                pnlOverlappingTags.Margin.Right - 2,
+                            Anchor = AnchorStyles.Left | AnchorStyles.Right
                         };
+                        entry.SetData(tagList);
+                        pnlOverlappingTags.Controls.Add(entry);
                     }
                 }
 
-                if (dgvOverlappingTags.RowCount > 0)
+                int overlapGroupCount = pnlOverlappingTags.Controls.OfType<CollidingTagsGroup>().Count();
+                if (overlapGroupCount > 0)
                 {
                     if (!defaultTab.HasValue)
                     {
                         defaultTab = 2;
                     }
-                    tabCollision.Text += string.Format(" ({0})", dgvOverlappingTags.RowCount);
+                    tabCollision.Text += string.Format(" ({0})", overlapGroupCount);
                 }
             }
 
@@ -222,7 +223,6 @@ namespace StatTag
             // Make sure we pick up any changes that the data grid view hasn't seen yet
             dgvUnlinkedTags.EndEdit();
             dgvDuplicateTags.EndEdit();
-            dgvOverlappingTags.EndEdit();
             UnlinkedAffectedCodeFiles = new List<string>();
 
             // Iterate the list of unlinked tags and determine the actions that we
@@ -260,39 +260,19 @@ namespace StatTag
                 }
             }
 
-            CollidingTagUpdates = new List<UpdatePair<Tag>>();
+            CollidingTagUpdates = new Dictionary<Tag, List<Tag>>();
             // Iterate the list of colliding tags and build the list of which tags are going
             // to be kept, which will be removed, and which the user didn't make a decision on.
-            foreach (var row in dgvOverlappingTags.Rows.OfType<DataGridViewRow>())
+            foreach (var group in pnlOverlappingTags.Controls.OfType<CollidingTagsGroup>())
             {
-                var result = CollidingTagResults(row);
-                if (result != null)
+                var selectedTag = group.GetTagToKeep();
+                if (selectedTag != null)
                 {
-                    CollidingTagUpdates.Add(result);
+                    CollidingTagUpdates.Add(selectedTag, group.Tags.Where(x => !x.Equals(selectedTag)).ToList());
                 }
             }
 
             DuplicateTagUpdates = DuplicateTagUpdates.Where(x => x != null).ToList();
-        }
-
-        private UpdatePair<Tag> CollidingTagResults(DataGridViewRow row)
-        {
-            var tagPair = row.Tag as DuplicateTagPair;
-            if (tagPair == null)
-            {
-                return null;
-            }
-
-            if ((bool) row.Cells[ColCollisionKeepOuter].Value)
-            {
-                return new UpdatePair<Tag>() {Old = tagPair.Second, New = tagPair.First};
-            }
-            else if ((bool) row.Cells[ColCollisionKeepInner].Value)
-            {
-                return new UpdatePair<Tag>() {Old = tagPair.First, New = tagPair.Second};
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -366,40 +346,6 @@ namespace StatTag
 
             }
             IsSelectingFile = false;
-        }
-
-        private void dgvOverlappingTags_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // For now, we only care if the user clicked one of the "Keep" checkboxes
-            if (e.ColumnIndex != ColCollisionKeepOuter && e.ColumnIndex != ColCollisionKeepInner)
-            {
-                return;
-            }
-
-            // Save the changes (otherwise we don't pick them up in the rest of the logic)
-            dgvOverlappingTags.EndEdit();
-
-            // If both "Keep" buttons are checked, just preserve the one that was clicked most recently.
-            if (e.ColumnIndex == ColCollisionKeepOuter)
-            {
-                var keepOuter = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value;
-                var keepInner = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value;
-                if (keepOuter && keepInner)
-                {
-                    dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value = false;
-                    dgvOverlappingTags.EndEdit();
-                }
-            }
-            else if (e.ColumnIndex == ColCollisionKeepInner)
-            {
-                var keepOuter = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value;
-                var keepInner = (bool)dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepInner].Value;
-                if (keepOuter && keepInner)
-                {
-                    dgvOverlappingTags.Rows[e.RowIndex].Cells[ColCollisionKeepOuter].Value = false;
-                    dgvOverlappingTags.EndEdit();
-                }
-            }
         }
     }
 }

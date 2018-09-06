@@ -487,7 +487,7 @@ namespace Core.Tests.Utility
         }
 
         [TestMethod]
-        public void DetectTagCollision_Embedds()
+        public void DetectTagCollision_Embeds()
         {
             var codeFile = new CodeFile() { Tags = new List<Tag>() };
             var existingTag = new Tag()

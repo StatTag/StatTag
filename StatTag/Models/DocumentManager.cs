@@ -230,6 +230,12 @@ namespace StatTag.Models
         {
             Log("LoadMetadataFromDocument - Started");
             DocumentMetadata metadata = null;
+            if (document == null)
+            {
+                Log("Document is null - exiting method");
+                return metadata;
+            }
+
             // Right now, we don't worry about holding on to metadata from the document (outside of the code file list),
             // we just read it and log it so we know a little more about the document.
             var variables = document.Variables;
@@ -1824,12 +1830,13 @@ namespace StatTag.Models
             }
         }
 
-        private void RemoveCollidingTags(List<UpdatePair<Tag>> updates)
+        private void RemoveCollidingTags(Dictionary<Tag, List<Tag>> updates)
         {
-            Logger.WriteMessage(string.Format("Resolving {0} pairs of colliding tags", updates.Count));
+            Logger.WriteMessage(string.Format("Resolving {0} groups of colliding tags", updates.Count));
             if (updates.Count > 0)
             {
-                var tagsToRemove = updates.Select(x => x.Old).ToList();
+                var tagsToRemove = updates.SelectMany(x => x.Value).ToList();
+                Logger.WriteMessage(string.Format("Removing {0} tags in total", tagsToRemove.Count));
                 RemoveCollidingTags(tagsToRemove);
             }
         }

@@ -404,10 +404,10 @@ namespace Core.Tests.Models
 
             tag.LineStart = 1;
             tag.LineEnd = 1;
-            Assert.AreEqual("1", tag.FormatLineNumberRange());
+            Assert.AreEqual("2", tag.FormatLineNumberRange());
 
             tag.LineEnd = 5;
-            Assert.AreEqual("1 - 5", tag.FormatLineNumberRange());
+            Assert.AreEqual("2 - 6", tag.FormatLineNumberRange());
         }
     }
 }

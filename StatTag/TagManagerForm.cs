@@ -17,7 +17,7 @@ using View = System.Windows.Forms.View;
 
 namespace StatTag
 {
-    public partial class TagManager : Form
+    public partial class TagManagerForm : Form
     {
         // These internal members are used to track if and when we have child forms
         // open.  This will allow us to manage closing them if a code file changes
@@ -37,6 +37,7 @@ namespace StatTag
         private const int TagAlertImageDimension = 16;
         private const string BaseDialogTitle = "StatTag - Tag Manager";
         private const string DuplicateTagIndicator = "StatTag|DuplicateTag";
+        private const string OverlappingTagIndicator = "StatTag|OverlappingTag";
 
         private static readonly Brush AlternateBackgroundBrush = new SolidBrush(Color.FromArgb(255, 245, 245, 245));
         private static readonly Brush HighlightBrush = new SolidBrush(Color.FromArgb(255, 17, 108, 214));
@@ -74,7 +75,7 @@ namespace StatTag
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
         private ExecutionProgressForm CurrentProgress;
 
-        public TagManager(DocumentManager manager)
+        public TagManagerForm(DocumentManager manager)
         {
             InitializeComponent();
             lvwTags.View = View.Details;  // It must always be Details
@@ -170,8 +171,8 @@ namespace StatTag
         /// <summary>
         /// Load the list of code files (used for filtering tags) from our DocumentManager reference
         /// </summary>
-        private delegate void CodeFileListDelegate(StatTag.TagManager form);
-        private void LoadCodeFileList(StatTag.TagManager form)
+        private delegate void CodeFileListDelegate(StatTag.TagManagerForm form);
+        private void LoadCodeFileList(StatTag.TagManagerForm form)
         {
             if (!form.InvokeRequired)
             {
@@ -242,8 +243,8 @@ namespace StatTag
         /// Filter the list of tags that is displayed based off of the code file filter, as well as the
         /// search string filter.
         /// </summary>
-        private delegate void FilterTagsDelegate(StatTag.TagManager form);
-        private void FilterTags(StatTag.TagManager form)
+        private delegate void FilterTagsDelegate(StatTag.TagManagerForm form);
+        private void FilterTags(StatTag.TagManagerForm form)
         {
             if (!form.InvokeRequired)
             {
@@ -253,18 +254,36 @@ namespace StatTag
                 bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0 || cboCodeFiles.SelectedItem == null);
                 bool noFilter = string.IsNullOrWhiteSpace(txtFilter.Text);
                 var filter = txtFilter.Text;
+                var overlappingTags = new List<Tag>();
                 if (Manager != null)
                 {
                     var tags = Manager.GetTags();
                     FilteredTags.AddRange(tags.Where(x =>
                         (allCodeFiles || x.CodeFilePath.EndsWith(cboCodeFiles.SelectedItem.ToString()))
                         && (noFilter || x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)).ToArray());
+
+                    // If there are overlapping (colliding) tags, we want to get a list of all of them.  This will
+                    // provide us with a lookup list of tags we need to flag in the tag list.
+                    var overlappingResults = Manager.TagManager.FindAllOverlappingTags();
+                    if (overlappingResults != null)
+                    {
+                        overlappingTags.AddRange(overlappingResults.Values.SelectMany(x => x.SelectMany(y => y)));
+                    }
                 }
 
                 foreach (var tag in FilteredTags)
                 {
+                    var indicator = string.Empty;
                     var isDuplicate = (FilteredTags.Count(x => x.Id.Equals(tag.Id)) > 1);
-                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, isDuplicate ? DuplicateTagIndicator : string.Empty }) { Tag = tag });
+                    if (!isDuplicate && overlappingTags.Any(x => x.Equals(tag)))
+                    {
+                        indicator = OverlappingTagIndicator;
+                    }
+                    else if (isDuplicate)
+                    {
+                        indicator = DuplicateTagIndicator;
+                    }
+                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, indicator }) { Tag = tag });
                 }
 
                 UpdateUIForSelection();
@@ -416,12 +435,15 @@ namespace StatTag
                     e.Graphics.DrawImage(TagTypeImages[tag.Type], typeImageRect);
                     break;
                 case 3:
-                    if (e.SubItem.Text.Equals(DuplicateTagIndicator))
+                    // Our internal convention is that any non-blank text means something is up, and we should show the
+                    // indicator icon.
+                    if (!string.IsNullOrWhiteSpace(e.SubItem.Text))
                     {
                         var imageRect = e.SubItem.Bounds;
-                        imageRect.Offset(InnerPadding, InnerPadding);
                         imageRect.Height = TagAlertImageDimension;
                         imageRect.Width = TagAlertImageDimension;
+                        imageRect.Offset((e.SubItem.Bounds.Width - TagAlertImageDimension - (2 * InnerPadding)),
+                            (e.SubItem.Bounds.Height - TagAlertImageDimension) / 2);
                         e.Graphics.DrawImage(TagAlertImage, imageRect);
                     }
                     break;
@@ -472,6 +494,10 @@ namespace StatTag
                 if (hit.SubItem != null && hit.SubItem.Text.Equals(DuplicateTagIndicator))
                 {
                     Manager.PerformDocumentCheck(Manager.ActiveDocument, false, CheckDocument.DefaultTab.DuplicateTags);
+                }
+                else if (hit.SubItem != null && hit.SubItem.Text.Equals(OverlappingTagIndicator))
+                {
+                    Manager.PerformDocumentCheck(Manager.ActiveDocument, false, CheckDocument.DefaultTab.CollidingTags);
                 }
                 else if (Manager.EditTag(existingTag))
                 {

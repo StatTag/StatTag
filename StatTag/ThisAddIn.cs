@@ -456,6 +456,7 @@ namespace StatTag
         public void Application_DocumentChange()
         {
             DocumentManager.ActiveDocument = SafeGetActiveDocument();
+            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
             Globals.Ribbons.MainRibbon.WindowActivate(true);
         }
 
