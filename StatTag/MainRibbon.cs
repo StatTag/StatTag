@@ -80,10 +80,25 @@ namespace StatTag
             cmdLoadCode.Enabled = (ActiveDocument != null);
         }
 
+        public void SetManageTagsFormVisibility(bool visible)
+        {
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
+            {
+                ManageTagsDialog.TopMost = visible;
+                ManageTagsDialog.Visible = visible;
+            }
+        }
+
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
+            bool restoreManageTagsDialog = (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed);
             try
             {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(false);
+                }
+
                 var files = Manager.GetCodeFileList(ActiveDocument);
                 LoadAnalysisCodeDialog = new LoadAnalysisCode(Manager, files);
                 if (DialogResult.OK == LoadAnalysisCodeDialog.ShowDialog())
@@ -118,6 +133,11 @@ namespace StatTag
             {
                 LoadAnalysisCodeDialog = null;
                 LinkCodeFilesDialog = null;
+
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(true);
+                }
             }
         }
 
@@ -138,6 +158,7 @@ namespace StatTag
                 else
                 {
                     ManageTagsDialog.Visible = true;
+                    ManageTagsDialog.TopMost = true;
                     ManageTagsDialog.Focus();
                 }
             }
