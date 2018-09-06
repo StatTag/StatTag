@@ -107,9 +107,9 @@
             this.pnlOverlappingTags.AutoScroll = true;
             this.pnlOverlappingTags.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlOverlappingTags.CausesValidation = false;
-            this.pnlOverlappingTags.Location = new System.Drawing.Point(0, 33);
+            this.pnlOverlappingTags.Location = new System.Drawing.Point(0, 44);
             this.pnlOverlappingTags.Name = "pnlOverlappingTags";
-            this.pnlOverlappingTags.Size = new System.Drawing.Size(728, 231);
+            this.pnlOverlappingTags.Size = new System.Drawing.Size(728, 220);
             this.pnlOverlappingTags.TabIndex = 8;
             // 
             // label5
@@ -118,10 +118,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Location = new System.Drawing.Point(5, 7);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(716, 23);
+            this.label5.Size = new System.Drawing.Size(716, 41);
             this.label5.TabIndex = 7;
-            this.label5.Text = "Overlapping tags are not permitted.  Please select the preferred tag; unselected " +
-    "tags will be removed.";
+            this.label5.Text = "Overlapping tags are not permitted.  Please select the preferred tag (unselected " +
+    "tags will be removed), or manually edit the tags in the code file.";
             // 
             // tabUnlinked
             // 
