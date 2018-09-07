@@ -103,6 +103,16 @@ namespace StatTag.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap code_peek {
+            get {
+                object obj = ResourceManager.GetObject("code_peek", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DeleteTablefromDatabase_270 {
             get {
                 object obj = ResourceManager.GetObject("DeleteTablefromDatabase_270", resourceCulture);

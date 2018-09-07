@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.Label label1;
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "Tag 1",
             "2-12"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "Tag 2",
             "5-10"}, -1);
             StatTag.Controls.HorizontalLine horizontalLine1;
@@ -42,6 +42,7 @@
             this.colLines = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1 = new System.Windows.Forms.Panel();
             this.cboKeepTag = new System.Windows.Forms.ComboBox();
+            this.cmdPeek = new System.Windows.Forms.Button();
             label1 = new System.Windows.Forms.Label();
             horizontalLine1 = new StatTag.Controls.HorizontalLine();
             this.layout.SuspendLayout();
@@ -61,12 +62,14 @@
             // 
             this.layout.AutoSize = true;
             this.layout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.layout.ColumnCount = 2;
+            this.layout.ColumnCount = 3;
             this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.layout.Controls.Add(horizontalLine1, 0, 1);
             this.layout.Controls.Add(this.lvwTags, 0, 0);
-            this.layout.Controls.Add(this.panel1, 1, 0);
+            this.layout.Controls.Add(this.panel1, 2, 0);
+            this.layout.Controls.Add(this.cmdPeek, 1, 0);
             this.layout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layout.Location = new System.Drawing.Point(0, 0);
             this.layout.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -74,7 +77,6 @@
             this.layout.RowCount = 2;
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 7F));
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.layout.Size = new System.Drawing.Size(700, 67);
             this.layout.TabIndex = 0;
             // 
@@ -88,15 +90,15 @@
             this.lvwTags.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvwTags.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvwTags.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2});
+            listViewItem5,
+            listViewItem6});
             this.lvwTags.LabelWrap = false;
             this.lvwTags.Location = new System.Drawing.Point(3, 4);
             this.lvwTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.lvwTags.MultiSelect = false;
             this.lvwTags.Name = "lvwTags";
             this.lvwTags.Scrollable = false;
-            this.lvwTags.Size = new System.Drawing.Size(414, 52);
+            this.lvwTags.Size = new System.Drawing.Size(400, 52);
             this.lvwTags.TabIndex = 0;
             this.lvwTags.UseCompatibleStateImageBehavior = false;
             this.lvwTags.View = System.Windows.Forms.View.Details;
@@ -115,10 +117,10 @@
             this.panel1.Controls.Add(label1);
             this.panel1.Controls.Add(this.cboKeepTag);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(423, 4);
+            this.panel1.Location = new System.Drawing.Point(431, 4);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(274, 52);
+            this.panel1.Size = new System.Drawing.Size(266, 52);
             this.panel1.TabIndex = 1;
             // 
             // cboKeepTag
@@ -130,14 +132,27 @@
             this.cboKeepTag.Location = new System.Drawing.Point(0, 22);
             this.cboKeepTag.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cboKeepTag.Name = "cboKeepTag";
-            this.cboKeepTag.Size = new System.Drawing.Size(270, 25);
+            this.cboKeepTag.Size = new System.Drawing.Size(262, 25);
             this.cboKeepTag.TabIndex = 4;
+            // 
+            // cmdPeek
+            // 
+            this.cmdPeek.BackgroundImage = global::StatTag.Properties.Resources.code_peek;
+            this.cmdPeek.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdPeek.CausesValidation = false;
+            this.cmdPeek.Location = new System.Drawing.Point(407, 1);
+            this.cmdPeek.Margin = new System.Windows.Forms.Padding(1);
+            this.cmdPeek.Name = "cmdPeek";
+            this.cmdPeek.Size = new System.Drawing.Size(20, 20);
+            this.cmdPeek.TabIndex = 2;
+            this.cmdPeek.UseVisualStyleBackColor = true;
+            this.cmdPeek.MouseClick += new System.Windows.Forms.MouseEventHandler(this.cmdPeek_MouseClick);
             // 
             // horizontalLine1
             // 
             horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            this.layout.SetColumnSpan(horizontalLine1, 2);
+            this.layout.SetColumnSpan(horizontalLine1, 3);
             horizontalLine1.Location = new System.Drawing.Point(3, 63);
             horizontalLine1.Name = "horizontalLine1";
             horizontalLine1.Size = new System.Drawing.Size(694, 1);
@@ -170,5 +185,6 @@
         private System.Windows.Forms.ColumnHeader colLines;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ComboBox cboKeepTag;
+        private System.Windows.Forms.Button cmdPeek;
     }
 }

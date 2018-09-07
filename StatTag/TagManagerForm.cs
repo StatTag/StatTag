@@ -7,10 +7,12 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Word;
+using ScintillaNET;
+using StatTag.Controls;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using StatTag.Models;
+using Document = Microsoft.Office.Interop.Word.Document;
 using Font = System.Drawing.Font;
 using Rectangle = System.Drawing.Rectangle;
 using View = System.Windows.Forms.View;
@@ -34,7 +36,8 @@ namespace StatTag
         private const string DefaultFormat = "Default";
         private const string DefaultPreviewText = "(Exactly as Generated)";
         private const int TagTypeImageDimension = 32;
-        private const int TagAlertImageDimension = 16;
+        private const int TagAlertImageDimension = 20;
+        private const int CodePeekImageDimension = 16;
         private const string BaseDialogTitle = "StatTag - Tag Manager";
         private const string DuplicateTagIndicator = "StatTag|DuplicateTag";
         private const string OverlappingTagIndicator = "StatTag|OverlappingTag";
@@ -70,7 +73,9 @@ namespace StatTag
         };
 
         private static readonly Bitmap TagAlertImage = new Bitmap(StatTag.Properties.Resources.warning);
+        private static readonly Bitmap CodePeekImage = new Bitmap(StatTag.Properties.Resources.code_peek);
 
+        private readonly ScintillaEditorPopover scintillaPopOver = new ScintillaEditorPopover();
 
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
         private ExecutionProgressForm CurrentProgress;
@@ -381,6 +386,17 @@ namespace StatTag
             }
         }
 
+        private Rectangle[] GetSubItemRowBounds(Rectangle subItemBounds)
+        {
+            var topRow = subItemBounds;
+            topRow.Offset(InnerPadding, InnerPadding);
+            topRow.Height = RowHeight;
+            var row2 = new Rectangle(subItemBounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
+            var row3 = new Rectangle(subItemBounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
+
+            return new[] {topRow, row2, row3};
+        }
+
         private void lvwTags_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
             if (e.ItemIndex < 0)
@@ -399,11 +415,12 @@ namespace StatTag
                 e.Graphics.FillRectangle(e.ItemIndex%2 == 0 ? Brushes.White : AlternateBackgroundBrush, e.Bounds);
             }
 
-            var topRow = e.Bounds;
-            topRow.Offset(InnerPadding, InnerPadding);
-            topRow.Height = RowHeight;
-            var row2 = new Rectangle(e.Bounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
-            var row3 = new Rectangle(e.Bounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
+            var rowBounds = GetSubItemRowBounds(e.Bounds);
+            //var topRow = e.Bounds;
+            //topRow.Offset(InnerPadding, InnerPadding);
+            //topRow.Height = RowHeight;
+            //var row2 = new Rectangle(e.Bounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
+            //var row3 = new Rectangle(e.Bounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
             var tag = e.Item.Tag as Tag;
             if (tag == null)
             {
@@ -419,14 +436,18 @@ namespace StatTag
                     e.Graphics.DrawImageUnscaled(image, rect);
                     break;
                 case 1:
-                    e.Graphics.DrawString(tag.Name, NameFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, (isSelected ? Brushes.White : Brushes.Gray), row2, TextFormat);
+                    e.Graphics.DrawString(tag.Name, NameFont, (isSelected ? Brushes.White : Brushes.Black), rowBounds[0], TextFormat);
+                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, (isSelected ? Brushes.White : Brushes.Gray), rowBounds[1], TextFormat);
+                    var peekImageRect = rowBounds[2];
+                    peekImageRect.Width = CodePeekImageDimension;
+                    peekImageRect.Height = CodePeekImageDimension;
+                    e.Graphics.DrawImage(CodePeekImage, peekImageRect);
                     break;
                 case 2:
                     var selectedSubBrush = (isSelected ? Brushes.White : Brushes.Gray);
-                    e.Graphics.DrawString(tag.Type, NormalFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, selectedSubBrush, row2, TextFormat);
-                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, selectedSubBrush, row3, TextFormat);
+                    e.Graphics.DrawString(tag.Type, NormalFont, (isSelected ? Brushes.White : Brushes.Black), rowBounds[0], TextFormat);
+                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, selectedSubBrush, rowBounds[1], TextFormat);
+                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, selectedSubBrush, rowBounds[2], TextFormat);
                     var typeImageRect = e.Bounds;
                     typeImageRect.Offset((e.Bounds.Width - TagTypeImageDimension - (2 * InnerPadding)),
                         (e.Bounds.Height - TagTypeImageDimension) / 2);
@@ -513,6 +534,40 @@ namespace StatTag
                 this.TopMost = true;
                 this.Visible = true;
             }
+        }
+
+        private void lvwTags_MouseClick(object sender, MouseEventArgs e)
+        {
+            var hit = lvwTags.HitTest(e.Location);
+            if (hit.SubItem == null)
+            {
+                return;
+            }
+            
+            var subItemIndex = hit.Item.SubItems.IndexOf(hit.SubItem);
+            if (subItemIndex != 1)
+            {
+                return;
+            }
+
+            var rowBounds = GetSubItemRowBounds(hit.SubItem.Bounds);
+            var peekImageBounds = rowBounds[2];
+            peekImageBounds.Width = CodePeekImageDimension;
+            peekImageBounds.Height = CodePeekImageDimension;
+            if (!peekImageBounds.Contains(e.Location))
+            {
+                return;
+            }
+
+            // At this point the user has clicked on the "code peek" icon, so we should display
+            // the popup for them.
+            var tag = hit.Item.Tag as Tag;
+            if (tag == null || !tag.LineStart.HasValue || !tag.LineEnd.HasValue)
+            {
+                return;
+            }
+            scintillaPopOver.ShowCodeFileLines(tag.CodeFile, tag.LineStart.Value, tag.LineEnd.Value);
+            scintillaPopOver.Show(this, e.Location);
         }
 
         private void lvwTags_SelectedIndexChanged(object sender, EventArgs e)

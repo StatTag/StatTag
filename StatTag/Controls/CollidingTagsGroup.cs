@@ -13,7 +13,9 @@ namespace StatTag.Controls
 {
     public partial class CollidingTagsGroup : UserControl
     {
-        public List<Tag> Tags { get; set; } 
+        public List<Tag> Tags { get; set; }
+
+        private readonly ScintillaEditorPopover scintillaPopOver = new ScintillaEditorPopover();
 
         public CollidingTagsGroup()
         {
@@ -58,6 +60,24 @@ namespace StatTag.Controls
             }
 
             return Tags.FirstOrDefault(x => x.Name.Equals(selectedItem));
+        }
+
+        private void cmdPeek_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (Tags == null || Tags.Count == 0)
+            {
+                return;
+            }
+
+            int? startLine = Tags.Min(x => x.LineStart);
+            int? endLine = Tags.Max(x => x.LineEnd);
+            if (!startLine.HasValue || !endLine.HasValue)
+            {
+                return;
+            }
+
+            scintillaPopOver.ShowCodeFileLines(Tags.First().CodeFile,startLine.Value, endLine.Value);
+            scintillaPopOver.Show(this, e.Location);
         }
     }
 }

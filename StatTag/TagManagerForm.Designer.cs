@@ -97,6 +97,7 @@
             this.lvwTags.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwTags_DrawSubItem);
             this.lvwTags.SelectedIndexChanged += new System.EventHandler(this.lvwTags_SelectedIndexChanged);
             this.lvwTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lvwTags_KeyDown);
+            this.lvwTags.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseClick);
             this.lvwTags.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseDoubleClick);
             // 
             // colProgram
