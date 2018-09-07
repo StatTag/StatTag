@@ -21,6 +21,7 @@ namespace StatTag
     public partial class ThisAddIn
     {
         public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
+        public static event EventHandler<EventArgs> ApplicationActivationChanged;
 
         public LogManager LogManager = new LogManager();
         public SettingsManager SettingsManager = new SettingsManager();
@@ -389,6 +390,18 @@ namespace StatTag
             }
         }
 
+        private void Application_WindowDeactivate(Word.Document document, Word.Window window)
+        {
+            try
+            {
+                Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false);
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteException(exc);
+            }
+        }
+
         private void OnCodeFileChanged(object sender, EventArgs args)
         {
             var monitoredCodeFile = sender as MonitoredCodeFile;
@@ -442,6 +455,7 @@ namespace StatTag
         public void Application_DocumentChange()
         {
             DocumentManager.ActiveDocument = SafeGetActiveDocument();
+            Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
         }
 
         #region VSTO generated code
@@ -463,6 +477,7 @@ namespace StatTag
             ((Microsoft.Office.Interop.Word.ApplicationEvents4_Event)this.Application).NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(Application_NewDocument);
             this.Application.WindowActivate += new Word.ApplicationEvents4_WindowActivateEventHandler(Application_WindowActivate);
             this.Application.DocumentChange += new Word.ApplicationEvents4_DocumentChangeEventHandler(Application_DocumentChange);
+            this.Application.WindowDeactivate += new Word.ApplicationEvents4_WindowDeactivateEventHandler(Application_WindowDeactivate);
         }
 
         #endregion

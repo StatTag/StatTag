@@ -1,6 +1,6 @@
 ﻿namespace StatTag
 {
-    partial class TagManager
+    partial class TagManagerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManager));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManagerForm));
             this.cmdInsert = new System.Windows.Forms.Button();
             this.cmdUpdate = new System.Windows.Forms.Button();
             this.lvwTags = new System.Windows.Forms.ListView();
@@ -40,9 +40,9 @@
             this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.cmdRemoveTags = new System.Windows.Forms.Button();
             this.cmdDefineTag = new System.Windows.Forms.Button();
-            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.updateBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.insertBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdInsert
@@ -97,6 +97,7 @@
             this.lvwTags.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwTags_DrawSubItem);
             this.lvwTags.SelectedIndexChanged += new System.EventHandler(this.lvwTags_SelectedIndexChanged);
             this.lvwTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lvwTags_KeyDown);
+            this.lvwTags.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseClick);
             this.lvwTags.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseDoubleClick);
             // 
             // colProgram
@@ -133,7 +134,7 @@
             // cmdCheckUnlinkedTags
             // 
             this.cmdCheckUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdCheckUnlinkedTags.Image = global::StatTag.Properties.Resources.unlinked_tag_button;
+            this.cmdCheckUnlinkedTags.Enabled = false;
             this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(491, 527);
             this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
@@ -172,17 +173,6 @@
             this.cmdDefineTag.UseVisualStyleBackColor = true;
             this.cmdDefineTag.Click += new System.EventHandler(this.cmdDefineTag_Click);
             // 
-            // txtFilter
-            // 
-            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFilter.Location = new System.Drawing.Point(440, 9);
-            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
-            this.txtFilter.Name = "txtFilter";
-            this.txtFilter.PlaceholderText = "Search";
-            this.txtFilter.Size = new System.Drawing.Size(244, 25);
-            this.txtFilter.TabIndex = 10;
-            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
-            // 
             // updateBackgroundWorker
             // 
             this.updateBackgroundWorker.WorkerReportsProgress = true;
@@ -199,7 +189,18 @@
             this.insertBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.insertBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
-            // TagManager
+            // txtFilter
+            // 
+            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFilter.Location = new System.Drawing.Point(440, 9);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.PlaceholderText = "Search";
+            this.txtFilter.Size = new System.Drawing.Size(244, 25);
+            this.txtFilter.TabIndex = 10;
+            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
+            // 
+            // TagManagerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -217,7 +218,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "TagManager";
+            this.Name = "TagManagerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "StatTag - Tag Manager";
             this.TopMost = true;

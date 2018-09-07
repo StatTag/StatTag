@@ -204,6 +204,12 @@
     <Compile Include="Controls\CodeFileEntry.Designer.cs">
       <DependentUpon>CodeFileEntry.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CollidingTagsGroup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CollidingTagsGroup.Designer.cs">
+      <DependentUpon>CollidingTagsGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DateTimeValueProperties.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -239,6 +245,9 @@
     </Compile>
     <Compile Include="Controls\PlaceholderTextBox.Designer.cs">
       <DependentUpon>PlaceholderTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScintillaEditorPopover.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\SplitButton.cs">
       <SubType>Component</SubType>
@@ -285,7 +294,7 @@
     <Compile Include="ExecutionProgressForm.Designer.cs">
       <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="IProgressReporter.cs" />
+    <Compile Include="Interfaces\IProgressReporter.cs" />
     <Compile Include="LinkCodeFiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -304,13 +313,8 @@
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="ManageTags.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ManageTags.Designer.cs">
-      <DependentUpon>ManageTags.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\BackgroundWorkerProgressReporter.cs" />
+    <Compile Include="Models\StatTagWordWindow.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />
     <Compile Include="Models\DocumentManager.cs" />
@@ -322,31 +326,19 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SelectOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SelectOutput.Designer.cs">
-      <DependentUpon>SelectOutput.cs</DependentUpon>
-    </Compile>
     <Compile Include="Settings.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="TagManager.cs">
+    <Compile Include="TagManagerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TagManager.Designer.cs">
-      <DependentUpon>TagManager.cs</DependentUpon>
+    <Compile Include="TagManagerForm.Designer.cs">
+      <DependentUpon>TagManagerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UIUtility.cs" />
-    <Compile Include="UpdateOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UpdateOutput.Designer.cs">
-      <DependentUpon>UpdateOutput.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Models\UIUtility.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
@@ -355,6 +347,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CodeFileEntry.resx">
       <DependentUpon>CodeFileEntry.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CollidingTagsGroup.resx">
+      <DependentUpon>CollidingTagsGroup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DateTimeValueProperties.resx">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
@@ -401,9 +396,6 @@
     <EmbeddedResource Include="MainRibbon.resx">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageTags.resx">
-      <DependentUpon>ManageTags.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -414,17 +406,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SelectOutput.resx">
-      <DependentUpon>SelectOutput.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TagManager.resx">
-      <DependentUpon>TagManager.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UpdateOutput.resx">
-      <DependentUpon>UpdateOutput.cs</DependentUpon>
+    <EmbeddedResource Include="TagManagerForm.resx">
+      <DependentUpon>TagManagerForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
@@ -514,6 +500,7 @@
     <None Include="Resources\warning.png" />
     <None Include="Resources\plus.png" />
     <None Include="Resources\minus.png" />
+    <Content Include="Resources\code_peek.png" />
     <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />

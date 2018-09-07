@@ -85,6 +85,21 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void ParseIncludingErrors_Null_Empty()
+        {
+            var parser = new StubParser();
+            var result = parser.ParseIncludingInvalidTags(null);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Length);
+
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new string[] { }));
+            result = parser.ParseIncludingInvalidTags(mock.Object);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Length);
+        }
+
+        [TestMethod]
         public void Parse_Simple()
         {
             var parser = new StubParser();
@@ -97,6 +112,24 @@ namespace Core.Tests.Parser
             var mock = new Mock<CodeFile>();
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
             var result = parser.Parse(mock.Object);
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.AreEqual(2, result[0].LineEnd);
+        }
+
+        [TestMethod]
+        public void ParseIncludingErrors_Simple()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>ST:Test",
+                "declare value",
+                "**<<<AM:Test"
+            });
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.ParseIncludingInvalidTags(mock.Object);
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual(0, result[0].LineStart);
             Assert.AreEqual(2, result[0].LineEnd);
@@ -118,6 +151,23 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void ParseIncludingErrors_StartNoEnd()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>ST:Test",
+                "declare value"
+            });
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.ParseIncludingInvalidTags(mock.Object);
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.IsFalse(result[0].LineEnd.HasValue);
+        }
+
+        [TestMethod]
         public void Parse_TwoStartsOneEnd()
         {
             var parser = new StubParser();
@@ -127,7 +177,7 @@ namespace Core.Tests.Parser
                 "declare value",
                 "**>>>ST:Test",
                 "declare value",
-                "**<<<AM:Test"
+                "**<<<"
             });
             var mock = new Mock<CodeFile>();
             mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
@@ -135,6 +185,73 @@ namespace Core.Tests.Parser
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual(2, result[0].LineStart);
             Assert.AreEqual(4, result[0].LineEnd);
+        }
+
+        [TestMethod]
+        public void ParseIncludingErrors_TwoStartsOneEnd()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>ST:Test",
+                "declare value",
+                "**>>>ST:Test",
+                "declare value",
+                "**<<<"
+            });
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.ParseIncludingInvalidTags(mock.Object);
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.IsFalse(result[0].LineEnd.HasValue); 
+            Assert.AreEqual(2, result[1].LineStart);
+            Assert.AreEqual(4, result[1].LineEnd);
+        }
+
+        [TestMethod]
+        public void ParseIncludingErrors_Overlap()
+        {
+            var parser = new StubParser();
+            var lines = new List<string>(new string[]
+            {
+                "**>>>ST:Test",
+                "declare value",
+                "**>>>ST:Test",
+                "declare value",
+                "**<<<",
+                "**<<<"
+            });
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            var result = parser.ParseIncludingInvalidTags(mock.Object);
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.AreEqual(5, result[0].LineEnd); 
+            Assert.AreEqual(2, result[1].LineStart);
+            Assert.AreEqual(4, result[1].LineEnd);
+
+            lines = new List<string>(new string[]
+            {
+                "**>>>ST:Test",
+                "declare value",
+                "**>>>ST:Test",
+                "declare value",
+                "**<<<",
+                "**>>>ST:Test",
+                "declare value",
+                "**<<<",
+                "**<<<"
+            });
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(lines));
+            result = parser.ParseIncludingInvalidTags(mock.Object);
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual(0, result[0].LineStart);
+            Assert.AreEqual(8, result[0].LineEnd);
+            Assert.AreEqual(2, result[1].LineStart);
+            Assert.AreEqual(4, result[1].LineEnd);
+            Assert.AreEqual(5, result[2].LineStart);
+            Assert.AreEqual(7, result[2].LineEnd);
         }
 
         [TestMethod]

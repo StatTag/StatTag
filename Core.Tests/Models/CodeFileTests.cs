@@ -150,10 +150,13 @@ namespace Core.Tests.Models
         public void GuessStatisticalPackage_Valid()
         {
             Assert.AreEqual(Constants.StatisticalPackages.Stata, CodeFile.GuessStatisticalPackage("C:\\test.do"));
+            Assert.AreEqual(Constants.StatisticalPackages.Stata, CodeFile.GuessStatisticalPackage("C:\\test.DO"));
             Assert.AreEqual(Constants.StatisticalPackages.Stata, CodeFile.GuessStatisticalPackage("  C:\\test.do  "));
             Assert.AreEqual(Constants.StatisticalPackages.R, CodeFile.GuessStatisticalPackage("C:\\test.r"));
+            Assert.AreEqual(Constants.StatisticalPackages.R, CodeFile.GuessStatisticalPackage("C:\\test.R"));
             Assert.AreEqual(Constants.StatisticalPackages.R, CodeFile.GuessStatisticalPackage("  C:\\test.r  "));
             Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("C:\\test.sas"));
+            Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("C:\\test.SAS"));
             Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("  C:\\test.sas  "));
         }
 
@@ -164,6 +167,10 @@ namespace Core.Tests.Models
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.txt"));
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.dor"));
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.r t"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.sa"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testsas"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testr"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testdo"));
         }
 
         [TestMethod]
@@ -610,6 +617,177 @@ namespace Core.Tests.Models
             codeFile.RemoveTag(new Tag() { Name = "test", Type = Constants.TagType.Value });
             Assert.AreEqual(2, codeFile.Tags.Count);
             Assert.AreEqual(9, codeFile.Content.Count);
+        }
+
+        [TestMethod]
+        public void RemoveCollidingTags_MixedOuterInner()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "attach(mtcars)",
+                "##>>>ST:Table(Label=\"Tag 1\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 2\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "##>>>ST:Table(Label=\"Tag 3\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 4\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.R };
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(3, codeFile.Tags.Count);  // Only detects 3 out of the 5
+
+            var removeTag = new Tag() {Name = "Tag1", CodeFile = codeFile, LineStart = 1, LineEnd = 6};
+            codeFile.RemoveCollidingTag(removeTag);
+            // Note that we offset lines by 2 (from 9, 11) since we are removing an earlier tag first
+            removeTag = new Tag() {Name = "Tag4", CodeFile = codeFile, LineStart = 7, LineEnd = 9};
+            codeFile.RemoveCollidingTag(removeTag);
+
+            var actual = string.Join("\r\n", codeFile.Content);
+            var expected = string.Join("\r\n", new[]
+            {
+                "attach(mtcars)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 2\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##>>>ST:Table(Label=\"Tag 3\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "mtcars",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(13, codeFile.Content.Count);
+        }
+
+        [TestMethod]
+        public void RemoveCollidingTags_BothOuter()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "attach(mtcars)",
+                "##>>>ST:Table(Label=\"Tag 1\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 2\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "##>>>ST:Table(Label=\"Tag 3\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 4\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.R };
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(3, codeFile.Tags.Count);
+
+            var removeTag = new Tag() { Name = "Tag3", CodeFile = codeFile, LineStart = 7, LineEnd = 12 };
+            codeFile.RemoveCollidingTag(removeTag); 
+            removeTag = new Tag() { Name = "Tag1", CodeFile = codeFile, LineStart = 1, LineEnd = 6 };
+            codeFile.RemoveCollidingTag(removeTag);
+
+
+            var actual = string.Join("\r\n", codeFile.Content);
+            var expected = string.Join("\r\n", new[]
+            {
+                "attach(mtcars)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 2\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 4\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(13, codeFile.Content.Count);
+        }
+
+        [TestMethod]
+        public void RemoveCollidingTags_BothInner()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "attach(mtcars)",
+                "##>>>ST:Table(Label=\"Tag 1\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 2\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "##>>>ST:Table(Label=\"Tag 3\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "##>>>ST:Table(Label=\"Tag 4\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.R };
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(3, codeFile.Tags.Count);
+
+            var removeTag = new Tag() { Name = "Tag4", CodeFile = codeFile, LineStart = 9, LineEnd = 11 };
+            codeFile.RemoveCollidingTag(removeTag);
+            removeTag = new Tag() { Name = "Tag2", CodeFile = codeFile, LineStart = 3, LineEnd = 5 };
+            codeFile.RemoveCollidingTag(removeTag);
+
+
+            var actual = string.Join("\r\n", codeFile.Content);
+            var expected = string.Join("\r\n", new[]
+            {
+                "attach(mtcars)",
+                "##>>>ST:Table(Label=\"Tag 1\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "mtcars",
+                "##<<<",
+                "##>>>ST:Table(Label=\"Tag 3\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=1, Thousands=False)",
+                "mtcars$mpg",
+                "mtcars",
+                "##<<<",
+                "detach(mtcars)",
+                "##>>>ST:Verbatim(Label=\"Tag 5\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(13, codeFile.Content.Count);
         }
 
         [TestMethod]

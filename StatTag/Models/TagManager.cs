@@ -4,12 +4,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+using StatTag.Core;
 using StatTag.Core.Models;
-using Microsoft.Office.Interop.Word;
 using StatTag.Core.Utility;
+using Microsoft.Office.Interop.Word;
 
 namespace StatTag.Models
 {
@@ -169,10 +167,14 @@ namespace StatTag.Models
         public List<CodeFile> FindUnusedCodeFiles()
         {
             Log("FindUnusedCodeFiles - Started");
-            var results = new List<CodeFile>();
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null document - exiting method");
+                return null;
+            }
+
             var usedFiles = new List<string>();
 
             // First iterate over all of the shapes
@@ -207,8 +209,6 @@ namespace StatTag.Models
                     Marshal.ReleaseComObject(fields);
                 }
             }
-
-            Marshal.ReleaseComObject(document);
 
             var unusedFiles = DocumentManager.GetCodeFileList().Where(x => !usedFiles.Contains(x.FilePath)).ToList();
             Log(string.Format("Found {0} unused files", unusedFiles.Count));
@@ -283,6 +283,87 @@ namespace StatTag.Models
             return tag;
         }
 
+        public OverlappingTagResults FindAllOverlappingTags()
+        {
+            Log("FindAllOverlappingTags - Started");
+            var results = new OverlappingTagResults();
+
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - existing method");
+                return results;
+            }
+
+            // When checking unlinked tags, we will look to see what tags are present in
+            // linked code files.  Because a code file may be linked but no longer exist, we
+            // need to filter down our list of files to only include those that are found at
+            // the specified path.
+            var files = DocumentManager.GetCodeFileList().Where(x => File.Exists(x.FilePath)).ToList();
+            foreach (var file in files)
+            {
+                var parser = Factories.GetParser(file);
+                if (parser == null)
+                {
+                    Log(string.Format("Unable to find a parser for {0}", file.FilePath));
+                    continue;
+                }
+
+                var tags = parser.ParseIncludingInvalidTags(file);
+
+                // If there are 0 or 1 tags, there's no way we'll have them overlap.  Just continue;
+                if (tags.Length < 2)
+                {
+                    continue;
+                }
+
+                for (int index = 0; index < (tags.Length - 1); index++)
+                {
+                    var tag1 = tags[index];
+                    var tag2 = tags[index + 1];
+                    var result = TagUtil.DetectTagCollision(tag1, tag2);
+                    if (result != null && result.Collision != TagUtil.TagCollisionResult.CollisionType.NoOverlap && result.CollidingTag != null)
+                    {
+                        Log(string.Format("Collision: Tag {0} {1} Tag {2}", tag1.Name, result.Collision,
+                                result.CollidingTag.Name)); 
+                        
+                        if (!results.ContainsKey(file))
+                        {
+                            Log(string.Format("Starting a colliding tags collection for code file {0}", file.FilePath));
+                            results.Add(file, new List<List<Tag>>());
+                        }
+
+                        // Our code file entry is established, now we need to figure out if these colliding tags are
+                        // in a collision group already.  If so, we'll add the tags that are missing from the group.
+                        // If not, we will create a new group.
+                        var collection = results[file];
+                        var foundTagGroup1 = collection.FirstOrDefault(x => x.Contains(tag1));
+                        var foundTagGroup2 = collection.FirstOrDefault(x => x.Contains(tag2));
+                        if (foundTagGroup1 == null && foundTagGroup2 == null)
+                        {
+                            Log("Creating a new tag collision group");
+                            var group = new List<Tag> {tag1, tag2};
+                            collection.Add(group);
+                        }
+                        else if (foundTagGroup1 == null)
+                        {
+                            Log("Adding to tag2 collision group");
+                            foundTagGroup2.Add(tag1);
+                        }
+                        else if (foundTagGroup2 == null)
+                        {
+                            Log("Adding to tag1 collision group");
+                            foundTagGroup1.Add(tag2);
+                        }
+                    }
+                }
+            }
+
+
+            Log("FindAllUnlinkedTags - Finished");
+            return results;
+        }
+
         /// <summary>
         /// Search the active Word document and find all inserted tags.  Determine if the tag's
         /// code file is linked to this document, and report those that are not.
@@ -293,8 +374,12 @@ namespace StatTag.Models
             Log("FindAllUnlinkedTags - Started");
             var results = new Dictionary<string, List<Tag>>();
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return results;
+            }
 
             // When checking unlinked tags, we will look to see what tags are present in
             // linked code files.  Because a code file may be linked but no longer exist, we
@@ -375,7 +460,6 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Marshal.ReleaseComObject(shape);
-                    Marshal.ReleaseComObject(document);
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
@@ -395,9 +479,7 @@ namespace StatTag.Models
                 }
                 Marshal.ReleaseComObject(shape);
             }
-
-            Marshal.ReleaseComObject(document);
-
+            
             Log("FindAllUnlinkedTags - Finished");
             return results;
         }
@@ -412,8 +494,12 @@ namespace StatTag.Models
         {
             Log("ProcessStatTagFields - Started");
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return;
+            }
 
             // First iterate over all of the shapes
             var shapes = document.Shapes;
@@ -437,8 +523,6 @@ namespace StatTag.Models
                     Marshal.ReleaseComObject(fields);
                 }
             }
-
-            Marshal.ReleaseComObject(document);
 
             Log("ProcessStatTagFields - Finished");
         }
@@ -490,8 +574,12 @@ namespace StatTag.Models
         {
             Log("ProcessStatTagShapes - Started");
 
-            var application = Globals.ThisAddIn.Application; // Doesn't need to be cleaned up
-            var document = application.ActiveDocument;
+            var document = DocumentManager.ActiveDocument;
+            if (document == null)
+            {
+                Log("Null active document - exiting method");
+                return;
+            }
 
             var shapes = document.Shapes;
             int shapesCount = shapes.Count;
@@ -519,7 +607,6 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Marshal.ReleaseComObject(shape);
-                    Marshal.ReleaseComObject(document);
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
@@ -528,9 +615,7 @@ namespace StatTag.Models
 
                 Marshal.ReleaseComObject(shape);
             }
-
-            Marshal.ReleaseComObject(document);
-
+            
             Log("ProcessStatTagShapes - Finished");
         }
 
@@ -799,6 +884,19 @@ namespace StatTag.Models
             foreach (var tag in tags)
             {
                 tag.CodeFile.RemoveTag(tag);
+            }
+        }
+
+        public void RemoveCollidingTags(List<Tag> tags)
+        {
+            // By removing these in descending order, it helps us manage the
+            // offsets for the tags that we want to remove.  Otherwise, we will
+            // remove the first tag, and when we go to remove the second tag it
+            // is pointing to indices that have changed and it's not aware of.
+            var sortedTags = tags.OrderByDescending(x => x.LineStart);
+            foreach (var tag in sortedTags)
+            {
+                tag.CodeFile.RemoveCollidingTag(tag);
             }
         }
     }

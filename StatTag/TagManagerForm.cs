@@ -7,17 +7,19 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Word;
+using ScintillaNET;
+using StatTag.Controls;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using StatTag.Models;
+using Document = Microsoft.Office.Interop.Word.Document;
 using Font = System.Drawing.Font;
 using Rectangle = System.Drawing.Rectangle;
 using View = System.Windows.Forms.View;
 
 namespace StatTag
 {
-    public partial class TagManager : Form
+    public partial class TagManagerForm : Form
     {
         // These internal members are used to track if and when we have child forms
         // open.  This will allow us to manage closing them if a code file changes
@@ -34,9 +36,11 @@ namespace StatTag
         private const string DefaultFormat = "Default";
         private const string DefaultPreviewText = "(Exactly as Generated)";
         private const int TagTypeImageDimension = 32;
-        private const int TagAlertImageDimension = 16;
+        private const int TagAlertImageDimension = 20;
+        private const int CodePeekImageDimension = 16;
         private const string BaseDialogTitle = "StatTag - Tag Manager";
         private const string DuplicateTagIndicator = "StatTag|DuplicateTag";
+        private const string OverlappingTagIndicator = "StatTag|OverlappingTag";
 
         private static readonly Brush AlternateBackgroundBrush = new SolidBrush(Color.FromArgb(255, 245, 245, 245));
         private static readonly Brush HighlightBrush = new SolidBrush(Color.FromArgb(255, 17, 108, 214));
@@ -69,17 +73,21 @@ namespace StatTag
         };
 
         private static readonly Bitmap TagAlertImage = new Bitmap(StatTag.Properties.Resources.warning);
+        private static readonly Bitmap CodePeekImage = new Bitmap(StatTag.Properties.Resources.code_peek);
 
+        private readonly ScintillaEditorPopover scintillaPopOver = new ScintillaEditorPopover();
 
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
         private ExecutionProgressForm CurrentProgress;
 
-        public TagManager(DocumentManager manager)
+        public TagManagerForm(DocumentManager manager)
         {
             InitializeComponent();
             lvwTags.View = View.Details;  // It must always be Details
             lvwTags.ListViewItemSorter = ListViewSorter;
             Manager = manager;
+
+            this.cmdCheckUnlinkedTags.Image = new Bitmap(StatTag.Properties.Resources.warning, 24, 24);
 
             if (Manager != null)
             {
@@ -170,8 +178,8 @@ namespace StatTag
         /// <summary>
         /// Load the list of code files (used for filtering tags) from our DocumentManager reference
         /// </summary>
-        private delegate void CodeFileListDelegate(StatTag.TagManager form);
-        private void LoadCodeFileList(StatTag.TagManager form)
+        private delegate void CodeFileListDelegate(StatTag.TagManagerForm form);
+        private void LoadCodeFileList(StatTag.TagManagerForm form)
         {
             if (!form.InvokeRequired)
             {
@@ -242,31 +250,53 @@ namespace StatTag
         /// Filter the list of tags that is displayed based off of the code file filter, as well as the
         /// search string filter.
         /// </summary>
-        private delegate void FilterTagsDelegate(StatTag.TagManager form);
-        private void FilterTags(StatTag.TagManager form)
+        private delegate void FilterTagsDelegate(StatTag.TagManagerForm form);
+        private void FilterTags(StatTag.TagManagerForm form)
         {
             if (!form.InvokeRequired)
             {
+                bool hasWarnings = false;
                 FilteredTags.Clear();
                 lvwTags.Items.Clear();
 
                 bool allCodeFiles = (cboCodeFiles.SelectedIndex == 0 || cboCodeFiles.SelectedItem == null);
                 bool noFilter = string.IsNullOrWhiteSpace(txtFilter.Text);
                 var filter = txtFilter.Text;
+                var overlappingTags = new List<Tag>();
                 if (Manager != null)
                 {
                     var tags = Manager.GetTags();
                     FilteredTags.AddRange(tags.Where(x =>
                         (allCodeFiles || x.CodeFilePath.EndsWith(cboCodeFiles.SelectedItem.ToString()))
                         && (noFilter || x.Name.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)).ToArray());
+
+                    // If there are overlapping (colliding) tags, we want to get a list of all of them.  This will
+                    // provide us with a lookup list of tags we need to flag in the tag list.
+                    var overlappingResults = Manager.TagManager.FindAllOverlappingTags();
+                    if (overlappingResults != null)
+                    {
+                        overlappingTags.AddRange(overlappingResults.Values.SelectMany(x => x.SelectMany(y => y)));
+                    }
                 }
 
                 foreach (var tag in FilteredTags)
                 {
+                    var indicator = string.Empty;
                     var isDuplicate = (FilteredTags.Count(x => x.Id.Equals(tag.Id)) > 1);
-                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, isDuplicate ? DuplicateTagIndicator : string.Empty }) { Tag = tag });
+                    if (!isDuplicate && overlappingTags.Any(x => x.Equals(tag)))
+                    {
+                        indicator = OverlappingTagIndicator;
+                        hasWarnings = true;
+                    }
+                    else if (isDuplicate)
+                    {
+                        indicator = DuplicateTagIndicator;
+                        hasWarnings = false;
+                    }
+                    lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, indicator }) { Tag = tag });
                 }
 
+                cmdCheckUnlinkedTags.Enabled = hasWarnings;
                 UpdateUIForSelection();
             }
             else
@@ -362,6 +392,17 @@ namespace StatTag
             }
         }
 
+        private Rectangle[] GetSubItemRowBounds(Rectangle subItemBounds)
+        {
+            var topRow = subItemBounds;
+            topRow.Offset(InnerPadding, InnerPadding);
+            topRow.Height = RowHeight;
+            var row2 = new Rectangle(subItemBounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
+            var row3 = new Rectangle(subItemBounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
+
+            return new[] {topRow, row2, row3};
+        }
+
         private void lvwTags_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
             if (e.ItemIndex < 0)
@@ -380,11 +421,12 @@ namespace StatTag
                 e.Graphics.FillRectangle(e.ItemIndex%2 == 0 ? Brushes.White : AlternateBackgroundBrush, e.Bounds);
             }
 
-            var topRow = e.Bounds;
-            topRow.Offset(InnerPadding, InnerPadding);
-            topRow.Height = RowHeight;
-            var row2 = new Rectangle(e.Bounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
-            var row3 = new Rectangle(e.Bounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
+            var rowBounds = GetSubItemRowBounds(e.Bounds);
+            //var topRow = e.Bounds;
+            //topRow.Offset(InnerPadding, InnerPadding);
+            //topRow.Height = RowHeight;
+            //var row2 = new Rectangle(e.Bounds.X + InnerPadding, topRow.Y + topRow.Height, topRow.Width, RowHeight);
+            //var row3 = new Rectangle(e.Bounds.X + InnerPadding, row2.Y + row2.Height, topRow.Width, RowHeight);
             var tag = e.Item.Tag as Tag;
             if (tag == null)
             {
@@ -400,14 +442,18 @@ namespace StatTag
                     e.Graphics.DrawImageUnscaled(image, rect);
                     break;
                 case 1:
-                    e.Graphics.DrawString(tag.Name, NameFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, (isSelected ? Brushes.White : Brushes.Gray), row2, TextFormat);
+                    e.Graphics.DrawString(tag.Name, NameFont, (isSelected ? Brushes.White : Brushes.Black), rowBounds[0], TextFormat);
+                    e.Graphics.DrawString(Path.GetFileName(tag.CodeFilePath), SubFont, (isSelected ? Brushes.White : Brushes.Gray), rowBounds[1], TextFormat);
+                    var peekImageRect = rowBounds[2];
+                    peekImageRect.Width = CodePeekImageDimension;
+                    peekImageRect.Height = CodePeekImageDimension;
+                    e.Graphics.DrawImage(CodePeekImage, peekImageRect);
                     break;
                 case 2:
                     var selectedSubBrush = (isSelected ? Brushes.White : Brushes.Gray);
-                    e.Graphics.DrawString(tag.Type, NormalFont, (isSelected ? Brushes.White : Brushes.Black), topRow, TextFormat);
-                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, selectedSubBrush, row2, TextFormat);
-                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, selectedSubBrush, row3, TextFormat);
+                    e.Graphics.DrawString(tag.Type, NormalFont, (isSelected ? Brushes.White : Brushes.Black), rowBounds[0], TextFormat);
+                    e.Graphics.DrawString(GenerateFormatDescriptionFromTag(tag), SubFont, selectedSubBrush, rowBounds[1], TextFormat);
+                    e.Graphics.DrawString(GeneratePreviewTextFromTag(tag), SubFont, selectedSubBrush, rowBounds[2], TextFormat);
                     var typeImageRect = e.Bounds;
                     typeImageRect.Offset((e.Bounds.Width - TagTypeImageDimension - (2 * InnerPadding)),
                         (e.Bounds.Height - TagTypeImageDimension) / 2);
@@ -416,12 +462,15 @@ namespace StatTag
                     e.Graphics.DrawImage(TagTypeImages[tag.Type], typeImageRect);
                     break;
                 case 3:
-                    if (e.SubItem.Text.Equals(DuplicateTagIndicator))
+                    // Our internal convention is that any non-blank text means something is up, and we should show the
+                    // indicator icon.
+                    if (!string.IsNullOrWhiteSpace(e.SubItem.Text))
                     {
                         var imageRect = e.SubItem.Bounds;
-                        imageRect.Offset(InnerPadding, InnerPadding);
                         imageRect.Height = TagAlertImageDimension;
                         imageRect.Width = TagAlertImageDimension;
+                        imageRect.Offset((e.SubItem.Bounds.Width - TagAlertImageDimension - (2 * InnerPadding)),
+                            (e.SubItem.Bounds.Height - TagAlertImageDimension) / 2);
                         e.Graphics.DrawImage(TagAlertImage, imageRect);
                     }
                     break;
@@ -473,6 +522,10 @@ namespace StatTag
                 {
                     Manager.PerformDocumentCheck(Manager.ActiveDocument, false, CheckDocument.DefaultTab.DuplicateTags);
                 }
+                else if (hit.SubItem != null && hit.SubItem.Text.Equals(OverlappingTagIndicator))
+                {
+                    Manager.PerformDocumentCheck(Manager.ActiveDocument, false, CheckDocument.DefaultTab.CollidingTags);
+                }
                 else if (Manager.EditTag(existingTag))
                 {
                     lvwTags.Refresh();
@@ -487,6 +540,40 @@ namespace StatTag
                 this.TopMost = true;
                 this.Visible = true;
             }
+        }
+
+        private void lvwTags_MouseClick(object sender, MouseEventArgs e)
+        {
+            var hit = lvwTags.HitTest(e.Location);
+            if (hit.SubItem == null)
+            {
+                return;
+            }
+            
+            var subItemIndex = hit.Item.SubItems.IndexOf(hit.SubItem);
+            if (subItemIndex != 1)
+            {
+                return;
+            }
+
+            var rowBounds = GetSubItemRowBounds(hit.SubItem.Bounds);
+            var peekImageBounds = rowBounds[2];
+            peekImageBounds.Width = CodePeekImageDimension;
+            peekImageBounds.Height = CodePeekImageDimension;
+            if (!peekImageBounds.Contains(e.Location))
+            {
+                return;
+            }
+
+            // At this point the user has clicked on the "code peek" icon, so we should display
+            // the popup for them.
+            var tag = hit.Item.Tag as Tag;
+            if (tag == null || !tag.LineStart.HasValue || !tag.LineEnd.HasValue)
+            {
+                return;
+            }
+            scintillaPopOver.ShowCodeFileLines(tag.CodeFile, tag.LineStart.Value, tag.LineEnd.Value);
+            scintillaPopOver.Show(this, e.Location);
         }
 
         private void lvwTags_SelectedIndexChanged(object sender, EventArgs e)
@@ -821,7 +908,7 @@ namespace StatTag
             var progressReporter = new BackgroundWorkerProgressReporter(worker);
             var tags = (List<Tag>)e.Argument;
             Manager.Logger.WriteMessage(string.Format("Inserting {0} selected tags", tags.Count));
-            Manager.InsertTagPlaceholdersInDocument(tags, progressReporter);
+            Manager.InsertTagsInDocument(tags, true, progressReporter);
             e.Cancel = worker.CancellationPending;
         }
     }

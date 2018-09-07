@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using StatTag.Controls;
 using StatTag.Core.Models;
 using StatTag.Models;
 
@@ -18,7 +19,8 @@ namespace StatTag
         {
             FirstWithData,
             UnlinkedTags,
-            DuplicateTags
+            DuplicateTags,
+            CollidingTags
         }
 
         /// <summary>
@@ -31,6 +33,12 @@ namespace StatTag
         /// code files.
         /// </summary>
         public List<UpdatePair<Tag>> DuplicateTagUpdates { get; set; }
+
+        /// <summary>
+        /// The collection of updates that should be applied to tags that were colliding
+        /// (overlapping), so that only one remains.
+        /// </summary>
+        public Dictionary<Tag, List<Tag>> CollidingTagUpdates { get; set; }
 
         /// <summary>
         /// Used as input, this is the list of tags that are not fully linked to the
@@ -48,7 +56,13 @@ namespace StatTag
         /// If there are unlinked tags, this will be a list of the unique code files that
         /// were found to have unlinked tags.
         /// </summary>
-        public List<string> UnlinkedAffectedCodeFiles { get; set; } 
+        public List<string> UnlinkedAffectedCodeFiles { get; set; }
+
+        /// <summary>
+        /// Used as input, this is the list of code files that contain tags which
+        /// overlap with other tag boundaries
+        /// </summary>
+        public OverlappingTagResults OverlappingTags { get; set; }
 
         private readonly List<CodeFile> Files;
         private DefaultTab InitDefaultTab { get; set; }
@@ -62,6 +76,9 @@ namespace StatTag
         private const int ColDuplicateTag = 2;
         private const int ColDuplicateLineNumbers = 3;
 
+        private const int ColCollisionKeepOuter = 0;
+        private const int ColCollisionKeepInner = 3;
+
         private bool IsSelectingFile = false;
 
         private class DuplicateTagPair
@@ -70,13 +87,14 @@ namespace StatTag
             public Tag Second { get; set; }
         }
 
-        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, List<CodeFile> files, DefaultTab defaultTab)
+        public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, OverlappingTagResults overlappingTags, List<CodeFile> files, DefaultTab defaultTab)
         {
             InitializeComponent();
             UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UnlinkedTags = unlinkedTags;
             DuplicateTags = duplicateTags;
+            OverlappingTags = overlappingTags;
             Files = files;
             UnlinkedTagUpdates = new Dictionary<string, CodeFileAction>();
             DuplicateTagUpdates = new List<UpdatePair<Tag>>();
@@ -145,6 +163,35 @@ namespace StatTag
                 tabDuplicate.Text += string.Format(" ({0})", dgvDuplicateTags.RowCount);
             }
 
+            if (OverlappingTags != null)
+            {
+                foreach (var item in OverlappingTags)
+                {
+                    foreach (var tagList in item.Value)
+                    {
+                        var entry = new CollidingTagsGroup()
+                        {
+                            Width =
+                                pnlOverlappingTags.Width - pnlOverlappingTags.Margin.Left -
+                                pnlOverlappingTags.Margin.Right - 2,
+                            Anchor = AnchorStyles.Left | AnchorStyles.Right
+                        };
+                        entry.SetData(tagList);
+                        pnlOverlappingTags.Controls.Add(entry);
+                    }
+                }
+
+                int overlapGroupCount = pnlOverlappingTags.Controls.OfType<CollidingTagsGroup>().Count();
+                if (overlapGroupCount > 0)
+                {
+                    if (!defaultTab.HasValue)
+                    {
+                        defaultTab = 2;
+                    }
+                    tabCollision.Text += string.Format(" ({0})", overlapGroupCount);
+                }
+            }
+
             // If a default tab hasn't been assigned (based on the first to have data), then we need
             // to check if we were initialized to show a specific tab.
             if ((InitDefaultTab != DefaultTab.FirstWithData))
@@ -156,6 +203,9 @@ namespace StatTag
                         break;
                     case DefaultTab.DuplicateTags:
                         defaultTab = 1;
+                        break;
+                    case DefaultTab.CollidingTags:
+                        defaultTab = 2;
                         break;
                 }
             }
@@ -207,6 +257,18 @@ namespace StatTag
                 {
                     DuplicateTagUpdates.Add(GetDuplicateUpdate(row, duplicatePair.First, ColOriginalTag));
                     DuplicateTagUpdates.Add(GetDuplicateUpdate(row, duplicatePair.Second, ColDuplicateTag));
+                }
+            }
+
+            CollidingTagUpdates = new Dictionary<Tag, List<Tag>>();
+            // Iterate the list of colliding tags and build the list of which tags are going
+            // to be kept, which will be removed, and which the user didn't make a decision on.
+            foreach (var group in pnlOverlappingTags.Controls.OfType<CollidingTagsGroup>())
+            {
+                var selectedTag = group.GetTagToKeep();
+                if (selectedTag != null)
+                {
+                    CollidingTagUpdates.Add(selectedTag, group.Tags.Where(x => !x.Equals(selectedTag)).ToList());
                 }
             }
 

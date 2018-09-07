@@ -25,7 +25,7 @@ namespace StatTag
         private EditTag EditTagDialog = null;
         private LoadAnalysisCode LoadAnalysisCodeDialog = null;
         private LinkCodeFiles LinkCodeFilesDialog = null;
-        private TagManager ManageTagsDialog = null;
+        private TagManagerForm ManageTagsDialog = null;
         private Settings SettingsDialog = null;
 
         public DocumentManager Manager
@@ -76,12 +76,29 @@ namespace StatTag
             var files = Manager.GetCodeFileList(ActiveDocument);
             bool enabled = (files != null && files.Count > 0);
             cmdManageTags.Enabled = enabled;
+            cmdDocumentProperties.Enabled = (ActiveDocument != null);
+            cmdLoadCode.Enabled = (ActiveDocument != null);
+        }
+
+        public void SetManageTagsFormVisibility(bool visible)
+        {
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
+            {
+                ManageTagsDialog.TopMost = visible;
+                ManageTagsDialog.Visible = visible;
+            }
         }
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
         {
+            bool restoreManageTagsDialog = (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed);
             try
             {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(false);
+                }
+
                 var files = Manager.GetCodeFileList(ActiveDocument);
                 LoadAnalysisCodeDialog = new LoadAnalysisCode(Manager, files);
                 if (DialogResult.OK == LoadAnalysisCodeDialog.ShowDialog())
@@ -116,6 +133,11 @@ namespace StatTag
             {
                 LoadAnalysisCodeDialog = null;
                 LinkCodeFilesDialog = null;
+
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(true);
+                }
             }
         }
 
@@ -130,12 +152,13 @@ namespace StatTag
             {
                 if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
-                    ManageTagsDialog = new TagManager(Manager);
+                    ManageTagsDialog = new TagManagerForm(Manager);
                     ManageTagsDialog.Show();
                 }
                 else
                 {
                     ManageTagsDialog.Visible = true;
+                    ManageTagsDialog.TopMost = true;
                     ManageTagsDialog.Focus();
                 }
             }

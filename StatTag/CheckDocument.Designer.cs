@@ -28,13 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.label1 = new System.Windows.Forms.Label();
+            this.cmdCancel = new System.Windows.Forms.Button();
+            this.cmdOK = new System.Windows.Forms.Button();
+            this.tabCollision = new System.Windows.Forms.TabPage();
+            this.pnlOverlappingTags = new System.Windows.Forms.FlowLayoutPanel();
+            this.label5 = new System.Windows.Forms.Label();
             this.tabUnlinked = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.dgvUnlinkedTags = new System.Windows.Forms.DataGridView();
             this.colTagName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.tabResults = new System.Windows.Forms.TabControl();
             this.tabDuplicate = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
             this.dgvDuplicateTags = new System.Windows.Forms.DataGridView();
@@ -42,15 +47,81 @@
             this.colTagLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colDuplicateLines = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.label1 = new System.Windows.Forms.Label();
-            this.cmdCancel = new System.Windows.Forms.Button();
-            this.cmdOK = new System.Windows.Forms.Button();
+            this.tabResults = new System.Windows.Forms.TabControl();
+            this.tabCollision.SuspendLayout();
             this.tabUnlinked.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).BeginInit();
-            this.tabResults.SuspendLayout();
             this.tabDuplicate.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateTags)).BeginInit();
+            this.tabResults.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(364, 17);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Your document has been reviewed, with the following results:";
+            // 
+            // cmdCancel
+            // 
+            this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cmdCancel.Location = new System.Drawing.Point(437, 357);
+            this.cmdCancel.Name = "cmdCancel";
+            this.cmdCancel.Size = new System.Drawing.Size(87, 25);
+            this.cmdCancel.TabIndex = 9;
+            this.cmdCancel.Text = "Cancel";
+            this.cmdCancel.UseVisualStyleBackColor = true;
+            // 
+            // cmdOK
+            // 
+            this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdOK.Location = new System.Drawing.Point(236, 357);
+            this.cmdOK.Name = "cmdOK";
+            this.cmdOK.Size = new System.Drawing.Size(87, 25);
+            this.cmdOK.TabIndex = 8;
+            this.cmdOK.Text = "OK";
+            this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
+            // 
+            // tabCollision
+            // 
+            this.tabCollision.Controls.Add(this.pnlOverlappingTags);
+            this.tabCollision.Controls.Add(this.label5);
+            this.tabCollision.Location = new System.Drawing.Point(4, 26);
+            this.tabCollision.Name = "tabCollision";
+            this.tabCollision.Size = new System.Drawing.Size(728, 267);
+            this.tabCollision.TabIndex = 3;
+            this.tabCollision.Text = "Overlapping Tags";
+            this.tabCollision.UseVisualStyleBackColor = true;
+            // 
+            // pnlOverlappingTags
+            // 
+            this.pnlOverlappingTags.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlOverlappingTags.AutoScroll = true;
+            this.pnlOverlappingTags.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlOverlappingTags.CausesValidation = false;
+            this.pnlOverlappingTags.Location = new System.Drawing.Point(0, 44);
+            this.pnlOverlappingTags.Name = "pnlOverlappingTags";
+            this.pnlOverlappingTags.Size = new System.Drawing.Size(728, 220);
+            this.pnlOverlappingTags.TabIndex = 8;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.Location = new System.Drawing.Point(5, 7);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(716, 41);
+            this.label5.TabIndex = 7;
+            this.label5.Text = "Overlapping tags are not permitted.  Please select the preferred tag (unselected " +
+    "tags will be removed), or manually edit the tags in the code file.";
             // 
             // tabUnlinked
             // 
@@ -97,7 +168,7 @@
             this.dgvUnlinkedTags.ShowCellErrors = false;
             this.dgvUnlinkedTags.ShowEditingIcon = false;
             this.dgvUnlinkedTags.ShowRowErrors = false;
-            this.dgvUnlinkedTags.Size = new System.Drawing.Size(719, 212);
+            this.dgvUnlinkedTags.Size = new System.Drawing.Size(719, 208);
             this.dgvUnlinkedTags.TabIndex = 2;
             this.dgvUnlinkedTags.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvUnlinkedTags_CellValueChanged);
             this.dgvUnlinkedTags.CurrentCellDirtyStateChanged += new System.EventHandler(this.dgvUnlinkedTags_CurrentCellDirtyStateChanged);
@@ -124,19 +195,6 @@
             this.colActionToTake.FillWeight = 40F;
             this.colActionToTake.HeaderText = "Action to Take";
             this.colActionToTake.Name = "colActionToTake";
-            // 
-            // tabResults
-            // 
-            this.tabResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabResults.Controls.Add(this.tabUnlinked);
-            this.tabResults.Controls.Add(this.tabDuplicate);
-            this.tabResults.Location = new System.Drawing.Point(12, 39);
-            this.tabResults.Name = "tabResults";
-            this.tabResults.SelectedIndex = 0;
-            this.tabResults.Size = new System.Drawing.Size(736, 297);
-            this.tabResults.TabIndex = 0;
             // 
             // tabDuplicate
             // 
@@ -218,37 +276,19 @@
             this.colDuplicateLines.Name = "colDuplicateLines";
             this.colDuplicateLines.ReadOnly = true;
             // 
-            // label1
+            // tabResults
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(364, 17);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Your document has been reviewed, with the following results:";
-            // 
-            // cmdCancel
-            // 
-            this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(437, 357);
-            this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(87, 25);
-            this.cmdCancel.TabIndex = 9;
-            this.cmdCancel.Text = "Cancel";
-            this.cmdCancel.UseVisualStyleBackColor = true;
-            // 
-            // cmdOK
-            // 
-            this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(236, 357);
-            this.cmdOK.Name = "cmdOK";
-            this.cmdOK.Size = new System.Drawing.Size(87, 25);
-            this.cmdOK.TabIndex = 8;
-            this.cmdOK.Text = "OK";
-            this.cmdOK.UseVisualStyleBackColor = true;
-            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
+            this.tabResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabResults.Controls.Add(this.tabUnlinked);
+            this.tabResults.Controls.Add(this.tabDuplicate);
+            this.tabResults.Controls.Add(this.tabCollision);
+            this.tabResults.Location = new System.Drawing.Point(12, 39);
+            this.tabResults.Name = "tabResults";
+            this.tabResults.SelectedIndex = 0;
+            this.tabResults.Size = new System.Drawing.Size(736, 297);
+            this.tabResults.TabIndex = 0;
             // 
             // CheckDocument
             // 
@@ -268,11 +308,12 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Check Tags";
             this.Load += new System.EventHandler(this.CheckDocument_Load);
+            this.tabCollision.ResumeLayout(false);
             this.tabUnlinked.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUnlinkedTags)).EndInit();
-            this.tabResults.ResumeLayout(false);
             this.tabDuplicate.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvDuplicateTags)).EndInit();
+            this.tabResults.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -280,13 +321,17 @@
 
         #endregion
 
-        private System.Windows.Forms.TabPage tabUnlinked;
-        private System.Windows.Forms.TabControl tabResults;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.DataGridView dgvUnlinkedTags;
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdOK;
+        private System.Windows.Forms.TabPage tabCollision;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TabPage tabUnlinked;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.DataGridView dgvUnlinkedTags;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTagName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCodeFile;
+        private System.Windows.Forms.DataGridViewComboBoxColumn colActionToTake;
         private System.Windows.Forms.TabPage tabDuplicate;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DataGridView dgvDuplicateTags;
@@ -294,8 +339,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colTagLines;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn colDuplicateLines;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTagName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCodeFile;
-        private System.Windows.Forms.DataGridViewComboBoxColumn colActionToTake;
+        private System.Windows.Forms.TabControl tabResults;
+        private System.Windows.Forms.FlowLayoutPanel pnlOverlappingTags;
     }
 }

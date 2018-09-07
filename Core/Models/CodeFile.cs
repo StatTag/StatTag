@@ -341,6 +341,56 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
+        /// Removes a tag from the file, and from the internal cache.
+        /// This is different from RemoveTag, in that it does additional
+        /// processing and handling of tags that may exist in the code file,
+        /// but aren't known (weren't loaded) because they collided with
+        /// another tag.
+        /// </summary>
+        /// <param name="tag"></param>
+        public void RemoveCollidingTag(Tag tag)
+        {
+            if (tag == null)
+            {
+                return;
+            }
+
+            if (!Tags.Remove(tag))
+            {
+                // If the exact object doesn't match, then search by equality
+                var foundTag = Tags.Find(x => x.Equals(tag));
+                if (foundTag != null)
+                {
+                    Tags.Remove(foundTag);
+                }
+            }
+
+            ContentCache.RemoveAt(tag.LineEnd.Value);
+            ContentCache.RemoveAt(tag.LineStart.Value);
+
+            // Any tags below the one being removed need to be adjusted
+            foreach (var otherTag in Tags)
+            {
+                // If the other tag starts after the removed tag ends, we need to offset
+                // the start and end by two (one for each of the lines that were removed
+                // for the start and end comments, respectively)
+                if (otherTag.LineStart > tag.LineEnd)
+                {
+                    otherTag.LineStart -= 2;
+                    otherTag.LineEnd -= 2;
+                }
+                // If the other tag only starts after the removed tag ends, we just offset
+                // by one to account for the removed start tag.  The removed end tag
+                // won't affect us.
+                else if (otherTag.LineStart > tag.LineStart)
+                {
+                    otherTag.LineStart -= 1;
+                    otherTag.LineEnd -= 1;
+                }
+            }
+        }
+
+        /// <summary>
         /// Updates or inserts an tag in the file.  An update takes place only if oldTag
         /// is defined, and it is able to match that old tag.
         /// </summary>

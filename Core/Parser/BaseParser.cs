@@ -76,7 +76,7 @@ namespace StatTag.Core.Parser
             return tagRegex.Match(line);
         }
 
-        private void SetupRegEx()
+        protected void SetupRegEx()
         {
             if (StartTagRegEx == null)
             {
@@ -169,7 +169,68 @@ namespace StatTag.Core.Parser
                 return tags.Where(x => tagsToRun.Contains(x)).ToArray();
             }
 
-            return tags.ToArray();
+            return tags.OrderBy(x => x.LineStart).ToArray();
+        }
+
+        /// <summary>
+        /// Used to identify colliding/overlapping tags from a code file
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public Tag[] ParseIncludingInvalidTags(CodeFile file)
+        {
+            SetupRegEx();
+
+            var tags = new List<Tag>();
+            if (file == null)
+            {
+                return tags.ToArray();
+            }
+
+            var lines = file.LoadFileContent();
+            if (lines == null)
+            {
+                return tags.ToArray();
+            }
+
+            var foundTagStack = new Stack<Tag>();
+            bool hasOpenTag = false;
+            for (int index = 0; index < lines.Count(); index++)
+            {
+                var line = lines[index].Trim();
+                var match = StartTagRegEx.Match(line);
+                if (match.Success)
+                {
+                    var tag = new Tag()
+                    {
+                        LineStart = index,
+                        CodeFile = file
+                    };
+                    hasOpenTag = true;
+                    ProcessTag(match.Groups[1].Value, tag);
+                    foundTagStack.Push(tag);
+                }
+                else if (hasOpenTag)
+                {
+                    match = EndTagRegEx.Match(line);
+                    if (match.Success)
+                    {
+                        var tag = foundTagStack.Pop();
+                        tag.LineEnd = index;
+                        tags.Add(tag);
+                        hasOpenTag = (foundTagStack.Count > 0);
+                    }
+                }
+            }
+
+            // If we have any leftover tags, it means they had no end comments.
+            // We will include those in our detection.
+            if (foundTagStack.Count > 0)
+            {
+                tags.AddRange(foundTagStack.ToArray());
+            }
+
+            return tags.OrderBy(x => x.LineStart).ToArray();
         }
 
         public bool IsTagStart(string line)
