@@ -87,6 +87,8 @@ namespace StatTag
             lvwTags.ListViewItemSorter = ListViewSorter;
             Manager = manager;
 
+            this.cmdCheckUnlinkedTags.Image = new Bitmap(StatTag.Properties.Resources.warning, 24, 24);
+
             if (Manager != null)
             {
                 SetDialogTitle();
@@ -253,6 +255,7 @@ namespace StatTag
         {
             if (!form.InvokeRequired)
             {
+                bool hasWarnings = false;
                 FilteredTags.Clear();
                 lvwTags.Items.Clear();
 
@@ -283,14 +286,17 @@ namespace StatTag
                     if (!isDuplicate && overlappingTags.Any(x => x.Equals(tag)))
                     {
                         indicator = OverlappingTagIndicator;
+                        hasWarnings = true;
                     }
                     else if (isDuplicate)
                     {
                         indicator = DuplicateTagIndicator;
+                        hasWarnings = false;
                     }
                     lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, indicator }) { Tag = tag });
                 }
 
+                cmdCheckUnlinkedTags.Enabled = hasWarnings;
                 UpdateUIForSelection();
             }
             else

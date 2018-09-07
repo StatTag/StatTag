@@ -40,9 +40,9 @@
             this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.cmdRemoveTags = new System.Windows.Forms.Button();
             this.cmdDefineTag = new System.Windows.Forms.Button();
-            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.updateBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.insertBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.SuspendLayout();
             // 
             // cmdInsert
@@ -134,7 +134,7 @@
             // cmdCheckUnlinkedTags
             // 
             this.cmdCheckUnlinkedTags.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdCheckUnlinkedTags.Image = global::StatTag.Properties.Resources.unlinked_tag_button;
+            this.cmdCheckUnlinkedTags.Enabled = false;
             this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(491, 527);
             this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
@@ -173,17 +173,6 @@
             this.cmdDefineTag.UseVisualStyleBackColor = true;
             this.cmdDefineTag.Click += new System.EventHandler(this.cmdDefineTag_Click);
             // 
-            // txtFilter
-            // 
-            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFilter.Location = new System.Drawing.Point(440, 9);
-            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
-            this.txtFilter.Name = "txtFilter";
-            this.txtFilter.PlaceholderText = "Search";
-            this.txtFilter.Size = new System.Drawing.Size(244, 25);
-            this.txtFilter.TabIndex = 10;
-            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
-            // 
             // updateBackgroundWorker
             // 
             this.updateBackgroundWorker.WorkerReportsProgress = true;
@@ -199,6 +188,17 @@
             this.insertBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.insertBackgroundWorker_DoWork);
             this.insertBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.insertBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
+            // txtFilter
+            // 
+            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFilter.Location = new System.Drawing.Point(440, 9);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.PlaceholderText = "Search";
+            this.txtFilter.Size = new System.Drawing.Size(244, 25);
+            this.txtFilter.TabIndex = 10;
+            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
             // TagManagerForm
             // 
