@@ -85,7 +85,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void ParseIncludingErrors_Null_Empty()
+        public void ParseIncludingInvalidTags_Null_Empty()
         {
             var parser = new StubParser();
             var result = parser.ParseIncludingInvalidTags(null);
@@ -118,7 +118,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void ParseIncludingErrors_Simple()
+        public void ParseIncludingInvalidTags_Simple()
         {
             var parser = new StubParser();
             var lines = new List<string>(new string[]
@@ -151,7 +151,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void ParseIncludingErrors_StartNoEnd()
+        public void ParseIncludingInvalidTags_StartNoEnd()
         {
             var parser = new StubParser();
             var lines = new List<string>(new string[]
@@ -188,7 +188,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void ParseIncludingErrors_TwoStartsOneEnd()
+        public void ParseIncludingInvalidTags_TwoStartsOneEnd()
         {
             var parser = new StubParser();
             var lines = new List<string>(new string[]
@@ -210,7 +210,7 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void ParseIncludingErrors_Overlap()
+        public void ParseIncludingInvalidTags_Overlap()
         {
             var parser = new StubParser();
             var lines = new List<string>(new string[]

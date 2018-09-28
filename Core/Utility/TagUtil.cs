@@ -248,10 +248,10 @@ namespace StatTag.Core.Utility
         /// <returns></returns>
         public static TagCollisionResult DetectTagCollision(IEnumerable<Tag> allTags, Tag tag)
         {
-            // If the tag is null, if the tag has no code file reference, if the code file has no
-            // tags collection, or if the tag has no start or end set we will return null since there 
-            // is no way another for us to actually check for tag collisions.
-            if (tag == null || allTags == null || !allTags.Any())
+            // If the tag is null, if the tag has no start or end, or if the list of tags is null
+            // or empty, we will return null since there is no way another for us to actually check
+            // for tag collisions.
+            if (tag == null || !tag.LineStart.HasValue || !tag.LineEnd.HasValue || allTags == null || !allTags.Any())
             {
                 return null;
             }
@@ -267,53 +267,55 @@ namespace StatTag.Core.Utility
                 return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.NoOverlap };
             }
 
-            // 1. Overlaps exact
-            //    [ - Tag 1 - ]
-            //    [ - Tag 2 - ]
-            var firstOverlapExact = allTags.FirstOrDefault(x => TagsOverlapExact(x, tag));
-            if (firstOverlapExact != null)
+            foreach (var arrayTag in allTags)
             {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsExact, CollidingTag = firstOverlapExact };
-            }
+                var result = DetectTagCollision(tag, arrayTag);
+                if (result != null)
+                {
+                    return result;
+                }
+                //// 1. Overlaps exact
+                ////    [ - Tag 1 - ]
+                ////    [ - Tag 2 - ]
+                //if (TagsOverlapExact(arrayTag, tag))
+                //{
+                //    return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsExact, CollidingTag = arrayTag };
+                //}
 
-            // 2. Embedded within
-            //     [ --- Tag 1 --- ]
-            //       [ - Tag 2 - ]
-            // Note the order of parameters here, we want to see if our new tag (tag) is embedded within an existing tag (x)
-            var firstEmbeddedWithin = allTags.FirstOrDefault(x => TagEmbeddedWithin(tag, x));
-            if (firstEmbeddedWithin != null)
-            {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.EmbeddedWithin, CollidingTag = firstEmbeddedWithin };
-            }
+                //// 2. Embedded within
+                ////     [ --- Tag 1 --- ]
+                ////       [ - Tag 2 - ]
+                //// Note the order of parameters here, we want to see if our new tag (tag) is embedded within an existing tag (x)
+                //if (TagEmbeddedWithin(tag, arrayTag))
+                //{
+                //    return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.EmbeddedWithin, CollidingTag = arrayTag };
+                //}
 
-            // 3. Overlap front
-            //       [ - Tag 1 - ]
-            //    [ -- Tag 2 -- ]
-            var firstOverlapFront = allTags.FirstOrDefault(x => TagOverlapsFront(tag, x));
-            if (firstOverlapFront != null)
-            {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsFront, CollidingTag = firstOverlapFront };
-            }
+                //// 3. Overlap front
+                ////       [ - Tag 1 - ]
+                ////    [ -- Tag 2 -- ]
+                //if (TagOverlapsFront(tag, arrayTag))
+                //{
+                //    return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsFront, CollidingTag = arrayTag };
+                //}
 
+                //// 4. Overlap back
+                ////    [ - Tag 1 - ]
+                ////         [ - Tag 2 - ]
+                //if (TagOverlapsBack(tag, arrayTag))
+                //{
+                //    return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsBack, CollidingTag = arrayTag };
+                //}
 
-            // 4. Overlap back
-            //    [ - Tag 1 - ]
-            //         [ - Tag 2 - ]
-            var firstOverlapBack = allTags.FirstOrDefault(x => TagOverlapsBack(tag, x));
-            if (firstOverlapBack != null)
-            {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.OverlapsBack, CollidingTag = firstOverlapBack };
-            }
-
-            // 5. Embeds
-            //       [ - Tag 1 - ]
-            //     [ --- Tag 2 --- ]
-            // Note the order of parameters here, we want to see if an existing tag (x) is embedded within our new tag (tag)
-            // Said another way, we check if our new tag (tag) embeds an existing tag (x) within it
-            var firstEmbedded = allTags.FirstOrDefault(x => TagEmbeddedWithin(x, tag));
-            if (firstEmbedded != null)
-            {
-                return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.Embeds, CollidingTag = firstEmbedded };
+                //// 5. Embeds
+                ////       [ - Tag 1 - ]
+                ////     [ --- Tag 2 --- ]
+                //// Note the order of parameters here, we want to see if an existing tag (x) is embedded within our new tag (tag)
+                //// Said another way, we check if our new tag (tag) embeds an existing tag (x) within it
+                //if (TagEmbeddedWithin(arrayTag, tag))
+                //{
+                //    return new TagCollisionResult() { Collision = TagCollisionResult.CollisionType.Embeds, CollidingTag = arrayTag };
+                //}
             }
 
             return null;

@@ -126,7 +126,7 @@ namespace StatTag.Core.Parser
             }
 
             var lines = file.LoadFileContent();
-            if (lines == null)
+            if (lines == null || lines.Count == 0)
             {
                 return tags.ToArray();
             }
@@ -188,7 +188,7 @@ namespace StatTag.Core.Parser
             }
 
             var lines = file.LoadFileContent();
-            if (lines == null)
+            if (lines == null || lines.Count == 0)
             {
                 return tags.ToArray();
             }
