@@ -20,13 +20,14 @@ namespace StatTag
 {
     public partial class ThisAddIn
     {
-        public static event EventHandler<EventArgs> AfterDoubleClickErrorCallback;
-        public static event EventHandler<EventArgs> ApplicationActivationChanged;
+        public static event EventHandler<EventArgs> AfterDoubleClickTimerCallback;
 
         public LogManager LogManager = new LogManager();
         public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
+        private System.Threading.Thread DoubleClickThread = null;
+
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
         /// the user about.  When the code file change has been handled by us, the entry is removed from
@@ -74,7 +75,7 @@ namespace StatTag
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
             DocumentManager.TagManager.Logger = LogManager;
-            AfterDoubleClickErrorCallback += OnAfterDoubleClickErrorCallback;
+            AfterDoubleClickTimerCallback += OnAfterDoubleClickTimerCallback;
 
             try
             {
@@ -226,18 +227,61 @@ namespace StatTag
         }
 
         /// <summary>
-        /// Respond to an error after double-clicking on a field.
+        /// Callback after our workaround timer thread completes, where we actually can process
+        /// the double-click event.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="eventArgs"></param>
-        private void OnAfterDoubleClickErrorCallback(object sender, EventArgs eventArgs)
+        private void OnAfterDoubleClickTimerCallback(object sender, EventArgs eventArgs)
         {
-            var exception = sender as Exception;
-            if (exception != null)
+            DoubleClickThread = null;
+
+            var selection = Application.Selection;
+            var fields = WordUtil.SafeGetFieldsFromSelection(selection);
+            var shape = WordUtil.SafeGetShapeRangeFromSelection(selection);
+            var restoreManageTagsFormVisibility = Globals.Ribbons.MainRibbon.GetManageTagsFormVisibility();
+
+            try
             {
-                UIUtility.ReportException(exception,
+                // We require more than one field, since our AM fields show up as 2 fields.
+                if (fields.Count > 1)
+                {
+                    // If there are multiple items selected, we will grab the first field in the selection.
+                    var field = selection.Fields[1];
+                    if (field != null)
+                    {
+                        Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false, true);
+                        DocumentManager.EditTagField(field);
+                        Marshal.ReleaseComObject(field);
+                    }
+                }
+                else if (shape != null && shape.Count > 0)
+                {
+                    DocumentManager.EditTagShape(shape[1]);
+                }
+            }
+            catch (Exception exc)
+            {
+                UIUtility.ReportException(exc,
                     "There was an error attempting to load the details of this tag.  If this problem persists, you may want to remove and insert the tag again.",
                     LogManager);
+            }
+            finally
+            {
+                if (restoreManageTagsFormVisibility)
+                {
+                    Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(true);
+                }
+
+                if (fields != null)
+                {
+                    Marshal.ReleaseComObject(fields);
+                }
+                if (shape != null)
+                {
+                    Marshal.ReleaseComObject(shape);
+                }
+                Marshal.ReleaseComObject(selection);
             }
         }
 
@@ -250,9 +294,14 @@ namespace StatTag
         {
             // Workaround for Word add-in API - there is no AfterDoubleClick event, so we will set a new
             // thread with a timer in it to process the double-click after the message is fully processed.
-            var thread = new System.Threading.Thread(Application_AfterDoubleClick) {IsBackground = true};
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
+            // This must be done in a separate thread - just putting a Thread.Sleep in the main UI thread
+            // doesn't allow the message pump time to clear otherwise.
+            if (DoubleClickThread == null)
+            {
+                DoubleClickThread = new System.Threading.Thread(Application_AfterDoubleClick) { IsBackground = true };
+                DoubleClickThread.SetApartmentState(ApartmentState.STA);
+                DoubleClickThread.Start();
+            }
         }
 
         /// <summary>
@@ -264,51 +313,7 @@ namespace StatTag
             // There is a UI delay that is noticeable, but is required as a workaround to get the double-click to
             // be processed after the actual selection has changed.
             Thread.Sleep(100);
-
-            var selection = Application.Selection;
-            var fields = WordUtil.SafeGetFieldsFromSelection(selection);
-            var shape = WordUtil.SafeGetShapeRangeFromSelection(selection);
-
-            try
-            {
-                // We require more than one field, since our AM fields show up as 2 fields.
-                if (fields.Count > 1)
-                {
-                    // If there are multiple items selected, we will grab the first field in the selection.
-                    var field = selection.Fields[1];
-                    if (field != null)
-                    {
-                        DocumentManager.EditTagField(field);
-                        Marshal.ReleaseComObject(field);
-                    }
-                }
-                else if (shape != null && shape.Count > 0)
-                {
-                    DocumentManager.EditTagShape(shape[1]);
-                }
-            }
-            catch (Exception exc)
-            {
-                // This may also seem kludgy to use a callback, but we want to display the dialog in
-                // the main UI thread.  So we use the callback to transition control back over there
-                // when an error is detected.
-                if (AfterDoubleClickErrorCallback != null)
-                {
-                    AfterDoubleClickErrorCallback(exc, EventArgs.Empty);
-                }
-            }
-            finally
-            {
-                if (fields != null)
-                {
-                    Marshal.ReleaseComObject(fields);
-                }
-                if (shape != null)
-                {
-                    Marshal.ReleaseComObject(shape);
-                }
-                Marshal.ReleaseComObject(selection);
-            }
+            AfterDoubleClickTimerCallback(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -394,7 +399,7 @@ namespace StatTag
         {
             try
             {
-                Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false);
+                Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false, true);
             }
             catch (Exception exc)
             {

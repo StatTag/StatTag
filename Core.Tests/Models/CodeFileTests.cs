@@ -649,10 +649,10 @@ namespace Core.Tests.Models
             codeFile.LoadTagsFromContent();
             Assert.AreEqual(3, codeFile.Tags.Count);  // Only detects 3 out of the 5
 
-            var removeTag = new Tag() {Name = "Tag1", CodeFile = codeFile, LineStart = 1, LineEnd = 6};
+            var removeTag = new Tag() {Name = "Tag 1", CodeFile = codeFile, LineStart = 1, LineEnd = 6};
             codeFile.RemoveCollidingTag(removeTag);
             // Note that we offset lines by 2 (from 9, 11) since we are removing an earlier tag first
-            removeTag = new Tag() {Name = "Tag4", CodeFile = codeFile, LineStart = 7, LineEnd = 9};
+            removeTag = new Tag() {Name = "Tag 4", CodeFile = codeFile, LineStart = 7, LineEnd = 9};
             codeFile.RemoveCollidingTag(removeTag);
 
             var actual = string.Join("\r\n", codeFile.Content);
@@ -706,9 +706,9 @@ namespace Core.Tests.Models
             codeFile.LoadTagsFromContent();
             Assert.AreEqual(3, codeFile.Tags.Count);
 
-            var removeTag = new Tag() { Name = "Tag3", CodeFile = codeFile, LineStart = 7, LineEnd = 12 };
+            var removeTag = new Tag() { Name = "Tag 3", CodeFile = codeFile, LineStart = 7, LineEnd = 12 };
             codeFile.RemoveCollidingTag(removeTag); 
-            removeTag = new Tag() { Name = "Tag1", CodeFile = codeFile, LineStart = 1, LineEnd = 6 };
+            removeTag = new Tag() { Name = "Tag 1", CodeFile = codeFile, LineStart = 1, LineEnd = 6 };
             codeFile.RemoveCollidingTag(removeTag);
 
 
@@ -763,9 +763,9 @@ namespace Core.Tests.Models
             codeFile.LoadTagsFromContent();
             Assert.AreEqual(3, codeFile.Tags.Count);
 
-            var removeTag = new Tag() { Name = "Tag4", CodeFile = codeFile, LineStart = 9, LineEnd = 11 };
+            var removeTag = new Tag() { Name = "Tag 4", CodeFile = codeFile, LineStart = 9, LineEnd = 11 };
             codeFile.RemoveCollidingTag(removeTag);
-            removeTag = new Tag() { Name = "Tag2", CodeFile = codeFile, LineStart = 3, LineEnd = 5 };
+            removeTag = new Tag() { Name = "Tag 2", CodeFile = codeFile, LineStart = 3, LineEnd = 5 };
             codeFile.RemoveCollidingTag(removeTag);
 
 

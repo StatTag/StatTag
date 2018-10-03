@@ -674,6 +674,7 @@ namespace StatTag.Models
             var fieldsCount = fields.Count;
             // Fields is a 1-based index
             Log(string.Format("Preparing to process {0} fields", fieldsCount));
+            int filterCount = (tagFilter == null ? 0 : tagFilter.Count);
             for (int index = fieldsCount; index >= 1; index--)
             {
                 var field = fields[index];
@@ -685,7 +686,9 @@ namespace StatTag.Models
                     }
                     
                     int progressIndex = (fieldsCount - index + 1);
-                    var progressMessage = string.Format("Updating field {0} of {1}", progressIndex, fieldsCount);
+                    var progressMessage = string.Format("Updating {0} {1} - processing field {2} of {3} in the document",
+                        filterCount, "tag".Pluralize(filterCount), progressIndex, fieldsCount);
+
                     reporter.ReportProgress((int)(((progressIndex*1.0)/fieldsCount) * 100), progressMessage);
                 }
 
