@@ -205,8 +205,14 @@ namespace StatTag
 
         private void cmdSettings_Click(object sender, RibbonControlEventArgs e)
         {
+            bool restoreManageTagsDialog = (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed);
             try
             {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(false, true);
+                }
+
                 SettingsDialog = new Settings(SettingsManager.Settings, Manager);
                 if (DialogResult.OK == SettingsDialog.ShowDialog())
                 {
@@ -228,6 +234,11 @@ namespace StatTag
             finally
             {
                 SettingsDialog = null;
+
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(true);
+                }
             }
         }
 
@@ -265,8 +276,14 @@ namespace StatTag
 
         private void cmdAbout_Click(object sender, RibbonControlEventArgs e)
         {
+            bool restoreManageTagsDialog = (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed);
             try
             {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(false, true);
+                }
+
                 var about = new About();
                 about.ShowDialog();
             }
@@ -278,12 +295,26 @@ namespace StatTag
             {
                 LogManager.WriteException(exc);
             }
+            finally
+            {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(true);
+                }
+            }
         }
 
         private void cmdDocumentProperties_Click(object sender, RibbonControlEventArgs e)
         {
+            bool restoreManageTagsDialog = (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed);
+
             try
             {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(false, true);
+                }
+
                 var documentProperties = new DocumentProperties(this.ActiveDocument, this.Manager);
                 documentProperties.ShowDialog();
             }
@@ -294,6 +325,13 @@ namespace StatTag
             catch (Exception exc)
             {
                 LogManager.WriteException(exc);
+            }
+            finally
+            {
+                if (restoreManageTagsDialog)
+                {
+                    SetManageTagsFormVisibility(true);
+                }
             }
         }
     }
