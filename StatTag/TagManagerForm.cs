@@ -29,6 +29,12 @@ namespace StatTag
         public DocumentManager Manager { get; set; }
         public Document ActiveDocument { get; set; }
 
+        /// <summary>
+        /// Holds state of the visibility of this form before an editing event occurs.
+        /// This allows us to properly restore the form visibility after (if needed)
+        /// </summary>
+        private bool? FormVisibilityBeforeEdit = null;
+
         private const int InnerPadding = 3;
         private const int ItemHeight = 60;
         private const int NumberRows = 3;
@@ -143,12 +149,27 @@ namespace StatTag
 
         private void ManagerOnEditingTag(object sender, DocumentManager.TagEventArgs tagEventArgs)
         {
+            // Save the state of the form's visibility
+            FormVisibilityBeforeEdit = Visible;
+
+            // Always attempt to hide the form
             SetTagManagerVisibility(this, false);
         }
 
         private void ManagerOnEditedTag(object sender, DocumentManager.TagEventArgs tagEventArgs)
         {
-            SetTagManagerVisibility(this, true);
+            // If we tracked the form's visibility, and it was visible, then restore it.
+            // If this wasn't tracked for some reason, we err on the side of caution and
+            // will not attempt to show the form.
+            if (FormVisibilityBeforeEdit.HasValue && FormVisibilityBeforeEdit.Value)
+            {
+                SetTagManagerVisibility(this, true);
+            }
+
+            // Reset the value each time
+            FormVisibilityBeforeEdit = null;
+
+            // Select the tag that was just edited.
             SelectTagInList(lvwTags, tagEventArgs.Tag);
         }
 

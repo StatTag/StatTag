@@ -80,13 +80,40 @@ namespace StatTag
             cmdLoadCode.Enabled = (ActiveDocument != null);
         }
 
-        public void SetManageTagsFormVisibility(bool visible)
+        /// <summary>
+        /// Change the visibility of the ManageTags form instance used by the add-in
+        /// </summary>
+        /// <param name="visible">If the ManageTags form should be visible or not</param>
+        /// <param name="onlyIfVisible">If you conditionally only want to change the visibility if the ManageTags form is visible</param>
+        public void SetManageTagsFormVisibility(bool visible, bool onlyIfVisible = false)
         {
-            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed)
+            // The onlyIfVisible flag only really comes into play if we're attempting to hide the
+            // ManageTags form.  This is in response to some odd focus issues across threads when
+            // we're trying to hide the form and display another dialog.
+            if (ManageTagsDialog != null && !ManageTagsDialog.IsDisposed && (!onlyIfVisible || ManageTagsDialog.Visible))
             {
-                ManageTagsDialog.TopMost = visible;
-                ManageTagsDialog.Visible = visible;
+                // Since we may be invoking forms across threads, we use Invoke to change the visibility and
+                // the TopMost setting.
+                ManageTagsDialog.Invoke((MethodInvoker)delegate()
+                {
+                    ManageTagsDialog.TopMost = visible;
+                    ManageTagsDialog.Visible = visible;
+                });
             }
+        }
+
+        /// <summary>
+        /// Return if the ManageTags form is visible or not
+        /// </summary>
+        /// <returns>true if the ManageTags form is currently visible</returns>
+        public bool GetManageTagsFormVisibility()
+        {
+            if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
+            {
+                return false;
+            }
+
+            return ManageTagsDialog.Visible;
         }
 
         private void cmdLoadCode_Click(object sender, RibbonControlEventArgs e)
