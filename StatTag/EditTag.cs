@@ -518,6 +518,8 @@ namespace StatTag
             // Toggle based on the line's current marker status.
             SetLineMarker(line, (line.MarkerGet() & TagMask) <= 0);
 
+            RefreshButtons();
+
             if (codeCheckWorker.IsBusy)
             {
                 ReprocessCodeReview = true;
@@ -566,6 +568,17 @@ namespace StatTag
                     scintilla1.Lines[nextLineIndex + 1].MarkerNext(1 << TagMarker);
             }
             return lines.ToArray();
+        }
+
+        /// <summary>
+        /// Determine if the user has selected one or more lines (as clicks within the margin click zone)
+        /// within the code editor.  Used to determine if the tag being created is valid.
+        /// </summary>
+        /// <returns></returns>
+        private bool HasSelectedLine()
+        {
+            var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << TagMarker);
+            return (nextLineIndex > -1 && nextLineIndex < scintilla1.Lines.Count);
         }
 
         private void SetLineMarker(Line line, bool mark)
@@ -658,8 +671,9 @@ namespace StatTag
 
         private void RefreshButtons()
         {
-            var saveEnabled = !(string.IsNullOrWhiteSpace(txtName.Text));
-            cmdSave.Enabled = saveEnabled;
+            var notEmptyName = !(string.IsNullOrWhiteSpace(txtName.Text));
+            var selectedLine = HasSelectedLine();
+            cmdSave.Enabled = notEmptyName && selectedLine;
         }
 
         private void txtName_TextChanged(object sender, EventArgs e)
