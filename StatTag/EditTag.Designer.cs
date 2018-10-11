@@ -87,9 +87,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(13, 46);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(203, 17);
+            this.label3.Size = new System.Drawing.Size(208, 17);
             this.label3.TabIndex = 12;
-            this.label3.Text = "Click in the margin to define tags:";
+            this.label3.Text = "Click in the margin to define a tag:";
             // 
             // cboCodeFiles
             // 
