@@ -53,7 +53,7 @@
             this.cmdInsert.Name = "cmdInsert";
             this.cmdInsert.Size = new System.Drawing.Size(185, 30);
             this.cmdInsert.TabIndex = 1;
-            this.cmdInsert.Text = "Insert Selected Tags";
+            this.cmdInsert.Text = "Insert Tag Placeholders";
             this.cmdInsert.UseVisualStyleBackColor = true;
             this.cmdInsert.Click += new System.EventHandler(this.cmdInsert_Click);
             // 
@@ -65,7 +65,7 @@
             this.cmdUpdate.Name = "cmdUpdate";
             this.cmdUpdate.Size = new System.Drawing.Size(185, 30);
             this.cmdUpdate.TabIndex = 2;
-            this.cmdUpdate.Text = "Update Selected Tags";
+            this.cmdUpdate.Text = "Update Tag Results";
             this.cmdUpdate.UseVisualStyleBackColor = true;
             this.cmdUpdate.Click += new System.EventHandler(this.cmdUpdate_Click);
             // 

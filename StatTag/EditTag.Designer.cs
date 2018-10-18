@@ -32,14 +32,14 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditTag));
             this.cmdCancel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lblMarginClick = new System.Windows.Forms.Label();
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
             this.lblNoOutputWarning = new System.Windows.Forms.Label();
             this.codeCheckWorker = new System.ComponentModel.BackgroundWorker();
             this.lblAllowedCommands = new System.Windows.Forms.Label();
             this.lblInstructionTitle = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.lblName = new System.Windows.Forms.Label();
             this.cboRunFrequency = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -82,14 +82,14 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "Code file:";
             // 
-            // label3
+            // lblMarginClick
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 46);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(203, 17);
-            this.label3.TabIndex = 12;
-            this.label3.Text = "Click in the margin to define tags:";
+            this.lblMarginClick.AutoSize = true;
+            this.lblMarginClick.Location = new System.Drawing.Point(13, 46);
+            this.lblMarginClick.Name = "lblMarginClick";
+            this.lblMarginClick.Size = new System.Drawing.Size(208, 17);
+            this.lblMarginClick.TabIndex = 12;
+            this.lblMarginClick.Text = "Click in the margin to define a tag:";
             // 
             // cboCodeFiles
             // 
@@ -154,14 +154,14 @@
             this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
             this.txtName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtName_KeyPress);
             // 
-            // label4
+            // lblName
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 31);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(43, 17);
-            this.label4.TabIndex = 34;
-            this.label4.Text = "Name";
+            this.lblName.AutoSize = true;
+            this.lblName.Location = new System.Drawing.Point(13, 31);
+            this.lblName.Name = "lblName";
+            this.lblName.Size = new System.Drawing.Size(43, 17);
+            this.lblName.TabIndex = 34;
+            this.lblName.Text = "Name";
             // 
             // cboRunFrequency
             // 
@@ -197,7 +197,7 @@
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.lblInstructionTitle);
             this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.lblName);
             this.panel1.Controls.Add(this.txtName);
             this.panel1.Controls.Add(this.cboRunFrequency);
             this.panel1.Controls.Add(this.label2);
@@ -296,7 +296,7 @@
             this.cmsSave.Name = "cmsSave";
             this.cmsSave.ShowImageMargin = false;
             this.cmsSave.ShowItemToolTips = false;
-            this.cmsSave.Size = new System.Drawing.Size(180, 48);
+            this.cmsSave.Size = new System.Drawing.Size(180, 26);
             // 
             // tsmSaveAndDefine
             // 
@@ -371,7 +371,7 @@
             this.Controls.Add(this.scintilla1);
             this.Controls.Add(this.lblNoOutputWarning);
             this.Controls.Add(this.cboCodeFiles);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblMarginClick);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmdCancel);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -395,7 +395,7 @@
 
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblMarginClick;
         private System.Windows.Forms.ComboBox cboCodeFiles;
         private System.Windows.Forms.Label lblNoOutputWarning;
         private System.ComponentModel.BackgroundWorker codeCheckWorker;
@@ -404,7 +404,7 @@
         private System.Windows.Forms.Label lblInstructionTitle;
         private Controls.ValueProperties valueProperties;
         private System.Windows.Forms.TextBox txtName;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.ComboBox cboRunFrequency;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;

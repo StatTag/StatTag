@@ -1,4 +1,6 @@
-﻿using StatTag.Controls;
+﻿using System.Text;
+using log4net.Repository.Hierarchy;
+using StatTag.Controls;
 using StatTag.Core;
 using StatTag.Core.Models;
 using System;
@@ -55,7 +57,6 @@ namespace StatTag
                 UIUtility.ScaleFont(this);
                 UIUtility.SetDialogTitle(this);
                 AllowInsertInDocument = allowInsertInDocument;
-                RefreshButtons();
 
                 FindReplaceManager = new FindReplace(scintilla1);
                 incrementalSearcher1.FindReplace = FindReplaceManager;
@@ -233,11 +234,6 @@ namespace StatTag
             }
         }
 
-        private void cmdOK_Click(object sender, EventArgs e)
-        {
-            HandleOkClick(false);
-        }
-
         private void cboCodeFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadCodeFile(cboCodeFiles.SelectedItem as CodeFile);
@@ -289,7 +285,7 @@ namespace StatTag
         /// that situation, this helps prevent it from the front-end.
         /// </summary>
         /// <returns></returns>
-        private bool DetectStoppableCollision()
+        private bool DetectStoppableCollision(List<string> errorCollection)
         {
             if (Tag == null)
             {
@@ -335,46 +331,64 @@ namespace StatTag
                     "Detected collision: tag {0} ({1}, {2}) {3} existing tag {4} ({5}, {6})",
                     Tag.Name, Tag.LineStart, Tag.LineEnd,
                     collisionResult.Collision, collidingTag.Name, collidingTag.LineStart, collidingTag.LineEnd));
-            UIUtility.WarningMessageBox(
-                string.Format(
-                    "The code that you have selected for your new tag overlaps with an existing tag ('{0}').",
-                    collisionResult.CollidingTag.Name),
-                Manager.Logger);
+            errorCollection.Add(string.Format(
+                "Selected code overlaps with an existing tag ('{0}').",
+                collisionResult.CollidingTag.Name));
             return true;
+        }
+
+        private void SetLabelValidationState(Label label, bool isError)
+        {
+            if (isError)
+            {
+                label.ForeColor = Color.Red;
+                label.Font = new Font(label.Font, FontStyle.Bold);
+            }
+            else
+            {
+                label.ForeColor = Color.Black;
+                label.Font = new Font(label.Font, FontStyle.Regular);
+            }
         }
 
         private void EditTag_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (this.DialogResult == DialogResult.OK)
+            if (this.DialogResult != DialogResult.OK)
             {
-                // First, perform the collision test.  This should always be done when a
-                // result is saved (creating new or editing).
-                if (DetectStoppableCollision())
-                {
-                    this.DialogResult = DialogResult.None;
-                    e.Cancel = true;
-                    return;
-                }
+                return;
+            }
 
-                // Next, determine if we should check for a duplicate label.
-                if (!TagUtil.ShouldCheckForDuplicateLabel(OriginalTag, Tag))
-                {
-                    return;
-                }
+            var errorCollection = new List<string>();
+            var isNameEmpty = (string.IsNullOrWhiteSpace(txtName.Text));
+            if (isNameEmpty)
+            {
+                errorCollection.Add("Tag name is blank.");
+            }
 
+            var hasNoSelectedLines = !HasSelectedLine();
+            if (hasNoSelectedLines)
+            {
+                errorCollection.Add("No code selected. Select by clicking next to the line number.");
+            }
+
+            // Perform the collision test.  This should always be done when a
+            // result is saved (creating new or editing).
+            var hasStoppableCollision = DetectStoppableCollision(errorCollection);
+
+            // Next, determine if we should check for a duplicate label.
+            var hasDuplicateTagLabel = false;
+            if (TagUtil.ShouldCheckForDuplicateLabel(OriginalTag, Tag))
+            {
                 var files = Manager.GetCodeFileList();
                 var result = TagUtil.CheckForDuplicateLabels(Tag, files);
                 if (result != null && result.Count > 0)
                 {
                     if (TagUtil.IsDuplicateLabelInSameFile(Tag, result))
                     {
-                        UIUtility.WarningMessageBox(
-                            string.Format(
-                                "The tag name you have entered ('{0}') already appears in this file.\r\nPlease give this tag a unique name before proceeding.",
-                                Tag.Name),
-                            Manager.Logger);
-                        this.DialogResult = DialogResult.None;
-                        e.Cancel = true;
+                        errorCollection.Add(string.Format(
+                            "Tag name is not unique.  Tag '{0}' already appears in this code file.",
+                            Tag.Name));
+                        hasDuplicateTagLabel = true;
                     }
                     else if (DialogResult.Yes != MessageBox.Show(
                         string.Format(
@@ -382,10 +396,37 @@ namespace StatTag
                             Tag.Name, result.Count, "file".Pluralize(result.Count)),
                         UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
                     {
+                        // If the user says "No" to using the label, we are going to stop before we would show them any other error
+                        // messages (potentially).  This way they aren't flooded by additional errors, when they just indicated
+                        // they didn't want to proceed with creating the tag.
                         this.DialogResult = DialogResult.None;
                         e.Cancel = true;
+                        return;
                     }
                 }
+            }
+
+            SetLabelValidationState(lblName, (isNameEmpty || hasDuplicateTagLabel));
+            SetLabelValidationState(lblMarginClick, (hasNoSelectedLines || hasStoppableCollision));
+
+            if (hasNoSelectedLines || hasStoppableCollision || isNameEmpty || hasDuplicateTagLabel)
+            {
+                var errorMessageBuilder = new StringBuilder();
+                errorMessageBuilder.AppendFormat("StatTag detected {0} {1} with this tag:\r\n",
+                    errorCollection.Count, "problem".Pluralize(errorCollection.Count));
+                foreach (var err in errorCollection)
+                {
+                    errorMessageBuilder.AppendFormat("- {0}\r\n", err);
+                }
+
+                errorMessageBuilder.AppendFormat(
+                    "\r\nPlease see the User’s Guide for more information.");
+
+                UIUtility.WarningMessageBox(errorMessageBuilder.ToString().Trim(), Manager.Logger);
+
+                this.DialogResult = DialogResult.None;
+                e.Cancel = true;
+                return;
             }
         }
 
@@ -568,6 +609,17 @@ namespace StatTag
             return lines.ToArray();
         }
 
+        /// <summary>
+        /// Determine if the user has selected one or more lines (as clicks within the margin click zone)
+        /// within the code editor.  Used to determine if the tag being created is valid.
+        /// </summary>
+        /// <returns></returns>
+        private bool HasSelectedLine()
+        {
+            var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << TagMarker);
+            return (nextLineIndex > -1 && nextLineIndex < scintilla1.Lines.Count);
+        }
+
         private void SetLineMarker(Line line, bool mark)
         {
             if (mark)
@@ -656,15 +708,8 @@ namespace StatTag
             UpdateForTypeClick();
         }
 
-        private void RefreshButtons()
-        {
-            var saveEnabled = !(string.IsNullOrWhiteSpace(txtName.Text));
-            cmdSave.Enabled = saveEnabled;
-        }
-
         private void txtName_TextChanged(object sender, EventArgs e)
         {
-            RefreshButtons();
         }
 
         private void tsmSaveAndDefine_Click(object sender, EventArgs e)

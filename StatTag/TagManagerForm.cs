@@ -609,8 +609,8 @@ namespace StatTag
             cmdInsert.Enabled = hasSelection;
             cmdUpdate.Enabled = hasSelection;
             cmdRemoveTags.Enabled = hasSelection;
-            cmdInsert.Text = string.Format("Insert {0} Selected Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
-            cmdUpdate.Text = string.Format("Update {0} Selected Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
+            cmdInsert.Text = string.Format("Insert {0} Tag Placeholder{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
+            cmdUpdate.Text = string.Format("Update {0} Tag Result{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
             cmdRemoveTags.Text = string.Format("Remove {0} Tag{1}", selectionCount, (selectionCount != 1 ? "s" : ""));
         }
 
