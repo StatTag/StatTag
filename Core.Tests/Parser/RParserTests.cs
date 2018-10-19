@@ -209,6 +209,15 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void PreProcessContent_Null_Empty()
+        {
+            var parser = new RParser();
+            Assert.AreEqual(0, parser.PreProcessContent(null).Count);
+            var testList = new List<string>();
+            Assert.AreEqual(0, parser.PreProcessContent(testList).Count);
+        }
+
+        [TestMethod]
         public void PreProcessContent()
         {
             var parser = new RParser();

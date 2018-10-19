@@ -159,6 +159,15 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void PreProcessContent_Null_Empty()
+        {
+            var parser = new SASParser();
+            Assert.AreEqual(0, parser.PreProcessContent(null).Count);
+            var testList = new List<string>();
+            Assert.AreEqual(0, parser.PreProcessContent(testList).Count);
+        }
+
+        [TestMethod]
         public void PreProcessContent_MultiLineCommands()
         {
             var parser = new SASParser();
@@ -214,7 +223,7 @@ namespace Core.Tests.Parser
 
             // Check an empty collection
             testList = new List<string>();
-            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual(0, parser.PreProcessContent(testList).Count);
             Assert.AreEqual(string.Empty, string.Join("\r\n", parser.PreProcessContent(testList)));
 
         }
