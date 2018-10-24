@@ -299,6 +299,7 @@ namespace StatTag.Models
             // linked code files.  Because a code file may be linked but no longer exist, we
             // need to filter down our list of files to only include those that are found at
             // the specified path.
+            var tagComparer = new TagWithLineNumEqualityComparer();
             var files = DocumentManager.GetCodeFileList().Where(x => File.Exists(x.FilePath)).ToList();
             foreach (var file in files)
             {
@@ -337,8 +338,8 @@ namespace StatTag.Models
                         // in a collision group already.  If so, we'll add the tags that are missing from the group.
                         // If not, we will create a new group.
                         var collection = results[file];
-                        var foundTagGroup1 = collection.FirstOrDefault(x => x.Contains(tag1));
-                        var foundTagGroup2 = collection.FirstOrDefault(x => x.Contains(tag2));
+                        var foundTagGroup1 = collection.FirstOrDefault(x => x.Contains(tag1, tagComparer));
+                        var foundTagGroup2 = collection.FirstOrDefault(x => x.Contains(tag2, tagComparer));
                         if (foundTagGroup1 == null && foundTagGroup2 == null)
                         {
                             Log("Creating a new tag collision group");
@@ -897,6 +898,9 @@ namespace StatTag.Models
             foreach (var tag in sortedTags)
             {
                 tag.CodeFile.RemoveCollidingTag(tag);
+                // Be sure to offset our list of tags to be removed, since as we remove items their
+                // indexes will be off.
+                CodeFile.OffsetTagListByRemovedTag(sortedTags, tag);
             }
         }
     }

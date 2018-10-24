@@ -134,6 +134,7 @@
     <Compile Include="Models\LogManager.cs" />
     <Compile Include="Models\MonitoredCodeFile.cs" />
     <Compile Include="Models\OverlappingTagResults.cs" />
+    <Compile Include="Models\TagWithLineNumEqualityComparer.cs" />
     <Compile Include="Models\UserSettings.cs" />
     <Compile Include="Models\RGBColorConverter.cs" />
     <Compile Include="Models\StatPackageState.cs" />

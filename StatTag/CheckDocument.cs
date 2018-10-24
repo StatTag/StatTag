@@ -268,7 +268,7 @@ namespace StatTag
                 var selectedTag = group.GetTagToKeep();
                 if (selectedTag != null)
                 {
-                    CollidingTagUpdates.Add(selectedTag, group.Tags.Where(x => !x.Equals(selectedTag)).ToList());
+                    CollidingTagUpdates.Add(selectedTag, group.Tags.Where(x => !x.EqualsWithPosition(selectedTag)).ToList());
                 }
             }
 
