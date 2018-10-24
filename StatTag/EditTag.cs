@@ -139,7 +139,6 @@ namespace StatTag
             cboResultType.SelectedItem = DefaultTagType;
             UpdateForTypeClick();
 
-            cboRunFrequency.Items.AddRange(GeneralUtil.StringArrayToObjectArray(Constants.RunFrequency.GetList()));
             cboCodeFiles.DisplayMember = "FilePath";
             if (Manager != null)
             {
@@ -167,7 +166,6 @@ namespace StatTag
                 cboCodeFiles.SelectedItem = Tag.CodeFile;
                 ScintillaManager.ConfigureEditor(scintilla1, Tag.CodeFile);
                 cboCodeFiles.Enabled = false;  // We don't allow switching code files
-                cboRunFrequency.SelectedItem = Tag.RunFrequency;
                 txtName.Text = Tag.Name;
                 cboResultType.SelectedItem = Tag.Type;
                 UpdateForTypeClick();
@@ -223,9 +221,6 @@ namespace StatTag
                         cboCodeFiles.SelectedItem = DefaultCodeFile;
                     }
                 }
-
-                // Default the default run frequency to "Default" (by default)
-                cboRunFrequency.SelectedItem = Constants.RunFrequency.Always;
             }
 
             if (string.IsNullOrWhiteSpace(txtName.Text))
@@ -665,7 +660,10 @@ namespace StatTag
             CodeText = scintilla1.Text;
             Tag.Type = TagType;
             Tag.Name = Tag.NormalizeName(txtName.Text);
-            Tag.RunFrequency = cboRunFrequency.SelectedItem as string;
+            // With the removal of the run frequency option in v4.0, we are defaulting to OnDemand for all future created tags.
+            // This is a temporary workaround so that tags created in the new version are loaded into the old version of StatTag
+            // with a value for this attribute.  In the future we will remove this attribute.
+            Tag.RunFrequency = Constants.RunFrequency.OnDemand;
             Tag.CodeFile = cboCodeFiles.SelectedItem as CodeFile;
             var selectedIndices = GetSelectedIndices();
             if (!selectedIndices.Any())

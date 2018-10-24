@@ -40,8 +40,6 @@
             this.lblInstructionTitle = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.lblName = new System.Windows.Forms.Label();
-            this.cboRunFrequency = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label5 = new System.Windows.Forms.Label();
             this.figureProperties = new StatTag.Controls.FigureProperties();
@@ -54,8 +52,8 @@
             this.cmsSave = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmSaveAndDefine = new System.Windows.Forms.ToolStripMenuItem();
             this.cmdSave = new Sce.Atf.Controls.SplitButton();
-            this.incrementalSearcher1 = new ScintillaNET_FindReplaceDialog.IncrementalSearcher();
             this.verticalLine1 = new StatTag.Controls.VerticalLine();
+            this.incrementalSearcher1 = new ScintillaNET_FindReplaceDialog.IncrementalSearcher();
             this.scintilla1 = new ScintillaNET.Scintilla();
             this.panel1.SuspendLayout();
             this.cmsSave.SuspendLayout();
@@ -163,26 +161,6 @@
             this.lblName.TabIndex = 34;
             this.lblName.Text = "Name";
             // 
-            // cboRunFrequency
-            // 
-            this.cboRunFrequency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboRunFrequency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboRunFrequency.FormattingEnabled = true;
-            this.cboRunFrequency.Location = new System.Drawing.Point(94, 59);
-            this.cboRunFrequency.Name = "cboRunFrequency";
-            this.cboRunFrequency.Size = new System.Drawing.Size(205, 25);
-            this.cboRunFrequency.TabIndex = 33;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 62);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(52, 17);
-            this.label2.TabIndex = 32;
-            this.label2.Text = "Refresh";
-            // 
             // panel1
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -199,8 +177,6 @@
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.lblName);
             this.panel1.Controls.Add(this.txtName);
-            this.panel1.Controls.Add(this.cboRunFrequency);
-            this.panel1.Controls.Add(this.label2);
             this.panel1.Location = new System.Drawing.Point(767, 10);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(312, 576);
@@ -218,7 +194,7 @@
             // figureProperties
             // 
             this.figureProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.figureProperties.Location = new System.Drawing.Point(6, 134);
+            this.figureProperties.Location = new System.Drawing.Point(6, 102);
             this.figureProperties.Name = "figureProperties";
             this.figureProperties.Size = new System.Drawing.Size(293, 20);
             this.figureProperties.TabIndex = 43;
@@ -229,10 +205,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tableProperties.Location = new System.Drawing.Point(6, 134);
+            this.tableProperties.Location = new System.Drawing.Point(6, 102);
             this.tableProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tableProperties.Name = "tableProperties";
-            this.tableProperties.Size = new System.Drawing.Size(293, 315);
+            this.tableProperties.Size = new System.Drawing.Size(293, 346);
             this.tableProperties.TabIndex = 40;
             // 
             // horizontalLine1
@@ -240,7 +216,7 @@
             this.horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            this.horizontalLine1.Location = new System.Drawing.Point(1, 120);
+            this.horizontalLine1.Location = new System.Drawing.Point(1, 88);
             this.horizontalLine1.Margin = new System.Windows.Forms.Padding(0);
             this.horizontalLine1.Name = "horizontalLine1";
             this.horizontalLine1.Size = new System.Drawing.Size(308, 10);
@@ -252,7 +228,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.valueProperties.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.valueProperties.Location = new System.Drawing.Point(6, 134);
+            this.valueProperties.Location = new System.Drawing.Point(6, 102);
             this.valueProperties.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.valueProperties.Name = "valueProperties";
             this.valueProperties.Size = new System.Drawing.Size(293, 116);
@@ -264,7 +240,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboResultType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboResultType.FormattingEnabled = true;
-            this.cboResultType.Location = new System.Drawing.Point(94, 90);
+            this.cboResultType.Location = new System.Drawing.Point(94, 58);
             this.cboResultType.Name = "cboResultType";
             this.cboResultType.Size = new System.Drawing.Size(205, 25);
             this.cboResultType.TabIndex = 38;
@@ -273,7 +249,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(13, 93);
+            this.label7.Location = new System.Drawing.Point(13, 61);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(75, 17);
             this.label7.TabIndex = 37;
@@ -318,22 +294,6 @@
             this.cmdSave.UseVisualStyleBackColor = true;
             this.cmdSave.Click += new System.EventHandler(this.cmdSave_Click);
             // 
-            // incrementalSearcher1
-            // 
-            this.incrementalSearcher1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.incrementalSearcher1.AutoPosition = false;
-            this.incrementalSearcher1.AutoSize = true;
-            this.incrementalSearcher1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.incrementalSearcher1.BackColor = System.Drawing.Color.Transparent;
-            this.incrementalSearcher1.FindReplace = null;
-            this.incrementalSearcher1.Location = new System.Drawing.Point(462, 46);
-            this.incrementalSearcher1.Margin = new System.Windows.Forms.Padding(0);
-            this.incrementalSearcher1.Name = "incrementalSearcher1";
-            this.incrementalSearcher1.Scintilla = null;
-            this.incrementalSearcher1.Size = new System.Drawing.Size(286, 26);
-            this.incrementalSearcher1.TabIndex = 43;
-            this.incrementalSearcher1.ToolItem = true;
-            // 
             // verticalLine1
             // 
             this.verticalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -343,6 +303,22 @@
             this.verticalLine1.Name = "verticalLine1";
             this.verticalLine1.Size = new System.Drawing.Size(10, 576);
             this.verticalLine1.TabIndex = 42;
+            // 
+            // incrementalSearcher1
+            // 
+            this.incrementalSearcher1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.incrementalSearcher1.AutoPosition = false;
+            this.incrementalSearcher1.AutoSize = true;
+            this.incrementalSearcher1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.incrementalSearcher1.BackColor = System.Drawing.Color.Transparent;
+            this.incrementalSearcher1.FindReplace = null;
+            this.incrementalSearcher1.Location = new System.Drawing.Point(462, 43);
+            this.incrementalSearcher1.Margin = new System.Windows.Forms.Padding(0);
+            this.incrementalSearcher1.Name = "incrementalSearcher1";
+            this.incrementalSearcher1.Scintilla = null;
+            this.incrementalSearcher1.Size = new System.Drawing.Size(286, 26);
+            this.incrementalSearcher1.TabIndex = 43;
+            this.incrementalSearcher1.ToolItem = true;
             // 
             // scintilla1
             // 
@@ -405,8 +381,6 @@
         private Controls.ValueProperties valueProperties;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Label lblName;
-        private System.Windows.Forms.ComboBox cboRunFrequency;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox cboResultType;
