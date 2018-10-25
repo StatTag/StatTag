@@ -391,6 +391,14 @@ namespace StatTag.Models
                 throw new StatTagUserException(string.Format("The figure you created could not be found at {0}.\r\n\r\nPlease ensure that the figure is being created by your statistical program.  If it is, and you are using relative paths for the figure output, please try changing your statistical code to provide the full path to the figure.", fileName));
             }
 
+            var selection = application.Selection;
+            if (selection == null)
+            {
+                Log("The selection is NULL - we will exit since we cannot proceed with the insert");
+                return;
+            }
+            selection.Delete();
+
             if (fileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase))
             {
                 Log(string.Format("Inserting a PDF image - {0}", fileName));
@@ -401,7 +409,7 @@ namespace StatTag.Models
                 object missing = System.Reflection.Missing.Value;
                 // For PDFs, we can ONLY insert them as a link to the file.  Trying it any other way will cause
                 // an error during the insert.
-                application.Selection.InlineShapes.AddOLEObject(ref classType, ref fileNameObject, 
+                selection.InlineShapes.AddOLEObject(ref classType, ref fileNameObject, 
                     ref oTrue, ref oFalse, ref missing, ref missing, ref missing, ref missing);
             }
             else
@@ -409,7 +417,7 @@ namespace StatTag.Models
                 Log(string.Format("Inserting a non-PDF image - {0}", fileName));
                 object linkToFile = true;
                 object saveWithDocument = true;
-                application.Selection.InlineShapes.AddPicture(fileName, linkToFile, saveWithDocument);
+                selection.InlineShapes.AddPicture(fileName, linkToFile, saveWithDocument);
             }
 
             Log("InsertImage - Finished");
