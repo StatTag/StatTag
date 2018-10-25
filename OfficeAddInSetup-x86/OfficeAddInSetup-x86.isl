@@ -4423,7 +4423,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{86D8DBD6-083F-4166-9BD1-07614EEEA794}</td><td/></row>
+		<row><td>ProductCode</td><td>{36DC2B7E-F7B9-4FCE-9FA6-456F15625455}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
 		<row><td>ProductVersion</td><td>4.0.0.5</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
