@@ -1,6 +1,6 @@
 ﻿namespace StatTag.Controls
 {
-    partial class CollidingTagsGroup
+    sealed partial class CollidingTagsGroup
     {
         /// <summary> 
         /// Required designer variable.

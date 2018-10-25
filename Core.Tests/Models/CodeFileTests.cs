@@ -732,6 +732,70 @@ namespace Core.Tests.Models
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(13, codeFile.Content.Count);
         }
+        [TestMethod]
+        public void RemoveCollidingTags_NestedSameNames()
+        {
+            var mock = new Mock<IFileHandler>();
+            mock.Setup(file => file.ReadAllLines(It.IsAny<string>())).Returns(new[]
+            {
+                "attach(mtcars)",
+                "",
+                "mtcars$mpg",
+                "mtcars",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 1)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 2)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 2)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 2)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "##<<<",
+                "##<<<",
+                "",
+                "##>>>ST:Verbatim(Label=\"Test\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            mock.Setup(file => file.Exists(It.IsAny<string>())).Returns(true);
+
+            var codeFile = new CodeFile(mock.Object) { StatisticalPackage = Constants.StatisticalPackages.R };
+            codeFile.LoadTagsFromContent();
+            Assert.AreEqual(3, codeFile.Tags.Count);
+
+            var removeTag = new Tag() { Name = "Inner Tag (Group 2)", CodeFile = codeFile, LineStart = 10, LineEnd = 15 };
+            codeFile.RemoveCollidingTag(removeTag);
+            removeTag = new Tag() { Name = "Inner Tag (Group 2)", CodeFile = codeFile, LineStart = 8, LineEnd = 14 };
+
+            codeFile.RemoveCollidingTag(removeTag);
+
+            var actual = string.Join("\r\n", codeFile.Content);
+            var expected = string.Join("\r\n", new[]
+            {
+                "attach(mtcars)",
+                "",
+                "mtcars$mpg",
+                "mtcars",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 1)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "",
+                "mtcars",
+                "mtcars",
+                "##>>>ST:Table(Label=\"Inner Tag (Group 2)\", Frequency=\"Always\", Type=\"Numeric\", AllowInvalid=True, Decimals=0, Thousands=False)",
+                "mtcars",
+                "##<<<",
+                "",
+                "##>>>ST:Verbatim(Label=\"Test\", Frequency=\"Always\")",
+                "mtcars$mpg",
+                "##<<<"
+            });
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(17, codeFile.Content.Count);
+        }
 
         [TestMethod]
         public void RemoveCollidingTags_BothInner()

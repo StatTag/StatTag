@@ -314,6 +314,7 @@
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\BackgroundWorkerProgressReporter.cs" />
+    <Compile Include="Models\ObservableConcurrentQueue.cs" />
     <Compile Include="Models\StatTagWordWindow.cs" />
     <Compile Include="Models\TagListViewColumnSorter.cs" />
     <Compile Include="Models\TagManager.cs" />

@@ -368,13 +368,26 @@ namespace StatTag.Core.Models
             ContentCache.RemoveAt(tag.LineEnd.Value);
             ContentCache.RemoveAt(tag.LineStart.Value);
 
+            // Offset the list of tracked tags for this code file to reflect the removed lines
+            OffsetTagListByRemovedTag(Tags, tag);
+        }
+
+        /// <summary>
+        /// Utility function to offset the line indexes of a list of tags, given a tag that
+        /// is being removed.  This will account for the various overlapping/embedding scenarios
+        /// that can affect line offsets.
+        /// </summary>
+        /// <param name="tagList"></param>
+        /// <param name="removedTag"></param>
+        public static void OffsetTagListByRemovedTag(IEnumerable<Tag> tagList, Tag removedTag)
+        {
             // Any tags below the one being removed need to be adjusted
-            foreach (var otherTag in Tags)
+            foreach (var otherTag in tagList)
             {
                 // If the other tag starts after the removed tag ends, we need to offset
                 // the start and end by two (one for each of the lines that were removed
                 // for the start and end comments, respectively)
-                if (otherTag.LineStart > tag.LineEnd)
+                if (otherTag.LineStart > removedTag.LineEnd)
                 {
                     otherTag.LineStart -= 2;
                     otherTag.LineEnd -= 2;
@@ -382,9 +395,23 @@ namespace StatTag.Core.Models
                 // If the other tag only starts after the removed tag ends, we just offset
                 // by one to account for the removed start tag.  The removed end tag
                 // won't affect us.
-                else if (otherTag.LineStart > tag.LineStart)
+                else if (otherTag.LineStart > removedTag.LineStart)
                 {
                     otherTag.LineStart -= 1;
+                    otherTag.LineEnd -= 1;
+                }
+                // If the other tag starts before the removed tag starts, the start position
+                // isn't impacted.  But if it ends after the removed tag starts, we need to
+                // offset just our end position by 2
+                else if (otherTag.LineStart < removedTag.LineStart && otherTag.LineEnd > removedTag.LineEnd)
+                {
+                    otherTag.LineEnd -= 2;
+                }
+                // If the other tag starts before the removed tag starts, the start position
+                // isn't impacted.  But if it ends after the removed tag end, we need to
+                // offset just our end position by 1
+                else if (otherTag.LineStart < removedTag.LineStart && otherTag.LineEnd > removedTag.LineStart)
+                {
                     otherTag.LineEnd -= 1;
                 }
             }

@@ -11,7 +11,7 @@ using StatTag.Core.Models;
 
 namespace StatTag.Controls
 {
-    public partial class CollidingTagsGroup : UserControl
+    public sealed partial class CollidingTagsGroup : UserControl
     {
         public List<Tag> Tags { get; set; }
 
@@ -22,6 +22,16 @@ namespace StatTag.Controls
             InitializeComponent();
             this.AutoSize = true;
             lvwTags.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+        }
+
+        private class TagListItem
+        {
+            public Tag Tag { get; set; }
+            public TagListItem(Tag tag) { Tag = tag; }
+            public override string ToString()
+            {
+                return string.Format("{0} (Lines {1})", Tag.Name, Tag.FormatLineNumberRange());
+            }
         }
 
         public void SetData(List<Tag> collidingTags)
@@ -43,7 +53,7 @@ namespace StatTag.Controls
                 item.SubItems.Add(tag.FormatLineNumberRange());
                 height += item.Bounds.Height;
 
-                cboKeepTag.Items.Add(tag.Name);
+                cboKeepTag.Items.Add(new TagListItem(tag));
             }
             cboKeepTag.SelectedIndex = cboKeepTag.Items.Count - 1;
             lvwTags.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -53,13 +63,8 @@ namespace StatTag.Controls
 
         public Tag GetTagToKeep()
         {
-            var selectedItem = cboKeepTag.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(selectedItem))
-            {
-                return null;
-            }
-
-            return Tags.FirstOrDefault(x => x.Name.Equals(selectedItem));
+            var selectedItem = cboKeepTag.SelectedItem as TagListItem;
+            return (selectedItem == null) ? null : selectedItem.Tag;
         }
 
         private void cmdPeek_MouseClick(object sender, MouseEventArgs e)

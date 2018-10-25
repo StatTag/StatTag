@@ -33,7 +33,7 @@ namespace StatTag
         /// the user about.  When the code file change has been handled by us, the entry is removed from
         /// this collection.
         /// </summary>
-        private ConcurrentQueue<string> ModifiedCodeFiles = new ConcurrentQueue<string>(); 
+        private ObservableConcurrentQueue<string> ModifiedCodeFiles = new ObservableConcurrentQueue<string>(); 
 
         /// <summary>
         /// Perform a safe get of the active document.  There is no other way to safely
@@ -76,6 +76,7 @@ namespace StatTag
             DocumentManager.Logger = LogManager;
             DocumentManager.TagManager.Logger = LogManager;
             AfterDoubleClickTimerCallback += OnAfterDoubleClickTimerCallback;
+            ModifiedCodeFiles.ItemAdded += OnModifiedCodeFileAdded;
 
             try
             {
@@ -95,6 +96,53 @@ namespace StatTag
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize StatTag.  Not all functionality may be available.", LogManager);
+            }
+        }
+
+        /// <summary>
+        /// Event handler called when a modified code file is detected.  This will be called in
+        /// the background for each code file change, even if Word is not active.  Separate code
+        /// is used to detect when a document becomes active, so that the user is informed that
+        /// we detected the update.  This ensures the underlying data structures are up to date
+        /// with respect to changes in the affected code file.
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="item"></param>
+        private void OnModifiedCodeFileAdded(ConcurrentQueue<string> queue, string item)
+        {
+            try
+            {
+                LogManager.WriteMessage(string.Format("OnModifiedCodeFileAdded - {0}", item));
+
+                Globals.Ribbons.MainRibbon.UIStatusAfterFileLoad();
+
+                if (!ModifiedCodeFiles.IsEmpty)
+                {
+                    var documents = Application.Documents;
+                    LogManager.WriteMessage(string.Format("Processing code file: {0}", item));
+                    // Reload the code files for ALL affected documents.
+                    foreach (var document in documents.OfType<Word.Document>())
+                    {
+                        if (DocumentManager.IsCodeFileLinkedToDocument(document, item))
+                        {
+                            LogManager.WriteMessage(string.Format("  - Reloading code file in document {0}",
+                                document.FullName));
+                            DocumentManager.RefreshContentInDocumentCodeFiles(document);
+                        }
+                    }
+                }
+                else
+                {
+                    LogManager.WriteMessage("OnModifiedCodeFileAdded - at time of processing, no modified code files detected");
+                }
+            }
+            catch (StatTagUserException uex)
+            {
+                LogManager.WriteException(uex);
+            }
+            catch (Exception exc)
+            {
+                LogManager.WriteException(exc);
             }
         }
         
@@ -344,19 +392,7 @@ namespace StatTag
                         string filePath = string.Empty;
                         if (ModifiedCodeFiles.TryDequeue(out filePath))
                         {
-                            LogManager.WriteMessage(string.Format("Processing code file: {0}", filePath));
                             messageBuilder.AppendFormat("  - {0}\r\n", filePath);
-
-                            // Reload the code files for ALL affected documents.
-                            foreach (var document in documents.OfType<Word.Document>())
-                            {
-                                if (DocumentManager.IsCodeFileLinkedToDocument(document, filePath))
-                                {
-                                    LogManager.WriteMessage(string.Format("  - Reloading code file in document {0}",
-                                        document.FullName));
-                                    DocumentManager.RefreshContentInDocumentCodeFiles(document);
-                                }
-                            }
                         }
                         else if (failedDequeueCount >= 5)
                         {
@@ -383,6 +419,10 @@ namespace StatTag
                     // Alert the user at what's affected
                     var message = messageBuilder.ToString().Trim();
                     UIUtility.WarningMessageBox(message, LogManager);
+                }
+                else
+                {
+                    LogManager.WriteMessage("Activated Word window - no modified code files detected");
                 }
             }
             catch (StatTagUserException uex)
@@ -417,10 +457,7 @@ namespace StatTag
 
             var filePath = monitoredCodeFile.FilePath;
             LogManager.WriteMessage("Code file changed: " + filePath);
-            if (!ModifiedCodeFiles.Contains(filePath))
-            {
-                ModifiedCodeFiles.Enqueue(filePath);
-            }
+            ModifiedCodeFiles.EnqueueDistinctWithNotification(filePath);
 
             // Close all open dialogs.  We need to do this here instead of Application_WindowActivate, since at that
             // point an open dialog blocks Application_WindowActivate from being called.

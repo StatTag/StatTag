@@ -142,6 +142,13 @@ namespace StatTag.Core.Parser
         /// <returns>An array of commands with multi-line commands on a single line.  The size will be &lt;= the size of originalContent</returns>
         public List<string> CollapseMultiLineCommands(List<string> originalContent)
         {
+            // Make sure to check for null or empty early on.  We will provide an empty List back, as
+            // opposed to a null response.
+            if (originalContent == null || originalContent.Count == 0)
+            {
+                return new List<string>();
+            }
+
             var originalText = string.Join("\r\n", originalContent);
 
             // This is a fringe case - but in the event there is no command delimiter in this
