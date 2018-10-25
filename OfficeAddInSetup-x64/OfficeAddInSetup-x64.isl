@@ -4718,7 +4718,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>4.0.0.3</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 4.0.0.3</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>4.0.0.4</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 4.0.0.4</td></row>
 	</table>
 
 	<table name="Verb">
