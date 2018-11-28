@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 
 namespace StatTag.Core.Parser
@@ -174,7 +175,7 @@ namespace StatTag.Core.Parser
             return splitCommands;
         }
 
-        public override List<string> PreProcessContent(List<string> originalContent)
+        public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
         {
             return new List<string>(CollapseMultiLineCommands(originalContent));
         }

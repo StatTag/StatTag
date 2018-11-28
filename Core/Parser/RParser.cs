@@ -341,7 +341,7 @@ namespace StatTag.Core.Parser
             return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToArray();
         }
 
-        public override List<string> PreProcessContent(List<string> originalContent)
+        public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
         {
             if (originalContent == null || originalContent.Count == 0)
             {

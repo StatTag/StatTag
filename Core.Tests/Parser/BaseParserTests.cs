@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StatTag.Core.Parser;
@@ -63,7 +64,7 @@ namespace Core.Tests.Parser
                 throw new NotImplementedException();
             }
 
-            public override List<string> PreProcessContent(List<string> originalContent)
+            public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
             {
                 return originalContent;
             }
@@ -338,7 +339,7 @@ namespace Core.Tests.Parser
                 "**<<<",
                 "declare value3",
             }));
-            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
+            var results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Tag);
@@ -355,7 +356,7 @@ namespace Core.Tests.Parser
                 "**<<<",
                 "declare value3",
             }));
-            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
+            results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.Tag, results[0].Type);
             Assert.IsNotNull(results[0].Tag);
@@ -370,7 +371,7 @@ namespace Core.Tests.Parser
                 "declare value3",
                 "**<<<",
             }));
-            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
+            results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Tag);
@@ -390,7 +391,7 @@ namespace Core.Tests.Parser
                 "declare value3",
                 "**<<<",
             }));
-            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
+            results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.Tag, results[0].Type);
             Assert.IsNotNull(results[0].Tag);
@@ -415,7 +416,7 @@ namespace Core.Tests.Parser
                 "declare value2",
                 "**<<<"
             }));
-            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.ExcludeOnDemand);
+            var results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.ExcludeOnDemand);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(Constants.ExecutionStepType.CodeBlock, results[0].Type);
             Assert.IsNull(results[0].Tag);
@@ -449,10 +450,10 @@ namespace Core.Tests.Parser
             }));
             mock.Object.FilePath = "Test.do";
             mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
-            var results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.TagList);
+            var results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.TagList);
             Assert.AreEqual(3, results.Count);
 
-            results = parser.GetExecutionSteps(mock.Object, Constants.ParserFilterMode.TagList, new List<Tag>()
+            results = parser.GetExecutionSteps(mock.Object, null, Constants.ParserFilterMode.TagList, new List<Tag>()
             {
                 new Tag() { Name = "Test1", Type = Constants.TagType.Value, CodeFile = mock.Object }
             });

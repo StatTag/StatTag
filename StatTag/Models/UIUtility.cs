@@ -275,6 +275,9 @@ namespace StatTag
                     case Constants.StatisticalPackages.R:
                         formatter = new RCommands();
                         break;
+                    case Constants.StatisticalPackages.RMarkdown:
+                        formatter = new RCommands();
+                        break;
                 }
 
                 if (formatter != null)

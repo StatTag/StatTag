@@ -45,6 +45,9 @@ namespace StatTag.Models
                 case Constants.StatisticalPackages.R:
                     ConfigureREditor(scintilla);
                     break;
+                case Constants.StatisticalPackages.RMarkdown:
+                    ConfigureREditor(scintilla);
+                    break;
             }
         }
 

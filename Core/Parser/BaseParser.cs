@@ -37,8 +37,9 @@ namespace StatTag.Core.Parser
         /// that the output will have a 1:1 line mapping from the original.
         /// </summary>
         /// <param name="originalContent">The contents as read from the code file</param>
+        /// <param name="automation">The statistical automation engine, if needed to help in pre-processing (optional)</param>
         /// <returns>A list of strings representing the code that should be executed</returns>
-        public abstract List<string> PreProcessContent(List<string> originalContent);
+        public abstract List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null);
 
         /// <summary>
         /// Provides a hook to perform any processing on a block of code (one or more
@@ -245,12 +246,19 @@ namespace StatTag.Core.Parser
             return (match.Success);
         }
 
+        public virtual List<string> PreProcessFile(CodeFile file, IStatAutomation automation = null)
+        {
+            return file.LoadFileContent();
+        } 
+
         public List<ExecutionStep> GetExecutionSteps(CodeFile file,
+            IStatAutomation automation = null,
             int filterMode = Constants.ParserFilterMode.IncludeAll,
             List<Tag> tagsToRun = null)
         {
             var executionSteps = new List<ExecutionStep>();
-            var lines = PreProcessContent(file.LoadFileContent());
+            var content = PreProcessFile(file, automation);
+            var lines = PreProcessContent(content, automation);
             if (lines == null || lines.Count == 0)
             {
                 return executionSteps;

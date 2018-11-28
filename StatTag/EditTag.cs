@@ -446,6 +446,12 @@ namespace StatTag
 
             using (var automation = StatsManager.GetStatAutomation(data.File))
             {
+                if (automation == null)
+                {
+                    e.Result = false;
+                    return;
+                }
+
                 var commands = data.Text;
                 if (commands != null && commands.Any(command => automation.IsReturnable(command)))
                 {
