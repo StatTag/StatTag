@@ -74,6 +74,8 @@ namespace StatTag.Models
                         return new SASAutomation();
                     case Constants.StatisticalPackages.R:
                         return new RAutomation();
+                    case Constants.StatisticalPackages.RMarkdown:
+                        return new RMarkdownAutomation();
                 }
             }
 
@@ -110,7 +112,7 @@ namespace StatTag.Models
                 try
                 {
                     // Get all of the commands in the code file that should be executed given the current filter
-                    var steps = parser.GetExecutionSteps(file, filterMode, tagsToRun);
+                    var steps = parser.GetExecutionSteps(file, automation, filterMode, tagsToRun);
                     for (int index = 0; index < steps.Count; index++)
                     {
                         var step = steps[index];

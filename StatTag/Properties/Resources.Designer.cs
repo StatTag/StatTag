@@ -163,6 +163,16 @@ namespace StatTag.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap stats_package_rmd {
+            get {
+                object obj = ResourceManager.GetObject("stats_package_rmd", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap stats_package_sas {
             get {
                 object obj = ResourceManager.GetObject("stats_package_sas", resourceCulture);

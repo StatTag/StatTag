@@ -502,6 +502,7 @@
     <None Include="Resources\plus.png" />
     <None Include="Resources\minus.png" />
     <Content Include="Resources\code_peek.png" />
+    <None Include="Resources\stats_package_rmd.png" />
     <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />

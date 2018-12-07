@@ -43,6 +43,7 @@
     <Compile Include="RAutomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RCommands.cs" />
+    <Compile Include="RMarkdownAutomation.cs" />
     <Compile Include="VerbatimDevice.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Generator;
 using StatTag.Core.Models;
@@ -25,6 +26,8 @@ namespace StatTag.Core
                         return new SASParser();
                     case Constants.StatisticalPackages.R:
                         return new RParser();
+                    case Constants.StatisticalPackages.RMarkdown:
+                        return new RMarkdownParser();
                 }
             }
 
@@ -43,6 +46,8 @@ namespace StatTag.Core
                         return new StatTag.Core.Generator.SAS();
                     case Constants.StatisticalPackages.R:
                         return new StatTag.Core.Generator.R();
+                    case Constants.StatisticalPackages.RMarkdown:
+                        return new StatTag.Core.Generator.RMarkdown();
                 }
             }
 
@@ -61,6 +66,8 @@ namespace StatTag.Core
                         return new StatTag.Core.ValueFormatter.SAS();
                     case Constants.StatisticalPackages.R:
                         return new StatTag.Core.ValueFormatter.R();
+                    case Constants.StatisticalPackages.RMarkdown:
+                        return new StatTag.Core.ValueFormatter.RMarkdown();
                 }
             }
 

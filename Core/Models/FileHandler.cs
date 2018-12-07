@@ -44,5 +44,15 @@ namespace StatTag.Core.Models
         {
             return File.OpenWrite(filePath);
         }
+
+        public void Move(string sourceFileName, string destFileName)
+        {
+            File.Move(sourceFileName, destFileName);
+        }
+
+        public void Delete(string path)
+        {
+            File.Delete(path);
+        }
     }
 }

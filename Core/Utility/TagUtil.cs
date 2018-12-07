@@ -349,5 +349,28 @@ namespace StatTag.Core.Utility
 
             return DetectTagCollision(allTags, tag);
         }
+
+        /// <summary>
+        /// Convert a tag name to something we know can be used in a file name.  Any character not allowed
+        /// (we're conservative, and are just allowing letters, digits, whitespace, dash and underscore)
+        /// is stripped entirely, not replaced with anything.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static string TagNameAsFileName(Tag tag)
+        {
+            if (tag == null || string.IsNullOrWhiteSpace(tag.Name))
+            {
+                return string.Empty;
+            }
+
+            // Implementation from https://stackoverflow.com/a/3210462
+            var characters = tag.Name.ToCharArray();
+            characters = Array.FindAll<char>(characters, (c => (char.IsLetterOrDigit(c)
+                                              || char.IsWhiteSpace(c)
+                                              || c == '-'
+                                              || c == '_')));
+            return new string(characters).Trim();
+        }
     }
 }

@@ -28,20 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeFileEntry));
             StatTag.Controls.HorizontalLine horizontalLine1;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeFileEntry));
             this.lblFileName = new System.Windows.Forms.Label();
             this.lblFilePath = new System.Windows.Forms.Label();
             this.imgR = new System.Windows.Forms.PictureBox();
             this.imgSAS = new System.Windows.Forms.PictureBox();
             this.imgStata = new System.Windows.Forms.PictureBox();
             this.imgWarning = new System.Windows.Forms.PictureBox();
+            this.imgRmd = new System.Windows.Forms.PictureBox();
             horizontalLine1 = new StatTag.Controls.HorizontalLine();
             ((System.ComponentModel.ISupportInitialize)(this.imgR)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgSAS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgWarning)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgRmd)).BeginInit();
             this.SuspendLayout();
+            // 
+            // horizontalLine1
+            // 
+            horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            horizontalLine1.Location = new System.Drawing.Point(-2, 43);
+            horizontalLine1.Margin = new System.Windows.Forms.Padding(0);
+            horizontalLine1.Name = "horizontalLine1";
+            horizontalLine1.Size = new System.Drawing.Size(437, 3);
+            horizontalLine1.TabIndex = 6;
             // 
             // lblFileName
             // 
@@ -127,22 +140,25 @@
             this.imgWarning.Click += new System.EventHandler(this.CodeFileEntry_Click);
             this.imgWarning.DoubleClick += new System.EventHandler(this.CodeFileEntry_DoubleClick);
             // 
-            // horizontalLine1
+            // imgRmd
             // 
-            horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            horizontalLine1.Location = new System.Drawing.Point(-2, 43);
-            horizontalLine1.Margin = new System.Windows.Forms.Padding(0);
-            horizontalLine1.Name = "horizontalLine1";
-            horizontalLine1.Size = new System.Drawing.Size(437, 3);
-            horizontalLine1.TabIndex = 6;
+            this.imgRmd.BackColor = System.Drawing.Color.Transparent;
+            this.imgRmd.Image = global::StatTag.Properties.Resources.stats_package_rmd;
+            this.imgRmd.InitialImage = global::StatTag.Properties.Resources.stats_package_rmd;
+            this.imgRmd.Location = new System.Drawing.Point(0, 4);
+            this.imgRmd.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.imgRmd.Name = "imgRmd";
+            this.imgRmd.Size = new System.Drawing.Size(32, 32);
+            this.imgRmd.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.imgRmd.TabIndex = 7;
+            this.imgRmd.TabStop = false;
             // 
             // CodeFileEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.imgRmd);
             this.Controls.Add(horizontalLine1);
             this.Controls.Add(this.imgWarning);
             this.Controls.Add(this.imgStata);
@@ -159,6 +175,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.imgSAS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgWarning)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgRmd)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -171,5 +188,6 @@
         private System.Windows.Forms.PictureBox imgSAS;
         private System.Windows.Forms.PictureBox imgStata;
         private System.Windows.Forms.PictureBox imgWarning;
+        private System.Windows.Forms.PictureBox imgRmd;
     }
 }

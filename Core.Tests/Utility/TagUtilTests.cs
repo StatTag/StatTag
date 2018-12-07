@@ -528,5 +528,34 @@ namespace Core.Tests.Utility
             Assert.AreEqual(existingTag, result.CollidingTag);
             codeFile.Tags.Add(newTag);  // It should find the outermost tag first in the search
         }
+
+        [TestMethod]
+        public void TagNameAsFileName_NullEmpty()
+        {
+            Assert.AreEqual(string.Empty, TagUtil.TagNameAsFileName(null));
+            Assert.AreEqual(string.Empty, TagUtil.TagNameAsFileName(new Tag() { Name = null }));
+            Assert.AreEqual(string.Empty, TagUtil.TagNameAsFileName(new Tag() { Name = string.Empty }));
+            Assert.AreEqual(string.Empty, TagUtil.TagNameAsFileName(new Tag() { Name = "  " }));
+        }
+
+        [TestMethod]
+        public void TagNameAsFileName_Unchanged()
+        {
+            var tagName = "Test Tag Name 1";
+            Assert.AreEqual(tagName, TagUtil.TagNameAsFileName(new Tag() { Name = tagName }));
+
+            tagName = "123456";
+            Assert.AreEqual(tagName, TagUtil.TagNameAsFileName(new Tag() { Name = tagName }));
+
+            tagName = "12-34_56";
+            Assert.AreEqual(tagName, TagUtil.TagNameAsFileName(new Tag() { Name = tagName }));
+        }
+
+        [TestMethod]
+        public void TagNameAsFileName_StripCharacters()
+        {
+            Assert.AreEqual("TestTagName_1", TagUtil.TagNameAsFileName(new Tag() { Name = "Test/Tag/Name_&*@(@#*(#$1" }));
+            Assert.AreEqual("Figure 12", TagUtil.TagNameAsFileName(new Tag() { Name = " Figure 1.2 " }));
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Utility;
 
@@ -485,7 +486,7 @@ namespace StatTag.Core.Parser
         /// </summary>
         /// <param name="originalContent"></param>
         /// <returns></returns>
-        public override List<string> PreProcessContent(List<string> originalContent)
+        public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
         {
             if (originalContent == null || originalContent.Count == 0)
             {
