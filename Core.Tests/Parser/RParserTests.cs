@@ -209,6 +209,58 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void CollapseMultiLineCommands_PlotCommands()
+        {
+            var parser = new RParser();
+
+            // Multiple ggplot commands strung together across multiple lines, with varying
+            // whitespace between the segments
+            var text = new string[]
+            {
+                "Plot_DistSpeed <- ggplot(data=cars, aes(x=dist, y=speed)) +",
+                " \t geom_boxplot() +",
+                "geom_point()+",
+                "ggtitle(\"Dist x Speed\") + \t ",
+                "theme(plot.title = element_text(hjust = 0.5))"
+            };
+
+            var modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("Plot_DistSpeed <- ggplot(data=cars, aes(x=dist, y=speed)) + geom_boxplot() + geom_point() + ggtitle(\"Dist x Speed\") + theme(plot.title = element_text(hjust = 0.5))",
+                modifiedText[0]);
+
+            // This mixes multi-line commands as well as strung together commands
+            text = new string[]
+            {
+                "Plot_DistSpeed <- ggplot(",
+                "  data=cars, aes(x=dist, y=speed)) +",
+                " \t geom_boxplot() +",
+                "geom_point()+",
+                "ggtitle(\"Dist x Speed\") + \t ",
+                "theme(plot.title = element_text(hjust = 0.5))"
+            };
+
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("Plot_DistSpeed <- ggplot(    data=cars, aes(x=dist, y=speed)) + geom_boxplot() + geom_point() + ggtitle(\"Dist x Speed\") + theme(plot.title = element_text(hjust = 0.5))",
+                modifiedText[0]);
+
+            // This isn't valid R, but makes sure we're not collapsing general addition
+            text = new string[]
+            {
+                "1 + ",
+                "2 + ",
+                "3+4+5+",
+                "\t6"
+            };
+
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(4, modifiedText.Length);
+            Assert.AreEqual("1 + \r\n2 + \r\n3+4+5+\r\n\t6",
+                string.Join("\r\n", modifiedText));
+        }
+
+        [TestMethod]
         public void PreProcessContent_Null_Empty()
         {
             var parser = new RParser();

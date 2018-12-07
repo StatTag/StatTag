@@ -19,6 +19,7 @@ namespace StatTag.Core.Parser
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
         public static readonly string[] TableCommands = {"write.csv", "write.csv2", "write.table"};
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
+        private static readonly Regex MultiLinePlotRegex = new Regex("\\)\\s*\\+[ \t]*[\\r\\n]+[ \t]*");
         //private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         //private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private const char KeyValueDelimiter = '=';
@@ -301,6 +302,9 @@ namespace StatTag.Core.Parser
             int closedCount = 0;
             int currentStart = -1;
             int currentEnd = -1;
+
+            // Take any plotting commands that span multiple lines and string them onto a single line.
+            modifiedText = MultiLinePlotRegex.Replace(modifiedText, ") + ");
 
             // Find opening paren, if any exists.
             var next = modifiedText.IndexOf("(", StringComparison.CurrentCultureIgnoreCase);
