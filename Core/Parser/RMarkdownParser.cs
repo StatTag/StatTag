@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
@@ -14,6 +15,8 @@ namespace StatTag.Core.Parser
     public class RMarkdownParser : RParser
     {
         public const string TempFileSuffix = ".st-tmp";
+
+        public readonly Regex KableCommand = new Regex("(knitr::)?kable\\s*\\(");
 
         protected IFileHandler FileHandler { get; set; }
 
@@ -30,6 +33,23 @@ namespace StatTag.Core.Parser
         {
             FileHandler = handler;
         }
+
+        /// <summary>
+        /// Convert some knitr-specific commands that may exist to ones that will work better
+        /// with StatTag.  Note that we are doing this in-memory, not modifying the code file
+        /// directly.
+        /// </summary>
+        /// <param name="commands"></param>
+        /// <returns></returns>
+        public List<string> ReplaceKnitrCommands(List<string> commands)
+        {
+            if (commands == null)
+            {
+                return null;
+            }
+
+            return commands.Select(x => KableCommand.Replace(x, "print(")).ToList();
+        } 
 
         /// <summary>
         /// Used to convert the R Markdown document into just an R code file
@@ -79,7 +99,7 @@ namespace StatTag.Core.Parser
             // Clean up the generated R file
             FileHandler.Delete(generatedCodeFilePath);
 
-            return processedFileResults;
+            return ReplaceKnitrCommands(processedFileResults);
         }
     }
 }

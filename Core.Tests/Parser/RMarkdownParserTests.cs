@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StatTag.Core.Exceptions;
@@ -107,6 +108,32 @@ namespace Core.Tests.Parser
 
             // Why no assertions?  We could go through all of the hassle of mocking up the results, but since it's all
             // mocked up data, what's the point?
+        }
+
+        [TestMethod]
+        public void ReplaceKnitrCommands_NullEmpty()
+        {
+            var parser = new RMarkdownParser();
+            Assert.IsNull(parser.ReplaceKnitrCommands(null));
+            Assert.AreEqual(0, parser.ReplaceKnitrCommands(new List<string>()).Count);
+        }
+
+        [TestMethod]
+        public void ReplaceKnitrCommands_NoKnitrCommands()
+        {
+            var parser = new RMarkdownParser();
+            Assert.IsNull(parser.ReplaceKnitrCommands(null));
+            Assert.AreEqual("x <- 15\r\nprint(x)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>(){ "x <- 15", "print(x)" })));
+            Assert.AreEqual("x <- 15\r\ntable(x)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "x <- 15", "table(x)" })));
+        }
+
+        [TestMethod]
+        public void ReplaceKnitrCommands_KnitrCommands()
+        {
+            var parser = new RMarkdownParser();
+            Assert.IsNull(parser.ReplaceKnitrCommands(null));
+            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\nprint(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "knitr::kable(PrettyTable)" })));
+            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\nprint(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "kable(PrettyTable)" })));
         }
     }
 }
