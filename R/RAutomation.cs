@@ -110,9 +110,9 @@ namespace R
                 logger.WriteMessage("Setting R option for default graphics device");
                 RunCommands(new[]
                 {
-                    string.Format("stattag_png = function() {{ png(filename=paste(\"{0}\\\\\", \"StatTagFigure%03d.png\", sep=\"\")) }}",
+                    string.Format(".stattag_png = function() {{ png(filename=paste(\"{0}\\\\\", \"StatTagFigure%03d.png\", sep=\"\")) }}",
                         TemporaryImageFilePath.Replace("\\", "\\\\").Replace("\"", "\\\"")),
-                    "options(device=\"stattag_png\")"
+                    "options(device=\".stattag_png\")"
                 });
                 logger.WriteMessage("Updated R option for default graphics device");
 
