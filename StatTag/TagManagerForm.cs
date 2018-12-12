@@ -67,6 +67,7 @@ namespace StatTag
             { Constants.StatisticalPackages.R, new Bitmap(StatTag.Properties.Resources.stats_package_r) },
             { Constants.StatisticalPackages.SAS, new Bitmap(StatTag.Properties.Resources.stats_package_sas) },
             { Constants.StatisticalPackages.Stata, new Bitmap(StatTag.Properties.Resources.stats_package_stata) },
+            { Constants.StatisticalPackages.RMarkdown, new Bitmap(StatTag.Properties.Resources.stats_package_rmd) },
             { string.Empty, new Bitmap(StatTag.Properties.Resources.stats_package_unknown) }
         };
 

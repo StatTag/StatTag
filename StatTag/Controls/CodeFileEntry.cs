@@ -112,6 +112,7 @@ namespace StatTag.Controls
         {
             var statPackage = CodeFile.GuessStatisticalPackage(fileName);
             imgR.Visible = false;
+            imgRmd.Visible = false;
             imgSAS.Visible = false;
             imgStata.Visible = false;
             switch (statPackage)
@@ -129,6 +130,11 @@ namespace StatTag.Controls
                 case Constants.StatisticalPackages.R:
                     {
                         imgR.Visible = true;
+                        break;
+                    }
+                case Constants.StatisticalPackages.RMarkdown:
+                    {
+                        imgRmd.Visible = true;
                         break;
                     }
             }

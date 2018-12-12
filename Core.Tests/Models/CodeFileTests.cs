@@ -158,6 +158,10 @@ namespace Core.Tests.Models
             Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("C:\\test.sas"));
             Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("C:\\test.SAS"));
             Assert.AreEqual(Constants.StatisticalPackages.SAS, CodeFile.GuessStatisticalPackage("  C:\\test.sas  "));
+            Assert.AreEqual(Constants.StatisticalPackages.RMarkdown, CodeFile.GuessStatisticalPackage("C:\\test.rmd"));
+            Assert.AreEqual(Constants.StatisticalPackages.RMarkdown, CodeFile.GuessStatisticalPackage("C:\\test.Rmd"));
+            Assert.AreEqual(Constants.StatisticalPackages.RMarkdown, CodeFile.GuessStatisticalPackage("C:\\test.RMd"));
+            Assert.AreEqual(Constants.StatisticalPackages.RMarkdown, CodeFile.GuessStatisticalPackage("  C:\\test.Rmd  "));
         }
 
         [TestMethod]
@@ -171,6 +175,8 @@ namespace Core.Tests.Models
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testsas"));
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testr"));
             Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testdo"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\testrmd"));
+            Assert.AreEqual(string.Empty, CodeFile.GuessStatisticalPackage("C:\\test.r md"));
         }
 
         [TestMethod]

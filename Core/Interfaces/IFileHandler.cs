@@ -13,5 +13,7 @@ namespace StatTag.Core.Interfaces
         void WriteAllText(string filePath, string contents);
         void AppendAllText(string filePath, string contents);
         FileStream OpenWrite(string filePath);
+        void Move(string sourceFileName, string destFileName);
+        void Delete(string path);
     }
 }

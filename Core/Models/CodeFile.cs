@@ -299,6 +299,10 @@ namespace StatTag.Core.Models
             {
                 return Constants.StatisticalPackages.R;
             }
+            if (FilterMatches(Constants.FileFilters.RMarkdownFilter, path))
+            {
+                return Constants.StatisticalPackages.RMarkdown;
+            }
 
             return string.Empty;
         }
@@ -483,11 +487,14 @@ namespace StatTag.Core.Models
 
                 var index = Tags.FindIndex(x => x.Equals(refreshedOldTag, matchWithPosition));
                 Tags.RemoveAt(index);
-                //var index = Tags.FindIndex(x => (matchWithPosition) ? x.EqualsWithPosition(refreshedOldTag) : x.Equals(refreshedOldTag));
-                //Tags.RemoveAt(index);
             }
 
             var generator = Factories.GetGenerator(this);
+            if (generator == null)
+            {
+                return null;
+            }
+
             ContentCache.Insert(updatedTag.LineStart.Value, generator.CreateOpenTag(updatedTag));
             updatedTag.LineEnd += 2;  // Offset one line for the opening tag, the second line is for the closing tag
             ContentCache.Insert(updatedTag.LineEnd.Value, generator.CreateClosingTag());

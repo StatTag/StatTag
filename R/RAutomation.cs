@@ -18,10 +18,14 @@ namespace R
     public class RAutomation : IStatAutomation
     {
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
+        private const string TemporaryImageFileFolder = "STTemp-Figures";
+        private const string TemporaryImageFileFilter = "*.png";
+        
+        private string TemporaryImageFilePath = "";
 
         public StatPackageState State { get; set; }
 
-        private REngine Engine = null;
+        protected REngine Engine = null;
         protected RParser Parser { get; set; }
         protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
 
@@ -31,7 +35,7 @@ namespace R
             State = new StatPackageState();
         }
 
-        public bool Initialize(CodeFile file, LogManager logger)
+        public virtual bool Initialize(CodeFile file, LogManager logger)
         {
             if (Engine == null)
             {
@@ -73,20 +77,73 @@ namespace R
                 }
             }
 
-            return (Engine != null);
+            if (Engine != null)
+            {
+                // Initialize the temporary directory we'll use for figures
+                var path = Path.GetDirectoryName(file.FilePath);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    TemporaryImageFilePath = Path.Combine(path, TemporaryImageFileFolder);
+                    logger.WriteMessage(string.Format("Creating a temporary image folder at full path: {0}", TemporaryImageFilePath));
+                }
+                else
+                {
+                    // If we don't know what the path is, we'll just create a relative path and hope for the best.
+                    TemporaryImageFilePath = string.Format(".\\{0}", TemporaryImageFileFolder);
+                    logger.WriteMessage(string.Format("Creating temporary image folder at relative path: {0}", TemporaryImageFilePath));
+                }
+
+                // Make sure the temp image folder is established.
+                if (Directory.Exists(TemporaryImageFilePath))
+                {
+                    logger.WriteMessage("Temporary image folder already exists");
+                }
+                else
+                {
+                    logger.WriteMessage("Temporary image folder does not exist.  We will create it.");
+                    Directory.CreateDirectory(TemporaryImageFilePath);
+                    logger.WriteMessage("Created the temporary image folder");
+                }
+
+                // Now, set up the R environment so it uses the PNG graphic device by default (if no other device
+                // is specified).
+                logger.WriteMessage("Setting R option for default graphics device");
+                RunCommands(new[]
+                {
+                    string.Format(".stattag_png = function() {{ png(filename=paste(\"{0}\\\\\", \"StatTagFigure%03d.png\", sep=\"\")) }}",
+                        TemporaryImageFilePath.Replace("\\", "\\\\").Replace("\"", "\\\"")),
+                    "options(device=\".stattag_png\")"
+                });
+                logger.WriteMessage("Updated R option for default graphics device");
+
+                return true;
+            }
+
+            return false;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            //if (Engine != null)
-            //{
-            //    Engine.Dispose();
-            //    Engine = null;
-            //}
+            if (Engine != null)
+            {
+                // Part of our cleanup is ensuring all graphic devices are closed out.  Not everyone will do this
+                // in their code, and if not it can cause our process to stay running.
+                try
+                {
+                    RunCommand("graphics.off()");
+                }
+                catch (Exception exc)
+                {
+                    // We are attempting to close graphic devices, but if it fails, it may not be catastrophic.
+                    // For now, we are supressing notification to the user, since it may be a false alarm.
+                }
+            }
+
+            CleanTemporaryImageFolder(true);
         }
 
         
-        public StatTag.Core.Models.CommandResult[] RunCommands(string[] commands, Tag tag = null)
+        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
             // the R engine at once.  Otherwise we have to worry about collapsing commands, function definitions, etc.
@@ -101,12 +158,22 @@ namespace R
 
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
+            bool isFigureTag = (tag != null && tag.Type == Constants.TagType.Figure);
             foreach (var command in commands)
             {
-                // Start the verbatim logging cache, if that is what the user wants for this output.
-                if (Parser.IsTagStart(command) && isVerbatimTag)
+                if (Parser.IsTagStart(command))
                 {
-                    VerbatimLog.StartCache();
+                    // Start the verbatim logging cache, if that is what the user wants for this output.
+                    if (isVerbatimTag)
+                    {
+                        VerbatimLog.StartCache();
+                    }
+                    // If we're going to be doing a figure, we want to clean out the old images so we know
+                    // exactly which ones we're writing to.
+                    else if (isFigureTag)
+                    {
+                        CleanTemporaryImageFolder();
+                    }
                 }
 
                 var result = RunCommand(command, tag);
@@ -114,10 +181,41 @@ namespace R
                 {
                     commandResults.Add(result);
                 }
-                else if (Parser.IsTagEnd(command) && isVerbatimTag)
+                else if (Parser.IsTagEnd(command))
                 {
-                    VerbatimLog.StopCache();
-                    commandResults.Add(new CommandResult() { VerbatimResult = string.Join("", VerbatimLog.GetCache()) });
+                    if (isVerbatimTag)
+                    {
+                        VerbatimLog.StopCache();
+                        commandResults.Add(new CommandResult()
+                        {
+                            VerbatimResult = string.Join("", VerbatimLog.GetCache())
+                        });
+                    }
+                    // If this is the end of a figure tag, only proceed with this temp file processing if we don't
+                    // already have a figure result of some sort.
+                    else if (isFigureTag && !commandResults.Any(x => !string.IsNullOrWhiteSpace(x.FigureResult)))
+                    {
+                        // Make sure the graphics device is closed. We're going with the assumption that a device
+                        // was open and a figure was written out.
+                        RunCommand("graphics.off()");
+
+                        // If we don't have the file specified normally, we will use our fallback mechanism of writing to a
+                        // temporary directory.
+                        var files = Directory.GetFiles(TemporaryImageFilePath, TemporaryImageFileFilter);
+                        if (files.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        // Find the last file in the directory.  We anticipate there would normally only be 1, but since 
+                        // several commands could be run, we will just take the last one.
+                        var tempImageFile = files.OrderBy(x => x).Last();
+                        var correctedPath = Path.GetFullPath(Path.Combine(TemporaryImageFilePath, ".."));
+                        var imageFile = Path.Combine(correctedPath, string.Format("{0}.png", TagUtil.TagNameAsFileName(tag)));
+                        File.Copy(tempImageFile, imageFile, true);
+
+                        commandResults.Add(new CommandResult() {FigureResult = imageFile});
+                    }
                 }
             }
 
@@ -129,7 +227,7 @@ namespace R
         /// </summary>
         /// <param name="saveLocation">An R command that will be translated into a file path.</param>
         /// <returns>The full file path</returns>
-        private string GetExpandedFilePath(string saveLocation)
+        protected string GetExpandedFilePath(string saveLocation)
         {
             var fileLocation = RunCommand(saveLocation, new Tag() { Type = Constants.TagType.Value });
             if (Parser.IsRelativePath(fileLocation.ValueResult))
@@ -151,6 +249,49 @@ namespace R
             return fileLocation.ValueResult;
         }
 
+        public virtual CommandResult HandleTableResult(Tag tag, string command, SymbolicExpression result)
+        {
+            // We take a hint from the tag type to identify tables.  Because of how open R is with its
+            // return of results, a user can just specify a variable and get the result.
+            if (tag.Type == Constants.TagType.Table)
+            {
+                return new CommandResult() { TableResult = GetTableResult(command, result) };
+            }
+
+            return null;
+        }
+
+        public virtual CommandResult HandleImageResult(Tag tag, string command, SymbolicExpression result)
+        {
+            if (Parser.IsImageExport(command))
+            {
+                // Attempt to extract the save location (either a file name, relative path, or absolute path)
+                // If it is empty, we will assign one to the image based on the tag name, and use that so
+                // the image is properly imported.
+                var saveLocation = Parser.GetImageSaveLocation(command);
+                if (string.IsNullOrWhiteSpace(saveLocation))
+                {
+                    saveLocation = "\"tmp\"";
+                }
+                return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
+            }
+
+            return null;
+        }
+
+        public virtual CommandResult HandleValueResult(Tag tag, string command, SymbolicExpression result)
+        {
+            // If we have a value command, we will pull out the last relevant line from the output.
+            // Because we treat every type of output as a possible value result, we are only going
+            // to capture the result if it's flagged as a tag.
+            if (tag.Type == Constants.TagType.Value)
+            {
+                return new CommandResult() { ValueResult = GetValueResult(result) };
+            }
+
+            return null;
+        }
+
         public CommandResult RunCommand(string command, Tag tag = null)
         {
             var result = Engine.Evaluate(command);
@@ -164,27 +305,25 @@ namespace R
             // all we need is for the code to run.
             if (tag != null)
             {
-                // We take a hint from the tag type to identify tables.  Because of how open R is with its
-                // return of results, a user can just specify a variable and get the result.
-                if (tag.Type == Constants.TagType.Table)
+                // Start with tables
+                var commandResult = HandleTableResult(tag, command, result);
+                if (commandResult != null)
                 {
-                    return new CommandResult() { TableResult = GetTableResult(command, result) };
+                    return commandResult;
                 }
 
                 // Image comes next, because everything else we will count as a value type.
-                if (Parser.IsImageExport(command))
+                commandResult = HandleImageResult(tag, command, result);
+                if (commandResult != null)
                 {
-                    return new CommandResult() { FigureResult = GetExpandedFilePath(Parser.GetImageSaveLocation(command)) };
+                    return commandResult;
                 }
 
-                // If we have a value command, we will pull out the last relevant line from the output.
-                // Because we treat every type of output as a possible value result, we are only going
-                // to capture the result if it's flagged as a tag.
-                if (tag.Type == Constants.TagType.Value)
+                commandResult = HandleValueResult(tag, command, result);
+                if (commandResult != null)
                 {
-                    return new CommandResult() { ValueResult = GetValueResult(result) };
+                    return commandResult;
                 }
-                
             }
 
             return null;
@@ -298,7 +437,7 @@ namespace R
             return data.ToArray();
         }
 
-        private Table GetTableResult(string command, SymbolicExpression result)
+        protected Table GetTableResult(string command, SymbolicExpression result)
         {
             // Check to see if we can identify a file name that contains our table data.  If one
             // exists, we will start by returning that.  If there is no file name specified, we
@@ -458,7 +597,7 @@ namespace R
             return exc.Message;
         }
 
-        private string GetValueResult(SymbolicExpression result)
+        protected string GetValueResult(SymbolicExpression result)
         {
             if (result.IsDataFrame())
             {
@@ -478,6 +617,31 @@ namespace R
                     return result.AsCharacter().FirstOrDefault();
             }
             return null;
+        }
+
+        /// <summary>
+        /// Helper method to clean out the temporary folder used for storing images
+        /// </summary>
+        /// <param name="deleteFolder"></param>
+        private void CleanTemporaryImageFolder(bool deleteFolder = false)
+        {
+            if (Directory.Exists(TemporaryImageFilePath))
+            {
+                // TODO: Can we make this less brute-force?  We want to ensure we're not trying to access
+                // a file that's associated with an open graphics device.
+                RunCommand("graphics.off()");
+
+                var files = Directory.GetFiles(TemporaryImageFilePath, TemporaryImageFileFilter);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                if (deleteFolder)
+                {
+                    Directory.Delete(TemporaryImageFilePath);
+                }
+            }
         }
     }
 }
