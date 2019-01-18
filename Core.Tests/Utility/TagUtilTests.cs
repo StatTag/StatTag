@@ -556,6 +556,7 @@ namespace Core.Tests.Utility
         {
             Assert.AreEqual("TestTagName_1", TagUtil.TagNameAsFileName(new Tag() { Name = "Test/Tag/Name_&*@(@#*(#$1" }));
             Assert.AreEqual("Figure 12", TagUtil.TagNameAsFileName(new Tag() { Name = " Figure 1.2 " }));
+            Assert.AreEqual("InvalidWhite space", TagUtil.TagNameAsFileName(new Tag() { Name = "Invalid\r\n\tWhite space" }));
         }
     }
 }

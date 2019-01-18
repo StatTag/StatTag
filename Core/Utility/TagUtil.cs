@@ -367,7 +367,7 @@ namespace StatTag.Core.Utility
             // Implementation from https://stackoverflow.com/a/3210462
             var characters = tag.Name.ToCharArray();
             characters = Array.FindAll<char>(characters, (c => (char.IsLetterOrDigit(c)
-                                              || char.IsWhiteSpace(c)
+                                              || c == ' '
                                               || c == '-'
                                               || c == '_')));
             return new string(characters).Trim();
