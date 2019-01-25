@@ -368,7 +368,7 @@ namespace R
         private string[] GetMatrixDimensionNames(SymbolicExpression exp, bool rowNames)
         {
             var attributeName = exp.GetAttributeNames().FirstOrDefault(x => x.Equals(MATRIX_DIMENSION_NAMES_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase));
-            if (attributeName == null)
+            if (string.IsNullOrEmpty(attributeName))
             {
                 return null;
             }
@@ -512,6 +512,7 @@ namespace R
                 var matrix = result.AsCharacterMatrix();
                 var rowNames = GetMatrixRowNames(result);
                 var columnNames = GetMatrixColumnNames(result);
+
                 // Just to note this isn't an error checking columnNames for rowCount and vice-versa.  Remember that
                 // if we have column names, that will take up a row of data.  Likewise, row names are an additional
                 // column.
