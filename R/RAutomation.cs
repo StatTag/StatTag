@@ -20,7 +20,15 @@ namespace R
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
         private const string TemporaryImageFileFolder = "STTemp-Figures";
         private const string TemporaryImageFileFilter = "*.png";
-        
+
+        private static readonly Dictionary<string, string> RProfileCommands = new Dictionary<string, string>()
+        {
+            { "sessionInfo()", "Session" },
+            { "R.home()", "R Home" },
+            { ".libPaths()",  "Lib Path" },
+            { "with(as.data.frame(installed.packages(fields = c(\"Package\", \"Version\"))), paste(Package, Version, sep = \"\", collapse = \", \" ))", "Packages" }
+        };
+
         private string TemporaryImageFilePath = "";
 
         public StatPackageState State { get; set; }
@@ -33,6 +41,28 @@ namespace R
         {
             Parser = new RParser();
             State = new StatPackageState();
+        }
+
+        public static string InstallationInformation()
+        {
+            var builder = new StringBuilder();
+            try
+            {
+                var engine = REngine.GetInstance(null, true, null, VerbatimLog);
+                foreach (var command in RProfileCommands)
+                {
+                    var result = engine.Evaluate(command.Key);
+                    builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.AsCharacter().ToArray()).Trim());
+                }
+            }
+            catch (Exception exc)
+            {
+                builder.AppendFormat(
+                    "Unable to communicate with R. R may not be installed or there might be other configuration issues.\r\n");
+                builder.AppendFormat("{0}\r\n", exc.Message);
+            }
+
+            return builder.ToString().Trim();
         }
 
         public virtual bool Initialize(CodeFile file, LogManager logger)

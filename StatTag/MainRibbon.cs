@@ -53,6 +53,11 @@ namespace StatTag
             get { return Globals.ThisAddIn.SafeGetActiveDocument();  }
         }
 
+        public string SystemInformation
+        {
+            get { return Globals.ThisAddIn.GetSystemInformation(); }
+        }
+
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             try
@@ -284,7 +289,7 @@ namespace StatTag
                     SetManageTagsFormVisibility(false, true);
                 }
 
-                var about = new About();
+                var about = new About(this.SystemInformation);
                 about.ShowDialog();
             }
             catch (StatTagUserException uex)

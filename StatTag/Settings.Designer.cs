@@ -163,9 +163,9 @@
             this.tabLogging.Controls.Add(this.chkEnableLogging);
             this.tabLogging.Controls.Add(this.cmdLogLocation);
             this.tabLogging.Controls.Add(this.txtLogLocation);
-            this.tabLogging.Location = new System.Drawing.Point(4, 26);
+            this.tabLogging.Location = new System.Drawing.Point(4, 22);
             this.tabLogging.Name = "tabLogging";
-            this.tabLogging.Size = new System.Drawing.Size(665, 197);
+            this.tabLogging.Size = new System.Drawing.Size(665, 201);
             this.tabLogging.TabIndex = 2;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -287,10 +287,10 @@
             this.tabStata.Controls.Add(this.cmdStataLocation);
             this.tabStata.Controls.Add(this.txtStataLocation);
             this.tabStata.Controls.Add(this.label1);
-            this.tabStata.Location = new System.Drawing.Point(4, 26);
+            this.tabStata.Location = new System.Drawing.Point(4, 22);
             this.tabStata.Name = "tabStata";
             this.tabStata.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStata.Size = new System.Drawing.Size(665, 197);
+            this.tabStata.Size = new System.Drawing.Size(665, 201);
             this.tabStata.TabIndex = 1;
             this.tabStata.Text = "Stata";
             this.tabStata.UseVisualStyleBackColor = true;

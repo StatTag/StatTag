@@ -501,6 +501,7 @@
     <None Include="Resources\warning.png" />
     <None Include="Resources\plus.png" />
     <None Include="Resources\minus.png" />
+    <None Include="Resources\clipboard.png" />
     <Content Include="Resources\code_peek.png" />
     <None Include="Resources\stats_package_rmd.png" />
     <Content Include="Resources\tag.png" />

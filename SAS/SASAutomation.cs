@@ -65,6 +65,86 @@ namespace SAS
             }
         }
 
+        /// <summary>
+        /// Collect information about the Stata installation (if one exists), and provide a formatted string
+        /// back to the caller.
+        /// </summary>
+        /// <returns></returns>
+        public static string InstallationInformation()
+        {
+            var builder = new StringBuilder();
+            SasServer server = null;
+            try
+            {
+                server = new SasServer()
+                {
+                    UseLocal = true
+                };
+                server.Connect();
+                builder.AppendFormat("SAS {0} detected.\r\n", RunCommand(server, "%put &SYSVER;").FirstOrDefault());
+                builder.AppendFormat("SAS Home: {0}\r\n", RunCommand(server, "%put %sysget(SASROOT);").FirstOrDefault());
+                builder.AppendFormat("Initial workspace: {0}\r\n", server.Workspace.Name);
+            }
+            catch (Exception exc)
+            {
+                builder.AppendFormat(
+                    "Unable to communicate with SAS. SAS may not be installed or there might be other configuration issues.\r\n");
+                builder.AppendFormat("{0}\r\n", exc.Message);
+            }
+            finally
+            {
+                if (server != null && server.IsConnected)
+                {
+                    server.Close();
+                }
+                server = null;
+            }
+
+            return builder.ToString().Trim();
+        }
+
+        public static List<string> RunCommand(SasServer server, string command)
+        {
+            Array carriageControls;
+            Array lineTypeArray;
+            Array logLineArray;
+
+            server.Workspace.LanguageService.Submit(command);
+
+            // These calls need to be made because they cause SAS to initialize internal structures that
+            // are used when FlushLogLines is called.  Even though we're not really doing anything with these
+            // values, don't remove these calls.
+            SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+            SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
+
+            //Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
+            //    out logLineArray);
+
+            // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
+            // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
+            // will dump out a bunch of extra output when we run, including blank Normal lines.
+            var relevantLines = new List<string>();
+            do
+            {
+                server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                for (int index = 0; index < logLineArray.GetLength(0); index++)
+                {
+                    var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                    var line = (string)logLineArray.GetValue(index);
+                    if (lineType == LanguageServiceLineType.LanguageServiceLineTypeNormal
+                        && !string.IsNullOrWhiteSpace(line))
+                    {
+                        relevantLines.Add(line);
+                    }
+                }
+
+            }
+            while (logLineArray != null && logLineArray.Length > 0);
+
+            return relevantLines;
+        }
+
+
         public bool Initialize(CodeFile file, LogManager logger)
         {
             try
@@ -227,37 +307,39 @@ namespace SAS
             Array lineTypeArray;
             Array logLineArray;
 
-            Server.Workspace.LanguageService.Submit(command);
+            //Server.Workspace.LanguageService.Submit(command);
 
-            // These calls need to be made because they cause SAS to initialize internal structures that
-            // are used when FlushLogLines is called.  Even though we're not really doing anything with these
-            // values, don't remove these calls.
-            SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
-            SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
+            //// These calls need to be made because they cause SAS to initialize internal structures that
+            //// are used when FlushLogLines is called.  Even though we're not really doing anything with these
+            //// values, don't remove these calls.
+            //SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+            //SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
 
-            //Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
-            //    out logLineArray);
+            ////Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
+            ////    out logLineArray);
 
-            // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
-            // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
-            // will dump out a bunch of extra output when we run, including blank Normal lines.
-            var relevantLines = new List<string>();
-            do
-            {
-                Server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
-                for (int index = 0; index < logLineArray.GetLength(0); index++)
-                {
-                    var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
-                    var line = (string)logLineArray.GetValue(index);
-                    if (lineType == LanguageServiceLineType.LanguageServiceLineTypeNormal
-                        && !string.IsNullOrWhiteSpace(line))
-                    {
-                        relevantLines.Add(line);
-                    }
-                }
+            //// For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
+            //// would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
+            //// will dump out a bunch of extra output when we run, including blank Normal lines.
+            //var relevantLines = new List<string>();
+            //do
+            //{
+            //    Server.Workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+            //    for (int index = 0; index < logLineArray.GetLength(0); index++)
+            //    {
+            //        var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+            //        var line = (string)logLineArray.GetValue(index);
+            //        if (lineType == LanguageServiceLineType.LanguageServiceLineTypeNormal
+            //            && !string.IsNullOrWhiteSpace(line))
+            //        {
+            //            relevantLines.Add(line);
+            //        }
+            //    }
 
-            }
-            while (logLineArray != null && logLineArray.Length > 0);
+            //}
+            //while (logLineArray != null && logLineArray.Length > 0);
+
+            var relevantLines = RunCommand(Server, command);
 
             // Process the listing, even if we aren't going to use the output (it's only relevant when collecting
             // verbatim results).  This way we know that it's appropriately flushed when it comes time to use it for

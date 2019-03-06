@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
@@ -95,6 +96,40 @@ namespace Stata
         public string FormatErrorMessageFromExecution(Exception exc)
         {
             return exc.Message;
+        }
+
+        /// <summary>
+        /// Collect information about the Stata installation (if one exists), and provide a formatted string
+        /// back to the caller.
+        /// </summary>
+        /// <returns></returns>
+        public static string InstallationInformation()
+        {
+            var builder = new StringBuilder();
+            stata.StataOLEApp application = null;
+            try
+            {
+                application = new stata.StataOLEApp();
+                application.UtilShowStata(StataHidden);
+                application.DoCommandAsync("local _stattag_stata_version = \"`c(version)'\"");
+                PauseStataUntilFree(application);
+                // "__stattag..." is not a typo - the local macro name requires the extra underscore ahead
+                // of what we originally named it in order to be accessed via MacroValue.
+                var version = application.MacroValue("__stattag_stata_version");
+                builder.AppendFormat("Stata {0} detected.", version);
+            }
+            catch (Exception exc)
+            {
+                builder.AppendFormat(
+                    "Unable to communicate with Stata. Stata may not be installed or there might be other configuration issues.\r\n");
+                builder.AppendFormat("{0}\r\n", exc.Message);
+            }
+            finally
+            {
+                application = null;
+            }
+
+            return builder.ToString().Trim();
         }
 
         public bool Initialize(CodeFile file, LogManager logger)
@@ -548,13 +583,18 @@ namespace Stata
         /// </summary>
         private void PauseStataUntilFree(int waitDuration = 100, int? maxWait = null)
         {
-            if (Application == null)
+            PauseStataUntilFree(Application, waitDuration, maxWait);
+        }
+
+        private static void PauseStataUntilFree(stata.StataOLEApp application, int waitDuration = 100, int? maxWait = null)
+        {
+            if (application == null)
             {
                 return;
             }
 
             int waitCounter = 0;
-            while (Application.UtilIsStataFree() == 0)
+            while (application.UtilIsStataFree() == 0)
             {
                 Thread.Sleep(waitDuration);
                 waitCounter++;
