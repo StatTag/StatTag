@@ -33,25 +33,25 @@
             this.cmdOK = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabAbout = new System.Windows.Forms.TabPage();
+            this.label8 = new System.Windows.Forms.Label();
+            this.cmdCopyCitation = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.lblCopyright = new System.Windows.Forms.Label();
             this.lblVersion = new System.Windows.Forms.Label();
-            this.tabSystemDetails = new System.Windows.Forms.TabPage();
-            this.label7 = new System.Windows.Forms.Label();
-            this.cmdCopyToClipboard = new System.Windows.Forms.Button();
-            this.rtbSystemDetails = new System.Windows.Forms.RichTextBox();
             this.tabAcknowledgements = new System.Windows.Forms.TabPage();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.cmdCopyCitation = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
+            this.tabSystemDetails = new System.Windows.Forms.TabPage();
+            this.label7 = new System.Windows.Forms.Label();
+            this.cmdCopyToClipboard = new System.Windows.Forms.Button();
+            this.rtbSystemDetails = new System.Windows.Forms.RichTextBox();
             this.tabControl1.SuspendLayout();
             this.tabAbout.SuspendLayout();
-            this.tabSystemDetails.SuspendLayout();
             this.tabAcknowledgements.SuspendLayout();
+            this.tabSystemDetails.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtCitation
@@ -109,6 +109,32 @@
             this.tabAbout.TabIndex = 0;
             this.tabAbout.Text = "About";
             // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(10, 151);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(713, 64);
+            this.label8.TabIndex = 28;
+            this.label8.Text = resources.GetString("label8.Text");
+            // 
+            // cmdCopyCitation
+            // 
+            this.cmdCopyCitation.AccessibleDescription = "Copy the system details to the clipboard";
+            this.cmdCopyCitation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdCopyCitation.Image = global::StatTag.Properties.Resources.clipboard;
+            this.cmdCopyCitation.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.cmdCopyCitation.Location = new System.Drawing.Point(707, 86);
+            this.cmdCopyCitation.Name = "cmdCopyCitation";
+            this.cmdCopyCitation.Size = new System.Drawing.Size(24, 30);
+            this.cmdCopyCitation.TabIndex = 27;
+            this.cmdCopyCitation.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.cmdCopyCitation.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.cmdCopyCitation.UseVisualStyleBackColor = true;
+            this.cmdCopyCitation.Click += new System.EventHandler(this.cmdCopyCitation_Click);
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -137,53 +163,6 @@
             this.lblVersion.Size = new System.Drawing.Size(90, 20);
             this.lblVersion.TabIndex = 23;
             this.lblVersion.Text = "StatTag v1.0";
-            // 
-            // tabSystemDetails
-            // 
-            this.tabSystemDetails.BackColor = System.Drawing.SystemColors.Control;
-            this.tabSystemDetails.Controls.Add(this.label7);
-            this.tabSystemDetails.Controls.Add(this.cmdCopyToClipboard);
-            this.tabSystemDetails.Controls.Add(this.rtbSystemDetails);
-            this.tabSystemDetails.Location = new System.Drawing.Point(4, 26);
-            this.tabSystemDetails.Name = "tabSystemDetails";
-            this.tabSystemDetails.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSystemDetails.Size = new System.Drawing.Size(737, 344);
-            this.tabSystemDetails.TabIndex = 1;
-            this.tabSystemDetails.Text = "System Info";
-            // 
-            // label7
-            // 
-            this.label7.Location = new System.Drawing.Point(3, 3);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(702, 40);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "If you would like to provide this information to the StatTag team for support, pl" +
-    "ease copy the following text to your clipboard.  This information is never autom" +
-    "atically shared.";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cmdCopyToClipboard
-            // 
-            this.cmdCopyToClipboard.AccessibleDescription = "Copy the system details to the clipboard";
-            this.cmdCopyToClipboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdCopyToClipboard.Image = global::StatTag.Properties.Resources.clipboard;
-            this.cmdCopyToClipboard.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.cmdCopyToClipboard.Location = new System.Drawing.Point(711, 3);
-            this.cmdCopyToClipboard.Name = "cmdCopyToClipboard";
-            this.cmdCopyToClipboard.Size = new System.Drawing.Size(23, 30);
-            this.cmdCopyToClipboard.TabIndex = 2;
-            this.cmdCopyToClipboard.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cmdCopyToClipboard.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.cmdCopyToClipboard.UseVisualStyleBackColor = true;
-            this.cmdCopyToClipboard.Click += new System.EventHandler(this.cmdCopyToClipboard_Click);
-            // 
-            // rtbSystemDetails
-            // 
-            this.rtbSystemDetails.Location = new System.Drawing.Point(3, 46);
-            this.rtbSystemDetails.Name = "rtbSystemDetails";
-            this.rtbSystemDetails.Size = new System.Drawing.Size(731, 295);
-            this.rtbSystemDetails.TabIndex = 0;
-            this.rtbSystemDetails.Text = "";
             // 
             // tabAcknowledgements
             // 
@@ -256,31 +235,53 @@
             this.label1.TabIndex = 5;
             this.label1.Text = resources.GetString("label1.Text");
             // 
-            // cmdCopyCitation
+            // tabSystemDetails
             // 
-            this.cmdCopyCitation.AccessibleDescription = "Copy the system details to the clipboard";
-            this.cmdCopyCitation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdCopyCitation.Image = global::StatTag.Properties.Resources.clipboard;
-            this.cmdCopyCitation.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.cmdCopyCitation.Location = new System.Drawing.Point(707, 86);
-            this.cmdCopyCitation.Name = "cmdCopyCitation";
-            this.cmdCopyCitation.Size = new System.Drawing.Size(24, 30);
-            this.cmdCopyCitation.TabIndex = 27;
-            this.cmdCopyCitation.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cmdCopyCitation.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.cmdCopyCitation.UseVisualStyleBackColor = true;
-            this.cmdCopyCitation.Click += new System.EventHandler(this.cmdCopyCitation_Click);
+            this.tabSystemDetails.BackColor = System.Drawing.SystemColors.Control;
+            this.tabSystemDetails.Controls.Add(this.label7);
+            this.tabSystemDetails.Controls.Add(this.cmdCopyToClipboard);
+            this.tabSystemDetails.Controls.Add(this.rtbSystemDetails);
+            this.tabSystemDetails.Location = new System.Drawing.Point(4, 26);
+            this.tabSystemDetails.Name = "tabSystemDetails";
+            this.tabSystemDetails.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSystemDetails.Size = new System.Drawing.Size(737, 344);
+            this.tabSystemDetails.TabIndex = 1;
+            this.tabSystemDetails.Text = "System Info";
             // 
-            // label8
+            // label7
             // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(10, 151);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(713, 64);
-            this.label8.TabIndex = 28;
-            this.label8.Text = resources.GetString("label8.Text");
+            this.label7.Location = new System.Drawing.Point(3, 3);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(702, 40);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "If you would like to provide this information to the StatTag team for support, pl" +
+    "ease copy the following text to your clipboard.  This information is never autom" +
+    "atically shared.";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cmdCopyToClipboard
+            // 
+            this.cmdCopyToClipboard.AccessibleDescription = "Copy the system details to the clipboard";
+            this.cmdCopyToClipboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdCopyToClipboard.Image = global::StatTag.Properties.Resources.clipboard;
+            this.cmdCopyToClipboard.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.cmdCopyToClipboard.Location = new System.Drawing.Point(711, 3);
+            this.cmdCopyToClipboard.Name = "cmdCopyToClipboard";
+            this.cmdCopyToClipboard.Size = new System.Drawing.Size(23, 30);
+            this.cmdCopyToClipboard.TabIndex = 2;
+            this.cmdCopyToClipboard.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.cmdCopyToClipboard.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.cmdCopyToClipboard.UseVisualStyleBackColor = true;
+            this.cmdCopyToClipboard.Click += new System.EventHandler(this.cmdCopyToClipboard_Click);
+            // 
+            // rtbSystemDetails
+            // 
+            this.rtbSystemDetails.DetectUrls = false;
+            this.rtbSystemDetails.Location = new System.Drawing.Point(3, 46);
+            this.rtbSystemDetails.Name = "rtbSystemDetails";
+            this.rtbSystemDetails.Size = new System.Drawing.Size(731, 295);
+            this.rtbSystemDetails.TabIndex = 0;
+            this.rtbSystemDetails.Text = "";
             // 
             // About
             // 
@@ -300,9 +301,9 @@
             this.tabControl1.ResumeLayout(false);
             this.tabAbout.ResumeLayout(false);
             this.tabAbout.PerformLayout();
-            this.tabSystemDetails.ResumeLayout(false);
             this.tabAcknowledgements.ResumeLayout(false);
             this.tabAcknowledgements.PerformLayout();
+            this.tabSystemDetails.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
