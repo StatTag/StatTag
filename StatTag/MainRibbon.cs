@@ -55,7 +55,7 @@ namespace StatTag
 
         public string SystemInformation
         {
-            get { return Globals.ThisAddIn.SystemInformation; }
+            get { return Globals.ThisAddIn.GetSystemInformation(); }
         }
 
         private void MainRibbon_Load(object sender, RibbonUIEventArgs e)

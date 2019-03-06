@@ -24,13 +24,15 @@ namespace StatTag
     public partial class ThisAddIn
     {
         public static event EventHandler<EventArgs> AfterDoubleClickTimerCallback;
+        public static event EventHandler<EventArgs> AfterFullSystemDetailsLoadedCallback;
 
         public LogManager LogManager = new LogManager();
         public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
         private System.Threading.Thread DoubleClickThread = null;
-        public string SystemInformation = "";
+        private System.Threading.Thread SystemDetailsThread = null;
+        private static string SystemInformation = "";
 
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
@@ -59,6 +61,25 @@ namespace StatTag
         }
 
         /// <summary>
+        /// Access our system information string.  This may be partially or fully loaded depending on when it is called.
+        /// </summary>
+        /// <returns></returns>
+        public string GetSystemInformation()
+        {
+            lock (ThisAddIn.SystemInformation)
+            {
+                if (SystemInformation.Equals(string.Empty))
+                {
+                    return GetUserEnvironmentDetails();
+                }
+                else
+                {
+                    return ThisAddIn.SystemInformation;
+                }
+            }
+        }
+
+        /// <summary>
         /// Called when the add-in is started up.  This performs basic initialization and one-time setup for running
         /// in a Word session.
         /// </summary>
@@ -81,6 +102,11 @@ namespace StatTag
             DocumentManager.TagManager.Logger = LogManager;
             AfterDoubleClickTimerCallback += OnAfterDoubleClickTimerCallback;
             ModifiedCodeFiles.ItemAdded += OnModifiedCodeFileAdded;
+            AfterFullSystemDetailsLoadedCallback += OnAfterFullSystemDetailsLoadedCallback;
+
+            SystemDetailsThread = new System.Threading.Thread(LoadFullSystemDetails) { IsBackground = true };
+            SystemDetailsThread.SetApartmentState(ApartmentState.STA);
+            SystemDetailsThread.Start();
 
             try
             {
@@ -96,32 +122,30 @@ namespace StatTag
                     LogManager.WriteMessage("Active document is " + document.Name);
                     Application_DocumentOpen(document);
                 }
-
-                SystemInformation = GetUserEnvironmentDetails();
-
-                //// We will do a one-time load of the system information when we first start.
-                //try
-                //{
-                //    var systemInfoBuilder = new StringBuilder();
-                //    systemInfoBuilder.Append("R:\r\n\t");
-                //    systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                //    systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
-                //    systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                //    systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
-                //    systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                //    systemInfoBuilder.Append(GetUserEnvironmentDetails().Replace("\r\n", "\r\n\t"));
-                //    SystemInformation = systemInfoBuilder.ToString().Trim();
-                //}
-                //catch (Exception exc)
-                //{
-                //    SystemInformation = string.Format(
-                //        "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
-                //        exc.Message, exc.StackTrace);
-                //}
             }
             catch (Exception exc)
             {
                 UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize StatTag.  Not all functionality may be available.", LogManager);
+            }
+        }
+
+        private void OnAfterFullSystemDetailsLoadedCallback(object sender, EventArgs e)
+        {
+            LogManager.WriteMessage("Full system details have loaded:");
+            LogManager.WriteMessage(GetSystemInformation());
+            SystemDetailsThread = null;
+        }
+
+        /// <summary>
+        /// Method called from a thread to load the full stack of system information.  This will spead up load time for Word, so we
+        /// don't have to block.
+        /// </summary>
+        private void LoadFullSystemDetails()
+        {
+            GetUserEnvironmentDetails(true);
+            if (AfterFullSystemDetailsLoadedCallback != null)
+            {
+                AfterFullSystemDetailsLoadedCallback(this, new EventArgs());
             }
         }
 
@@ -180,6 +204,21 @@ namespace StatTag
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
             LogManager.WriteMessage("Shutdown completed");
+
+            // If the thread that pulls system information is still running, abort it so that we can
+            // ensure a clean shutdown.
+            if (SystemDetailsThread != null)
+            {
+                try
+                {
+                    SystemDetailsThread.Abort();
+                    SystemDetailsThread = null;
+                }
+                catch (Exception exc)
+                {
+                    // We're in shutdown mode, so yes we are eating the exception.
+                }
+            }
         }
 
         /// <summary>
@@ -495,8 +534,17 @@ namespace StatTag
         /// Produce a logging string that contains information about the user's environment (StatTag, Word and OS)
         /// </summary>
         /// <returns></returns>
-        public string GetUserEnvironmentDetails()
+        public string GetUserEnvironmentDetails(bool fullDetails = false)
         {
+            // If we have cached the system information, it means everything was fully loaded.  We can just return that each time now.
+            lock (ThisAddIn.SystemInformation)
+            {
+                if (!(SystemInformation.Equals(string.Empty)))
+                {
+                    return SystemInformation;
+                }
+            }
+
             var systemInfoBuilder = new StringBuilder();
             try
             {
@@ -516,21 +564,42 @@ namespace StatTag
                 systemInfoBuilder.Append("Operating System\r\n");
                 systemInfoBuilder.AppendFormat("\tVersion: {0}\r\n", Environment.OSVersion.ToString());
                 systemInfoBuilder.AppendFormat("\tIs 64-bit: {0}\r\n\r\n", Environment.Is64BitOperatingSystem);
-                systemInfoBuilder.Append("R:\r\n\t");
-                systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
-                systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
-                systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
-                SystemInformation = systemInfoBuilder.ToString().Trim();
+                if (fullDetails)
+                {
+                    systemInfoBuilder.Append("R:\r\n\t");
+                    systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
+                    systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
+                    systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    lock (ThisAddIn.SystemInformation)
+                    {
+                        SystemInformation = systemInfoBuilder.ToString().Trim();
+                    }
+                }
+                else
+                {
+                    // If we are not loading the full details, we aren't going to cache our results.  We will return what we have in the
+                    // string builder so far.  Subsequent calls will ideally get this to fully load.
+                    systemInfoBuilder.Append("\r\n(Additional information about R, SAS and Stata is still loading...)");
+                    return systemInfoBuilder.ToString().Trim();
+                }
             }
             catch (Exception exc)
             {
-                return string.Format(
+                lock (ThisAddIn.SystemInformation)
+                {
+                    SystemInformation = string.Format(
                         "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
                         exc.Message, exc.StackTrace);
+                }
             }
-            return systemInfoBuilder.ToString();
+
+            // There are a few paths that hit this point after having set the SystemInformation variable.
+            lock (ThisAddIn.SystemInformation)
+            {
+                return ThisAddIn.SystemInformation;
+            }
         }
 
         /// <summary>
