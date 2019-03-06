@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using R;
+using SAS;
+using Stata;
 using StatTag.Core.Models;
 using StatTag.Models;
 

@@ -7,6 +7,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+using SAS;
+using Stata;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using StatTag.Core.Utility;
@@ -15,6 +17,7 @@ using Word = Microsoft.Office.Interop.Word;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Word;
 using System.Windows.Forms;
+using R;
 
 namespace StatTag
 {
@@ -27,6 +30,7 @@ namespace StatTag
         public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
         private System.Threading.Thread DoubleClickThread = null;
+        public string SystemInformation = "";
 
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
@@ -92,6 +96,28 @@ namespace StatTag
                     LogManager.WriteMessage("Active document is " + document.Name);
                     Application_DocumentOpen(document);
                 }
+
+                SystemInformation = GetUserEnvironmentDetails();
+
+                //// We will do a one-time load of the system information when we first start.
+                //try
+                //{
+                //    var systemInfoBuilder = new StringBuilder();
+                //    systemInfoBuilder.Append("R:\r\n\t");
+                //    systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                //    systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
+                //    systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                //    systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
+                //    systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                //    systemInfoBuilder.Append(GetUserEnvironmentDetails().Replace("\r\n", "\r\n\t"));
+                //    SystemInformation = systemInfoBuilder.ToString().Trim();
+                //}
+                //catch (Exception exc)
+                //{
+                //    SystemInformation = string.Format(
+                //        "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
+                //        exc.Message, exc.StackTrace);
+                //}
             }
             catch (Exception exc)
             {
@@ -471,23 +497,40 @@ namespace StatTag
         /// <returns></returns>
         public string GetUserEnvironmentDetails()
         {
-            string value = String.Empty;
+            var systemInfoBuilder = new StringBuilder();
             try
             {
                 var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-                value = string.Format(
-                    "\r\n***********************\r\n* {0}\r\n*    Full name: {1}\r\n*    Code base: {2}\r\n*    CLR: {3}\r\n* MS Word {4}\r\n*    Build: {5}\r\n*    Is sandboxed: {6}\r\n*    Path: {7}\r\n* Process environment\r\n*    Is 64-bit: {8}\r\n*    Current directory: {9}\r\n* OS\r\n*    Version: {10}\r\n*    Is 64-bit: {11}\r\n***********************",
-                    UIUtility.GetVersionLabel(), executingAssembly.FullName, executingAssembly.CodeBase,
-                    executingAssembly.ImageRuntimeVersion,
-                    Application.Version, Application.Build, Application.IsSandboxed, Application.Path,
-                    Environment.Is64BitProcess, Environment.CurrentDirectory,
-                    Environment.OSVersion.ToString(), Environment.Is64BitOperatingSystem);
+                systemInfoBuilder.AppendFormat("{0}\r\n", UIUtility.GetVersionLabel());
+                systemInfoBuilder.AppendFormat("\tFull name: {0}\r\n", executingAssembly.FullName);
+                systemInfoBuilder.AppendFormat("\tCode base: {0}\r\n", executingAssembly.CodeBase);
+                systemInfoBuilder.AppendFormat("\tCLR: {0}\r\n\r\n", executingAssembly.ImageRuntimeVersion);
+                systemInfoBuilder.AppendFormat("Microsoft Word\r\n");
+                systemInfoBuilder.AppendFormat("\tVersion: {0}\r\n", Application.Version);
+                systemInfoBuilder.AppendFormat("\tBuild {0}\r\n", Application.Build);
+                systemInfoBuilder.AppendFormat("\tIs sandboxed: {0}\r\n", Application.IsSandboxed);
+                systemInfoBuilder.AppendFormat("\tPath: {0}\r\n\r\n", Application.Path);
+                systemInfoBuilder.Append("Process Environment\r\n");
+                systemInfoBuilder.AppendFormat("\tIs 64-bit: {0}\r\n", Environment.Is64BitProcess);
+                systemInfoBuilder.AppendFormat("\tCurrent directory: {0}\r\n\r\n", Environment.CurrentDirectory);
+                systemInfoBuilder.Append("Operating System\r\n");
+                systemInfoBuilder.AppendFormat("\tVersion: {0}\r\n", Environment.OSVersion.ToString());
+                systemInfoBuilder.AppendFormat("\tIs 64-bit: {0}\r\n\r\n", Environment.Is64BitOperatingSystem);
+                systemInfoBuilder.Append("R:\r\n\t");
+                systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
+                systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
+                systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                SystemInformation = systemInfoBuilder.ToString().Trim();
             }
             catch (Exception exc)
             {
-                value = string.Format("Error in GetUserEnvironment: {0}", exc.Message);
+                return string.Format(
+                        "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
+                        exc.Message, exc.StackTrace);
             }
-            return value;
+            return systemInfoBuilder.ToString();
         }
 
         /// <summary>

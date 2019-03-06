@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Northwestern University, Feinberg School of Medicine")]
 [assembly: AssemblyProduct("R")]
-[assembly: AssemblyCopyright("Copyright © 2016-2018")]
+[assembly: AssemblyCopyright("Copyright © 2016-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
