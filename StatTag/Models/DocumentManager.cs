@@ -1489,34 +1489,16 @@ namespace StatTag.Models
             }
         }
 
-        //public void CheckForInsertSavedTag(EditTag dialog)
-        //{
-        //    // If the user clicked the "Save and Insert", we will perform the insertion now.
-        //    if (dialog.DefineAnother)
-        //    {
-        //        Log("Inserting into document after defining tag");
-
-        //        var tag = FindTag(dialog.Tag.Id);
-        //        if (tag == null)
-        //        {
-        //            Log(string.Format("Unable to find tag {0}, so skipping the insert", dialog.Tag.Id));
-        //            return;
-        //        }
-
-        //        InsertTagsInDocument(new List<Tag>(new[] { tag }));
-        //    }
-        //}
-        /// <summary>
-        /// This is a specialized utility function to be called whenever the user clicks "Save and Insert"
-        /// from the Edit Tag dialog.
-        /// </summary>
-        /// <param name="dialog"></param>
         /// <summary>
         /// Performs the insertion of tags into a document as fields.
         /// </summary>
+        /// <remarks>
+        /// This method should not display any error messages to the user.  Instead, it should communicate with the
+        /// caller via exceptions.
+        /// </remarks>
         /// <param name="tags"></param>
         /// <param name="reporter"></param>
-        public void InsertTagsInDocument(List<Tag> tags, bool isPlaceholder, IProgressReporter reporter)
+        public void InsertTagPlaceholdersInDocument(List<Tag> tags, IProgressReporter reporter)
         {
             Cursor.Current = Cursors.WaitCursor;
             Globals.ThisAddIn.Application.ScreenUpdating = false;
@@ -1525,33 +1507,6 @@ namespace StatTag.Models
                 // Get all of our unique code files that need to be run.  We are going to execute these in the first
                 // phase.
                 var updatedTags = new List<Tag>();
-                if (!isPlaceholder)
-                {
-                    var codeFiles = tags.Select(x => x.CodeFile).Distinct().ToArray();
-                    for (int index = 0; index < codeFiles.Length; index++)
-                    {
-                        var codeFile = codeFiles[index];
-                        if (ExecutionUpdated != null)
-                        {
-                            ExecutionUpdated(this, new ProgressEventArgs()
-                            {
-                                Index = (index + 1),
-                                TotalItems = codeFiles.Length,
-                                Description =
-                                    string.Format("Running code file {0} of {1}", (index + 1), codeFiles.Length)
-                            });
-                        }
-                        var result = StatsManager.ExecuteStatPackage(codeFile,
-                            Constants.ParserFilterMode.TagList, tags);
-                        if (!result.Success)
-                        {
-                            break;
-                        }
-
-                        updatedTags.AddRange(result.UpdatedTags);
-                    }
-                }
-
                 int tagCount = tags.Count;
                 for (int index = 0; index < tagCount; index++)
                 {
@@ -1568,28 +1523,19 @@ namespace StatTag.Models
                     }
                     InsertField(tag, true);
                 }
-
-                // Now that all of the fields have been inserted, sweep through and update any existing
-                // tags that changed.  We do this after the fields are inserted to better manage
-                // the cursor position in the document.
-                if (!isPlaceholder)
-                {
-                    updatedTags = updatedTags.Distinct().ToList();
-                    foreach (var updatedTag in updatedTags)
-                    {
-                        UpdateFields(new UpdatePair<Tag>(updatedTag, updatedTag));
-                    }
-                }
             }
             catch (StatTagUserException uex)
             {
-                UIUtility.ReportException(uex, uex.Message, Logger);
+                Logger.WriteMessage("StatTagUserException caught while inserting tag placeholders.  Will re-throw exception.");
+                Logger.WriteException(uex);
+                throw uex;
             }
             catch (Exception exc)
             {
-                UIUtility.ReportException(exc,
-                    "There was an unexpected error when trying to insert the tag output into the Word document.",
-                    Logger);
+                Logger.WriteMessage("Exception caught while inserting tag placeholders.  Will throw generic wrapper exception.");
+                Logger.WriteException(exc);
+                throw new StatTagUserException(
+                    "There was an unexpected error when trying to insert the tag output into the Word document.", exc);
             }
             finally
             {

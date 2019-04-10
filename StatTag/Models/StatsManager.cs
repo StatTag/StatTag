@@ -85,6 +85,10 @@ namespace StatTag.Models
         /// <summary>
         /// Run the statistical package for a given code file.
         /// </summary>
+        /// <remarks>
+        /// This method should not display any message boxes to the user.  Communication to the user should be handled via exceptions or
+        /// ideally through the ExecuteResult response.
+        /// </remarks>
         /// <param name="file">The code file to execute</param>
         /// <param name="filterMode">The type of filter to apply on the types of commands to execute</param>
         /// <param name="tagsToRun">An optional list of tags to execute code for.  This is only applied when the filter mode is ParserFilterMode.TagList</param>
@@ -96,7 +100,7 @@ namespace StatTag.Models
             {
                 if (!automation.Initialize(file, DocumentManager.Logger))
                 {
-                    MessageBox.Show(automation.GetInitializationErrorMessage(), UIUtility.GetAddInName());
+                    result.ErrorMessage = automation.GetInitializationErrorMessage();
                     return result;
                 }
 
