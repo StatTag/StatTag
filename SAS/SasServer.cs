@@ -41,7 +41,7 @@ namespace SAS
         // Use the ObjectKeeper, which keeps track of SAS Workspaces
         // We need this so that the OLE DB provider can find the workspace to
         // connect to if/when the user opens a data set to view
-        internal static SASObjectManager.ObjectKeeper objectKeeper =
+        internal SASObjectManager.ObjectKeeper objectKeeper =
             new SASObjectManager.ObjectKeeper();
 
         /// <summary>
