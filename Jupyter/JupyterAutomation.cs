@@ -159,13 +159,18 @@ namespace Jupyter
             // all we need is for the code to run.
             if (tag != null)
             {
-                // Now echo out everything we did
+                // Now retrieve all of the completed execution results that we are interested in
                 var executeLog =
                     Client.ExecuteLog.Values.OrderBy(x => x.ExecutionIndex)
                         .SelectMany(x => x.Response)
                         .Where(x => x.Header.MessageType.Equals(MessageType.DisplayData) ||
                                     x.Header.MessageType.Equals(MessageType.Stream))
                         .ToList();
+
+                // Very important to clear out the execution history.  We've pulled stuff off the log
+                // that we are interested in, so the next time we access the log we don't want to have
+                // to wade through it again.
+                Client.ClearExecuteLog();
 
                 // Start with tables
                 var commandResult = HandleTableResult(tag, command, executeLog);
