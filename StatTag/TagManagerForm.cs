@@ -68,6 +68,7 @@ namespace StatTag
             { Constants.StatisticalPackages.SAS, new Bitmap(StatTag.Properties.Resources.stats_package_sas) },
             { Constants.StatisticalPackages.Stata, new Bitmap(StatTag.Properties.Resources.stats_package_stata) },
             { Constants.StatisticalPackages.RMarkdown, new Bitmap(StatTag.Properties.Resources.stats_package_rmd) },
+            { Constants.StatisticalPackages.Python, new Bitmap(StatTag.Properties.Resources.stats_package_python) },
             { string.Empty, new Bitmap(StatTag.Properties.Resources.stats_package_unknown) }
         };
 

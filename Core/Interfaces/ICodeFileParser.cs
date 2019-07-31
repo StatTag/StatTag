@@ -27,5 +27,9 @@ namespace StatTag.Core.Interfaces
         /// <param name="command"></param>
         /// <returns></returns>
         string GetTableDataPath(string command);
+
+        bool IsTagStart(string line);
+
+        bool IsTagEnd(string line);
     }
 }
