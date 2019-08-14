@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JupyterKernelManager", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jupyter", "Jupyter\Jupyter.csproj", "{7D918FA2-FE9C-4DF4-810D-902E0143F90A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTests", "EngineTests\EngineTests.csproj", "{C3D91C06-373D-4D54-AB3B-2AF5163CE917}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -411,6 +413,24 @@ Global
 		{7D918FA2-FE9C-4DF4-810D-902E0143F90A}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
 		{7D918FA2-FE9C-4DF4-810D-902E0143F90A}.SingleImage|Any CPU.Build.0 = Release|Any CPU
 		{7D918FA2-FE9C-4DF4-810D-902E0143F90A}.SingleImage|x86.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.CD_ROM|Any CPU.Build.0 = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.CD_ROM|x86.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.DVD-5|x86.ActiveCfg = Debug|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Signed|Any CPU.Build.0 = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.Signed|x86.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.SingleImage|Any CPU.Build.0 = Release|Any CPU
+		{C3D91C06-373D-4D54-AB3B-2AF5163CE917}.SingleImage|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

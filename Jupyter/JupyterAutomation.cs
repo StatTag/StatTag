@@ -275,7 +275,7 @@ namespace Jupyter
             return null;
         }
 
-        private string GetValueResult(List<Message> result)
+        protected string GetValueResult(List<Message> result)
         {
             var first = result.FirstOrDefault();
             if (first != null && first.Content != null)

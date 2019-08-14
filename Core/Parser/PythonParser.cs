@@ -18,7 +18,7 @@ namespace StatTag.Core.Parser
 
         // TODO - implement checks for figures and tables
         public static readonly string[] FigureCommands = { "" };
-        public static readonly string[] TableCommands = { "" };
+        public static readonly string[] TableCommands = ValueCommands;
 
         public override string CommentCharacter
         {
@@ -40,16 +40,34 @@ namespace StatTag.Core.Parser
             return Python2ValueKeywordRegex.IsMatch(command) || Python3ValueKeywordRegex.IsMatch(command);
         }
 
+        /// <summary>
+        /// Not implemented for Python - Return the name of the value variable
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetValueName(string command)
         {
             return string.Empty;
         }
 
+        /// <summary>
+        /// Determine if the command contains an expression that StatTag can use to extract a table
+        /// result from.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override bool IsTableResult(string command)
         {
-            return false;
+            // We are reusing the IsValueDisplay check here because we currently have the assumption that the print
+            // command will identify both values and tables.
+            return IsValueDisplay(command);
         }
 
+        /// <summary>
+        /// Not implement for Python - Return the name of the table variable
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public override string GetTableName(string command)
         {
             return string.Empty;
