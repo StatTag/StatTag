@@ -21,6 +21,8 @@ namespace Jupyter
         protected abstract ICodeFileParser Parser { get; set; }
         private KernelManager Manager { get; set; }
         private KernelClient Client { get; set; }
+        private List<string> VerbatimResultCache { get; set; }
+        private bool VerbatimResultCacheEnabled { get; set; }
 
         public StatPackageState State { get; set; }
 
@@ -82,63 +84,45 @@ namespace Jupyter
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             bool isFigureTag = (tag != null && tag.Type == Constants.TagType.Figure);
+            var cachedCommands = new List<string>();
             foreach (var command in commands)
             {
-                if (Parser.IsTagStart(command))
+                if (isVerbatimTag && Parser.IsTagStart(command))
                 {
-                    // Start the verbatim logging cache, if that is what the user wants for this output.
-                    if (isVerbatimTag)
-                    {
-                        //VerbatimLog.StartCache();
-                    }
-                    // If we're going to be doing a figure, we want to clean out the old images so we know
-                    // exactly which ones we're writing to.
-                    else if (isFigureTag)
-                    {
-                        //CleanTemporaryImageFolder();
-                    }
+                    VerbatimResultCache = new List<string>();
+                    VerbatimResultCacheEnabled = true;
                 }
 
-                var result = RunCommand(command, tag);
-                if (result != null && !result.IsEmpty() && !isVerbatimTag)
+                CommandResult result = null;
+                if (VerbatimResultCacheEnabled)
+                {
+                    // If the verbatim log cache is enabled, and we're now at the closing verbatim tag, we need to run
+                    // all of our cached code and get the results into our verbatim collection.
+                    if (isVerbatimTag && Parser.IsTagEnd(command))
+                    {
+                        RunCommand(string.Join("\r\n", cachedCommands), tag);
+                        result = new CommandResult()
+                        {
+                            VerbatimResult = string.Join("\r\n", VerbatimResultCache)
+                        };
+                        VerbatimResultCacheEnabled = false;
+                    }
+                    // Otherwise, we know we're within a verbatim tag so we will cache the current command and save
+                    // it for later execution.
+                    else
+                    {
+                        cachedCommands.Add(command);
+                    }
+                }
+                else
+                {
+                    result = RunCommand(command, tag);
+                }
+                
+                // Whenever we have a result, add it to our list of results for all the commands.
+                if (result != null && !result.IsEmpty())
                 {
                     commandResults.Add(result);
-                }
-                else if (Parser.IsTagEnd(command))
-                {
-                    if (isVerbatimTag)
-                    {
-                        //VerbatimLog.StopCache();
-                        //commandResults.Add(new CommandResult()
-                        //{
-                            //VerbatimResult = string.Join("", VerbatimLog.GetCache())
-                        //});
-                    }
-                    // If this is the end of a figure tag, only proceed with this temp file processing if we don't
-                    // already have a figure result of some sort.
-                    else if (isFigureTag && !commandResults.Any(x => !string.IsNullOrWhiteSpace(x.FigureResult)))
-                    {
-                        // Make sure the graphics device is closed. We're going with the assumption that a device
-                        // was open and a figure was written out.
-                        //RunCommand("graphics.off()");
-
-                        // If we don't have the file specified normally, we will use our fallback mechanism of writing to a
-                        // temporary directory.
-                        //var files = Directory.GetFiles(TemporaryImageFilePath, TemporaryImageFileFilter);
-                        //if (files.Length == 0)
-                        //{
-                        //    continue;
-                        //}
-
-                        //// Find the last file in the directory.  We anticipate there would normally only be 1, but since 
-                        //// several commands could be run, we will just take the last one.
-                        //var tempImageFile = files.OrderBy(x => x).Last();
-                        //var correctedPath = Path.GetFullPath(Path.Combine(TemporaryImageFilePath, ".."));
-                        //var imageFile = Path.Combine(correctedPath, string.Format("{0}.png", TagUtil.TagNameAsFileName(tag)));
-                        //File.Copy(tempImageFile, imageFile, true);
-
-                        //commandResults.Add(new CommandResult() { FigureResult = imageFile });
-                    }
                 }
             }
 
@@ -171,6 +155,12 @@ namespace Jupyter
                 // that we are interested in, so the next time we access the log we don't want to have
                 // to wade through it again.
                 Client.ClearExecuteLog();
+
+                if (VerbatimResultCacheEnabled)
+                {
+                    VerbatimResultCache.AddRange(GetValueResults(executeLog));
+                    return null;
+                }
 
                 // Start with tables
                 var commandResult = HandleTableResult(tag, command, executeLog);
@@ -265,7 +255,7 @@ namespace Jupyter
             // to capture the result if it's flagged as a tag.
             if (tag.Type == Constants.TagType.Value)
             {
-                var valueResult = GetValueResult(result);
+                var valueResult = GetValueResult(result.FirstOrDefault());
                 if (valueResult != null)
                 {
                     return new CommandResult() {ValueResult = valueResult};
@@ -275,23 +265,28 @@ namespace Jupyter
             return null;
         }
 
-        protected string GetValueResult(List<Message> result)
+        protected List<string> GetValueResults(List<Message> results)
         {
-            var first = result.FirstOrDefault();
-            if (first != null && first.Content != null)
+            var resultValues = results.Select(GetValueResult).ToList();
+            return resultValues;
+        } 
+
+        protected string GetValueResult(Message result)
+        {
+            if (result != null && result.Content != null)
             {
-                if (first.Header.MessageType.Equals(MessageType.Stream))
+                if (result.Header.MessageType.Equals(MessageType.Stream))
                 {
-                    if (first.Content.text != null)
+                    if (result.Content.text != null)
                     {
-                        return first.Content.text.ToString().Trim();
+                        return result.Content.text.ToString().Trim();
                     }
                 }
                 else
                 {
                     
                 }
-                return first.Content.ToString();
+                return result.Content.ToString();
             }
 
             return null;

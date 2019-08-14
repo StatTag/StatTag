@@ -177,7 +177,7 @@ namespace StatTag.Core.Parser
 
         public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
         {
-            return new List<string>(CollapseMultiLineCommands(originalContent));
+            return new List<string>(CollapseMultiLineCommands(originalContent).Select(x => x.Trim()));
         }
 
         /// <summary>

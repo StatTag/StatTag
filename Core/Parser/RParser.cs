@@ -356,7 +356,7 @@ namespace StatTag.Core.Parser
 
             var modifiedText = CodeParserUtil.StripTrailingComments(originalText);
             // Ensure all multi-line function calls are collapsed
-            return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
+            return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).Select(x => x.Trim()).ToList();
         }
     }
 }

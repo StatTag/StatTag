@@ -501,7 +501,7 @@ namespace StatTag.Core.Parser
             //modifiedText = TrailingLineComment.Replace(modifiedText, "");
             modifiedText = CodeParserUtil.StripTrailingComments(modifiedText);
             modifiedText = RemoveNestedComments(modifiedText).Trim();
-            return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).ToList();
+            return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).Select(x => x.Trim()).ToList();
         }
 
         /// <summary>

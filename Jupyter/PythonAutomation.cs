@@ -33,9 +33,9 @@ namespace Jupyter
 
         public override CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
-            if (Parser.IsTableResult(command))
+            if (tag.Type.Equals(Constants.TagType.Table) && Parser.IsTableResult(command))
             {
-                var value = GetValueResult(result);
+                var value = GetValueResult(result.FirstOrDefault());
                 return new CommandResult() { TableResult = ParseTableResult(value) };
             }
 
