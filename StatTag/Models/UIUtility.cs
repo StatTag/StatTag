@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using Jupyter;
 using R;
 using SAS;
 using StatTag.Core.Interfaces;
@@ -273,10 +274,12 @@ namespace StatTag
                         formatter = new SASCommands();
                         break;
                     case Constants.StatisticalPackages.R:
+                    case Constants.StatisticalPackages.RMarkdown: 
                         formatter = new RCommands();
                         break;
-                    case Constants.StatisticalPackages.RMarkdown:
-                        formatter = new RCommands();
+                    case Constants.StatisticalPackages.Python:
+                        formatter = new PythonCommands();
+
                         break;
                 }
 

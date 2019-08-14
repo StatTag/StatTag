@@ -42,6 +42,7 @@
     <Compile Include="JupyterAutomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PythonAutomation.cs" />
+    <Compile Include="PythonCommands.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj">

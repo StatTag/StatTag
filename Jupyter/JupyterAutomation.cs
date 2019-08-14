@@ -233,6 +233,7 @@ namespace Jupyter
             // return of results, a user can just specify a variable and get the result.
             if (tag.Type == Constants.TagType.Table)
             {
+                return null;
                 //return new CommandResult() { TableResult = GetTableResult(command, result) };
             }
 
