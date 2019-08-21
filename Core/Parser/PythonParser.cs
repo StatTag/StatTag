@@ -12,8 +12,7 @@ namespace StatTag.Core.Parser
 {
     public class PythonParser : BaseParser
     {
-        // TODO: Implement figure handling
-        public static readonly string[] FigureCommands = new[] { "NOT IMPLEMENTED" };
+        private static readonly Regex FigureRegex = new Regex(string.Format(".+\\((\\s*?[\\s\\S]*)\\)"));
 
         public override string CommentCharacter
         {
@@ -22,12 +21,19 @@ namespace StatTag.Core.Parser
 
         public override bool IsImageExport(string command)
         {
-            return false;
+            // We consider any tagged command a candidate for an image result
+            return true;
         }
 
         public override string GetImageSaveLocation(string command)
         {
-            return string.Empty;
+            var match = FigureRegex.Match(command);
+            if (!match.Success || match.Groups.Count < 2)
+            {
+                return string.Empty;
+            }
+
+            return match.Groups[1].Value;
         }
 
         public override bool IsValueDisplay(string command)

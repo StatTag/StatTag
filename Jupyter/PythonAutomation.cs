@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,12 +30,76 @@ namespace Jupyter
 
         private static readonly Regex ValidArrayString = new Regex("^\\s*\\[.*\\]\\s*$", RegexOptions.Multiline | RegexOptions.Singleline);
 
+        private static readonly Dictionary<string, string> PythonProfileCommands = new Dictionary<string, string>()
+        {
+            { "import sys; print(sys.version)", "Version" }
+        };
+
         public PythonAutomation()
             : base(PythonKernelName)
         {
             Parser = new PythonParser();
         }
 
+        public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
+        {
+            if (tag.Type == Constants.TagType.Figure && Parser.IsImageExport(command))
+            {
+                // Attempt to extract the save location (either a file name, relative path, or absolute path)
+                // If it is empty, we will assign one to the image based on the tag name, and use that so
+                // the image is properly imported.
+                var saveLocation = Parser.GetImageSaveLocation(command);
+                if (string.IsNullOrWhiteSpace(saveLocation))
+                {
+                    saveLocation = "\"tmp\"";
+                }
+                return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return an expanded, full file path - accounting for variables, functions, relative paths, etc.
+        /// </summary>
+        /// <param name="saveLocation">An R command that will be translated into a file path.</param>
+        /// <returns>The full file path</returns>
+        protected string GetExpandedFilePath(string saveLocation)
+        {
+            //var fileLocation = RunCommand(saveLocation, new Tag() { Type = Constants.TagType.Value });
+            var fileLocation = RunCommand(string.Format("print({0})", saveLocation), new Tag() { Type = Constants.TagType.Value });
+            if (fileLocation == null)
+            {
+                return null;
+            }
+
+            var baseParser = (BaseParser) Parser;
+            if (baseParser != null && baseParser.IsRelativePath(fileLocation.ValueResult))
+            {
+                // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
+                // creating doesn't exist, we will just proceed with whatever image location we had previously.
+                var workingDirResult = RunCommand("import os; print(os.getcwd())", new Tag() { Type = Constants.TagType.Value });
+                if (workingDirResult != null)
+                {
+                    var path = workingDirResult.ValueResult;
+                    var correctedPath = Path.GetFullPath(Path.Combine(path, fileLocation.ValueResult));
+                    if (File.Exists(correctedPath))
+                    {
+                        fileLocation.ValueResult = correctedPath;
+                    }
+                }
+            }
+
+            return fileLocation.ValueResult;
+        }
+
+        /// <summary>
+        /// For a tag, handle the results from processing a command to determine if a table result can be derived.
+        /// </summary>
+        /// <param name="tag">The tag we are processing (if applicable)</param>
+        /// <param name="command">The Python command that was run</param>
+        /// <param name="result">A collection of Jupyter Message objects representing the results</param>
+        /// <returns>A Table object containing the table data, if a table can be extracted.  Null otherwise.</returns>
         public override CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
             if (tag.Type.Equals(Constants.TagType.Table) && Parser.IsTableResult(command))
@@ -55,6 +120,12 @@ namespace Jupyter
             return null;
         }
 
+        /// <summary>
+        /// Given a string containing HTML, extract a balanced table.
+        /// NOTE: This does not account for rowspan/colspan!
+        /// </summary>
+        /// <param name="valueString"></param>
+        /// <returns></returns>
         public Table ParseHtmlTableResult(string valueString)
         {
             if (string.IsNullOrWhiteSpace(valueString))

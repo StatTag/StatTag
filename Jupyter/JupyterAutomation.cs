@@ -17,12 +17,15 @@ namespace Jupyter
 {
     public abstract class JupyterAutomation : IStatAutomation
     {
+        private const string TemporaryImageFileFilter = "*.png";
         protected string KernelName { get; set; }
         protected abstract ICodeFileParser Parser { get; set; }
         private KernelManager Manager { get; set; }
         private KernelClient Client { get; set; }
         private List<string> VerbatimResultCache { get; set; }
         private bool VerbatimResultCacheEnabled { get; set; }
+        private string TemporaryImageFilePath = "";
+
 
         public StatPackageState State { get; set; }
 
@@ -52,6 +55,8 @@ namespace Jupyter
                     Client = Manager.CreateClient();
                     State.EngineConnected = true;
                     State.WorkingDirectorySet = true;
+
+                    TemporaryImageFilePath = AutomationUtil.InitializeTemporaryImageDirectory(file, logger);
                 }
                 catch (Exception exc)
                 {
@@ -63,12 +68,20 @@ namespace Jupyter
             return (Manager != null) && (Client != null);
         }
 
+        /// <summary>
+        /// Helper method to clean out the temporary folder used for storing images
+        /// </summary>
+        /// <param name="deleteFolder"></param>
+        private void CleanTemporaryImageFolder(bool deleteFolder = false)
+        {
+            AutomationUtil.CleanTemporaryImageFolder(this, null, TemporaryImageFilePath, TemporaryImageFileFilter, deleteFolder);
+        }
+
         public virtual void Dispose()
         {
             if (Client != null)
             {
                 Client.StopChannels();
-                //Client.Dispose();
                 Client = null;
             }
 
@@ -77,6 +90,8 @@ namespace Jupyter
                 Manager.Dispose();
                 Manager = null;
             }
+
+            CleanTemporaryImageFolder(true);
         }
 
         public CommandResult[] RunCommands(string[] commands, Tag tag = null)
@@ -87,10 +102,17 @@ namespace Jupyter
             var cachedCommands = new List<string>();
             foreach (var command in commands)
             {
-                if (isVerbatimTag && Parser.IsTagStart(command))
+                bool isTagStart = Parser.IsTagStart(command);
+                if (isVerbatimTag && isTagStart)
                 {
                     VerbatimResultCache = new List<string>();
                     VerbatimResultCacheEnabled = true;
+                }
+                else if (isFigureTag && isTagStart)
+                {
+                    // If we're going to be doing a figure, we want to clean out the old images so we know
+                    // exactly which ones we're writing to.
+                    CleanTemporaryImageFolder();
                 }
 
                 CommandResult result = null;
@@ -131,6 +153,11 @@ namespace Jupyter
 
         public CommandResult RunCommand(string command, Tag tag = null)
         {
+            if (Client == null)
+            {
+                return null;
+            }
+
             Client.Execute(command);
             while (Client.HasPendingExecute())
             {
@@ -218,32 +245,13 @@ namespace Jupyter
 
         public virtual CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
-            // We take a hint from the tag type to identify tables.  Because of how open R is with its
-            // return of results, a user can just specify a variable and get the result.
-            if (tag.Type == Constants.TagType.Table)
-            {
-                return null;
-                //return new CommandResult() { TableResult = GetTableResult(command, result) };
-            }
-
             return null;
         }
 
+        //protected abstract string GetExpandedFilePath(string saveLocation);
+
         public virtual CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
-            if (Parser.IsImageExport(command))
-            {
-                // Attempt to extract the save location (either a file name, relative path, or absolute path)
-                // If it is empty, we will assign one to the image based on the tag name, and use that so
-                // the image is properly imported.
-                var saveLocation = Parser.GetImageSaveLocation(command);
-                if (string.IsNullOrWhiteSpace(saveLocation))
-                {
-                    saveLocation = "\"tmp\"";
-                }
-                //return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
-            }
-
             return null;
         }
 

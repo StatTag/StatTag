@@ -22,7 +22,8 @@ namespace Jupyter
         {
             public string[] GetCommands()
             {
-                return PythonParser.FigureCommands.Select(x => x.ToUpper()).ToArray();
+                return new[] { "(Any command that saves a figure to a file)" };
+                //return PythonParser.FigureCommands.Select(x => x.ToUpper()).ToArray();
             }
         }
 
