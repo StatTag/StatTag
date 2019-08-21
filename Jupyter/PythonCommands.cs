@@ -14,7 +14,7 @@ namespace Jupyter
         {
             public string[] GetCommands()
             {
-                return PythonParser.ValueCommands;
+                return new[] { "(Any command that returns a value)" };
             }
         }
 
@@ -30,7 +30,7 @@ namespace Jupyter
         {
             public string[] GetCommands()
             {
-                return PythonParser.TableCommands.Select(x => x.ToUpper()).ToArray();
+                return new[] { "(Any command that returns a data frame, matrix, vector or list)" };
             }
         }
 

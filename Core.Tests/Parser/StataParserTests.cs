@@ -442,7 +442,7 @@ namespace Core.Tests.Parser
                 "//Third line"
             });
             Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line  \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line\r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
             testList = new List<string>(new string[]
             {
@@ -450,7 +450,7 @@ namespace Core.Tests.Parser
                 "Second line"
             });
             Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("First line \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("First line\r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
             testList = new List<string>(new string[]
             {
@@ -458,7 +458,7 @@ namespace Core.Tests.Parser
                 "Second line"
             });
             Assert.AreEqual(2, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("* \r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
+            Assert.AreEqual("*\r\nSecond line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
             // When we have trailing line comments within comment blocks, we want to make sure at the end of the day
             // that it's not causing any problems (it shouldn't be).

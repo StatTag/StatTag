@@ -147,8 +147,7 @@ namespace Jupyter
                 var executeLog =
                     Client.ExecuteLog.Values.OrderBy(x => x.ExecutionIndex)
                         .SelectMany(x => x.Response)
-                        .Where(x => x.Header.MessageType.Equals(MessageType.DisplayData) ||
-                                    x.Header.MessageType.Equals(MessageType.Stream))
+                        .Where(x => x.IsDataMessageType())
                         .ToList();
 
                 // Very important to clear out the execution history.  We've pulled stuff off the log
@@ -255,7 +254,7 @@ namespace Jupyter
             // to capture the result if it's flagged as a tag.
             if (tag.Type == Constants.TagType.Value)
             {
-                var valueResult = GetValueResult(result.FirstOrDefault());
+                var valueResult = GetTextValueResult(result.FirstOrDefault());
                 if (valueResult != null)
                 {
                     return new CommandResult() {ValueResult = valueResult};
@@ -267,26 +266,46 @@ namespace Jupyter
 
         protected List<string> GetValueResults(List<Message> results)
         {
-            var resultValues = results.Select(GetValueResult).ToList();
+            var resultValues = results.Select(GetTextValueResult).ToList();
             return resultValues;
         } 
 
-        protected string GetValueResult(Message result)
+        protected string GetTextValueResult(Message result)
         {
             if (result != null && result.Content != null)
             {
-                if (result.Header.MessageType.Equals(MessageType.Stream))
+                if (result.IsDataMessageType())
                 {
-                    if (result.Content.text != null)
+                    if (result.Content.data != null)
                     {
-                        return result.Content.text.ToString().Trim();
+                        return result.SafeGetData("text/plain").Trim();
+                    }
+                    else if (result.Header.MessageType.Equals(MessageType.Stream))
+                    {
+                        if (result.Content.text != null)
+                        {
+                            return result.Content.text.ToString().Trim();
+                        }
                     }
                 }
-                else
-                {
-                    
-                }
                 return result.Content.ToString();
+            }
+
+            return null;
+        }
+
+        protected string GetHtmlValueResult(Message result)
+        {
+            if (result != null && result.Content != null)
+            {
+                if (result.IsDataMessageType())
+                {
+                    var data = result.SafeGetData("text/html");
+                    if (data != null)
+                    {
+                        return data.Trim();
+                    }
+                }
             }
 
             return null;

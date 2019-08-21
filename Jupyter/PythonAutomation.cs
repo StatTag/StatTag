@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using JupyterKernelManager;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
@@ -25,6 +27,8 @@ namespace Jupyter
         private const char SingleQuote = '\'';
         private const char DoubleQuote = '"';
 
+        private static readonly Regex ValidArrayString = new Regex("^\\s*\\[.*\\]\\s*$", RegexOptions.Multiline | RegexOptions.Singleline);
+
         public PythonAutomation()
             : base(PythonKernelName)
         {
@@ -35,11 +39,65 @@ namespace Jupyter
         {
             if (tag.Type.Equals(Constants.TagType.Table) && Parser.IsTableResult(command))
             {
-                var value = GetValueResult(result.FirstOrDefault());
-                return new CommandResult() { TableResult = ParseTableResult(value) };
+                var message = result.FirstOrDefault();
+                var htmlValue = GetHtmlValueResult(message);
+                if (string.IsNullOrWhiteSpace(htmlValue))
+                {
+                    return new CommandResult() {TableResult = ParseTableResult(GetTextValueResult(message))};
+                }
+                else
+                {
+                    return new CommandResult() { TableResult = ParseHtmlTableResult(htmlValue) };
+                }
+                
             }
 
             return null;
+        }
+
+        public Table ParseHtmlTableResult(string valueString)
+        {
+            if (string.IsNullOrWhiteSpace(valueString))
+            {
+                return new Table();
+            }
+
+            var htmlFragment = new HtmlDocument();
+            htmlFragment.LoadHtml(valueString);
+            var table = htmlFragment.DocumentNode.SelectSingleNode(".//table");
+            if (table == null)
+            {
+                // If there is no table node present, we will return an empty table instead of an error.
+                return new Table();
+            }
+
+            // There's a lot of variation in tables - they can have THEAD and TBODY or not.  They can use TH instead of TD in different places.
+            // We need to account for all of those scenarios.
+            var rows = table.SelectNodes(".//tr");
+            if (rows == null || rows.Count == 0)
+            {
+                return new Table();
+            }
+
+            // Keep in mind that rows and columns can be uneven.  We're going to start with the assumption that the rows are right, and determine
+            // which column count (the max) best represents the total for this data.
+            int numRows = rows.Count;
+            int maxCols = 0;
+            var data = new List<List<string>>();
+            for (int rowIndex = 0; rowIndex < numRows; rowIndex++)
+            {
+                var row = rows[rowIndex];
+                var cols = row.SelectNodes("./td | ./th");
+                maxCols = Math.Max(maxCols, cols.Count);
+                data.Add(new List<string>(cols.Count));
+                foreach (var col in cols)
+                {
+                    data[rowIndex].Add(col.GetDirectInnerText());
+                }
+            }
+
+            var dataTable = new Table(numRows, maxCols, TableUtil.MergeTableVectorsToArray(null, null, FlattenDataToArray(numRows, maxCols, data), numRows, maxCols));
+            return dataTable;
         }
 
         /// <summary>
@@ -50,6 +108,13 @@ namespace Jupyter
         /// <returns>A populated Table structure</returns>
         public Table ParseTableResult(string valueString)
         {
+            // If the string has no data, we want to safely return an empty table.  Similarly, if the table string does not start with
+            // an opening array char, we don't know how to process it.
+            if (string.IsNullOrWhiteSpace(valueString) || !ValidArrayString.IsMatch(valueString))
+            {
+                return new Table(0, 0, null);
+            }
+
             // Go through each character and process the state change for each symbol, collecting data
             // along the way.  And yes, we are ignoring the nuances of Python collections and just referring
             // to them as "arrays" within the code.

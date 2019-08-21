@@ -12,13 +12,8 @@ namespace StatTag.Core.Parser
 {
     public class PythonParser : BaseParser
     {
-        public static readonly string[] ValueCommands = { "print" };
-        private static readonly Regex Python2ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})[ \\t]+[^\\(\\)\\n\\r]+", FormatCommandListAsNonCapturingGroup(ValueCommands)));
-        private static readonly Regex Python3ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})[ \\t]*\\([\\w\\s]*\\)", FormatCommandListAsNonCapturingGroup(ValueCommands)));
-
-        // TODO - implement checks for figures and tables
-        public static readonly string[] FigureCommands = { "" };
-        public static readonly string[] TableCommands = ValueCommands;
+        // TODO: Implement figure handling
+        public static readonly string[] FigureCommands = new[] { "NOT IMPLEMENTED" };
 
         public override string CommentCharacter
         {
@@ -37,11 +32,12 @@ namespace StatTag.Core.Parser
 
         public override bool IsValueDisplay(string command)
         {
-            return Python2ValueKeywordRegex.IsMatch(command) || Python3ValueKeywordRegex.IsMatch(command);
+            // We consider any tagged command a candidate for a value result
+            return true;
         }
 
         /// <summary>
-        /// Not implemented for Python - Return the name of the value variable
+        /// Not implemented for Python
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -58,13 +54,12 @@ namespace StatTag.Core.Parser
         /// <returns></returns>
         public override bool IsTableResult(string command)
         {
-            // We are reusing the IsValueDisplay check here because we currently have the assumption that the print
-            // command will identify both values and tables.
-            return IsValueDisplay(command);
+            // We consider any command a candidate for a table result
+            return true;
         }
 
         /// <summary>
-        /// Not implement for Python - Return the name of the table variable
+        /// Not implement for Python
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>

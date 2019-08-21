@@ -292,12 +292,14 @@ namespace Core.Tests.Parser
             text = new List<string>()
             {
                 "line 1 // comment",
-                "line 2",
-                "line 3"
+                "line 2  ",
+                "line 3  "
             };
             modifiedText = parser.PreProcessContent(text);
             Assert.AreEqual(text.Count, modifiedText.Count);
-            Assert.AreEqual("line 1 ", modifiedText[0]);
+            Assert.AreEqual("line 1", modifiedText[0]);
+            Assert.AreEqual("line 2", modifiedText[1]);
+            Assert.AreEqual("line 3", modifiedText[2]);
 
             text = new List<string>()
             {
@@ -307,9 +309,9 @@ namespace Core.Tests.Parser
             };
             modifiedText = parser.PreProcessContent(text);
             Assert.AreEqual(text.Count, modifiedText.Count);
-            Assert.AreEqual("line 1 ", modifiedText[0]);
-            Assert.AreEqual("hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") ", modifiedText[1]);
-            Assert.AreEqual("line 3 ", modifiedText[2]);
+            Assert.AreEqual("line 1", modifiedText[0]);
+            Assert.AreEqual("hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\")", modifiedText[1]);
+            Assert.AreEqual("line 3", modifiedText[2]);
         }
     }
 }
