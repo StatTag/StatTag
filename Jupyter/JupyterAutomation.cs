@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using JupyterKernelManager;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -164,6 +165,14 @@ namespace Jupyter
                 Thread.Sleep(100);
             }
             
+            // Check if there are any errors that were sent back from the kernel.
+            if (Client.HasExecuteError())
+            {
+                var errors = Client.GetExecuteErrors();
+                throw new Exception(string.Format("{0} {1} {2} found when running your code.  Please ensure your code runs to completion in its native editor.\r\n\r\n{3}",
+                    errors.Count, "error".Pluralize(errors.Count), "was".Pluralize(errors.Count, "were"),
+                    string.Join("\r\n", errors)));
+            }
 
             // If there is no tag associated with the command that was run, we aren't going to bother
             // parsing and processing the results.  This is for blocks of codes in between tags where
@@ -247,8 +256,6 @@ namespace Jupyter
         {
             return null;
         }
-
-        //protected abstract string GetExpandedFilePath(string saveLocation);
 
         public virtual CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
