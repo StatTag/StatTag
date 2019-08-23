@@ -593,14 +593,16 @@ namespace StatTag
             return GetSelectedLines().Select(x => x.Index).ToArray();
         }
 
+        private const int NoMarker = -1;
+
         private Line[] GetSelectedLines()
         {
             var lines = new List<Line>();
             var nextLineIndex = scintilla1.Lines[0].MarkerNext(1 << TagMarker);
-            while (nextLineIndex > -1 && nextLineIndex < scintilla1.Lines.Count)
+            while (nextLineIndex > NoMarker && nextLineIndex < scintilla1.Lines.Count)
             {
                 lines.Add(scintilla1.Lines[nextLineIndex]);
-                if (nextLineIndex == 0 || nextLineIndex == scintilla1.Lines.Count - 1)
+                if (nextLineIndex == NoMarker || nextLineIndex == scintilla1.Lines.Count - 1)
                 {
                     break;
                 }
