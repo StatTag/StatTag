@@ -37,12 +37,14 @@
             this.imgStata = new System.Windows.Forms.PictureBox();
             this.imgWarning = new System.Windows.Forms.PictureBox();
             this.imgRmd = new System.Windows.Forms.PictureBox();
+            this.imgPython = new System.Windows.Forms.PictureBox();
             horizontalLine1 = new StatTag.Controls.HorizontalLine();
             ((System.ComponentModel.ISupportInitialize)(this.imgR)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgSAS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgWarning)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgRmd)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgPython)).BeginInit();
             this.SuspendLayout();
             // 
             // horizontalLine1
@@ -153,11 +155,25 @@
             this.imgRmd.TabIndex = 7;
             this.imgRmd.TabStop = false;
             // 
+            // imgPython
+            // 
+            this.imgPython.BackColor = System.Drawing.Color.Transparent;
+            this.imgPython.Image = global::StatTag.Properties.Resources.stats_package_python;
+            this.imgPython.InitialImage = global::StatTag.Properties.Resources.stats_package_python;
+            this.imgPython.Location = new System.Drawing.Point(0, 4);
+            this.imgPython.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.imgPython.Name = "imgPython";
+            this.imgPython.Size = new System.Drawing.Size(32, 32);
+            this.imgPython.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.imgPython.TabIndex = 7;
+            this.imgPython.TabStop = false;
+            // 
             // CodeFileEntry
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.imgPython);
             this.Controls.Add(this.imgRmd);
             this.Controls.Add(horizontalLine1);
             this.Controls.Add(this.imgWarning);
@@ -176,6 +192,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgWarning)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgRmd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgPython)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -189,5 +206,6 @@
         private System.Windows.Forms.PictureBox imgStata;
         private System.Windows.Forms.PictureBox imgWarning;
         private System.Windows.Forms.PictureBox imgRmd;
+        private System.Windows.Forms.PictureBox imgPython;
     }
 }

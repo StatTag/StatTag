@@ -12,6 +12,7 @@ using StatTag.Core.Models;
 using Stata;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Parser;
+using Jupyter;
 
 namespace StatTag.Models
 {
@@ -76,6 +77,8 @@ namespace StatTag.Models
                         return new RAutomation();
                     case Constants.StatisticalPackages.RMarkdown:
                         return new RMarkdownAutomation();
+                    case Constants.StatisticalPackages.Python:
+                        return new PythonAutomation();
                 }
             }
 
@@ -145,7 +148,7 @@ namespace StatTag.Models
                         var results = automation.RunCommands(codeToExecute, step.Tag);
 
                         var tag = DocumentManager.FindTag(step.Tag.Id);
-                        if (tag != null)
+                        if (tag != null && results != null)
                         {
                             var resultList = new List<CommandResult>(results);
 

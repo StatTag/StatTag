@@ -115,6 +115,7 @@ namespace StatTag.Controls
             imgRmd.Visible = false;
             imgSAS.Visible = false;
             imgStata.Visible = false;
+            imgPython.Visible = false;
             switch (statPackage)
             {
                 case Constants.StatisticalPackages.Stata:
@@ -135,6 +136,11 @@ namespace StatTag.Controls
                 case Constants.StatisticalPackages.RMarkdown:
                     {
                         imgRmd.Visible = true;
+                        break;
+                    }
+                case Constants.StatisticalPackages.Python:
+                    {
+                        imgPython.Visible = true;
                         break;
                     }
             }

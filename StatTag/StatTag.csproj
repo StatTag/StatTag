@@ -139,6 +139,10 @@
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -413,6 +417,7 @@
     <EmbeddedResource Include="TagManagerForm.resx">
       <DependentUpon>TagManagerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
     <None Include="StatTag_1_TemporaryKey.pfx" />
@@ -449,6 +454,10 @@
       <Project>{37e8df32-0d37-418e-b976-10f4b36a0073}</Project>
       <Name>DynamicInterop</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj">
+      <Project>{eadc745a-47dd-4354-a387-06591debb797}</Project>
+      <Name>JupyterKernelManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
       <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
       <Name>RDotNet</Name>
@@ -468,6 +477,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jupyter\Jupyter.csproj">
+      <Project>{7d918fa2-fe9c-4df4-810d-902e0143f90a}</Project>
+      <Name>Jupyter</Name>
     </ProjectReference>
     <ProjectReference Include="..\R\R.csproj">
       <Project>{1e158613-c109-4d13-8aec-692dce13e762}</Project>
@@ -504,6 +517,7 @@
     <None Include="Resources\clipboard.png" />
     <Content Include="Resources\code_peek.png" />
     <None Include="Resources\stats_package_rmd.png" />
+    <None Include="Resources\stats_package_python.png" />
     <Content Include="Resources\tag.png" />
     <Content Include="Resources\1463105103_icon-ios7-refresh-empty.png" />
     <Content Include="Resources\1463105115_icon-ios7-redo.png" />

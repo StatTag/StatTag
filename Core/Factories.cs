@@ -28,6 +28,8 @@ namespace StatTag.Core
                         return new RParser();
                     case Constants.StatisticalPackages.RMarkdown:
                         return new RMarkdownParser();
+                    case Constants.StatisticalPackages.Python:
+                        return new PythonParser();
                 }
             }
 
@@ -48,6 +50,8 @@ namespace StatTag.Core
                         return new StatTag.Core.Generator.R();
                     case Constants.StatisticalPackages.RMarkdown:
                         return new StatTag.Core.Generator.RMarkdown();
+                    case Constants.StatisticalPackages.Python:
+                        return new StatTag.Core.Generator.Python();
                 }
             }
 
@@ -68,6 +72,8 @@ namespace StatTag.Core
                         return new StatTag.Core.ValueFormatter.R();
                     case Constants.StatisticalPackages.RMarkdown:
                         return new StatTag.Core.ValueFormatter.RMarkdown();
+                    case Constants.StatisticalPackages.Python:
+                        return new StatTag.Core.ValueFormatter.Python();
                 }
             }
 
