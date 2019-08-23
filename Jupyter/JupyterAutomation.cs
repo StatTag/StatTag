@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JupyterKernelManager;
 using StatTag.Core.Exceptions;
+using StatTag.Core.Generator;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -283,7 +284,7 @@ namespace Jupyter
         {
             var resultValues = results.Select(GetTextValueResult).ToList();
             return resultValues;
-        } 
+        }
 
         protected string GetTextValueResult(Message result)
         {
@@ -297,6 +298,16 @@ namespace Jupyter
                     }
                     else if (result.Header.MessageType.Equals(MessageType.Stream))
                     {
+                        // We only want to include stdout messages.  If we have a name to
+                        // identify the stream, and it's not stdout, skip it.  We will need
+                        // to see if there are situations where we don't have the stream name
+                        // and it's something we'd want to filter out.
+                        if (result.DoesPropertyExist(result.Content, "name")
+                            && !result.Content.name.ToString().Equals(StreamName.StdOut))
+                        {
+                            return null;
+                        }
+
                         if (result.Content.text != null)
                         {
                             return result.Content.text.ToString().Trim();
