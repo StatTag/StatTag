@@ -81,12 +81,12 @@ namespace StatTag.Core.Parser
         {
             if (StartTagRegEx == null)
             {
-                StartTagRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.TagTags.StartTag, Constants.TagTags.TagPrefix), RegexOptions.Singleline);
+                StartTagRegEx = new Regex(string.Format(@"^\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.TagTags.StartTag, Constants.TagTags.TagPrefix), RegexOptions.Multiline | RegexOptions.Multiline);
             }
 
             if (EndTagRegEx == null)
             {
-                EndTagRegEx = new Regex(string.Format(@"\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.TagTags.EndTag, Constants.TagTags.TagPrefix), RegexOptions.Singleline);
+                EndTagRegEx = new Regex(string.Format(@"^\s*[\{0}]{{2,}}\s*{1}", CommentCharacter, Constants.TagTags.EndTag, Constants.TagTags.TagPrefix), RegexOptions.Multiline);
             }
         }
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StatTag.Core.Models;
 using StatTag.Core.Parser;
 
 namespace Core.Tests.Parser
@@ -261,6 +263,46 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void CollapseMultiLineCommands_PipeCommands()
+        {
+            var parser = new RParser();
+
+            // Multiple piped commands strung together across multiple lines, with varying
+            // whitespace between the segments
+            var text = new string[]
+            {
+                "iris %>% ",
+                " \t group_by(Species) %>%   \t",
+                "summarize_if(is.numeric, mean) %>%",
+                " ungroup()"
+            };
+
+            var modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual(
+                "iris %>% group_by(Species) %>% summarize_if(is.numeric, mean) %>% ungroup()",
+                modifiedText[0]);
+
+            // Handle a mix of pipe types.  We don't care if this is valid R code or not
+            text = new string[]
+            {
+                "iris %<>%",
+                "subset(Sepal.Length > mean(Sepal.Length)) %$%",
+                "",
+                " \t cor(Sepal.Length, Sepal.Width) %>% ",
+                "  matrix(ncol = 2)   %T>% \t  ",
+                "\tarrange(value) %>%",
+                " arrange(value)"
+            };
+
+            modifiedText = parser.CollapseMultiLineCommands(text);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual(
+                "iris %<>% subset(Sepal.Length > mean(Sepal.Length)) %$% cor(Sepal.Length, Sepal.Width) %>% matrix(ncol = 2)   %T>% arrange(value) %>% arrange(value)",
+                modifiedText[0]);
+        }
+
+        [TestMethod]
         public void PreProcessContent_Null_Empty()
         {
             var parser = new RParser();
@@ -270,46 +312,216 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
-        public void PreProcessContent()
+        public void PreProcessContent_CommentsPreserved()
         {
             var parser = new RParser();
-
-            // No comments to remove
             var text = new List<string>()
             {
-                "line 1",
-                "line 2",
-                "line 3"
+                "line 1 # comment",
+                "line 2  ",
+                "line 3  "
             };
+
+            // The purpose of this test is to document that in September 2019 we moved the processing of
+            // comments from PreProcessContent to PreProcessExecutionStepCode.  Our expected behavior
+            // then is to see comments preserved, and this test ensures that holds true.
             var modifiedText = parser.PreProcessContent(text);
-            Assert.AreEqual(text.Count, modifiedText.Count);
-            for (int index = 0; index < text.Count; index++)
-            {
-                Assert.AreEqual(text[index], modifiedText[index]);   
-            }
+            Assert.AreEqual(3, modifiedText.Count);
+            Assert.AreEqual("line 1 # comment", modifiedText[0]);
+            Assert.AreEqual("line 2", modifiedText[1]);
+            Assert.AreEqual("line 3", modifiedText[2]);
+        }
 
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Null()
+        {
+            var parser = new RParser();
+            Assert.IsNull(parser.PreProcessExecutionStepCode(null));
+            var executionStep = new ExecutionStep() {Code = null};
+            Assert.IsNull(parser.PreProcessExecutionStepCode(executionStep));
+        }
 
-            text = new List<string>()
+        [TestMethod]
+        public void PreProcessExecutionStepCode_NoTag()
+        {
+            // Note that for all of these tests we are testing not only the removal of comments, but
+            // also because there is no tag we will collapse multiple code lines into a single line.
+            // We re-split some of the results into multiple lines just because it makes our assertions
+            // easier to write, read, and maintain.
+            var parser = new RParser();
+
+            var executionStep = new ExecutionStep()
             {
-                "line 1 // comment",
-                "line 2",
-                "line 3"
+                Code = new List<string>()
+                {
+                    "line 1",
+                    "line 2",
+                    "line 3"
+                },
+                Tag = null
             };
-            modifiedText = parser.PreProcessContent(text);
-            Assert.AreEqual(text.Count, modifiedText.Count);
-            Assert.AreEqual("line 1 ", modifiedText[0]);
+            // No comments to remove
+            var modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("line 1\r\nline 2\r\nline 3", modifiedText[0]);
 
-            text = new List<string>()
+
+            executionStep = new ExecutionStep()
             {
-                "line 1 // comment",
-                "hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") // comment 2",
-                "line 3 // comment 3"
+                Code = new List<string>()
+                {
+                    "line 1 # comment",
+                    "line 2",
+                    "line 3"
+                },
+                Tag = null
             };
-            modifiedText = parser.PreProcessContent(text);
-            Assert.AreEqual(text.Count, modifiedText.Count);
-            Assert.AreEqual("line 1 ", modifiedText[0]);
-            Assert.AreEqual("hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") ", modifiedText[1]);
-            Assert.AreEqual("line 3 ", modifiedText[2]);
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("line 1\r\nline 2\r\nline 3", modifiedText[0]);
+
+
+            // This may seem odd, so let me explain - we don't have a tag here.  Because the PreProcess code only applies
+            // the "keep StatTag comments" logic if a tag is set, we EXPECT it to strip out our special comments.  In
+            // general practice we don't anticipate this happening, but need to explicitly test that this is the expected
+            // behavior.
+            executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "##>>>ST:Value(Label=\"Test\", Type=\"Default\")",
+                    "line 1 # comment",
+                    "line 2",
+                    "line 3",
+                    "##<<<"
+                },
+                Tag = null  // NOTE: the tag is null, so ALL comments should be stripped (even our tags)
+            };
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            Assert.AreEqual("\r\nline 1\r\nline 2\r\nline 3\r\n", modifiedText[0]);
+
+
+            executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "line 1 # comment",
+                    "hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\") # comment 2",
+                    "line 3 # comment 3"
+                },
+                Tag = null
+            };
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            var splitText = modifiedText[0].Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            Assert.AreEqual(3, splitText.Length);
+            Assert.AreEqual("line 1", splitText[0]);
+            Assert.AreEqual("hours <- read.csv(file = \"//path/to/data.csv\",header=TRUE, na=\"\")", splitText[1]);
+            Assert.AreEqual("line 3", splitText[2]);
+
+            // Account for comments on individual lines
+            executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "cmd(",
+                    " # Test",
+                    "  param",
+                    " # Test ",
+                    ")"
+                },
+                Tag = null
+            };
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            splitText = modifiedText[0].Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            Assert.AreEqual(5, splitText.Length);
+            Assert.AreEqual("cmd(", splitText[0]);
+            Assert.AreEqual("", splitText[1]);
+            Assert.AreEqual("param", splitText[2]);
+            Assert.AreEqual("", splitText[3]);
+            Assert.AreEqual(")", splitText[4]);
+
+            // Ensure the comment char is included when it's included in a string (it's not then a comment),
+            // and also ensure we handle escaped characters appropriately.
+            executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "cmd(",
+                    " \"#1\",",
+                    " param,",
+                    " '#2' , ",
+                    "#3 'is a comment # '",
+                    " 'param 3', # \\\"Escapes are fun\"\\",
+                    " \"More fun with \\\"ESCAPED\\\" characters in 'strings'\",",
+                    ")"
+                },
+                Tag = null
+            };
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(1, modifiedText.Length);
+            splitText = modifiedText[0].Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            Assert.AreEqual(8, splitText.Length);
+            Assert.AreEqual("cmd(", splitText[0]);
+            Assert.AreEqual("\"#1\",", splitText[1]);
+            Assert.AreEqual("param,", splitText[2]);
+            Assert.AreEqual("'#2' ,", splitText[3]);
+            Assert.AreEqual("", splitText[4]);
+            Assert.AreEqual("'param 3',", splitText[5]);
+            Assert.AreEqual("\"More fun with \\\"ESCAPED\\\" characters in 'strings'\",", splitText[6]);
+            Assert.AreEqual(")", splitText[7]);
+        }
+
+        [TestMethod]
+        public void PreProcessExecutionStepCode_Tag()
+        {
+            // Note that for all of these tests we are testing not only the removal of comments, but
+            // also because there is no tag we will collapse multiple code lines into a single line.
+            // We re-split some of the results into multiple lines just because it makes our assertions
+            // easier to write, read, and maintain.
+            var parser = new RParser();
+
+            var executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "##>>>ST:Value(Label=\"Test\", Type=\"Default\")",
+                    "line 1 # comment",
+                    "line 2",
+                    "line 3",
+                    "##<<<"
+                },
+                Tag = new Tag()
+            };
+            var modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(5, modifiedText.Length);
+            Assert.AreEqual("##>>>ST:Value(Label=\"Test\", Type=\"Default\")", modifiedText[0]);
+            Assert.AreEqual("line 1", modifiedText[1]);
+            Assert.AreEqual("line 2", modifiedText[2]);
+            Assert.AreEqual("line 3", modifiedText[3]);
+            Assert.AreEqual("##<<<", modifiedText[4]);
+
+            executionStep = new ExecutionStep()
+            {
+                Code = new List<string>()
+                {
+                    "##>>>ST:Value(Label=\"Test\", Type=\"Default\")",
+                    "line 1 # ##>>>ST:Value(Label=\"Test\", Type=\"Default\")",   // This should be stripped as a comment, but not considered a valid starting tag
+                    "line 2",
+                    "line 3 # ##<<<",  // Similarly, this should be stripped but not considered a valid ending tag
+                    "##<<<"
+                },
+                Tag = new Tag()
+            };
+            modifiedText = parser.PreProcessExecutionStepCode(executionStep);
+            Assert.AreEqual(5, modifiedText.Length);
+            Assert.AreEqual("##>>>ST:Value(Label=\"Test\", Type=\"Default\")", modifiedText[0]);
+            Assert.AreEqual("line 1", modifiedText[1]);
+            Assert.AreEqual("line 2", modifiedText[2]);
+            Assert.AreEqual("line 3", modifiedText[3]);
+            Assert.AreEqual("##<<<", modifiedText[4]);
         }
     }
 }
