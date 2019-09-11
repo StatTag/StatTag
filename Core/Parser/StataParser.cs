@@ -532,6 +532,12 @@ namespace StatTag.Core.Parser
             return !(SetMaxvarRegex.IsMatch(command));
         }
 
+        /// <summary>
+        /// Perform pre-processing on the lines of code for an execution step before it is processed
+        /// by STata.
+        /// </summary>
+        /// <param name="step"></param>
+        /// <returns></returns>
         public override string[] PreProcessExecutionStepCode(ExecutionStep step)
         {
             var code = base.PreProcessExecutionStepCode(step);

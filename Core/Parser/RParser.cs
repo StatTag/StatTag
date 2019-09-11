@@ -20,6 +20,7 @@ namespace StatTag.Core.Parser
         public static readonly string[] TableCommands = {"write.csv", "write.csv2", "write.table"};
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
         private static readonly Regex MultiLinePlotRegex = new Regex("\\)\\s*\\+[ \t]*[\\r\\n]+[ \t]*");
+        private static readonly Regex MultiLinePipeRegex = new Regex("(%(?:[<T]?>|\\$)%)[ \t]*[\\r\\n]+[ \t]*");
         //private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         //private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private const char KeyValueDelimiter = '=';
@@ -305,6 +306,8 @@ namespace StatTag.Core.Parser
 
             // Take any plotting commands that span multiple lines and string them onto a single line.
             modifiedText = MultiLinePlotRegex.Replace(modifiedText, ") + ");
+            // Likewise, take any piped commands and string them onto a single line.
+            modifiedText = MultiLinePipeRegex.Replace(modifiedText, "$1 ");
 
             // Find opening paren, if any exists.
             var next = modifiedText.IndexOf("(", StringComparison.CurrentCultureIgnoreCase);
@@ -345,6 +348,127 @@ namespace StatTag.Core.Parser
             return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToArray();
         }
 
+        /// <summary>
+        /// Internal function to take a string and parse it, removing any trailing comments from the end of each command line.
+        /// </summary>
+        /// <param name="text">The command string to process</param>
+        /// <returns>The command string with all trailing comments replaced with spaces</returns>
+        private string StripTrailingComments(string text)
+        {
+            var characters = text.ToCharArray();
+            bool inString = false;
+            bool inComment = false;
+            bool isEscaped = false;
+            char stringChar = ' ';
+            for (int index = 0; index < characters.Length; index++)
+            {
+                var chr = characters[index];
+
+                // We will first handle escaped character scenarios.  Note that if we know we are in a comment, we want
+                // to bypass any of these checks.  That will force our escaped text within the comment to get cleared
+                // out (which is our desired goal).
+                if (!inComment)
+                {
+                    // If we previously saw the escape character, we're going to skip this one and reset the escaped
+                    // character flag.
+                    if (isEscaped)
+                    {
+                        isEscaped = false;
+                        continue;
+                    }
+
+                    // Start by looking for the escape character.  If we find it, set our flag so we know to skip the next
+                    // character from special handling.
+                    if (chr == '\\')
+                    {
+                        isEscaped = true;
+                        continue;
+                    }
+                }
+
+                // Next, set the state of our parsing of the string.  Detect different scenarios with quotes and comment
+                // markers, as well as newlines, which modify our parsing state.
+                switch (chr)
+                {
+                    case '\'':
+                    case '"':
+                        // We've found a quote char.  We can only consider ourselves in a string if we're not
+                        // in a comment and if we're not in a string or we didn't find the matching closing quote.
+                        inString = (!inComment && (!inString || chr != stringChar));
+                        if (inString)
+                        {
+                            stringChar = chr;
+                            continue;
+                        }
+                        break;
+                    case '#':
+                        // Here's our comment character - if we're not in a string, then we are in a comment at this
+                        // point and need to start tracking that.
+                        if (!inString)
+                        {
+                            inComment = true;
+                        }
+                        break;
+                    case '\r':
+                    case '\n':
+                        // We're no longer in a comment or string once we find the newline
+                        inComment = false;
+                        inString = false;
+                        continue;
+                }
+
+                // Finally - if we reach this point and we are in a comment we want to clean it out.  This is tightly
+                // coupled to other behavior in PreProcessContent which is going to trim strings.  However, by setting
+                // the character to a space and relying on the trim, we simplify this work (since we don't need to
+                // resize the string or build a new one).
+                if (inComment)
+                {
+                    characters[index] = ' ';
+                }
+            }
+            return new string(characters).Trim();
+        }
+
+        /// <summary>
+        /// Override to handle processing of the lines of code associated with an execution step before it is
+        /// sent to the R engine.
+        /// </summary>
+        /// <param name="step"></param>
+        /// <returns></returns>
+        public override string[] PreProcessExecutionStepCode(ExecutionStep step)
+        {
+            if (step == null || step.Code == null)
+            {
+                return null;
+            }
+
+            var code = step.Code.ToArray();
+            if (code.Length == 0)
+            {
+                return code;
+            }
+
+            for (int index = 0; index < code.Length; index++)
+            {
+                // If we have a tag associated with this execution step, we don't want to strip out our StatTag comments.
+                // We'll detect that scenario, and skip any processing to ensure the comments are preserved.
+                if (step.Tag != null && (IsTagStart(code[index]) || IsTagEnd(code[index])))
+                {
+                    continue;
+                }
+                code[index] = StripTrailingComments(code[index]);
+            }
+
+            step.Code = new List<string>(code);
+            return base.PreProcessExecutionStepCode(step);
+        }
+
+        /// <summary>
+        /// Override to handle processing of the code file (en masse) before other processing is done.
+        /// </summary>
+        /// <param name="originalContent"></param>
+        /// <param name="automation"></param>
+        /// <returns></returns>
         public override List<string> PreProcessContent(List<string> originalContent, IStatAutomation automation = null)
         {
             if (originalContent == null || originalContent.Count == 0)
@@ -352,11 +476,7 @@ namespace StatTag.Core.Parser
                 return new List<string>();
             }
 
-            var originalText = string.Join("\r\n", originalContent);
-
-            var modifiedText = CodeParserUtil.StripTrailingComments(originalText);
-            // Ensure all multi-line function calls are collapsed
-            return modifiedText.Split(new string[] { "\r\n" }, StringSplitOptions.None).Select(x => x.Trim()).ToList();
+            return originalContent.Select(x => x.Trim()).ToList();
         }
     }
 }
