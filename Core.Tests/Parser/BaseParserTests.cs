@@ -473,6 +473,8 @@ namespace Core.Tests.Parser
             Assert.AreEqual("(?:test\\s+cmd)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] {"test cmd"}));
             Assert.AreEqual("(?:test1|test2)", BaseParser.FormatCommandListAsNonCapturingGroup(new[] {"test1", "test2"}));
         }
+
+        [TestMethod]
         public void IsTagStart()
         {
             var parser = new StubParser();
@@ -491,6 +493,26 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void IsTagStart_FollowingCharacters()
+        {
+            var parser = new StubParser();
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
+            {
+                "Test '**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")'",      // Within a quote
+                "* **>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",           // Follows a comment and a space
+                "* *>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",            // Space between comment characters
+                "'Test '\r\n**>>>ST:Value(Label=\"Test1\", Frequency=\"On Demand\")",  // Should be captured - follows newline
+            }));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            Assert.IsFalse(parser.IsTagStart(mock.Object.Content[0]));
+            Assert.IsFalse(parser.IsTagStart(mock.Object.Content[1]));
+            Assert.IsFalse(parser.IsTagStart(mock.Object.Content[2]));
+            Assert.IsTrue(parser.IsTagStart(mock.Object.Content[3]));
+        }
+
+        [TestMethod]
         public void IsTagEnd()
         {
             var parser = new StubParser();
@@ -506,6 +528,26 @@ namespace Core.Tests.Parser
             Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[0]));
             Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[1]));
             Assert.IsTrue(parser.IsTagEnd(mock.Object.Content[2]));
+        }
+
+        [TestMethod]
+        public void IsTagEnd_FollowingCharacters()
+        {
+            var parser = new StubParser();
+            var mock = new Mock<CodeFile>();
+            mock.Setup(file => file.LoadFileContent()).Returns(new List<string>(new[]
+            {
+                "Test '**<<<'",      // Within a quote
+                "* **<<<",           // Follows a comment and a space
+                "* *<<<",            // Space between comment characters
+                "'Test '\r\n**<<<",  // Should be captured - follows newline
+            }));
+            mock.Object.FilePath = "Test.do";
+            mock.Setup(file => file.Equals(It.IsAny<CodeFile>())).Returns(true);
+            Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[0]));
+            Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[1]));
+            Assert.IsFalse(parser.IsTagEnd(mock.Object.Content[2]));
+            Assert.IsTrue(parser.IsTagEnd(mock.Object.Content[3]));
         }
 
         [TestMethod]
