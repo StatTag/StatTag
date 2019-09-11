@@ -477,10 +477,6 @@ namespace Core.Tests.Parser
         [TestMethod]
         public void PreProcessExecutionStepCode_Tag()
         {
-            // Note that for all of these tests we are testing not only the removal of comments, but
-            // also because there is no tag we will collapse multiple code lines into a single line.
-            // We re-split some of the results into multiple lines just because it makes our assertions
-            // easier to write, read, and maintain.
             var parser = new RParser();
 
             var executionStep = new ExecutionStep()
