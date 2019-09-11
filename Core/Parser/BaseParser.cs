@@ -81,7 +81,7 @@ namespace StatTag.Core.Parser
         {
             if (StartTagRegEx == null)
             {
-                StartTagRegEx = new Regex(string.Format(@"^\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.TagTags.StartTag, Constants.TagTags.TagPrefix), RegexOptions.Multiline | RegexOptions.Multiline);
+                StartTagRegEx = new Regex(string.Format(@"^\s*[\{0}]{{2,}}\s*{1}\s*{2}(.*)", CommentCharacter, Constants.TagTags.StartTag, Constants.TagTags.TagPrefix), RegexOptions.Multiline | RegexOptions.Singleline);
             }
 
             if (EndTagRegEx == null)
