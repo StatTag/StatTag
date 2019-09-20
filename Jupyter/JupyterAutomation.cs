@@ -49,7 +49,7 @@ namespace Jupyter
                 try
                 {
                     logger.WriteMessage(string.Format("Attempting to create KernelManager for {0}", KernelName));
-                    Manager = new KernelManager(KernelName);
+                    Manager = new KernelManager(KernelName, new StatTagJupyterLogger(logger));
                     logger.WriteMessage("Starting kernel");
                     Manager.StartKernel();
 
