@@ -12,6 +12,7 @@ namespace StatTag.Core.Models
             public const string R = "R";
             public const string SAS = "SAS";
             public const string RMarkdown = "R Markdown";
+            public const string Python = "Python";
 
             public static string[] GetList()
             {
@@ -77,15 +78,17 @@ namespace StatTag.Core.Models
             public const string RFilter = "*.r";
             public const string RMarkdownLabel = "R Markdown";
             public const string RMarkdownFilter = "*.Rmd";
+            public const string PythonLabel = "Python";
+            public const string PythonFilter = "*.py";
             public const string AllLabel = "All files";
             public const string AllFilter = "*.*";
             public const string SupportedLabel = "Supported files";
 
             public static string FormatForOpenFileDialog()
             {
-                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}",
-                    SupportedLabel, string.Join(";", new string[] { StataFilter, SASFilter, RFilter, RMarkdownFilter }),
-                    StataLabel, StataFilter, SASLabel, SASFilter, RLabel, RFilter, RMarkdownLabel, RMarkdownFilter, AllLabel, AllFilter);
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13}",
+                    SupportedLabel, string.Join(";", new string[] { StataFilter, SASFilter, RFilter, RMarkdownFilter, PythonFilter }),
+                    StataLabel, StataFilter, SASLabel, SASFilter, RLabel, RFilter, RMarkdownLabel, RMarkdownFilter, PythonLabel, PythonFilter, AllLabel, AllFilter);
             }
         }
 
@@ -157,6 +160,7 @@ namespace StatTag.Core.Models
             public const string Stata = "*";
             public const string SAS = "*";
             public const string R = "#";
+            public const string Python = "#";
         }
 
         public static class CodeFileCommentSuffix

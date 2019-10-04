@@ -269,7 +269,7 @@ namespace StatTag.Core.Parser
             ExecutionStep step = null;
             for (var index = 0; index < lines.Count(); index++)
             {
-                var line = lines[index].Trim();
+                var line = lines[index];
 
                 if (step == null)
                 {

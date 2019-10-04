@@ -18,7 +18,6 @@ namespace R
     public class RAutomation : IStatAutomation
     {
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
-        private const string TemporaryImageFileFolder = "STTemp-Figures";
         private const string TemporaryImageFileFilter = "*.png";
 
         private static readonly Dictionary<string, string> RProfileCommands = new Dictionary<string, string>()
@@ -109,31 +108,7 @@ namespace R
 
             if (Engine != null)
             {
-                // Initialize the temporary directory we'll use for figures
-                var path = Path.GetDirectoryName(file.FilePath);
-                if (!string.IsNullOrEmpty(path))
-                {
-                    TemporaryImageFilePath = Path.Combine(path, TemporaryImageFileFolder);
-                    logger.WriteMessage(string.Format("Creating a temporary image folder at full path: {0}", TemporaryImageFilePath));
-                }
-                else
-                {
-                    // If we don't know what the path is, we'll just create a relative path and hope for the best.
-                    TemporaryImageFilePath = string.Format(".\\{0}", TemporaryImageFileFolder);
-                    logger.WriteMessage(string.Format("Creating temporary image folder at relative path: {0}", TemporaryImageFilePath));
-                }
-
-                // Make sure the temp image folder is established.
-                if (Directory.Exists(TemporaryImageFilePath))
-                {
-                    logger.WriteMessage("Temporary image folder already exists");
-                }
-                else
-                {
-                    logger.WriteMessage("Temporary image folder does not exist.  We will create it.");
-                    Directory.CreateDirectory(TemporaryImageFilePath);
-                    logger.WriteMessage("Created the temporary image folder");
-                }
+                TemporaryImageFilePath = AutomationUtil.InitializeTemporaryImageDirectory(file, logger);
 
                 // Now, set up the R environment so it uses the PNG graphic device by default (if no other device
                 // is specified).
@@ -656,23 +631,8 @@ namespace R
         /// <param name="deleteFolder"></param>
         private void CleanTemporaryImageFolder(bool deleteFolder = false)
         {
-            if (Directory.Exists(TemporaryImageFilePath))
-            {
-                // TODO: Can we make this less brute-force?  We want to ensure we're not trying to access
-                // a file that's associated with an open graphics device.
-                RunCommand("graphics.off()");
-
-                var files = Directory.GetFiles(TemporaryImageFilePath, TemporaryImageFileFilter);
-                foreach (var file in files)
-                {
-                    File.Delete(file);
-                }
-
-                if (deleteFolder)
-                {
-                    Directory.Delete(TemporaryImageFilePath);
-                }
-            }
+            // TODO: Can we make passing graphics.off less brute-force?  We want to ensure we're not trying to access a file that's associated with an open graphics device.
+            AutomationUtil.CleanTemporaryImageFolder(this, new[] { "graphics.off()" }, TemporaryImageFilePath, TemporaryImageFileFilter, deleteFolder);
         }
     }
 }

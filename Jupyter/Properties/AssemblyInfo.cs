@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SAS")]
+[assembly: AssemblyTitle("Jupyter")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Northwestern University, Feinberg School of Medicine")]
-[assembly: AssemblyProduct("SAS")]
-[assembly: AssemblyCopyright("Copyright © 2016-2019")]
+[assembly: AssemblyProduct("Jupyter")]
+[assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("adc5ac73-7cd7-4bab-bbfe-1827125affe0")]
+[assembly: Guid("2bd350aa-2f1e-46ac-81a5-58f334fbf851")]
 
 // Version information for an assembly consists of the following four values:
 //

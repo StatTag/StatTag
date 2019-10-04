@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using Jupyter;
 using R;
 using SAS;
 using StatTag.Core.Interfaces;
@@ -146,17 +147,6 @@ namespace StatTag
             MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-
-        public static string Pluralize(this string singularForm, int howMany)
-        {
-            return singularForm.Pluralize(howMany, singularForm + "s");
-        }
-
-        public static string Pluralize(this string singularForm, int howMany, string pluralForm)
-        {
-            return howMany == 1 ? singularForm : pluralForm;
-        }
-
         public static IEnumerable<Tag> GetCheckedTagsFromListView(ListView listView)
         {
             return
@@ -273,10 +263,12 @@ namespace StatTag
                         formatter = new SASCommands();
                         break;
                     case Constants.StatisticalPackages.R:
+                    case Constants.StatisticalPackages.RMarkdown: 
                         formatter = new RCommands();
                         break;
-                    case Constants.StatisticalPackages.RMarkdown:
-                        formatter = new RCommands();
+                    case Constants.StatisticalPackages.Python:
+                        formatter = new PythonCommands();
+
                         break;
                 }
 

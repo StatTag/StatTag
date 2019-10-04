@@ -303,6 +303,10 @@ namespace StatTag.Core.Models
             {
                 return Constants.StatisticalPackages.RMarkdown;
             }
+            if (FilterMatches(Constants.FileFilters.PythonFilter, path))
+            {
+                return Constants.StatisticalPackages.Python;
+            }
 
             return string.Empty;
         }

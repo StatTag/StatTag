@@ -48,6 +48,9 @@ namespace StatTag.Models
                 case Constants.StatisticalPackages.RMarkdown:
                     ConfigureREditor(scintilla);
                     break;
+                case Constants.StatisticalPackages.Python:
+                    ConfigurePythonEditor(scintilla);
+                    break;
             }
         }
 
@@ -172,6 +175,56 @@ namespace StatTag.Models
             scintilla.SetKeywords(1, keywords2);
 
             scintilla.ViewWhitespace = WhitespaceMode.Invisible;
+        }
+
+        /// <summary>
+        /// Internal method to do the specific configurations for Python code files.
+        /// </summary>
+        /// <param name="scintilla">The Scintilla control to configure.</param>
+        private static void ConfigurePythonEditor(Scintilla scintilla)
+        {
+            // Set the lexer
+            scintilla.Lexer = Lexer.Python;
+
+            // Disable code block folding.
+            scintilla.SetProperty("fold", "0");
+
+            // Set the styles - Thanks https://gist.github.com/jacobslusser/29c10e73a8d4baf3745a !!!
+            scintilla.Styles[Style.Python.Default].ForeColor = Color.Black;
+            scintilla.Styles[Style.Python.CommentLine].ForeColor = Color.FromArgb(0x00, 0x7F, 0x00);
+            scintilla.Styles[Style.Python.CommentLine].Italic = true;
+            scintilla.Styles[Style.Python.Number].ForeColor = Color.FromArgb(0x00, 0x7F, 0x7F);
+            scintilla.Styles[Style.Python.String].ForeColor = Color.FromArgb(0x7F, 0x00, 0x7F);
+            scintilla.Styles[Style.Python.Character].ForeColor = Color.FromArgb(0x7F, 0x00, 0x7F);
+            scintilla.Styles[Style.Python.Word].ForeColor = Color.FromArgb(0x00, 0x00, 0x7F);
+            scintilla.Styles[Style.Python.Word].Bold = true;
+            scintilla.Styles[Style.Python.Triple].ForeColor = Color.FromArgb(0x7F, 0x00, 0x00);
+            scintilla.Styles[Style.Python.TripleDouble].ForeColor = Color.FromArgb(0x7F, 0x00, 0x00);
+            scintilla.Styles[Style.Python.ClassName].ForeColor = Color.FromArgb(0x00, 0x00, 0xFF);
+            scintilla.Styles[Style.Python.ClassName].Bold = true;
+            scintilla.Styles[Style.Python.DefName].ForeColor = Color.FromArgb(0x00, 0x7F, 0x7F);
+            scintilla.Styles[Style.Python.DefName].Bold = true;
+            scintilla.Styles[Style.Python.Operator].Bold = true;
+            scintilla.Styles[Style.Python.CommentBlock].ForeColor = Color.FromArgb(0x00, 0x7F, 0x00);
+            scintilla.Styles[Style.Python.CommentBlock].Italic = true;
+            scintilla.Styles[Style.Python.StringEol].ForeColor = Color.FromArgb(0x00, 0x00, 0x00);
+            scintilla.Styles[Style.Python.StringEol].BackColor = Color.FromArgb(0xE0, 0xC0, 0xE0);
+            scintilla.Styles[Style.Python.StringEol].FillLine = true;
+            scintilla.Styles[Style.Python.Word2].ForeColor = Color.FromArgb(0x40, 0x70, 0x90);
+            scintilla.Styles[Style.Python.Decorator].ForeColor = Color.FromArgb(0x80, 0x50, 0x00);
+
+            scintilla.ViewWhitespace = WhitespaceMode.Invisible;
+
+            // Keyword lists:
+            // 0 "Keywords",
+            // 1 "Highlighted identifiers"
+
+            //var python2 = "and as assert break class continue def del elif else except exec finally for from global if import in is lambda not or pass print raise return try while with yield";
+            var python3 = "False None True and as assert break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield";
+            var cython = "cdef cimport cpdef";
+
+            scintilla.SetKeywords(0, python3 + " " + cython);
+
         }
     }
 }

@@ -82,8 +82,8 @@
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -107,6 +107,8 @@
     <Compile Include="Generator\StataTests.cs" />
     <Compile Include="Generator\SASTests.cs" />
     <Compile Include="Generator\OpenXmlGeneratorTests.cs" />
+    <Compile Include="Generator\PythonTests.cs" />
+    <Compile Include="Generator\RTests.cs" />
     <Compile Include="Generator\VerbatimGeneratorTests.cs" />
     <Compile Include="Generator\ValueParameterGeneratorTests.cs" />
     <Compile Include="Models\TagTests.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Parser\SASParserTests.cs" />
     <Compile Include="Parser\RParserTests.cs" />
     <Compile Include="Parser\RMarkdownParserTests.cs" />
+    <Compile Include="Parser\PythonParserTests.cs" />
     <Compile Include="Parser\ValueParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\CodeFileTests.cs" />
