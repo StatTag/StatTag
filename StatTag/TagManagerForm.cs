@@ -28,6 +28,7 @@ namespace StatTag
 
         private readonly List<Tag> FilteredTags = new List<Tag>();
         public DocumentManager Manager { get; set; }
+        public StatsManager StatsManager { get; set; }
         public Document ActiveDocument { get; set; }
 
         /// <summary>
@@ -89,12 +90,13 @@ namespace StatTag
         private readonly TagListViewColumnSorter ListViewSorter = new TagListViewColumnSorter();
         private ExecutionProgressForm CurrentProgress;
 
-        public TagManagerForm(DocumentManager manager)
+        public TagManagerForm(DocumentManager manager, StatsManager statsManager)
         {
             InitializeComponent();
             lvwTags.View = View.Details;  // It must always be Details
             lvwTags.ListViewItemSorter = ListViewSorter;
             Manager = manager;
+            StatsManager = statsManager;
 
             this.cmdCheckUnlinkedTags.Image = new Bitmap(StatTag.Properties.Resources.warning, 24, 24);
 
@@ -861,7 +863,7 @@ namespace StatTag
 
                 if (!refreshedFiles.Contains(codeFile))
                 {
-                    var result = Manager.StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
+                    var result = StatsManager.ExecuteStatPackage(codeFile, Constants.ParserFilterMode.TagList, tags);
                     if (!result.Success)
                     {
                         throw new StatTagUserException(result.ErrorMessage);

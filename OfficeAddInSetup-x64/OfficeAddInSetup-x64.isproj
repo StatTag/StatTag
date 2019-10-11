@@ -37,6 +37,14 @@
 			<Name>DynamicInterop</Name>
 			<Project>{37E8DF32-0D37-418E-B976-10F4B36A0073}</Project>
 		</ProjectReference>
+		<ProjectReference Include="..\Jupyter\Jupyter.csproj">
+			<Name>Jupyter</Name>
+			<Project>{7D918FA2-FE9C-4DF4-810D-902E0143F90A}</Project>
+		</ProjectReference>
+		<ProjectReference Include="..\..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj">
+			<Name>JupyterKernelManager</Name>
+			<Project>{EADC745A-47DD-4354-A387-06591DEBB797}</Project>
+		</ProjectReference>
 		<ProjectReference Include="..\R\R.csproj">
 			<Name>R</Name>
 			<Project>{1E158613-C109-4D13-8AEC-692DCE13E762}</Project>

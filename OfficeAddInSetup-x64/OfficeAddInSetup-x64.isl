@@ -225,7 +225,6 @@
 	<table name="AppSearch">
 		<col key="yes" def="s72">Property</col>
 		<col key="yes" def="s72">Signature_</col>
-		<row><td>DOTNETVERSION45FULL</td><td>DotNet45Full</td></row>
 	</table>
 
 	<table name="BBControl">
@@ -348,6 +347,8 @@
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td>{484D4617-A262-4C65-B417-7E4F0BBE942B}</td><td>INSTALLDIR</td><td>258</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT2</td><td>{EA3A6F0E-A54B-4DC3-B8A3-6C944328CB77}</td><td>X86</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td>{BA8730F7-B5C2-4AD2-B872-78F902338AA9}</td><td>X64</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>Jupyter.Primary_output</td><td>{E8718145-12F0-4C44-9124-4D891A3F9EAE}</td><td>INSTALLDIR</td><td>2</td><td/><td>jupyter.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>JupyterKernelManager.Primary_output</td><td>{A4880CA3-C5A4-4481-985A-207FCAB01D88}</td><td>INSTALLDIR</td><td>2</td><td/><td>jupyterkernelmanager.primary</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>R.Primary_output</td><td>{D0AF75EF-285F-474F-A676-F2A13CB73EB4}</td><td>INSTALLDIR</td><td>2</td><td/><td>r.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SAS.Primary_output</td><td>{097B20B2-6128-4084-8049-8C2FE438E3BD}</td><td>INSTALLDIR</td><td>2</td><td/><td>sas.primary_output</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>SciLexer.dll</td><td>{CB81218B-1095-4881-BD39-1D7FBC55DD59}</td><td>X86</td><td>2</td><td/><td>scilexer.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1069,6 +1070,8 @@
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT2</td></row>
 		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT3</td></row>
+		<row><td>INSTALLDIR</td><td>Jupyter.Primary_output</td></row>
+		<row><td>INSTALLDIR</td><td>JupyterKernelManager.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>R.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>SAS.Primary_output</td></row>
 		<row><td>INSTALLDIR</td><td>SciLexer.dll</td></row>
@@ -1901,6 +1904,8 @@
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT2</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT3</td></row>
+		<row><td>AlwaysInstall</td><td>Jupyter.Primary_output</td></row>
+		<row><td>AlwaysInstall</td><td>JupyterKernelManager.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>R.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>SAS.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>SciLexer.dll</td></row>
@@ -1925,6 +1930,8 @@
 		<row><td>analysismanager.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>ANALYS~1.VST|StatTag.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\StatTag.vsto</td><td>1</td><td/></row>
 		<row><td>core.primary_output</td><td>Core.Primary_output</td><td>Core.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Core&gt;|Built</td><td>3</td><td/></row>
 		<row><td>dynamicinterop.primary_outpu</td><td>DynamicInterop.Primary_output</td><td>DynamicInterop.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;DynamicInterop&gt;|Built</td><td>3</td><td/></row>
+		<row><td>jupyter.primary_output</td><td>Jupyter.Primary_output</td><td>Jupyter.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Jupyter&gt;|Built</td><td>3</td><td/></row>
+		<row><td>jupyterkernelmanager.primary</td><td>JupyterKernelManager.Primary_output</td><td>JupyterKernelManager.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;JupyterKernelManager&gt;|Built</td><td>3</td><td/></row>
 		<row><td>license</td><td>ISX_DEFAULTCOMPONENT</td><td>LICENSE</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\LICENSE</td><td>1</td><td/></row>
 		<row><td>r.primary_output</td><td>R.Primary_output</td><td>R.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;R&gt;|Built</td><td>3</td><td/></row>
 		<row><td>sas.primary_output</td><td>SAS.Primary_output</td><td>SAS.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;SAS&gt;|Built</td><td>3</td><td/></row>
@@ -1932,6 +1939,7 @@
 		<row><td>scilexer.dll1</td><td>SciLexer.dll1</td><td>SciLexer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\Release\x64\SciLexer.dll</td><td>1</td><td/></row>
 		<row><td>stata.primary_output</td><td>Stata.Primary_output</td><td>Stata.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;Stata&gt;|Built</td><td>3</td><td/></row>
 		<row><td>stattag.primary_output</td><td>StatTag.Primary_output</td><td>StatTag.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;StatTag&gt;|Built</td><td>3</td><td/></row>
+		<row><td>stattag_config.json</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.JSO|StatTag-config.json</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\StatTag-config.json</td><td>1</td><td/></row>
 		<row><td>stattag_userguide.pdf</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.PDF|StatTag-UserGuide.pdf</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\Resources\StatTag-UserGuide.pdf</td><td>1</td><td/></row>
 	</table>
 
@@ -2082,6 +2090,8 @@
 		<row><td>ISX_DEFAULTCOMPONENT1</td><td/><td/><td>_D3944672_90F7_4A99_B502_33CBF155B8C9_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT2</td><td/><td/><td>_F96A1602_D5EF_47F0_80D6_593203144809_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT3</td><td/><td/><td>_E1FCB837_FDF6_4C6B_AAD1_0A03FABEBF57_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>Jupyter.Primary_output</td><td/><td/><td>_EE3F7004_3A05_42F7_AFF8_79B1C3DB23E8_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>JupyterKernelManager.Primary_output</td><td/><td/><td>_4725D8BB_B265_4938_8DAF_D9239D099205_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>R.Primary_output</td><td/><td/><td>_73160926_5234_4086_940F_4350A6DD09F9_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SAS.Primary_output</td><td/><td/><td>_97248F94_6A01_44B2_8E9E_7DD9373FF7CA_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>SciLexer.dll</td><td/><td/><td>_6EDBF4D0_B725_4E8F_BE9D_D9448C9DC114_FILTER</td><td/><td/><td/><td/></row>
@@ -2381,6 +2391,8 @@
 		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
+		<row><td>Jupyter</td><td>Jupyter\Jupyter.csproj</td><td/><td>2</td></row>
+		<row><td>JupyterKernelManager</td><td>..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj</td><td/><td>2</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>R</td><td>R\R.csproj</td><td/><td>2</td></row>
 		<row><td>SAS</td><td>SAS\SAS.csproj</td><td/><td>2</td></row>
@@ -2658,7 +2670,7 @@
 		<col def="I2">Order</col>
 		<col def="I2">ISSetupLocation</col>
 		<col def="S255">ISReleaseFlags</col>
-		<row><td>_B92E5CC6_41BD_4E6C_BC84_B80384CD1217_</td><td>Microsoft .NET Framework 4.5 Web.prq</td><td/><td/><td/></row>
+		<row><td>_FF47CE0A_30FB_46DD_9A3D_473D0AE6A276_</td><td>Microsoft .NET Framework 4.7.2 Web.prq</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISSetupType">
@@ -2696,7 +2708,6 @@
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION40CLIENT</td><td>1033</td><td>Microsoft .NET Framework 4.0 Client Package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042496553</td></row>
-		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL</td><td>1033</td><td>Microsoft .NET Framework 4.5 Full package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1579391116</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_MSOFFICE2007</td><td>1033</td><td>Microsoft Office 2007 or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042498569</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_MSOFFICE2010</td><td>1033</td><td>Microsoft Office 2010 or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>1042502665</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>1042514665</td></row>
@@ -4028,8 +4039,8 @@
 		<col def="S0">Value</col>
 		<row><td>ActiveLanguage</td><td>1033</td></row>
 		<row><td>Comments</td><td/></row>
-		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="de9f554a3bc05c12be9c31b998217995">
-UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="a4f66fafb30885f14d732b73e196bba0">
+RABWAEQALQA1AAEARQB4AHAAcgBlAHMAcwA=
 			</td></row>
 		<row><td>DefaultProductConfiguration</td><td>Express</td></row>
 		<row><td>EnableSwidtag</td><td>1</td></row>
@@ -4046,7 +4057,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{406211D2-4E87-422C-B327-E0F2A69792C0}</td></row>
 		<row><td>ISUSSignature</td><td>{BFCDC41D-2695-442B-A72E-686AD97B4866}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry,viewAppFiles,viewUI,viewTextMessages,viewRelease</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewLearnMore,viewObjects,viewISToday,viewProject,viewUpgradePaths,viewUpdateService,viewRegistry,viewAppFiles,viewUI,viewTextMessages,viewRelease,viewShortcuts,viewSystemSearch,viewCustomActions</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4108,7 +4119,6 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 	<table name="LaunchCondition">
 		<col key="yes" def="s255">Condition</col>
 		<col def="l255">Description</col>
-		<row><td>DOTNETVERSION45FULL&gt;="#1"</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL##</td></row>
 	</table>
 
 	<table name="ListBox">
@@ -4424,9 +4434,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{68D183A3-FB43-4433-BB78-CF5825EA633D}</td><td/></row>
+		<row><td>ProductCode</td><td>{8A5941C1-78FF-475A-9179-7FA79EE292C4}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>6.0.0.0</td><td/></row>
+		<row><td>ProductVersion</td><td>6.0.0.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4438,7 +4448,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>RestartManagerOption</td><td>CloseRestart</td><td/></row>
 		<row><td>SERIALNUMBER</td><td/><td/></row>
 		<row><td>SERIALNUMVALSUCCESSRETVAL</td><td>1</td><td/></row>
-		<row><td>SecureCustomProperties</td><td>ISFOUNDNEWERPRODUCTVERSION;USERNAME;COMPANYNAME;ISX_SERIALNUM;SUPPORTDIR;DOTNETVERSION45FULL;ISACTIONPROP1</td><td/></row>
+		<row><td>SecureCustomProperties</td><td>ISFOUNDNEWERPRODUCTVERSION;USERNAME;COMPANYNAME;ISX_SERIALNUM;SUPPORTDIR;ISACTIONPROP1</td><td/></row>
 		<row><td>SelectedSetupType</td><td>##IDS__DisplayName_Typical##</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
 		<row><td>UpgradeCode</td><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td/></row>
@@ -4483,7 +4493,6 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s255">Key</col>
 		<col def="S255">Name</col>
 		<col def="I2">Type</col>
-		<row><td>DotNet45Full</td><td>2</td><td>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</td><td>Version</td><td>2</td></row>
 	</table>
 
 	<table name="Registry">
@@ -4718,7 +4727,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>5.0.2.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 5.0.2.0</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.0.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.0.0</td></row>
 	</table>
 
 	<table name="Verb">

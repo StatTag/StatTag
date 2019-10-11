@@ -95,7 +95,6 @@ namespace StatTag.Models
             }
         }
         public TagManager TagManager { get; set; }
-        public StatsManager StatsManager { get; set; }
         public SettingsManager SettingsManager { get; set; }
 
         public const string ConfigurationAttribute = "StatTag Configuration";
@@ -118,20 +117,11 @@ namespace StatTag.Models
             SettingsManager = null;
             DocumentCodeFiles = new Dictionary<string, List<MonitoredCodeFile>>();
             TagManager = new TagManager(this);
-            StatsManager = new StatsManager(this, SettingsManager);
         }
 
         public void SetSettingsManager(SettingsManager settingsManager)
         {
             SettingsManager = settingsManager;
-            if (StatsManager == null)
-            {
-                StatsManager = new StatsManager(this, SettingsManager);
-            }
-            else
-            {
-                StatsManager.SettingsManager = SettingsManager;
-            }
         }
 
         /// <summary>

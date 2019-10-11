@@ -17,7 +17,6 @@ namespace Jupyter
 {
     public class PythonAutomation : JupyterAutomation
     {
-        public const string PythonKernelName = "python3";
         protected override sealed ICodeFileParser Parser { get; set; }
 
         public const int MAX_ARRAY_DEPTH = 2;
@@ -35,10 +34,33 @@ namespace Jupyter
             { "import sys; print(sys.version)", "Version" }
         };
 
-        public PythonAutomation()
-            : base(PythonKernelName)
+        protected Configuration Config { get; set; }
+
+        public PythonAutomation(Configuration config) : base(Configuration.DefaultPythonKernel)
         {
+            Config = config;
             Parser = new PythonParser();
+            SelectKernel();
+        }
+
+        /// <summary>
+        /// Find the first installed kernel that matches our configured whitelist of Python kernels.
+        /// </summary>
+        private void SelectKernel()
+        {
+            var specs = new KernelSpecManager().GetAllSpecs().Keys;
+            foreach (var kernel in Config.PythonKernels)
+            {
+                var match = specs.FirstOrDefault(x => x.Equals(kernel, StringComparison.CurrentCultureIgnoreCase));
+                if (match != null)
+                {
+                    KernelName = match;
+                    return;
+                }
+            }
+
+            // It shouldn't have changed, but we will set the kernel explicitly to the default just in case.
+            KernelName = Configuration.DefaultPythonKernel;
         }
 
         public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)

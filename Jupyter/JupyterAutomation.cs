@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using JupyterKernelManager;
-using StatTag.Core.Exceptions;
-using StatTag.Core.Generator;
+﻿using JupyterKernelManager;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
-using StatTag.Core.Parser;
 using StatTag.Core.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Jupyter
@@ -39,7 +32,25 @@ namespace Jupyter
 
         public static string InstallationInformation()
         {
-            return string.Empty;
+            var specManager = new KernelSpecManager();
+            var specs = specManager.GetAllSpecs();
+            var builder = new StringBuilder();
+            if (specs != null && specs.Count > 0)
+            {
+                foreach (var spec in specs)
+                {
+                    builder.AppendFormat("Kernel: {0}\r\n", spec.Key);
+                    builder.AppendFormat("   Display name: {0}\r\n", spec.Value.DisplayName);
+                    builder.AppendFormat("   Arguments: {0}\r\n", string.Join(", ", spec.Value.Arguments));
+                    builder.AppendFormat("   Resource directory: {0}\r\n", spec.Value.ResourceDirectory);
+                }
+            }
+            else
+            {
+                builder.Append("No Jupyter kernels could be found.");
+            }
+
+            return builder.ToString();
         }
 
         public virtual bool Initialize(CodeFile file, LogManager logger)
