@@ -1940,6 +1940,7 @@
 		<row><td>stattag.dll.manifest</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.MAN|StatTag.dll.manifest</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\x86\Release\StatTag.dll.manifest</td><td>1</td><td/></row>
 		<row><td>stattag.primary_output</td><td>StatTag.Primary_output</td><td>StatTag.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;StatTag&gt;|Built</td><td>3</td><td/></row>
 		<row><td>stattag.vsto</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.VST|StatTag.vsto</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\bin\x86\Release\StatTag.vsto</td><td>1</td><td/></row>
+		<row><td>stattag_config.json</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.JSO|StatTag-config.json</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\StatTag-config.json</td><td>1</td><td/></row>
 		<row><td>stattag_userguide.pdf</td><td>ISX_DEFAULTCOMPONENT</td><td>STATTA~1.PDF|StatTag-UserGuide.pdf</td><td>0</td><td/><td/><td/><td>1</td><td>C:\Development\StatTag\StatTag\Resources\StatTag-UserGuide.pdf</td><td>1</td><td/></row>
 	</table>
 
@@ -4432,9 +4433,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{523BA15A-25A2-4B9E-BBE5-8C4BEDE3FC51}</td><td/></row>
+		<row><td>ProductCode</td><td>{1A90ECFC-B561-4F22-A0B1-E038765EA542}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>6.0.0.0</td><td/></row>
+		<row><td>ProductVersion</td><td>6.0.0.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4720,7 +4721,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>5.0.2.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 5.0.2.0</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.0.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.0.0</td></row>
 	</table>
 
 	<table name="Verb">
