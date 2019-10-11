@@ -421,6 +421,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\StatTag-UserGuide.pdf" />
+    <Content Include="StatTag-config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="StatTag_1_TemporaryKey.pfx" />
     <None Include="StatTag_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">

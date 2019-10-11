@@ -51,11 +51,13 @@ namespace StatTag.Models
 
         public DocumentManager DocumentManager { get; set; }
         public SettingsManager SettingsManager { get; set; }
+        public static Configuration Config { get; set; }
 
-        public StatsManager(DocumentManager documentManager, SettingsManager settingsManager)
+        public StatsManager(DocumentManager documentManager, SettingsManager settingsManager, Configuration config)
         {
             DocumentManager = documentManager;
             SettingsManager = settingsManager;
+            Config = config;
         }
 
         /// <summary>
@@ -78,7 +80,7 @@ namespace StatTag.Models
                     case Constants.StatisticalPackages.RMarkdown:
                         return new RMarkdownAutomation();
                     case Constants.StatisticalPackages.Python:
-                        return new PythonAutomation();
+                        return new PythonAutomation(Config);
                 }
             }
 

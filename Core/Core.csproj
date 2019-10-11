@@ -130,6 +130,7 @@
     <Compile Include="Interfaces\IResultCommandList.cs" />
     <Compile Include="Interfaces\IStatAutomation.cs" />
     <Compile Include="Models\BaseManager.cs" />
+    <Compile Include="Models\Configuration.cs" />
     <Compile Include="Models\DataFileToTable.cs" />
     <Compile Include="Models\DocumentMetadata.cs" />
     <Compile Include="Models\DuplicateTagResults.cs" />

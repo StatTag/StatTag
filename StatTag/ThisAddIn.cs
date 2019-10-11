@@ -1,4 +1,12 @@
-﻿using System;
+﻿using Jupyter;
+using R;
+using SAS;
+using Stata;
+using StatTag.Core.Exceptions;
+using StatTag.Core.Models;
+using StatTag.Core.Utility;
+using StatTag.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -6,18 +14,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Xml.Linq;
-using SAS;
-using Stata;
-using StatTag.Core.Exceptions;
-using StatTag.Core.Models;
-using StatTag.Core.Utility;
-using StatTag.Models;
-using Word = Microsoft.Office.Interop.Word;
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools.Word;
 using System.Windows.Forms;
-using R;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace StatTag
 {
@@ -30,8 +28,9 @@ namespace StatTag
         public SettingsManager SettingsManager = new SettingsManager();
         public DocumentManager DocumentManager = DocumentManager.Instance;
         public StatsManager StatsManager = null;
-        private System.Threading.Thread DoubleClickThread = null;
-        private System.Threading.Thread SystemDetailsThread = null;
+        public Configuration Config = Configuration.Default;
+        private Thread DoubleClickThread = null;
+        private Thread SystemDetailsThread = null;
         private static string SystemInformation = "";
 
         /// <summary>
@@ -87,8 +86,9 @@ namespace StatTag
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            Config = Configuration.Load();
             DocumentManager.SetSettingsManager(SettingsManager);
-            StatsManager = new StatsManager(DocumentManager, SettingsManager);
+            StatsManager = new StatsManager(DocumentManager, SettingsManager, Config);
             DocumentManager.CodeFileContentsChanged += OnCodeFileChanged;
 
             // We'll load at Startup but won't save on Shutdown.  We only save when the user makes
@@ -572,6 +572,8 @@ namespace StatTag
                     systemInfoBuilder.Append(StataAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
                     systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    systemInfoBuilder.Append("\r\n\r\nJupyter Kernels:\r\n\t");
+                    systemInfoBuilder.Append(JupyterAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
                     lock (ThisAddIn.SystemInformation)
                     {
                         SystemInformation = systemInfoBuilder.ToString().Trim();
@@ -581,7 +583,7 @@ namespace StatTag
                 {
                     // If we are not loading the full details, we aren't going to cache our results.  We will return what we have in the
                     // string builder so far.  Subsequent calls will ideally get this to fully load.
-                    systemInfoBuilder.Append("\r\n(Additional information about R, SAS and Stata is still loading...)");
+                    systemInfoBuilder.Append("\r\n(Additional information about R, SAS, Stata, and Python is still loading...)");
                     return systemInfoBuilder.ToString().Trim();
                 }
             }

@@ -184,7 +184,7 @@ namespace StatTag
             {
                 if (ManageTagsDialog == null || ManageTagsDialog.IsDisposed)
                 {
-                    ManageTagsDialog = new TagManagerForm(Manager);
+                    ManageTagsDialog = new TagManagerForm(Manager, StatsManager);
                     ManageTagsDialog.Show();
                 }
                 else
