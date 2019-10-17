@@ -692,24 +692,33 @@ namespace StatTag
         {
             try
             {
+                var tags = GetSelectedTags();
+
+                // Perform our pre-execution check on all relevant code files.  If any of the checks fail, we will halt
+                // execution.  We are assuming the PreExecutionCheck method handles all notifications, so we will also
+                // adjust our TopMost status to allow any dialogs to take focus.
+                var files = tags.Select(x => x.CodeFile).Distinct().ToArray();
+                this.TopMost = false;
+                if (files != null && files.Length > 0 && files.Any(x => !StatsManager.PreExecutionCheck(x)))
+                {
+                    this.TopMost = true;
+                    return;
+                }
+                this.TopMost = true;
+
                 InitializeProgressDialog(updateBackgroundWorker);
 
                 Cursor.Current = Cursors.WaitCursor;
                 Globals.ThisAddIn.Application.ScreenUpdating = false;
 
-                var tags = GetSelectedTags();
                 updateBackgroundWorker.RunWorkerAsync(tags);
             }
             catch (StatTagUserException uex)
             {
-                //UIUtility.ReportException(uex, uex.Message, Manager.Logger);
                 CompletedBackgroundWorker(uex);
             }
             catch (Exception exc)
             {
-                //UIUtility.ReportException(exc,
-                //    "There was an unexpected error when trying to update values in your document.",
-                //    Manager.Logger);
                 CompletedBackgroundWorker(new StatTagUserException("There was an unexpected error when trying to update values in your document.", exc));
             }
         }

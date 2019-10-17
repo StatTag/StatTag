@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Microsoft.Office.Interop.Word;
 using R;
 using SAS;
 using StatTag.Core;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
 using Stata;
 using StatTag.Core.Interfaces;
@@ -53,11 +55,14 @@ namespace StatTag.Models
         public SettingsManager SettingsManager { get; set; }
         public static Configuration Config { get; set; }
 
+        private bool CheckIfStataRunning { get; set; }
+
         public StatsManager(DocumentManager documentManager, SettingsManager settingsManager, Configuration config)
         {
             DocumentManager = documentManager;
             SettingsManager = settingsManager;
             Config = config;
+            CheckIfStataRunning = true;
         }
 
         /// <summary>
@@ -85,6 +90,94 @@ namespace StatTag.Models
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Customized prompt dialog with variable text and buttons.
+        /// </summary>
+        /// <remarks>Derived from https://stackoverflow.com/a/9569546/5670646 </remarks>
+        /// <param name="text"></param>
+        /// <param name="caption"></param>
+        /// <param name="confirmationButtonText"></param>
+        /// <param name="cancelButtonText"></param>
+        /// <returns></returns>
+        private DialogResult Prompt(string text, string caption, string confirmationButtonText, string cancelButtonText)
+        {
+            const int FormWidth = 500;
+            const int ControlMargin = 15;
+            const int TextMargin = 20;
+            const int TextWidth = (FormWidth) - (2*TextMargin);
+
+            var prompt = new Form
+            {
+                Width = FormWidth,
+                Height = 150,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterScreen,
+                FormBorderStyle = FormBorderStyle.FixedToolWindow,
+            };
+
+            var textLabel = new Label() { Left = TextMargin, Top = TextMargin, Width = TextWidth, Text = text };
+            var cancel = new Button() { Text = cancelButtonText, Left = 350, Width = 10, Top = 100};
+            var confirmation = new Button() { Text = confirmationButtonText, Left = 350, Width = 10, Top = 100 };
+            using (Graphics g = prompt.CreateGraphics())
+            {
+                SizeF size = g.MeasureString(text, textLabel.Font, TextWidth);
+                textLabel.Height = (int)Math.Ceiling(size.Height);
+
+                size = g.MeasureString(cancelButtonText, cancel.Font, (FormWidth / 2));
+                cancel.Width = (int)Math.Ceiling(size.Width) + TextMargin;
+                cancel.Left = FormWidth - cancel.Width - prompt.Margin.Right - ControlMargin;
+
+                size = g.MeasureString(confirmationButtonText, confirmation.Font, (FormWidth / 2));
+                confirmation.Width = (int)Math.Ceiling(size.Width) + TextMargin;
+                confirmation.Left = cancel.Left - confirmation.Width - ControlMargin;
+            }
+
+            prompt.Controls.Add(textLabel);
+
+            cancel.Top = textLabel.Bottom + TextMargin;
+            confirmation.Top = cancel.Top;
+
+            confirmation.Click += (sender, e) => { prompt.DialogResult = DialogResult.OK; prompt.Close(); };
+            prompt.Height = confirmation.Bottom + ControlMargin + TextMargin;
+            prompt.AcceptButton = confirmation;
+            prompt.CancelButton = cancel;
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(cancel);
+            return prompt.ShowDialog();
+        }
+
+        /// <summary>
+        /// A hook to perform any necessary checks prior to initializing the stat automation
+        /// object.  Any notification/interaction with the user should be done from within
+        /// this method.
+        /// </summary>
+        /// <param name="codeFile">The code file that is to be executed</param>
+        public bool PreExecutionCheck(CodeFile codeFile)
+        {
+            // Perform pre-run check for Stata.  Currently this is the only program that
+            // requires a pre-run check.
+            if (codeFile.StatisticalPackage.Equals(Constants.StatisticalPackages.Stata) && CheckIfStataRunning)
+            {
+                if (StataAutomation.IsStataRunning(SettingsManager.Settings.StataLocation))
+                {
+                    var response = Prompt(
+                        "StatTag has detected a running instance of Stata.  If you proceed, any unsaved changes to do-files open in the Stata Do-file Editor could be lost.  We recommend that you close the Do-file Editor before continuing.\r\n\r\nDo you want to continue running your Stata code in StatTag?",
+                        UIUtility.GetAddInName(), "Run my code", "Cancel");
+
+                    // If they told us to run the code, we're going to stop bugging them and go ahead.
+                    if (response == DialogResult.OK)
+                    {
+                        CheckIfStataRunning = false;
+                        return true;
+                    }
+                    CheckIfStataRunning = true;
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

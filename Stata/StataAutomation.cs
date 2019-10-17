@@ -59,7 +59,7 @@ namespace Stata
         protected StataParser Parser { get; set; }
         protected List<StataParser.Log> OpenLogs { get; set; }
         protected bool IsTrackingVerbatim { get; set; }
-
+        
         private static class ScalarType
         {
             public const int NotFound = 0;
@@ -741,6 +741,25 @@ namespace Stata
             process.WaitForExit(30000);
 
             return (0 == process.ExitCode);
+        }
+
+        /// <summary>
+        /// Determine if the Stata executable is currently running
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool IsStataRunning(string path)
+        {
+            // If we don't know about the Stata EXE (or if what the user provided is not valid),
+            // we're not going to be able to detect Stata running so go ahead and claim it's not.
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                return false;
+            }
+
+            var exeName = Path.GetFileNameWithoutExtension(path);
+            var processes = Process.GetProcessesByName(exeName);
+            return processes.Any(p => !p.HasExited);
         }
 
         // Taken from : http://www.stata.com/manuals13/perror.pdf
