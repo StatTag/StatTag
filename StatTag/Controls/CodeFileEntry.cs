@@ -57,6 +57,7 @@ namespace StatTag.Controls
             {
                 lblFileName.Text = value;
                 UpdateIconForFile(value);
+                ResizeControl();
             }
         }
 
@@ -64,7 +65,21 @@ namespace StatTag.Controls
         public string FilePath
         {
             get { return lblFilePath.Text; }
-            set { lblFilePath.Text = value; }
+            set
+            {
+                lblFilePath.Text = value;
+                ResizeControl();
+            }
+        }
+
+        private void ResizeControl()
+        {
+            var fileNameSize = TextRenderer.MeasureText(lblFileName.Text, lblFileName.Font);
+            var filePathSize = TextRenderer.MeasureText(lblFilePath.Text, lblFilePath.Font);
+            lblFileName.Height = lblFileName.Padding.Top + fileNameSize.Height + lblFileName.Padding.Bottom;
+            lblFilePath.Top = lblFilePath.Margin.Top + lblFileName.Bottom;
+            lblFilePath.Height = lblFilePath.Padding.Top + filePathSize.Height + lblFilePath.Padding.Bottom;
+            this.Height = this.Padding.Top + lblFilePath.Bottom + this.Padding.Bottom + 5;
         }
 
         [Description("Flag to set if the control is considered selected or not"), Category("Data")]
