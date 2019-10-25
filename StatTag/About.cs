@@ -17,8 +17,9 @@ namespace StatTag
         public About(string systemInformation)
         {
             InitializeComponent();
-            UIUtility.ScaleFont(this);
             SystemInformation = systemInformation;
+            // We have designed the dialog to its minimum size, so don't let it go any smaller.
+            this.MinimumSize = this.Size;
         }
 
         private void About_Load(object sender, EventArgs e)
@@ -26,6 +27,10 @@ namespace StatTag
             lblVersion.Text = UIUtility.GetVersionLabel();
             lblCopyright.Text = UIUtility.GetCopyright();
             UpdateSystemDetails();
+
+            // Because we don't have auto-size capability in the text box, we will calculate the size and set that when we load.
+            var citationSize = TextRenderer.MeasureText(txtCitation.Text, txtCitation.Font, txtCitation.Size, TextFormatFlags.WordBreak);
+            txtCitation.Size = citationSize;
         }
 
         private void UpdateSystemDetails()
