@@ -154,59 +154,7 @@ namespace StatTag
                     .Where(x => x.Tag is Tag)
                     .Select(x => x.Tag as Tag);
         }
-
-        /// <summary>
-        /// Creates a new font to be scaled to 96dpi.
-        /// </summary>
-        /// <param name="font"></param>
-        /// <param name="graphics"></param>
-        /// <returns></returns>
-        public static System.Drawing.Font CreateScaledFont(System.Drawing.Font font, Graphics graphics)
-        {
-            const float dpiScale = 96f;
-            var scaledFont = new System.Drawing.Font(font.Name, font.Size * dpiScale / graphics.DpiX, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
-            return scaledFont;
-        }
-
-        /// <summary>
-        /// Helper function to recursively adjust control fonts to control for DPI scaling.
-        /// </summary>
-        /// <param name="container"></param>
-        public static void ScaleContainerFont(Control container)
-        {
-            foreach (var control in container.Controls.OfType<Control>())
-            {
-                if (control.HasChildren)
-                {
-                    ScaleContainerFont(control);
-                }
-                else
-                {
-                    control.Font = UIUtility.CreateScaledFont(control.Font, control.CreateGraphics());
-                }
-            }
-
-            container.Font = UIUtility.CreateScaledFont(container.Font, container.CreateGraphics());
-        }
-
-        /// <summary>
-        /// Utility function to handle scaling fonts in all form controls to appear as if they did
-        /// on 96dpi.  This is our (not optimal) workaround to DPI scaling issues.  Instead of
-        /// scaling the UI, we force it to be as if we're still on 96dpi.
-        /// </summary>
-        /// <param name="form"></param>
-        public static void ScaleFont(Form form)
-        {
-            form.AutoScaleMode = AutoScaleMode.None;
-            ScaleContainerFont(form);
-        }
-
-        public static void ScaleFont(UserControl control)
-        {
-            control.AutoScaleMode = AutoScaleMode.None;
-            ScaleContainerFont(control);
-        }
-
+        
         public static void BuildCodeFileActionColumn(List<CodeFile> files, DataGridView gridView, int columnIndex, bool forSingleTag)
         {
             var actions = new List<GridDataItem>

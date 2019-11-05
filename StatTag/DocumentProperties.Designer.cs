@@ -84,7 +84,7 @@
             this.label5.Location = new System.Drawing.Point(8, 5);
             this.label5.Name = "label5";
             this.label5.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
-            this.label5.Size = new System.Drawing.Size(559, 20);
+            this.label5.Size = new System.Drawing.Size(559, 59);
             this.label5.TabIndex = 17;
             this.label5.Text = "For this document, if a table has a missing value (empty cell), display the missi" +
     "ng value using:";
@@ -149,17 +149,17 @@
             this.missingValueSettings1.AutoSize = true;
             this.missingValueSettings1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(5, 25);
+            this.missingValueSettings1.Location = new System.Drawing.Point(5, 64);
             this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(0);
             this.missingValueSettings1.Name = "missingValueSettings1";
             this.missingValueSettings1.Padding = new System.Windows.Forms.Padding(10, 3, 3, 3);
-            this.missingValueSettings1.Size = new System.Drawing.Size(565, 79);
+            this.missingValueSettings1.Size = new System.Drawing.Size(565, 40);
             this.missingValueSettings1.TabIndex = 20;
             // 
             // DocumentProperties
             // 
             this.AcceptButton = this.cmdOK;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
