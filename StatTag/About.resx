@@ -117,9 +117,27 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="tableLayoutPanel1.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <metadata name="tableLayoutPanel2.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
   <data name="label8.Text" xml:space="preserve">
     <value>Development of StatTag was supported, in part, by the National Institutes of Health's National Center for Advancing Translational Sciences, Grant Number UL1TR001422.
 The content is solely the responsibility of the developers and does not necessarily represent the official views of the National Institutes of Health.</value>
+  </data>
+  <metadata name="tableLayoutPanel3.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Development of StatTag was supported, in part, by the National Institutes of Health's National Center for Advancing Translational Sciences, Grant Number UL1TR001422.
+The content is solely the responsibility of the developers and does not necessarily represent the official views of the National Institutes of Health.</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>StatTag was inspired in part by the Stata Automation Report project:
+Lo Magno, G.L. (2013). Sar: Automatic generation of statistical reports using Stata and Microsoft Word for Windows. The Stata Journal, 13(1); 39-64.
+</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
     <value>Scintilla - http://www.scintilla.org/
@@ -131,13 +149,7 @@ log4net - https://logging.apache.org/log4net/
 ScintillaNET Find &amp;&amp; Replace - https://github.com/Stumpii/ScintillaNET-FindReplaceDialog
 EPPlus - https://github.com/JanKallman/EPPlus</value>
   </data>
-  <data name="label2.Text" xml:space="preserve">
-    <value>StatTag was inspired in part by the Stata Automation Report project:
-Lo Magno, G.L. (2013). Sar: Automatic generation of statistical reports using Stata and Microsoft Word for Windows. The Stata Journal, 13(1); 39-64.
-</value>
-  </data>
-  <data name="label1.Text" xml:space="preserve">
-    <value>Development of StatTag was supported, in part, by the National Institutes of Health's National Center for Advancing Translational Sciences, Grant Number UL1TR001422.
-The content is solely the responsibility of the developers and does not necessarily represent the official views of the National Institutes of Health.</value>
-  </data>
+  <metadata name="tableLayoutPanel4.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
 </root>

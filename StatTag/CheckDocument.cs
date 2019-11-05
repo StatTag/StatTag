@@ -90,7 +90,6 @@ namespace StatTag
         public CheckDocument(Dictionary<string, List<Tag>> unlinkedTags, DuplicateTagResults duplicateTags, OverlappingTagResults overlappingTags, List<CodeFile> files, DefaultTab defaultTab)
         {
             InitializeComponent();
-            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UnlinkedTags = unlinkedTags;
             DuplicateTags = duplicateTags;

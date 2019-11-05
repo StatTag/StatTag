@@ -37,10 +37,28 @@ namespace StatTag.Controls
         {
             cboDate.Items.AddRange(Constants.DateFormats.GetList());
             cboDate.SelectedIndex = 0;
+            SetDropDownWidth(cboDate);
             cboTime.Items.AddRange(Constants.TimeFormats.GetList());
             cboTime.SelectedIndex = 0;
+            SetDropDownWidth(cboTime);
 
             UpdateValues();
+        }
+
+        /// <summary>
+        /// Derived from https://stackoverflow.com/a/4842576/5670646
+        /// </summary>
+        /// <param name="myCombo"></param>
+        /// <returns></returns>
+        private void SetDropDownWidth(ComboBox myCombo)
+        {
+            int maxWidth = 0;
+            foreach (var obj in myCombo.Items)
+            {
+                maxWidth = Math.Max(maxWidth, TextRenderer.MeasureText(obj.ToString(), myCombo.Font).Width);
+            }
+
+            myCombo.Width = maxWidth - myCombo.Margin.Left - myCombo.Margin.Right;
         }
 
         private void UpdateDate()

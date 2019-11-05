@@ -54,7 +54,6 @@ namespace StatTag
                 DefaultCodeFile = defaultCodeFile;
 
                 InitializeComponent();
-                UIUtility.ScaleFont(this);
                 UIUtility.SetDialogTitle(this);
                 AllowInsertInDocument = allowInsertInDocument;
 
@@ -95,25 +94,18 @@ namespace StatTag
             TagType = (cboResultType.SelectedItem == null ? null : cboResultType.SelectedItem.ToString());
             switch (TagType)
             {
-                case Constants.TagType.Figure:
-                    figureProperties.Visible = true;
-                    tableProperties.Visible = false;
-                    valueProperties.Visible = false;
-                    break;
                 case Constants.TagType.Table:
                     tableProperties.Visible = true;
                     valueProperties.Visible = false;
-                    figureProperties.Visible = false;
                     break;
+                case Constants.TagType.Figure:
                 case Constants.TagType.Verbatim:
                     tableProperties.Visible = false;
                     valueProperties.Visible = false;
-                    figureProperties.Visible = false;
                     break;
                 default:
                     valueProperties.Visible = true;
                     tableProperties.Visible = false;
-                    figureProperties.Visible = false;
                     break;
             }
 
@@ -189,15 +181,12 @@ namespace StatTag
                         UpdateForTypeClick();
                         valueProperties.SetValueFormat(Tag.ValueFormat);
                         break;
-                    case Constants.TagType.Figure:
-                        UpdateForTypeClick();
-                        figureProperties.SetFigureFormat(Tag.FigureFormat);
-                        break;
                     case Constants.TagType.Table:
                         UpdateForTypeClick();
                         tableProperties.SetTableFormat(Tag.TableFormat);
                         tableProperties.SetValueFormat(Tag.ValueFormat);
                         break;
+                    case Constants.TagType.Figure:
                     case Constants.TagType.Verbatim:
                         UpdateForTypeClick();
                         break;
@@ -695,13 +684,11 @@ namespace StatTag
                 case Constants.TagType.Value:
                     Tag.ValueFormat = valueProperties.GetValueFormat();
                     break;
-                case Constants.TagType.Figure:
-                    Tag.FigureFormat = figureProperties.GetFigureFormat();
-                    break;
                 case Constants.TagType.Table:
                     Tag.TableFormat = tableProperties.GetTableFormat();
                     Tag.ValueFormat = tableProperties.GetValueFormat();
                     break;
+                case Constants.TagType.Figure:
                 case Constants.TagType.Verbatim:
                     break;
                 default:

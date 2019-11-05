@@ -29,9 +29,7 @@ namespace StatTag
             // Reset the missing value information label - we have it visible with placeholder text in the designer,
             // just so we can easily manage it, but we never want that at runtime.
             lblMissingValueInformation.Text = string.Empty;
-            lblMissingValueInformation.Visible = false;
 
-            UIUtility.ScaleFont(this);
             MinimumSize = Size;
             UIUtility.SetDialogTitle(this);
 
@@ -51,16 +49,22 @@ namespace StatTag
             var settings = Manager.SettingsManager.Settings;
             var customMissingValue = missingValueSettings1.GetCustomMissingValueString();
             var representMissingValues = missingValueSettings1.GetMissingValuesSelection();
-            lblMissingValueInformation.Visible = false;
+            lblMissingValueInformation.Text = string.Empty;
             if (settings != null && (!representMissingValues.Equals(settings.RepresentMissingValues)
                                      ||
                                      (representMissingValues.Equals(Constants.MissingValueOption.CustomValue) &&
                                       !customMissingValue.Equals(settings.CustomMissingValue))))
             {
                 lblMissingValueInformation.Text = BlankValueLabelTemplate.Replace("[BLANK_VALUE]",
-                    DocumentMetadata.GetMissingValueReplacementAsString(settings.RepresentMissingValues, settings.CustomMissingValue));
-                lblMissingValueInformation.Visible = true;
+                    DocumentMetadata.GetMissingValueReplacementAsString(settings.RepresentMissingValues,
+                        settings.CustomMissingValue));
             }
+
+            // Dynamically size the label displaying the missing value information.
+            var size = TextRenderer.MeasureText(lblMissingValueInformation.Text, lblMissingValueInformation.Font,
+                lblMissingValueInformation.Size, TextFormatFlags.WordBreak);
+            size.Height += lblMissingValueInformation.Margin.Top + lblMissingValueInformation.Margin.Bottom;
+            lblMissingValueInformation.Size = size;
         }
 
         private void InitializeProperites()

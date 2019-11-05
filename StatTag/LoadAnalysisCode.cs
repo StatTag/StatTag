@@ -20,7 +20,6 @@ namespace StatTag
         public LoadAnalysisCode(DocumentManager manager, List<CodeFile> files = null)
         {
             InitializeComponent();
-            UIUtility.ScaleFont(this);
             Manager = manager;
             Files = files;
             MinimumSize = Size;

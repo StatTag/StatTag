@@ -29,22 +29,26 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LinkCodeFiles));
+            System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
             this.label1 = new System.Windows.Forms.Label();
             this.dgvCodeFiles = new System.Windows.Forms.DataGridView();
             this.colMissingCodeFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActionToTake = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
+            tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).BeginInit();
+            tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.AutoSize = true;
+            tableLayoutPanel1.SetColumnSpan(this.label1, 2);
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Location = new System.Drawing.Point(6, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(751, 77);
+            this.label1.Size = new System.Drawing.Size(764, 68);
             this.label1.TabIndex = 0;
             this.label1.Text = resources.GetString("label1.Text");
             // 
@@ -53,23 +57,22 @@
             this.dgvCodeFiles.AllowUserToAddRows = false;
             this.dgvCodeFiles.AllowUserToDeleteRows = false;
             this.dgvCodeFiles.AllowUserToResizeRows = false;
-            this.dgvCodeFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvCodeFiles.CausesValidation = false;
             this.dgvCodeFiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvCodeFiles.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colMissingCodeFile,
             this.colActionToTake});
+            tableLayoutPanel1.SetColumnSpan(this.dgvCodeFiles, 2);
+            this.dgvCodeFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCodeFiles.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvCodeFiles.Location = new System.Drawing.Point(16, 94);
+            this.dgvCodeFiles.Location = new System.Drawing.Point(6, 74);
             this.dgvCodeFiles.MultiSelect = false;
             this.dgvCodeFiles.Name = "dgvCodeFiles";
             this.dgvCodeFiles.RowHeadersVisible = false;
             this.dgvCodeFiles.ShowCellErrors = false;
             this.dgvCodeFiles.ShowEditingIcon = false;
             this.dgvCodeFiles.ShowRowErrors = false;
-            this.dgvCodeFiles.Size = new System.Drawing.Size(748, 229);
+            this.dgvCodeFiles.Size = new System.Drawing.Size(764, 270);
             this.dgvCodeFiles.TabIndex = 1;
             this.dgvCodeFiles.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCodeFiles_CellValueChanged);
             this.dgvCodeFiles.CurrentCellDirtyStateChanged += new System.EventHandler(this.dgvCodeFiles_CurrentCellDirtyStateChanged);
@@ -92,37 +95,60 @@
             // 
             // cmdCancel
             // 
-            this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cmdCancel.AutoSize = true;
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(445, 346);
+            this.cmdCancel.Location = new System.Drawing.Point(408, 350);
+            this.cmdCancel.Margin = new System.Windows.Forms.Padding(20, 3, 3, 3);
             this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(87, 25);
+            this.cmdCancel.Size = new System.Drawing.Size(87, 27);
             this.cmdCancel.TabIndex = 7;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
             // 
             // cmdOK
             // 
-            this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdOK.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.cmdOK.AutoSize = true;
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(244, 346);
+            this.cmdOK.Location = new System.Drawing.Point(281, 350);
+            this.cmdOK.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
             this.cmdOK.Name = "cmdOK";
-            this.cmdOK.Size = new System.Drawing.Size(87, 25);
+            this.cmdOK.Size = new System.Drawing.Size(87, 27);
             this.cmdOK.TabIndex = 6;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.AutoSize = true;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
+            tableLayoutPanel1.Controls.Add(this.cmdCancel, 1, 2);
+            tableLayoutPanel1.Controls.Add(this.dgvCodeFiles, 0, 1);
+            tableLayoutPanel1.Controls.Add(this.cmdOK, 0, 2);
+            tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(3);
+            tableLayoutPanel1.RowCount = 3;
+            tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            tableLayoutPanel1.Size = new System.Drawing.Size(776, 383);
+            tableLayoutPanel1.TabIndex = 8;
+            // 
             // LinkCodeFiles
             // 
             this.AcceptButton = this.cmdOK;
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(776, 383);
-            this.Controls.Add(this.cmdCancel);
-            this.Controls.Add(this.cmdOK);
-            this.Controls.Add(this.dgvCodeFiles);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -131,7 +157,10 @@
             this.Text = "Link Code Files";
             this.Load += new System.EventHandler(this.LinkCodeFiles_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCodeFiles)).EndInit();
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
