@@ -71,7 +71,7 @@ namespace StatTag.Core.Utility
 
                 if (deleteFolder)
                 {
-                    Directory.Delete(temporaryImageFilePath);
+                    Directory.Delete(temporaryImageFilePath, true);
                 }
             }
         }
