@@ -33,27 +33,27 @@
             System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManagerForm));
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.cmdDefineTag = new System.Windows.Forms.Button();
-            this.cmdRemoveTags = new System.Windows.Forms.Button();
-            this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
+            this.cmdInsert = new System.Windows.Forms.Button();
+            this.cmdUpdate = new System.Windows.Forms.Button();
             this.lvwTags = new System.Windows.Forms.ListView();
             this.colProgram = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colDuplicate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.cmdDefineTag = new System.Windows.Forms.Button();
+            this.cmdRemoveTags = new System.Windows.Forms.Button();
+            this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.updateBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.insertBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.cmdUpdate = new System.Windows.Forms.Button();
-            this.cmdInsert = new System.Windows.Forms.Button();
             this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -103,6 +103,98 @@
             this.cboCodeFiles.Sorted = true;
             this.cboCodeFiles.TabIndex = 11;
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.AutoSize = true;
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.Controls.Add(this.cmdInsert, 0, 0);
+            tableLayoutPanel2.Controls.Add(this.cmdUpdate, 1, 0);
+            tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            tableLayoutPanel2.Location = new System.Drawing.Point(8, 577);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 1;
+            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.Size = new System.Drawing.Size(685, 38);
+            tableLayoutPanel2.TabIndex = 16;
+            // 
+            // cmdInsert
+            // 
+            this.cmdInsert.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.cmdInsert.AutoSize = true;
+            this.cmdInsert.Location = new System.Drawing.Point(105, 4);
+            this.cmdInsert.Margin = new System.Windows.Forms.Padding(3, 4, 15, 4);
+            this.cmdInsert.Name = "cmdInsert";
+            this.cmdInsert.Size = new System.Drawing.Size(222, 30);
+            this.cmdInsert.TabIndex = 5;
+            this.cmdInsert.Text = "Insert Tag Placeholders";
+            this.cmdInsert.UseVisualStyleBackColor = true;
+            this.cmdInsert.Click += new System.EventHandler(this.cmdInsert_Click);
+            // 
+            // cmdUpdate
+            // 
+            this.cmdUpdate.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cmdUpdate.AutoSize = true;
+            this.cmdUpdate.Location = new System.Drawing.Point(357, 4);
+            this.cmdUpdate.Margin = new System.Windows.Forms.Padding(15, 4, 3, 4);
+            this.cmdUpdate.Name = "cmdUpdate";
+            this.cmdUpdate.Size = new System.Drawing.Size(190, 30);
+            this.cmdUpdate.TabIndex = 4;
+            this.cmdUpdate.Text = "Update Tag Results";
+            this.cmdUpdate.UseVisualStyleBackColor = true;
+            this.cmdUpdate.Click += new System.EventHandler(this.cmdUpdate_Click);
+            // 
+            // lvwTags
+            // 
+            this.lvwTags.AutoArrange = false;
+            this.lvwTags.CheckBoxes = true;
+            this.lvwTags.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colProgram,
+            this.colTag,
+            this.colType,
+            this.colDuplicate});
+            this.lvwTags.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvwTags.FullRowSelect = true;
+            this.lvwTags.HideSelection = false;
+            this.lvwTags.Location = new System.Drawing.Point(8, 46);
+            this.lvwTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.lvwTags.Name = "lvwTags";
+            this.lvwTags.OwnerDraw = true;
+            this.lvwTags.Size = new System.Drawing.Size(685, 482);
+            this.lvwTags.Sorting = System.Windows.Forms.SortOrder.Ascending;
+            this.lvwTags.TabIndex = 3;
+            this.lvwTags.UseCompatibleStateImageBehavior = false;
+            this.lvwTags.View = System.Windows.Forms.View.Details;
+            this.lvwTags.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwTags_ColumnClick);
+            this.lvwTags.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwTags_DrawColumnHeader);
+            this.lvwTags.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwTags_DrawSubItem);
+            this.lvwTags.SelectedIndexChanged += new System.EventHandler(this.lvwTags_SelectedIndexChanged);
+            this.lvwTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lvwTags_KeyDown);
+            this.lvwTags.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseClick);
+            this.lvwTags.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseDoubleClick);
+            // 
+            // colProgram
+            // 
+            this.colProgram.Text = "";
+            this.colProgram.Width = 50;
+            // 
+            // colTag
+            // 
+            this.colTag.Text = "Tag";
+            this.colTag.Width = 250;
+            // 
+            // colType
+            // 
+            this.colType.Text = "Type";
+            this.colType.Width = 250;
+            // 
+            // colDuplicate
+            // 
+            this.colDuplicate.Text = "";
+            this.colDuplicate.Width = 30;
             // 
             // tableLayoutPanel3
             // 
@@ -166,72 +258,6 @@
             this.cmdCheckUnlinkedTags.UseVisualStyleBackColor = true;
             this.cmdCheckUnlinkedTags.Click += new System.EventHandler(this.cmdCheckUnlinkedTags_Click);
             // 
-            // tableLayoutPanel2
-            // 
-            tableLayoutPanel2.AutoSize = true;
-            tableLayoutPanel2.ColumnCount = 2;
-            tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            tableLayoutPanel2.Controls.Add(this.cmdInsert, 0, 0);
-            tableLayoutPanel2.Controls.Add(this.cmdUpdate, 1, 0);
-            tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            tableLayoutPanel2.Location = new System.Drawing.Point(8, 577);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 1;
-            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            tableLayoutPanel2.Size = new System.Drawing.Size(685, 38);
-            tableLayoutPanel2.TabIndex = 16;
-            // 
-            // lvwTags
-            // 
-            this.lvwTags.AutoArrange = false;
-            this.lvwTags.CheckBoxes = true;
-            this.lvwTags.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colProgram,
-            this.colTag,
-            this.colType,
-            this.colDuplicate});
-            this.lvwTags.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvwTags.FullRowSelect = true;
-            this.lvwTags.HideSelection = false;
-            this.lvwTags.Location = new System.Drawing.Point(8, 46);
-            this.lvwTags.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.lvwTags.Name = "lvwTags";
-            this.lvwTags.OwnerDraw = true;
-            this.lvwTags.Size = new System.Drawing.Size(685, 482);
-            this.lvwTags.Sorting = System.Windows.Forms.SortOrder.Ascending;
-            this.lvwTags.TabIndex = 3;
-            this.lvwTags.UseCompatibleStateImageBehavior = false;
-            this.lvwTags.View = System.Windows.Forms.View.Details;
-            this.lvwTags.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lvwTags_ColumnClick);
-            this.lvwTags.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwTags_DrawColumnHeader);
-            this.lvwTags.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwTags_DrawSubItem);
-            this.lvwTags.SelectedIndexChanged += new System.EventHandler(this.lvwTags_SelectedIndexChanged);
-            this.lvwTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lvwTags_KeyDown);
-            this.lvwTags.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseClick);
-            this.lvwTags.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvwTags_MouseDoubleClick);
-            // 
-            // colProgram
-            // 
-            this.colProgram.Text = "";
-            this.colProgram.Width = 50;
-            // 
-            // colTag
-            // 
-            this.colTag.Text = "Tag";
-            this.colTag.Width = 250;
-            // 
-            // colType
-            // 
-            this.colType.Text = "Type";
-            this.colType.Width = 250;
-            // 
-            // colDuplicate
-            // 
-            this.colDuplicate.Text = "";
-            this.colDuplicate.Width = 30;
-            // 
             // updateBackgroundWorker
             // 
             this.updateBackgroundWorker.WorkerReportsProgress = true;
@@ -248,41 +274,17 @@
             this.insertBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.insertBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
-            // cmdUpdate
-            // 
-            this.cmdUpdate.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.cmdUpdate.AutoSize = true;
-            this.cmdUpdate.Location = new System.Drawing.Point(357, 4);
-            this.cmdUpdate.Margin = new System.Windows.Forms.Padding(15, 4, 3, 4);
-            this.cmdUpdate.Name = "cmdUpdate";
-            this.cmdUpdate.Size = new System.Drawing.Size(190, 30);
-            this.cmdUpdate.TabIndex = 4;
-            this.cmdUpdate.Text = "Update Tag Results";
-            this.cmdUpdate.UseVisualStyleBackColor = true;
-            this.cmdUpdate.Click += new System.EventHandler(this.cmdUpdate_Click);
-            // 
-            // cmdInsert
-            // 
-            this.cmdInsert.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.cmdInsert.AutoSize = true;
-            this.cmdInsert.Location = new System.Drawing.Point(105, 4);
-            this.cmdInsert.Margin = new System.Windows.Forms.Padding(3, 4, 15, 4);
-            this.cmdInsert.Name = "cmdInsert";
-            this.cmdInsert.Size = new System.Drawing.Size(222, 30);
-            this.cmdInsert.TabIndex = 5;
-            this.cmdInsert.Text = "Insert Tag Placeholders";
-            this.cmdInsert.UseVisualStyleBackColor = true;
-            this.cmdInsert.Click += new System.EventHandler(this.cmdInsert_Click);
-            // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.txtFilter.AutoSize = true;
+            this.txtFilter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFilter.Location = new System.Drawing.Point(456, 3);
-            this.txtFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilter.Location = new System.Drawing.Point(471, 0);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(15, 0, 0, 0);
+            this.txtFilter.MinimumSize = new System.Drawing.Size(100, 25);
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.PlaceholderText = "Search";
-            this.txtFilter.Size = new System.Drawing.Size(229, 25);
+            this.txtFilter.Size = new System.Drawing.Size(214, 31);
             this.txtFilter.TabIndex = 10;
             this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
@@ -306,10 +308,11 @@
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel3.ResumeLayout(false);
-            this.tableLayoutPanel3.PerformLayout();
+            tableLayoutPanel4.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
