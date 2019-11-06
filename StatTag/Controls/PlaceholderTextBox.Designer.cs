@@ -1,4 +1,6 @@
-﻿namespace StatTag.Controls
+﻿using System.Windows.Forms;
+
+namespace StatTag.Controls
 {
     partial class PlaceholderTextBox
     {
@@ -33,12 +35,11 @@
             // 
             // textBox
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox.Location = new System.Drawing.Point(0, 0);
+            this.textBox.Margin = new System.Windows.Forms.Padding(0);
             this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(101, 25);
+            this.textBox.Size = new System.Drawing.Size(100, 25);
             this.textBox.TabIndex = 0;
             this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             this.textBox.Enter += new System.EventHandler(this.textBox_Enter);
@@ -46,10 +47,13 @@
             // 
             // PlaceholderTextBox
             // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.Controls.Add(this.textBox);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(0);
+            this.MinimumSize = new System.Drawing.Size(100, 25);
             this.Name = "PlaceholderTextBox";
             this.Size = new System.Drawing.Size(100, 25);
             this.ResumeLayout(false);

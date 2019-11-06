@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            StatTag.Controls.HorizontalLine horizontalLine1;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeFileEntry));
             this.lblFileName = new System.Windows.Forms.Label();
             this.lblFilePath = new System.Windows.Forms.Label();
@@ -38,7 +37,6 @@
             this.imgWarning = new System.Windows.Forms.PictureBox();
             this.imgRmd = new System.Windows.Forms.PictureBox();
             this.imgPython = new System.Windows.Forms.PictureBox();
-            horizontalLine1 = new StatTag.Controls.HorizontalLine();
             ((System.ComponentModel.ISupportInitialize)(this.imgR)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgSAS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgStata)).BeginInit();
@@ -47,25 +45,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.imgPython)).BeginInit();
             this.SuspendLayout();
             // 
-            // horizontalLine1
-            // 
-            horizontalLine1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            horizontalLine1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            horizontalLine1.Location = new System.Drawing.Point(-2, 43);
-            horizontalLine1.Margin = new System.Windows.Forms.Padding(0);
-            horizontalLine1.Name = "horizontalLine1";
-            horizontalLine1.Size = new System.Drawing.Size(437, 3);
-            horizontalLine1.TabIndex = 6;
-            // 
             // lblFileName
             // 
-            this.lblFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFileName.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblFileName.Location = new System.Drawing.Point(47, 0);
+            this.lblFileName.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(361, 23);
+            this.lblFileName.Size = new System.Drawing.Size(362, 31);
             this.lblFileName.TabIndex = 1;
             this.lblFileName.Text = "[File Name]";
             this.lblFileName.Click += new System.EventHandler(this.CodeFileEntry_Click);
@@ -73,10 +61,11 @@
             // 
             // lblFilePath
             // 
-            this.lblFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFilePath.Font = new System.Drawing.Font("Segoe UI Light", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblFilePath.Location = new System.Drawing.Point(48, 23);
+            this.lblFilePath.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.lblFilePath.Name = "lblFilePath";
             this.lblFilePath.Size = new System.Drawing.Size(386, 17);
             this.lblFilePath.TabIndex = 2;
@@ -175,7 +164,6 @@
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.imgPython);
             this.Controls.Add(this.imgRmd);
-            this.Controls.Add(horizontalLine1);
             this.Controls.Add(this.imgWarning);
             this.Controls.Add(this.imgStata);
             this.Controls.Add(this.imgSAS);

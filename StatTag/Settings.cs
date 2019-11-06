@@ -31,12 +31,16 @@ namespace StatTag
         {
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
-            UIUtility.ScaleFont(this);
             Properties = properties;
             Manager = manager;
             MinimumSize = Size;
             Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
+
+            tabSettings.AutoSize = true;
+            tabGeneral.AutoSize = true;
+            tabLogging.AutoSize = true;
+            tabStata.AutoSize = true;
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)

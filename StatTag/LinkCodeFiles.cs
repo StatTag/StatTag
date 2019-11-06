@@ -31,7 +31,6 @@ namespace StatTag
         {
             InitializeComponent();
 
-            UIUtility.ScaleFont(this);
             UnlinkedResults = unlinkedResults;
             Files = files;
             MinimumSize = Size;

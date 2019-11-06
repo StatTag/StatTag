@@ -22,7 +22,9 @@ namespace StatTag.Controls
 
         public void UpdateDisplay()
         {
-            HandleMissingValueRadioChanged();
+            HandleMissingValueRadioChanged(radMissingValueStatDefault.Checked,
+                radMissingValueBlankString.Checked,
+                radMissingValueCustomString.Checked);
         }
 
         public void SetCustomMissingValueString(string value)
@@ -79,27 +81,43 @@ namespace StatTag.Controls
                 }
             }
 
-            HandleMissingValueRadioChanged();
+            HandleMissingValueRadioChanged(radMissingValueStatDefault.Checked,
+                radMissingValueBlankString.Checked,
+                radMissingValueCustomString.Checked);
         }
 
         private void MissingValueRadio_Changed(object sender, EventArgs e)
         {
-            HandleMissingValueRadioChanged();
+            var changedRadioButton = (RadioButton) sender;
+            if (!changedRadioButton.Checked)
+            {
+                return;
+            }
+
+            HandleMissingValueRadioChanged((changedRadioButton == radMissingValueStatDefault),
+                (changedRadioButton == radMissingValueBlankString),
+                (changedRadioButton == radMissingValueCustomString));
         }
 
-        private void HandleMissingValueRadioChanged()
+        private void HandleMissingValueRadioChanged(bool statDefault, bool blankString, bool customString)
         {
-            if (radMissingValueStatDefault.Checked)
+            if (statDefault)
             {
                 txtMissingValueString.Enabled = false;
+                radMissingValueBlankString.Checked = false;
+                radMissingValueCustomString.Checked = false;
             }
-            else if (radMissingValueBlankString.Checked)
+            else if (blankString)
             {
                 txtMissingValueString.Enabled = false;
+                radMissingValueCustomString.Checked = false;
+                radMissingValueStatDefault.Checked = false;
             }
-            else if (radMissingValueCustomString.Checked)
+            else if (customString)
             {
                 txtMissingValueString.Enabled = true;
+                radMissingValueBlankString.Checked = false;
+                radMissingValueStatDefault.Checked = false;
             }
             else
             {
@@ -107,6 +125,8 @@ namespace StatTag.Controls
                 // buttons are selected after a select event, we will force the
                 // selection to the first item by default.
                 radMissingValueStatDefault.Checked = true;
+                radMissingValueBlankString.Checked = false;
+                radMissingValueCustomString.Checked = false;
             }
 
             if (ValueChanged != null)

@@ -221,12 +221,6 @@
     <Compile Include="Controls\DateTimeValueProperties.Designer.cs">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\FigureProperties.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\FigureProperties.Designer.cs">
-      <DependentUpon>FigureProperties.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\MissingValueSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -20,7 +20,7 @@ using View = System.Windows.Forms.View;
 
 namespace StatTag
 {
-    public partial class TagManagerForm : Form
+    public sealed partial class TagManagerForm : Form
     {
         // These internal members are used to track if and when we have child forms
         // open.  This will allow us to manage closing them if a code file changes
@@ -38,9 +38,11 @@ namespace StatTag
         private bool? FormVisibilityBeforeEdit = null;
 
         private const int InnerPadding = 3;
-        private const int ItemHeight = 60;
+        private int ItemHeight = 60;
+        //private const int ItemHeight = 60;
         private const int NumberRows = 3;
-        private const int RowHeight = (int)(ItemHeight * (1.0 / NumberRows));
+        //private const int RowHeight = (int)(ItemHeight * (1.0 / NumberRows));
+        private int RowHeight = 60; //(int)(ItemHeight * (1.0 / NumberRows));
         private const string DefaultFormat = "Default";
         private const string DefaultPreviewText = "(Exactly as Generated)";
         private const int TagTypeImageDimension = 32;
@@ -93,6 +95,15 @@ namespace StatTag
         public TagManagerForm(DocumentManager manager, StatsManager statsManager)
         {
             InitializeComponent();
+
+            // Calculate the height of the main row (with the name), and the height of the item with all included rows
+            // of text.  This allows us to scale to the current DPI.
+            ItemHeight = TextRenderer.MeasureText("TEST TEXT", NameFont).Height;
+            RowHeight = ItemHeight;
+            ItemHeight += (TextRenderer.MeasureText("TEST TEXT", SubFont).Height*2) + (NumberRows * InnerPadding * 2);
+
+            this.MinimumSize = this.Size;
+
             lvwTags.View = View.Details;  // It must always be Details
             lvwTags.ListViewItemSorter = ListViewSorter;
             Manager = manager;
@@ -692,24 +703,33 @@ namespace StatTag
         {
             try
             {
+                var tags = GetSelectedTags();
+
+                // Perform our pre-execution check on all relevant code files.  If any of the checks fail, we will halt
+                // execution.  We are assuming the PreExecutionCheck method handles all notifications, so we will also
+                // adjust our TopMost status to allow any dialogs to take focus.
+                var files = tags.Select(x => x.CodeFile).Distinct().ToArray();
+                this.TopMost = false;
+                if (files != null && files.Length > 0 && files.Any(x => !StatsManager.PreExecutionCheck(x)))
+                {
+                    this.TopMost = true;
+                    return;
+                }
+                this.TopMost = true;
+
                 InitializeProgressDialog(updateBackgroundWorker);
 
                 Cursor.Current = Cursors.WaitCursor;
                 Globals.ThisAddIn.Application.ScreenUpdating = false;
 
-                var tags = GetSelectedTags();
                 updateBackgroundWorker.RunWorkerAsync(tags);
             }
             catch (StatTagUserException uex)
             {
-                //UIUtility.ReportException(uex, uex.Message, Manager.Logger);
                 CompletedBackgroundWorker(uex);
             }
             catch (Exception exc)
             {
-                //UIUtility.ReportException(exc,
-                //    "There was an unexpected error when trying to update values in your document.",
-                //    Manager.Logger);
                 CompletedBackgroundWorker(new StatTagUserException("There was an unexpected error when trying to update values in your document.", exc));
             }
         }

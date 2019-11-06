@@ -19,31 +19,38 @@ namespace StatTag.Controls
             InitializeComponent();
         }
 
-        private int PanelTop()
-        {
-            return pnlNumeric.Top;
-        }
-
         private void ShowProperties()
         {
             var selectedType = (cboType.SelectedValue ?? Constants.ValueFormatType.Default).ToString();
             switch (selectedType)
             {
                 case Constants.ValueFormatType.Numeric:
-                    HideAllButActivePanel(pnlNumeric);
+                    numericValueProperties1.Visible = true;
+                    percentageValueProperties1.Visible = false;
+                    dateTimeValueProperties1.Visible = false;
+                    lblDefault.Visible = false;
                     break;
                 case Constants.ValueFormatType.Percentage:
-                    HideAllButActivePanel(pnlPercentage);
+                    numericValueProperties1.Visible = false;
+                    percentageValueProperties1.Visible = true;
+                    dateTimeValueProperties1.Visible = false;
+                    lblDefault.Visible = false;
                     break;
                 case Constants.ValueFormatType.DateTime:
-                    HideAllButActivePanel(pnlDateTime);
+                    numericValueProperties1.Visible = false;
+                    percentageValueProperties1.Visible = false;
+                    dateTimeValueProperties1.Visible = true;
+                    lblDefault.Visible = false;
                     break;
                 default:
-                    HideAllButActivePanel(pnlDefault);
+                    numericValueProperties1.Visible = false;
+                    percentageValueProperties1.Visible = false;
+                    dateTimeValueProperties1.Visible = false;
+                    lblDefault.Visible = true;
                     break;
             }
 
-            AdjustUIForVisiblePanel();
+            //AdjustUIForVisiblePanel();
         }
 
         private void ValueProperties_Load(object sender, EventArgs e)
@@ -69,18 +76,15 @@ namespace StatTag.Controls
             switch (format.FormatType)
             {
                 case Constants.ValueFormatType.Numeric:
-                    var numProperties = pnlNumeric.Controls.OfType<NumericValueProperties>().First();
-                    format.DecimalPlaces = numProperties.DecimalPlaces;
-                    format.UseThousands = numProperties.UseThousands;
+                    format.DecimalPlaces = numericValueProperties1.DecimalPlaces;
+                    format.UseThousands = numericValueProperties1.UseThousands;
                     break;
                 case Constants.ValueFormatType.DateTime:
-                    var dateTimeProperties = pnlDateTime.Controls.OfType<DateTimeValueProperties>().First();
-                    format.DateFormat = dateTimeProperties.DateFormat;
-                    format.TimeFormat = dateTimeProperties.TimeFormat;
+                    format.DateFormat = dateTimeValueProperties1.DateFormat;
+                    format.TimeFormat = dateTimeValueProperties1.TimeFormat;
                     break;
                 case Constants.ValueFormatType.Percentage:
-                    var pctProperties = pnlPercentage.Controls.OfType<PercentageValueProperties>().First();
-                    format.DecimalPlaces = pctProperties.DecimalPlaces;
+                    format.DecimalPlaces = percentageValueProperties1.DecimalPlaces;
                     break;
             }
             return format;
@@ -93,46 +97,34 @@ namespace StatTag.Controls
 
             if (format.FormatType == Constants.ValueFormatType.Numeric)
             {
-                var numProperties = pnlNumeric.Controls.OfType<NumericValueProperties>().First();
-                numProperties.DecimalPlaces = format.DecimalPlaces;
-                numProperties.UseThousands = format.UseThousands;
-                numProperties.UpdateValues();
+                numericValueProperties1.DecimalPlaces = format.DecimalPlaces;
+                numericValueProperties1.UseThousands = format.UseThousands;
+                numericValueProperties1.UpdateValues();
             }
             else if (format.FormatType == Constants.ValueFormatType.DateTime)
             {
-                var dateTimeProperties = pnlDateTime.Controls.OfType<DateTimeValueProperties>().First();
-                dateTimeProperties.DateFormat = format.DateFormat;
-                dateTimeProperties.TimeFormat = format.TimeFormat;
-                dateTimeProperties.UpdateValues();
+                dateTimeValueProperties1.DateFormat = format.DateFormat;
+                dateTimeValueProperties1.TimeFormat = format.TimeFormat;
+                dateTimeValueProperties1.UpdateValues();
             }
             else if (format.FormatType == Constants.ValueFormatType.Percentage)
             {
-                var pctProperties = pnlPercentage.Controls.OfType<PercentageValueProperties>().First();
-                pctProperties.DecimalPlaces = format.DecimalPlaces;
-                pctProperties.UpdateValues();
+                percentageValueProperties1.DecimalPlaces = format.DecimalPlaces;
+                percentageValueProperties1.UpdateValues();
             }
         }
-
-        private void HideAllButActivePanel(Panel panel)
-        {
-            pnlDefault.Visible = (panel == pnlDefault);
-            pnlNumeric.Visible = (panel == pnlNumeric);
-            pnlPercentage.Visible = (panel == pnlPercentage);
-            pnlDateTime.Visible = (panel == pnlDateTime);
-        }
-
-        private void AdjustUIForVisiblePanel()
-        {
-            var panels = this.Controls.OfType<Panel>();
-            foreach (var panel in panels)
-            {
-                if (panel.Visible)
-                {
-                    panel.Top = PanelTop();
-                    this.Height = panel.Top + panel.Height + this.Margin.Bottom + this.Margin.Top;
-                }
-            }
-        }
+        //private void AdjustUIForVisiblePanel()
+        //{
+        //    var panels = this.Controls.OfType<Panel>();
+        //    foreach (var panel in panels)
+        //    {
+        //        if (panel.Visible)
+        //        {
+        //            panel.Top = PanelTop();
+        //            this.Height = panel.Top + panel.Height + this.Margin.Bottom + this.Margin.Top;
+        //        }
+        //    }
+        //}
 
         private void cboType_SelectedIndexChanged(object sender, EventArgs e)
         {
