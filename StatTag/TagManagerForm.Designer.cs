@@ -1,6 +1,6 @@
 ﻿namespace StatTag
 {
-    partial class TagManagerForm
+    sealed partial class TagManagerForm
     {
         /// <summary>
         /// Required designer variable.
