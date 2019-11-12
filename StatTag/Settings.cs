@@ -124,38 +124,46 @@ namespace StatTag
             return false;
         }
 
-        private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
+        private bool EnableStataAutomation()
         {
             try
             {
                 if (!CheckStataFilePath())
                 {
-                    return;
+                    return false;
                 }
 
                 Cursor = Cursors.WaitCursor;
 
                 // We are going to first try to unregister the automation API, if it was set up.  
-                // If this fails, show an error message.  If it succeeds, we don't show anything and
-                // move on to enabling automation.
-                if (!Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text))
-                {
-                    ShowStataCommandError("disable");
-                    return;
-                }
+                // If this fails, we don't show an error message and will just move on trying to enable
+                // automation.
+                Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text);
 
                 if (!Stata.StataAutomation.RegisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("enable");
-                    return;
+                    return false;
                 }
 
                 ShowStataCommandSuccess("enabled");
+            }
+            catch (Exception)
+            {
+                return false;
             }
             finally
             {
                 Cursor = Cursors.Default;
             }
+
+            return true;
+        }
+
+
+        private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
+        {
+            EnableStataAutomation();
         }
 
         private void cmdDisableStataAutomation_Click(object sender, EventArgs e)
@@ -210,6 +218,17 @@ namespace StatTag
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
+            // If the Stata location has changed, and the user clicked 'OK' on this dialog, we're going to assume they
+            // want to enable the Stata automation API.
+            if (!string.IsNullOrWhiteSpace(txtStataLocation.Text)
+                && !Properties.StataLocation.Equals(txtStataLocation.Text))
+            {
+                if (!EnableStataAutomation())
+                {
+                    DialogResult = DialogResult.None;
+                }
+            }
+
             Properties.StataLocation = txtStataLocation.Text;
             Properties.EnableLogging = chkEnableLogging.Checked;
             Properties.LogLocation = txtLogLocation.Text;
