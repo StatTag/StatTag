@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,11 +106,44 @@ namespace StatTag
             }
         }
 
+        /// <summary>
+        /// Utility method to confirm that the Stata EXE path provided by the user is valid.  If not,
+        /// inform the user of this.
+        /// </summary>
+        /// <returns>true if the file exists, or false otherwise</returns>
+        private bool CheckStataFilePath()
+        {
+            if (File.Exists(txtStataLocation.Text))
+            {
+                return true;
+            }
+
+            MessageBox.Show(this,
+                string.Format("The Stata executable could not be found at {0}.", txtStataLocation.Text),
+                UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            return false;
+        }
+
         private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
         {
             try
             {
+                if (!CheckStataFilePath())
+                {
+                    return;
+                }
+
                 Cursor = Cursors.WaitCursor;
+
+                // We are going to first try to unregister the automation API, if it was set up.  
+                // If this fails, show an error message.  If it succeeds, we don't show anything and
+                // move on to enabling automation.
+                if (!Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text))
+                {
+                    ShowStataCommandError("disable");
+                    return;
+                }
+
                 if (!Stata.StataAutomation.RegisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("enable");
@@ -126,16 +160,21 @@ namespace StatTag
 
         private void cmdDisableStataAutomation_Click(object sender, EventArgs e)
         {
-            if (DialogResult.Yes !=
-                MessageBox.Show(this,
-                    "***WARNING: Disabling Stata Automation will reset your Stata user preferences.\r\n\r\nAlso, if you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
-                    UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
-            {
-                return;
-            }
-
             try
             {
+                if (!CheckStataFilePath())
+                {
+                    return;
+                }
+
+                if (DialogResult.Yes !=
+                    MessageBox.Show(this,
+                        "***WARNING: Disabling Stata Automation will reset your Stata user preferences.\r\n\r\nAlso, if you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
+                        UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
+                {
+                    return;
+                }
+
                 Cursor = Cursors.WaitCursor;
                 if (!Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text))
                 {
