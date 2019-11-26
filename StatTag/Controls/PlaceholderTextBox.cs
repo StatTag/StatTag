@@ -12,9 +12,9 @@ namespace StatTag.Controls
 {
     public sealed partial class PlaceholderTextBox : UserControl
     {
-        public event EventHandler FilterChanged;
+        public event EventHandler TextChanged;
 
-        [Description("The placeholder text that should appear when the textbox is empty"), DisplayName("Placholder Text")]
+        [Description("The placeholder text that should appear when the textbox is empty"), DisplayName("Placeholder Text")]
         public string PlaceholderText
         {
             get { return placeholderText; }
@@ -35,7 +35,19 @@ namespace StatTag.Controls
                 return IsPlaceholderShown ? string.Empty : textBox.Text;
             }
 
-            set { textBox.Text = value; }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    ShowPlaceholder();
+                }
+                else
+                {
+                    HidePlaceholder();
+                }
+
+                textBox.Text = value;
+            }
         }
 
         private bool IsPlaceholderShown { get; set; }
@@ -87,9 +99,9 @@ namespace StatTag.Controls
 
         private void textBox_TextChanged(object sender, EventArgs e)
         {
-            if (FilterChanged != null)
+            if (TextChanged != null)
             {
-                FilterChanged(this, e);
+                TextChanged(this, e);
             }
         }
     }

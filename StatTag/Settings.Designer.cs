@@ -37,7 +37,6 @@
             this.lblEmptyValueWarning = new System.Windows.Forms.Label();
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.txtMaxLogSize = new System.Windows.Forms.NumericUpDown();
@@ -45,10 +44,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cmdStataLocation = new System.Windows.Forms.Button();
-            this.txtStataLocation = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.cmdDisableStataAutomation = new System.Windows.Forms.Button();
-            this.cmdRegisterStataAutomation = new System.Windows.Forms.Button();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.tabLogging = new System.Windows.Forms.TabPage();
@@ -61,6 +56,9 @@
             this.tabStata = new System.Windows.Forms.TabPage();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
+            this.chkStataAutomation = new System.Windows.Forms.CheckBox();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
+            this.txtStataLocation = new StatTag.Controls.PlaceholderTextBox();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -137,17 +135,6 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
     "ay the missing value using:";
-            // 
-            // missingValueSettings1
-            // 
-            this.missingValueSettings1.AutoSize = true;
-            this.missingValueSettings1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(23, 69);
-            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(20, 5, 0, 5);
-            this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(701, 77);
-            this.missingValueSettings1.TabIndex = 18;
             // 
             // tableLayoutPanel2
             // 
@@ -268,34 +255,24 @@
             tableLayoutPanel6.Controls.Add(this.cmdStataLocation, 1, 0);
             tableLayoutPanel6.Controls.Add(this.txtStataLocation, 0, 0);
             tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
-            tableLayoutPanel6.Location = new System.Drawing.Point(23, 31);
+            tableLayoutPanel6.Location = new System.Drawing.Point(23, 33);
             tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(20, 3, 3, 7);
             tableLayoutPanel6.Name = "tableLayoutPanel6";
             tableLayoutPanel6.RowCount = 1;
             tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            tableLayoutPanel6.Size = new System.Drawing.Size(698, 31);
+            tableLayoutPanel6.Size = new System.Drawing.Size(698, 29);
             tableLayoutPanel6.TabIndex = 17;
             // 
             // cmdStataLocation
             // 
             this.cmdStataLocation.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.cmdStataLocation.Location = new System.Drawing.Point(667, 4);
+            this.cmdStataLocation.Location = new System.Drawing.Point(667, 3);
             this.cmdStataLocation.Name = "cmdStataLocation";
             this.cmdStataLocation.Size = new System.Drawing.Size(28, 23);
             this.cmdStataLocation.TabIndex = 17;
             this.cmdStataLocation.Text = "...";
             this.cmdStataLocation.UseVisualStyleBackColor = true;
             this.cmdStataLocation.Click += new System.EventHandler(this.cmdStataLocation_Click);
-            // 
-            // txtStataLocation
-            // 
-            this.txtStataLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtStataLocation.Location = new System.Drawing.Point(3, 3);
-            this.txtStataLocation.Name = "txtStataLocation";
-            this.txtStataLocation.Size = new System.Drawing.Size(658, 25);
-            this.txtStataLocation.TabIndex = 16;
-            this.txtStataLocation.TextChanged += new System.EventHandler(this.txtStataLocation_TextChanged);
             // 
             // tableLayoutPanel7
             // 
@@ -304,10 +281,8 @@
             tableLayoutPanel7.ColumnCount = 2;
             tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            tableLayoutPanel7.Controls.Add(this.label1, 0, 0);
-            tableLayoutPanel7.Controls.Add(this.cmdDisableStataAutomation, 1, 2);
             tableLayoutPanel7.Controls.Add(tableLayoutPanel6, 0, 1);
-            tableLayoutPanel7.Controls.Add(this.cmdRegisterStataAutomation, 0, 2);
+            tableLayoutPanel7.Controls.Add(this.chkStataAutomation, 0, 0);
             tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             tableLayoutPanel7.Location = new System.Drawing.Point(3, 3);
             tableLayoutPanel7.Name = "tableLayoutPanel7";
@@ -318,42 +293,6 @@
             tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             tableLayoutPanel7.Size = new System.Drawing.Size(727, 229);
             tableLayoutPanel7.TabIndex = 18;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            tableLayoutPanel7.SetColumnSpan(this.label1, 2);
-            this.label1.Location = new System.Drawing.Point(6, 6);
-            this.label1.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(156, 17);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "Stata executable location:";
-            // 
-            // cmdDisableStataAutomation
-            // 
-            this.cmdDisableStataAutomation.AutoSize = true;
-            this.cmdDisableStataAutomation.Location = new System.Drawing.Point(378, 72);
-            this.cmdDisableStataAutomation.Margin = new System.Windows.Forms.Padding(15, 3, 3, 3);
-            this.cmdDisableStataAutomation.Name = "cmdDisableStataAutomation";
-            this.cmdDisableStataAutomation.Size = new System.Drawing.Size(190, 30);
-            this.cmdDisableStataAutomation.TabIndex = 19;
-            this.cmdDisableStataAutomation.Text = "Disable Automation";
-            this.cmdDisableStataAutomation.UseVisualStyleBackColor = true;
-            this.cmdDisableStataAutomation.Click += new System.EventHandler(this.cmdDisableStataAutomation_Click);
-            // 
-            // cmdRegisterStataAutomation
-            // 
-            this.cmdRegisterStataAutomation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdRegisterStataAutomation.AutoSize = true;
-            this.cmdRegisterStataAutomation.Location = new System.Drawing.Point(158, 72);
-            this.cmdRegisterStataAutomation.Margin = new System.Windows.Forms.Padding(3, 3, 15, 3);
-            this.cmdRegisterStataAutomation.Name = "cmdRegisterStataAutomation";
-            this.cmdRegisterStataAutomation.Size = new System.Drawing.Size(190, 30);
-            this.cmdRegisterStataAutomation.TabIndex = 18;
-            this.cmdRegisterStataAutomation.Text = "Enable Automation";
-            this.cmdRegisterStataAutomation.UseVisualStyleBackColor = true;
-            this.cmdRegisterStataAutomation.Click += new System.EventHandler(this.cmdRegisterStataAutomation_Click);
             // 
             // tableLayoutPanel8
             // 
@@ -533,6 +472,41 @@
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
+            // chkStataAutomation
+            // 
+            this.chkStataAutomation.AutoSize = true;
+            this.chkStataAutomation.Location = new System.Drawing.Point(6, 6);
+            this.chkStataAutomation.Name = "chkStataAutomation";
+            this.chkStataAutomation.Size = new System.Drawing.Size(191, 21);
+            this.chkStataAutomation.TabIndex = 20;
+            this.chkStataAutomation.Text = "Enable Stata automation API";
+            this.chkStataAutomation.UseVisualStyleBackColor = true;
+            this.chkStataAutomation.CheckedChanged += new System.EventHandler(this.chkStataAutomation_CheckedChanged);
+            // 
+            // missingValueSettings1
+            // 
+            this.missingValueSettings1.AutoSize = true;
+            this.missingValueSettings1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(23, 69);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(20, 5, 0, 5);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(701, 77);
+            this.missingValueSettings1.TabIndex = 18;
+            // 
+            // txtStataLocation
+            // 
+            this.txtStataLocation.AutoSize = true;
+            this.txtStataLocation.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtStataLocation.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtStataLocation.Location = new System.Drawing.Point(0, 0);
+            this.txtStataLocation.Margin = new System.Windows.Forms.Padding(0);
+            this.txtStataLocation.MinimumSize = new System.Drawing.Size(100, 25);
+            this.txtStataLocation.Name = "txtStataLocation";
+            this.txtStataLocation.PlaceholderText = "Select or enter the Stata executable location";
+            this.txtStataLocation.Size = new System.Drawing.Size(664, 29);
+            this.txtStataLocation.TabIndex = 18;
+            // 
             // Settings
             // 
             this.AcceptButton = this.cmdOK;
@@ -590,11 +564,7 @@
         private System.Windows.Forms.Button cmdLogLocation;
         private System.Windows.Forms.TextBox txtLogLocation;
         private System.Windows.Forms.TabPage tabStata;
-        private System.Windows.Forms.Button cmdDisableStataAutomation;
-        private System.Windows.Forms.Button cmdRegisterStataAutomation;
         private System.Windows.Forms.Button cmdStataLocation;
-        private System.Windows.Forms.TextBox txtStataLocation;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown txtMaxLogFiles;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown txtMaxLogSize;
@@ -606,5 +576,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.CheckBox chkStataAutomation;
+        private Controls.PlaceholderTextBox txtStataLocation;
     }
 }

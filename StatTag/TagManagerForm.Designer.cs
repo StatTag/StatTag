@@ -286,7 +286,7 @@
             this.txtFilter.PlaceholderText = "Search";
             this.txtFilter.Size = new System.Drawing.Size(214, 31);
             this.txtFilter.TabIndex = 10;
-            this.txtFilter.FilterChanged += new System.EventHandler(this.txtFilter_FilterChanged);
+            this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
             // TagManagerForm
             // 

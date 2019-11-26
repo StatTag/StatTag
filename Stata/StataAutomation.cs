@@ -718,6 +718,22 @@ namespace Stata
             return RunProcess(path, RegisterParameter);
         }
 
+
+        public static bool IsAutomationEnabled()
+        {
+            try
+            {
+                var application = new stata.StataOLEApp();
+                application.UtilShowStata(StataHidden);
+                application = null;
+                return true;
+            }
+            catch (Exception exc)
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Execute a process as an administrator.  Used for managing the automation API.
         /// </summary>
