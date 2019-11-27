@@ -232,6 +232,14 @@ namespace StatTag
 
         private bool HandleStataAutomationAPIChanges()
         {
+            // If the Stata location is empty, there's really nothing we can do.  We're just going
+            // to accept the change and proceed.  This will avoid warning the user that the file
+            // location "" (blank string) couldn't be found.
+            if (string.IsNullOrWhiteSpace(txtStataLocation.Text))
+            {
+                return true;
+            }
+
             // If there was a change in the file location, and automation is still enabled, we
             // need to handle unregistering and re-registering
             if (chkStataAutomation.Checked && !string.Equals(Properties.StataLocation, txtStataLocation.Text))
