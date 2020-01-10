@@ -487,7 +487,7 @@ namespace R
                     }
                     else
                     {
-                        var dataAsArray = characterData.Select(x => x.ToString()).ToList();
+                        var dataAsArray = characterData.Select(x => (x == null ? null : x.ToString())).ToList();
                         data.Add(dataAsArray);
                         maxSize = Math.Max(dataAsArray.Count, maxSize);
                     }
@@ -541,7 +541,7 @@ namespace R
                 return new Table()
                 {
                     ColumnSize = 1, RowSize = data.Length, Data = TableUtil.MergeTableVectorsToArray(
-                        null, null, data.Select(x => x.ToString()).ToArray(), data.Length, 1)
+                        null, null, data.Select(x => (x == null ? null : x.ToString())).ToArray(), data.Length, 1)
                 };
             }
 
