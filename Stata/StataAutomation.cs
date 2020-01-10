@@ -369,10 +369,30 @@ namespace Stata
 
             startIndex += startingVerbatimCommand.Length + 1;
             var substring = text.Substring(startIndex, endIndex - startIndex).Trim().Split(new char[] { '\r' });
-            // Lines prefixed with ". " are from Stata to echo our commands and can be removed.  Note that we sometimes end
+            // Lines prefixed with ". " or "> " are from Stata to echo our commands and can be removed.  Note that we sometimes end
             // up with a line that is just a period - this is a ". " line that got trimmed and can be removed (but we only
-            // do that if it is the last line)
-            var finalLines = substring.Where(line => !line.StartsWith(". ")).ToList();
+            // do that if it is the last line).
+            // Stata will put the first line of the command with a ". " prefix, and if it runs over will then use "> " continuation.
+            // So that we don't pull out valid lines starting with "> ", we will sequentially iterate over the list of log lines and
+            // track the state so that we only pull out "> " lines if they are preceded by a ". " or "> " line.
+            var finalLines = new List<string>();
+            bool previousLineCommand = false;
+            foreach (var line in substring)
+            {
+                if (line.StartsWith(". "))
+                {
+                    previousLineCommand = true;
+                }
+                else if (previousLineCommand && line.StartsWith("> "))
+                {
+                    previousLineCommand = true;
+                }
+                else
+                {
+                    previousLineCommand = false;
+                    finalLines.Add(line);
+                }
+            }
             if (finalLines.Count > 0 && finalLines.Last().Equals("."))
             {
                 finalLines = finalLines.Take(finalLines.Count - 1).ToList();
