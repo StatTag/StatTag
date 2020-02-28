@@ -103,20 +103,31 @@ namespace Stata
         /// back to the caller.
         /// </summary>
         /// <returns></returns>
-        public static string InstallationInformation()
+        public static string InstallationInformation(UserSettings settings)
         {
             var builder = new StringBuilder();
             stata.StataOLEApp application = null;
             try
             {
-                application = new stata.StataOLEApp();
-                application.UtilShowStata(StataHidden);
-                application.DoCommandAsync("local _stattag_stata_version = \"`c(version)'\"");
-                PauseStataUntilFree(application);
-                // "__stattag..." is not a typo - the local macro name requires the extra underscore ahead
-                // of what we originally named it in order to be accessed via MacroValue.
-                var version = application.MacroValue("__stattag_stata_version");
-                builder.AppendFormat("Stata {0} detected.", version);
+                if (settings == null || !File.Exists(settings.StataLocation))
+                {
+                    builder.Append("Stata is not currently configured in this instance of StatTag");
+                }
+                else if (IsStataRunning(settings.StataLocation))
+                {
+                    builder.Append("Stata is installed and running");
+                }
+                else
+                {
+                    application = new stata.StataOLEApp();
+                    application.UtilShowStata(StataHidden);
+                    application.DoCommandAsync("local _stattag_stata_version = \"`c(version)'\"");
+                    PauseStataUntilFree(application);
+                    // "__stattag..." is not a typo - the local macro name requires the extra underscore ahead
+                    // of what we originally named it in order to be accessed via MacroValue.
+                    var version = application.MacroValue("__stattag_stata_version");
+                    builder.AppendFormat("Stata {0} detected.", version);
+                }
             }
             catch (Exception exc)
             {
