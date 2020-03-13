@@ -61,6 +61,9 @@ namespace Jupyter
                 {
                     logger.WriteMessage(string.Format("Attempting to create KernelManager for {0}", KernelName));
                     Manager = new KernelManager(KernelName, new StatTagJupyterLogger(logger));
+
+                    Manager.Debug = false;
+
                     logger.WriteMessage("Starting kernel");
                     Manager.StartKernel();
 
@@ -69,10 +72,13 @@ namespace Jupyter
                     State.EngineConnected = true;
                     State.WorkingDirectorySet = true;
 
+                    if (Manager.Debug) { logger.WriteMessage(Manager.DebugLog.ToString()); }
+
                     TemporaryImageFilePath = AutomationUtil.InitializeTemporaryImageDirectory(file, logger);
                 }
                 catch (Exception exc)
                 {
+                    if (Manager != null && Manager.Debug) { logger.WriteMessage(Manager.DebugLog.ToString()); }
                     logger.WriteMessage("Exception caught when initializing Jupyter kernel");
                     logger.WriteException(exc);
                     return false;

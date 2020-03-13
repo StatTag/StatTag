@@ -103,20 +103,31 @@ namespace Stata
         /// back to the caller.
         /// </summary>
         /// <returns></returns>
-        public static string InstallationInformation()
+        public static string InstallationInformation(UserSettings settings)
         {
             var builder = new StringBuilder();
             stata.StataOLEApp application = null;
             try
             {
-                application = new stata.StataOLEApp();
-                application.UtilShowStata(StataHidden);
-                application.DoCommandAsync("local _stattag_stata_version = \"`c(version)'\"");
-                PauseStataUntilFree(application);
-                // "__stattag..." is not a typo - the local macro name requires the extra underscore ahead
-                // of what we originally named it in order to be accessed via MacroValue.
-                var version = application.MacroValue("__stattag_stata_version");
-                builder.AppendFormat("Stata {0} detected.", version);
+                if (settings == null || !File.Exists(settings.StataLocation))
+                {
+                    builder.Append("Stata is not currently configured in this instance of StatTag");
+                }
+                else if (IsStataRunning(settings.StataLocation))
+                {
+                    builder.Append("Stata is installed and running");
+                }
+                else
+                {
+                    application = new stata.StataOLEApp();
+                    application.UtilShowStata(StataHidden);
+                    application.DoCommandAsync("local _stattag_stata_version = \"`c(version)'\"");
+                    PauseStataUntilFree(application);
+                    // "__stattag..." is not a typo - the local macro name requires the extra underscore ahead
+                    // of what we originally named it in order to be accessed via MacroValue.
+                    var version = application.MacroValue("__stattag_stata_version");
+                    builder.AppendFormat("Stata {0} detected.", version);
+                }
             }
             catch (Exception exc)
             {
@@ -369,10 +380,30 @@ namespace Stata
 
             startIndex += startingVerbatimCommand.Length + 1;
             var substring = text.Substring(startIndex, endIndex - startIndex).Trim().Split(new char[] { '\r' });
-            // Lines prefixed with ". " are from Stata to echo our commands and can be removed.  Note that we sometimes end
+            // Lines prefixed with ". " or "> " are from Stata to echo our commands and can be removed.  Note that we sometimes end
             // up with a line that is just a period - this is a ". " line that got trimmed and can be removed (but we only
-            // do that if it is the last line)
-            var finalLines = substring.Where(line => !line.StartsWith(". ")).ToList();
+            // do that if it is the last line).
+            // Stata will put the first line of the command with a ". " prefix, and if it runs over will then use "> " continuation.
+            // So that we don't pull out valid lines starting with "> ", we will sequentially iterate over the list of log lines and
+            // track the state so that we only pull out "> " lines if they are preceded by a ". " or "> " line.
+            var finalLines = new List<string>();
+            bool previousLineCommand = false;
+            foreach (var line in substring)
+            {
+                if (line.StartsWith(". "))
+                {
+                    previousLineCommand = true;
+                }
+                else if (previousLineCommand && line.StartsWith("> "))
+                {
+                    previousLineCommand = true;
+                }
+                else
+                {
+                    previousLineCommand = false;
+                    finalLines.Add(line);
+                }
+            }
             if (finalLines.Count > 0 && finalLines.Last().Equals("."))
             {
                 finalLines = finalLines.Take(finalLines.Count - 1).ToList();
@@ -716,6 +747,22 @@ namespace Stata
         public static bool RegisterAutomationAPI(string path)
         {
             return RunProcess(path, RegisterParameter);
+        }
+
+
+        public static bool IsAutomationEnabled()
+        {
+            try
+            {
+                var application = new stata.StataOLEApp();
+                application.UtilShowStata(StataHidden);
+                application = null;
+                return true;
+            }
+            catch (Exception exc)
+            {
+                return false;
+            }
         }
 
         /// <summary>

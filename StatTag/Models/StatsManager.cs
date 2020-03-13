@@ -115,6 +115,9 @@ namespace StatTag.Models
                 Text = caption,
                 StartPosition = FormStartPosition.CenterScreen,
                 FormBorderStyle = FormBorderStyle.FixedToolWindow,
+                AutoScaleMode = AutoScaleMode.Font,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowOnly
             };
 
             var textLabel = new Label() { Left = TextMargin, Top = TextMargin, Width = TextWidth, Text = text };

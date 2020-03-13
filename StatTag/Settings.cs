@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace StatTag
         public Core.Models.UserSettings Properties { get; set; }
         private LogManager Logger { get; set; }
         private DocumentManager Manager { get; set; }
+        private bool StataAutomationEnabledOnEntry { get; set; }
 
         public Settings(Core.Models.UserSettings properties, DocumentManager manager)
         {
@@ -41,6 +43,10 @@ namespace StatTag
             tabGeneral.AutoSize = true;
             tabLogging.AutoSize = true;
             tabStata.AutoSize = true;
+
+            StataAutomationEnabledOnEntry = Stata.StataAutomation.IsAutomationEnabled();
+            chkStataAutomation.Checked = StataAutomationEnabledOnEntry;
+            UpdateStataSettingsUI();
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
@@ -50,18 +56,6 @@ namespace StatTag
             {
                 txtStataLocation.Text = stataPath;
             }
-        }
-
-        private void txtStataLocation_TextChanged(object sender, EventArgs e)
-        {
-            UpdateStataControls();
-        }
-
-        private void UpdateStataControls()
-        {
-            var enable = !string.IsNullOrWhiteSpace(txtStataLocation.Text);
-            cmdRegisterStataAutomation.Enabled = enable;
-            cmdDisableStataAutomation.Enabled = enable;
         }
 
         private void Settings_Load(object sender, EventArgs e)
@@ -82,7 +76,6 @@ namespace StatTag
             missingValueSettings1.ValueChanged += missingValueSettings_Changed;
             
             UpdateLoggingControls();
-            UpdateStataControls();
             UpdateMissingValueControls();
         }
 
@@ -105,42 +98,82 @@ namespace StatTag
             }
         }
 
-        private void cmdRegisterStataAutomation_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Utility method to confirm that the Stata EXE path provided by the user is valid.  If not,
+        /// inform the user of this.
+        /// </summary>
+        /// <returns>true if the file exists, or false otherwise</returns>
+        private bool CheckStataFilePath()
+        {
+            if (File.Exists(txtStataLocation.Text))
+            {
+                return true;
+            }
+
+            MessageBox.Show(this,
+                string.Format("The Stata executable could not be found at {0}.", txtStataLocation.Text),
+                UIUtility.GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            return false;
+        }
+
+        private bool EnableStataAutomation()
         {
             try
             {
+                if (!CheckStataFilePath())
+                {
+                    return false;
+                }
+
                 Cursor = Cursors.WaitCursor;
+
+                // We are going to first try to unregister the automation API, if it was set up.  
+                // If this fails, we don't show an error message and will just move on trying to enable
+                // automation.
+                Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text);
+
                 if (!Stata.StataAutomation.RegisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("enable");
-                    return;
+                    return false;
                 }
 
                 ShowStataCommandSuccess("enabled");
+            }
+            catch (Exception)
+            {
+                return false;
             }
             finally
             {
                 Cursor = Cursors.Default;
             }
+
+            return true;
         }
-
-        private void cmdDisableStataAutomation_Click(object sender, EventArgs e)
+        
+        private bool DisableStataAutomation()
         {
-            if (DialogResult.Yes !=
-                MessageBox.Show(this,
-                    "***WARNING: Disabling Stata Automation will reset your Stata user preferences.\r\n\r\nAlso, if you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
-                    UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
-            {
-                return;
-            }
-
             try
             {
+                if (!CheckStataFilePath())
+                {
+                    return false;
+                }
+
+                if (DialogResult.Yes !=
+                    MessageBox.Show(this,
+                        "***WARNING: Disabling Stata Automation will reset your Stata user preferences.\r\n\r\nAlso, if you disable Stata Automation, StatTag will no longer work with Stata results.\r\n\r\nAre you sure you want to proceed?",
+                        UIUtility.GetAddInName(), MessageBoxButtons.YesNo))
+                {
+                    return false;
+                }
+
                 Cursor = Cursors.WaitCursor;
                 if (!Stata.StataAutomation.UnregisterAutomationAPI(txtStataLocation.Text))
                 {
                     ShowStataCommandError("disable");
-                    return;
+                    return false;
                 }
 
                 ShowStataCommandSuccess("disabled");
@@ -149,6 +182,8 @@ namespace StatTag
             {
                 Cursor = Cursors.Default;
             }
+
+            return true;
         }
 
         private void ShowStataCommandError(string action)
@@ -171,6 +206,14 @@ namespace StatTag
 
         private void cmdOK_Click(object sender, EventArgs e)
         {
+            // If the Stata location has changed, and the user clicked 'OK' on this dialog, we're going to assume they
+            // want to enable the Stata automation API, or disable it if they unchecked the automation box.
+            if (!HandleStataAutomationAPIChanges())
+            {
+                DialogResult = DialogResult.None;
+                return;
+            }
+
             Properties.StataLocation = txtStataLocation.Text;
             Properties.EnableLogging = chkEnableLogging.Checked;
             Properties.LogLocation = txtLogLocation.Text;
@@ -185,6 +228,38 @@ namespace StatTag
                 UIUtility.WarningMessageBox("The debug file you have selected appears to be invalid, or you do not have rights to access it.\r\nPlease select a valid path for the debug file, or disable debugging.", null);
                 DialogResult = DialogResult.None;
             }
+        }
+
+        private bool HandleStataAutomationAPIChanges()
+        {
+            // If the Stata location is empty, there's really nothing we can do.  We're just going
+            // to accept the change and proceed.  This will avoid warning the user that the file
+            // location "" (blank string) couldn't be found.
+            if (string.IsNullOrWhiteSpace(txtStataLocation.Text))
+            {
+                return true;
+            }
+
+            // If there was a change in the file location, and automation is still enabled, we
+            // need to handle unregistering and re-registering
+            if (chkStataAutomation.Checked && !string.Equals(Properties.StataLocation, txtStataLocation.Text))
+            {
+                return EnableStataAutomation();
+            }
+            else if (chkStataAutomation.Checked != StataAutomationEnabledOnEntry)
+            {
+                if (chkStataAutomation.Checked)
+                {
+                    return EnableStataAutomation();
+                }
+                else
+                {
+                    return DisableStataAutomation();
+                }
+            }
+
+            // No changes, so everything is fine.
+            return true;
         }
 
         private void chkEnableLogging_CheckedChanged(object sender, EventArgs e)
@@ -222,6 +297,18 @@ namespace StatTag
             {
                 lblLogWarning.Visible = false;
             }
+        }
+
+        private void chkStataAutomation_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateStataSettingsUI();
+        }
+
+        private void UpdateStataSettingsUI()
+        {
+            var enabled = chkStataAutomation.Checked;
+            txtStataLocation.Enabled = enabled;
+            cmdStataLocation.Enabled = enabled;
         }
     }
 }

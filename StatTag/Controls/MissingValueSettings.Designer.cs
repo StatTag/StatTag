@@ -63,7 +63,7 @@
             this.radMissingValueStatDefault.Name = "radMissingValueStatDefault";
             this.radMissingValueStatDefault.Size = new System.Drawing.Size(391, 21);
             this.radMissingValueStatDefault.TabIndex = 11;
-            this.radMissingValueStatDefault.Text = "The statistical program\'s default (R = \'NA\', SAS = \'.\', Stata = \'.\')";
+            this.radMissingValueStatDefault.Text = "The statistical program\'s default (R = \'\', SAS = \'.\', Stata = \'.\')";
             this.radMissingValueStatDefault.UseVisualStyleBackColor = true;
             this.radMissingValueStatDefault.CheckedChanged += new System.EventHandler(this.MissingValueRadio_Changed);
             // 
