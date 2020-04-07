@@ -748,13 +748,15 @@ namespace StatTag
 
                 CodeFile lastSelectedCodeFile = null;
                 bool defineAnother = false;
+                int? defaultScrollLine = null;
                 do
                 {
-                    EditTagForm = new EditTag(true, Manager, lastSelectedCodeFile);
+                    EditTagForm = new EditTag(true, Manager, lastSelectedCodeFile, defaultScrollLine);
                     if (DialogResult.OK == EditTagForm.ShowDialog())
                     {
                         Manager.SaveEditedTag(EditTagForm);
                         defineAnother = EditTagForm.DefineAnother;
+                        defaultScrollLine = EditTagForm.DefaultScrollLine;
                         lastSelectedCodeFile = EditTagForm.Tag.CodeFile;
                     }
                     else
