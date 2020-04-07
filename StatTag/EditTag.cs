@@ -40,18 +40,20 @@ namespace StatTag
         public new Tag Tag { get; set; }
         public string CodeText { get; set; }
         public bool DefineAnother { get; private set; }
+        public int? DefaultScrollLine { get; set; }
 
         private string TagType { get; set; }
         private bool ReprocessCodeReview { get; set; }
         private bool AllowInsertInDocument { get; set; }
         private CodeFile DefaultCodeFile { get; set; }
 
-        public EditTag(bool allowInsertInDocument, DocumentManager manager = null, CodeFile defaultCodeFile = null)
+        public EditTag(bool allowInsertInDocument, DocumentManager manager = null, CodeFile defaultCodeFile = null, int? defaultScrollLine = null)
         {
             try
             {
                 Manager = manager;
                 DefaultCodeFile = defaultCodeFile;
+                DefaultScrollLine = defaultScrollLine;
 
                 InitializeComponent();
                 UIUtility.SetDialogTitle(this);
@@ -209,6 +211,14 @@ namespace StatTag
                     {
                         cboCodeFiles.SelectedItem = DefaultCodeFile;
                     }
+                }
+
+                // Set the default line, but it must be done AFTER we change the active code file.
+                // If you try and run this code before, the changing code file reloads the content
+                // and loses where you scrolled to.
+                if (DefaultScrollLine.HasValue)
+                {
+                    scintilla1.LineScroll(DefaultScrollLine.Value, 0);
                 }
             }
 
@@ -678,6 +688,8 @@ namespace StatTag
                 Tag.LineStart = selectedIndices.Min();
                 Tag.LineEnd = selectedIndices.Max();
             }
+
+            DefaultScrollLine = DefineAnother ? Tag.LineStart : null;
 
             switch (TagType)
             {
