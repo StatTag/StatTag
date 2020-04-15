@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RDotNet;
 using RDotNet.Internals;
+using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
@@ -299,7 +300,28 @@ namespace R
 
         public CommandResult RunCommand(string command, Tag tag = null)
         {
-            var result = Engine.Evaluate(command);
+
+            SymbolicExpression result = null;
+            try
+            {
+                result = Engine.Evaluate(command);
+            }
+            catch (Exception exc)
+            {
+                var asciiBytes = Encoding.ASCII.GetBytes(command);
+                var utf8Bytes = Encoding.UTF8.GetBytes(command);
+                if ((asciiBytes != null && utf8Bytes != null) && (asciiBytes.Length != utf8Bytes.Length))
+                {
+                    var message = string.Format("{0}\r\n\r\n**NOTE**: There is a known issue where StatTag does not handle non-ASCII variable names in R (e.g., ä <- 100).  You will need to change this within your R file to an ASCII variable name.",
+                        exc.Message);
+                    throw new StatTagUserException(message, exc);
+                }
+                else
+                {
+                    throw exc;
+                }
+            }
+
             if (result == null || result.IsInvalid)
             {
                 return null;
