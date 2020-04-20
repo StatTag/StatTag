@@ -31,7 +31,7 @@ namespace Jupyter
         {
             public string[] GetCommands()
             {
-                return new[] { "(Any command that returns a data frame, matrix, vector or list)" };
+                return new[] { "(Any command that returns an array, list, set, or Pandas data frame)" };
             }
         }
 
