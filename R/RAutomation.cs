@@ -300,7 +300,6 @@ namespace R
 
         public CommandResult RunCommand(string command, Tag tag = null)
         {
-
             SymbolicExpression result = null;
             try
             {
@@ -412,14 +411,22 @@ namespace R
             switch (dimnames.Length)
             {
                 case 1:
+                {
                     // If we want columns and we only have one dimname entry, we don't have column names.
                     if (!rowNames)
                     {
                         return null;
                     }
-                    return dimnames[0].AsCharacter().ToArray();
+                    var nameVector = dimnames[0].AsCharacter();
+                    return (nameVector == null ? null : nameVector.ToArray());
+                }
                 case 2:
-                    return dimnames[rowNames ? 0 : 1].AsCharacter().ToArray();
+                {
+                    // Sometimes the rownames are null, and so we can try and cast to a character vector,
+                    // but we need to check if that is null before converting to an array.
+                    var nameVector = dimnames[rowNames ? 0 : 1].AsCharacter();
+                    return (nameVector == null ? null : nameVector.ToArray());
+                }
             }
 
             return null;
