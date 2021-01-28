@@ -3809,6 +3809,8 @@
 		<row><td>ID_STRING1</td><td>1033</td><td>http://www.stattag.org</td><td>0</td><td/><td>-1532730390</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Northwestern University</td><td>0</td><td/><td>967099786</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>StatTag</td><td>0</td><td/><td>1428473452</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>https://sites.northwestern.edu/stattag/faq/</td><td>0</td><td/><td>-525778416</td></row>
+		<row><td>ID_STRING5</td><td>1033</td><td>StatTag@northwestern.edu</td><td>0</td><td/><td>-525768176</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>1042514665</td></row>
 	</table>
 
@@ -4365,6 +4367,8 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
 		<row><td>ALLUSERS</td><td>2</td><td/></row>
+		<row><td>ARPCONTACT</td><td>##ID_STRING5##</td><td/></row>
+		<row><td>ARPHELPLINK</td><td>##ID_STRING4##</td><td/></row>
 		<row><td>ARPINSTALLLOCATION</td><td/><td/></row>
 		<row><td>ARPNOMODIFY</td><td>1</td><td/></row>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
@@ -4433,9 +4437,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{8BABC804-3F36-4CDE-B7B8-CBEB3060EFC4}</td><td/></row>
+		<row><td>ProductCode</td><td>{C08356CC-5946-4DD3-99B8-7D3D9D862690}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>6.0.2.0</td><td/></row>
+		<row><td>ProductVersion</td><td>6.0.3.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4721,7 +4725,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.1.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.1.0</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.2.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.2.0</td></row>
 	</table>
 
 	<table name="Verb">
