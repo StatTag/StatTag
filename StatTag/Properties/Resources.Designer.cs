@@ -63,46 +63,6 @@ namespace StatTag.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _1446843246_delete {
-            get {
-                object obj = ResourceManager.GetObject("1446843246_delete", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap _1446843266_plus {
-            get {
-                object obj = ResourceManager.GetObject("1446843266_plus", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap _1446845069_Copy {
-            get {
-                object obj = ResourceManager.GetObject("1446845069_Copy", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap _1463104680_13_Clipboard {
-            get {
-                object obj = ResourceManager.GetObject("1463104680_13.Clipboard", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap clipboard {
             get {
                 object obj = ResourceManager.GetObject("clipboard", resourceCulture);
@@ -116,16 +76,6 @@ namespace StatTag.Properties {
         internal static System.Drawing.Bitmap code_peek {
             get {
                 object obj = ResourceManager.GetObject("code_peek", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap DeleteTablefromDatabase_270 {
-            get {
-                object obj = ResourceManager.GetObject("DeleteTablefromDatabase_270", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
