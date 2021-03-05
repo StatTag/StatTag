@@ -365,7 +365,7 @@ namespace StatTag
                     {
                         Globals.Ribbons.MainRibbon.SetManageTagsFormVisibility(false, true);
                         DocumentManager.EditTagField(field);
-                        Marshal.ReleaseComObject(field);
+                        field = null;
                     }
                 }
                 else if (shape != null && shape.Count > 0)
@@ -388,13 +388,13 @@ namespace StatTag
 
                 if (fields != null)
                 {
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
                 if (shape != null)
                 {
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                 }
-                Marshal.ReleaseComObject(selection);
+                selection = null;
             }
         }
 
@@ -478,7 +478,7 @@ namespace StatTag
                             Thread.Sleep(1000);
                         }
                     }
-                    Marshal.ReleaseComObject(documents);
+                    documents = null;
                     LogManager.WriteMessage("Finished processing all modified code files");
 
                     // Alert the user at what's affected

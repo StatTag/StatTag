@@ -193,8 +193,8 @@ namespace StatTag.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
+                variable = null;
+                variables = null;
             }
 
 
@@ -244,8 +244,8 @@ namespace StatTag.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
+                variable = null;
+                variables = null;
             }
 
             Log("LoadMetadataFromDocument - Finished");
@@ -297,8 +297,8 @@ namespace StatTag.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
+                variable = null;
+                variables = null;
             }
 
             Log("SaveCodeFileListToDocument - Finished");
@@ -338,8 +338,8 @@ namespace StatTag.Models
             }
             finally
             {
-                Marshal.ReleaseComObject(variable);
-                Marshal.ReleaseComObject(variables);
+                variable = null;
+                variables = null;
             }
 
             Log("LoadCodeFileListFromDocument - Finished");
@@ -467,7 +467,7 @@ namespace StatTag.Models
                         Log(string.Format("Table refresh failed for shape of type {0}", shape.Type));
                         tableRefreshed = shapeTableRefreshed;
                     }
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -483,7 +483,7 @@ namespace StatTag.Models
                         Log(string.Format("Table refresh failed for story of type {0}", story.StoryType));
                         tableRefreshed = storyTableRefreshed;
                     }
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -509,7 +509,7 @@ namespace StatTag.Models
 
                 if (!TagManager.IsStatTagField(field))
                 {
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -518,7 +518,7 @@ namespace StatTag.Models
                 if (fieldTag == null)
                 {
                     Log("The field tag is null or could not be found");
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -532,7 +532,7 @@ namespace StatTag.Models
                         field.Select();
                         var selection = document.Application.Selection;
                         firstFieldLocation = selection.Range.Start;
-                        Marshal.ReleaseComObject(selection);
+                        selection = null;
 
                         Log(string.Format("First table cell found at position {0}", firstFieldLocation));
                     }
@@ -549,7 +549,7 @@ namespace StatTag.Models
                     }
                 }
 
-                Marshal.ReleaseComObject(field);
+                field = null;
             }
 
             return tableRefreshed;
@@ -604,14 +604,14 @@ namespace StatTag.Models
                         }
                         finally
                         {
-                            Marshal.ReleaseComObject(linkFormat);
+                            linkFormat = null;
                         }
                     }
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                 }
             }
 
-            Marshal.ReleaseComObject(shapes);
+            shapes = null;
 
             return pathsNotUpdated;
         }
@@ -660,11 +660,11 @@ namespace StatTag.Models
 
                         shape.TextFrame.TextRange.Text = tag.FormattedResult(metadata);
                     }
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                 }
             }
 
-            Marshal.ReleaseComObject(shapes);
+            shapes = null;
         }
 
         private void HandleUpdateFieldsCollection(Fields fields, UpdatePair<Tag> tagUpdatePair, bool matchOnPosition, List<Tag> tagFilter, IProgressReporter reporter = null)
@@ -699,7 +699,7 @@ namespace StatTag.Models
 
                 if (!TagManager.IsStatTagField(field))
                 {
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -708,7 +708,7 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Log("The field tag is null or could not be found");
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -740,7 +740,7 @@ namespace StatTag.Models
                 field.Select();
                 InsertField(tag, false);
 
-                Marshal.ReleaseComObject(field);
+                field = null;
             }
         }
 
@@ -804,7 +804,7 @@ namespace StatTag.Models
                     if (fields != null)
                     {
                         HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter, reporter);
-                        Marshal.ReleaseComObject(fields);
+                        fields = null;
                     }
                 }
                 if (reporter != null) { reporter.ReportProgress(75, "Updated all shapes and images"); }
@@ -817,7 +817,7 @@ namespace StatTag.Models
                     {
                         var fields = story.Fields;
                         totalFields += fields.Count;
-                        Marshal.ReleaseComObject(fields);
+                        fields = null;
                     }
                 }
                 foreach (var story in document.StoryRanges.OfType<Range>())
@@ -826,14 +826,14 @@ namespace StatTag.Models
                     {
                         var fields = story.Fields;
                         HandleUpdateFieldsCollection(fields, tagUpdatePair, matchOnPosition, tagFilter, reporter);
-                        Marshal.ReleaseComObject(fields);
+                        fields = null;
                     }
                 }
                 if (reporter != null) { reporter.ReportProgress(100, "Update all tagged fields"); }
             }
             finally
             {
-                Marshal.ReleaseComObject(document);
+                document = null;
                 Cursor.Current = Cursors.Default;
                 application.ScreenUpdating = true;
             }
@@ -894,10 +894,10 @@ namespace StatTag.Models
 
             var cells = GetCells(application.Selection);
 
-            Marshal.ReleaseComObject(endCell);
-            Marshal.ReleaseComObject(columns);
-            Marshal.ReleaseComObject(rows);
-            Marshal.ReleaseComObject(document);
+            endCell = null;
+            columns = null;
+            rows = null;
+            document = null;
             return cells;
         }
 
@@ -951,9 +951,9 @@ namespace StatTag.Models
                 shape.WrapFormat.Type = WdWrapType.wdWrapInline;
                 shape.Name = tag.Id;
 
-                Marshal.ReleaseComObject(textFrame);
-                Marshal.ReleaseComObject(shape);
-                Marshal.ReleaseComObject(range);
+                textFrame = null;
+                shape = null;
+                range = null;
             }
 
             Log("InsertVerbatim - Finished");
@@ -1055,12 +1055,12 @@ namespace StatTag.Models
                     string.Format("{0}{1}{2}", tag.Name, Constants.ReservedCharacters.TagTableCellDelimiter, index),
                     innerTag.FormattedResult(metadata), innerTag);
                 index++;
-                Marshal.ReleaseComObject(range);
+                range = null;
             }
 
             WarnOnMismatchedCellCount(cellsCount, displayData.Length);
 
-            Marshal.ReleaseComObject(cells);
+            cells = null;
 
             // Once the table has been inserted, re-select it (inserting fields messes with the previous selection) and
             // insert a new line after it.  This gives us spacing after a table so inserting multiple tables doesn't have
@@ -1068,7 +1068,7 @@ namespace StatTag.Models
             selection.Tables[1].Select();
             var tableSelection = Globals.ThisAddIn.Application.Selection;
             InsertNewLineAndMoveDown(tableSelection);
-            Marshal.ReleaseComObject(tableSelection);
+            tableSelection = null;
 
             Log("InsertTable - Finished");
         }
@@ -1085,7 +1085,7 @@ namespace StatTag.Models
             var range = selection.Range;
             range.InsertParagraphAfter();
             selection.MoveDown(WdUnits.wdLine, 1);
-            Marshal.ReleaseComObject(range);
+            range = null;
         }
 
         /// <summary>
@@ -1120,12 +1120,12 @@ namespace StatTag.Models
                 var borders = wordTable.Borders;
                 borders.InsideLineStyle = WdLineStyle.wdLineStyleSingle;
                 borders.OutsideLineStyle = WdLineStyle.wdLineStyleSingle;
-                Marshal.ReleaseComObject(borders);
-                Marshal.ReleaseComObject(wordTable);
+                borders = null;
+                wordTable = null;
             }
             finally
             {
-                Marshal.ReleaseComObject(document);
+                document = null;
             }
 
             Log("CreateWordTableForTableResult - Finished");
@@ -1221,14 +1221,14 @@ namespace StatTag.Models
                         ? string.Format("[ {0} ]", tag.Name)
                         : tag.FormattedResult(LoadMetadataFromDocument(document, true)));
                     CreateTagField(range, tag.Name, displayName, tag);
-                    Marshal.ReleaseComObject(range);
+                    range = null;
                 }
 
-                Marshal.ReleaseComObject(selection);
+                selection = null;
             }
             finally
             {
-                Marshal.ReleaseComObject(document);
+                document = null;
             }
 
             Log("InsertField - Finished");

@@ -114,8 +114,8 @@ namespace StatTag.Models
             var nestedField = code.Fields[1];
             var fieldTag = FieldTag.Deserialize(nestedField.Data.ToString(CultureInfo.InvariantCulture),
                 files);
-            Marshal.ReleaseComObject(nestedField);
-            Marshal.ReleaseComObject(code);
+            nestedField = null;
+            code = null;
             return fieldTag;
         }
 
@@ -190,7 +190,7 @@ namespace StatTag.Models
                         Log(string.Format("Found {0} files", shapeUsedFiles.Count));
                         usedFiles.AddRange(shapeUsedFiles);
                     }
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -206,7 +206,7 @@ namespace StatTag.Models
                         Log(string.Format("Found {0} files", storyUsedFiles.Count));
                         usedFiles.AddRange(storyUsedFiles);
                     }
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -235,7 +235,7 @@ namespace StatTag.Models
 
                 if (!IsStatTagField(field))
                 {
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -244,7 +244,7 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Log("The field tag is null or could not be found");
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -252,7 +252,7 @@ namespace StatTag.Models
                 {
                     usedFiles.Add(tag.CodeFilePath);
                 }
-                Marshal.ReleaseComObject(field);
+                field = null;
             }
 
             return usedFiles;
@@ -407,7 +407,7 @@ namespace StatTag.Models
 
                     if (!IsStatTagField(field))
                     {
-                        Marshal.ReleaseComObject(field);
+                        field = null;
                         continue;
                     }
 
@@ -416,7 +416,7 @@ namespace StatTag.Models
                     if (tag == null)
                     {
                         Log("The field tag is null or could not be found");
-                        Marshal.ReleaseComObject(field);
+                        field = null;
                         continue;
                     }
 
@@ -433,7 +433,7 @@ namespace StatTag.Models
 
                         results[tag.CodeFilePath].Add(tag);
                     }
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                 }                
             }
 
@@ -452,7 +452,7 @@ namespace StatTag.Models
 
                 if (!IsStatTagShape(shape))
                 {
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                     continue;
                 }
 
@@ -460,7 +460,7 @@ namespace StatTag.Models
                 var tag = CreatePlaceholderTagFromShape(shape);
                 if (tag == null)
                 {
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
@@ -478,7 +478,7 @@ namespace StatTag.Models
 
                     results[tag.CodeFilePath].Add(tag);
                 }
-                Marshal.ReleaseComObject(shape);
+                shape = null;
             }
             
             Log("FindAllUnlinkedTags - Finished");
@@ -510,7 +510,7 @@ namespace StatTag.Models
                 if (fields != null)
                 {
                     HandleProcessStatTagFields(fields, function, configuration);
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -521,7 +521,7 @@ namespace StatTag.Models
                 if (fields != null)
                 {
                     HandleProcessStatTagFields(fields, function, configuration);
-                    Marshal.ReleaseComObject(fields);
+                    fields = null;
                 }
             }
 
@@ -546,7 +546,7 @@ namespace StatTag.Models
 
                 if (!IsStatTagField(field))
                 {
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
@@ -555,13 +555,13 @@ namespace StatTag.Models
                 if (tag == null)
                 {
                     Log("The field tag is null or could not be found");
-                    Marshal.ReleaseComObject(field);
+                    field = null;
                     continue;
                 }
 
                 function(field, tag, configuration);
 
-                Marshal.ReleaseComObject(field);
+                field = null;
             }
         }
 
@@ -599,7 +599,7 @@ namespace StatTag.Models
                 if (!IsStatTagShape(shape))
                 {
                     Log("The shape tag does not have a name, and so isn't considered a StatTag shape");
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                     continue;
                 }
 
@@ -607,14 +607,14 @@ namespace StatTag.Models
                 var tag = CreatePlaceholderTagFromShape(shape);
                 if (tag == null)
                 {
-                    Marshal.ReleaseComObject(shape);
+                    shape = null;
                     throw new NullReferenceException(
                         "This Word document element appears to have been created by StatTag, but there was an error trying to load it.  Please contact StatTag@northwestern.edu to report this problem.");
                 }
 
                 function(shape, tag, configuration);
 
-                Marshal.ReleaseComObject(shape);
+                shape = null;
             }
             
             Log("ProcessStatTagShapes - Finished");
@@ -646,8 +646,8 @@ namespace StatTag.Models
             var code = field.Code;
             var nestedField = code.Fields[1];
             nestedField.Data = tag.Serialize();
-            Marshal.ReleaseComObject(nestedField);
-            Marshal.ReleaseComObject(code);
+            nestedField = null;
+            code = null;
         }
 
         /// <summary>
