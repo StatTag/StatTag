@@ -4437,9 +4437,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{C08356CC-5946-4DD3-99B8-7D3D9D862690}</td><td/></row>
+		<row><td>ProductCode</td><td>{351F79CA-E2D6-43EA-8AB2-DA6B37C60EC4}</td><td/></row>
 		<row><td>ProductName</td><td>StatTag</td><td/></row>
-		<row><td>ProductVersion</td><td>6.0.3.0</td><td/></row>
+		<row><td>ProductVersion</td><td>6.0.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4725,7 +4725,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.2.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.2.0</td></row>
+		<row><td>{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}</td><td>1.0.0.0</td><td>6.0.3.0</td><td>1033</td><td>768</td><td/><td>ISACTIONPROP1</td><td>Through 6.0.3.0</td></row>
 	</table>
 
 	<table name="Verb">
