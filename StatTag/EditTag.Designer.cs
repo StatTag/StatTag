@@ -111,6 +111,8 @@
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.AutoSize = true;
+            tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             tableLayoutPanel1.ColumnCount = 3;
             tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -251,9 +253,9 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Location = new System.Drawing.Point(94, 0);
+            this.label5.Location = new System.Drawing.Point(93, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(207, 17);
+            this.label5.Size = new System.Drawing.Size(208, 17);
             this.label5.TabIndex = 44;
             this.label5.Text = "(Required)";
             // 
@@ -264,7 +266,7 @@
             this.label6.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(3, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(85, 17);
+            this.label6.Size = new System.Drawing.Size(84, 17);
             this.label6.TabIndex = 36;
             this.label6.Text = "Tag Settings";
             // 
@@ -274,7 +276,7 @@
             this.lblName.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblName.Location = new System.Drawing.Point(3, 17);
             this.lblName.Name = "lblName";
-            this.lblName.Size = new System.Drawing.Size(85, 31);
+            this.lblName.Size = new System.Drawing.Size(84, 31);
             this.lblName.TabIndex = 34;
             this.lblName.Text = "Name";
             // 
@@ -284,16 +286,16 @@
             this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label7.Location = new System.Drawing.Point(3, 48);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(85, 27);
+            this.label7.Size = new System.Drawing.Size(84, 27);
             this.label7.TabIndex = 37;
             this.label7.Text = "Result Type";
             // 
             // txtName
             // 
             this.txtName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtName.Location = new System.Drawing.Point(94, 20);
+            this.txtName.Location = new System.Drawing.Point(93, 20);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(207, 25);
+            this.txtName.Size = new System.Drawing.Size(208, 25);
             this.txtName.TabIndex = 35;
             this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
             this.txtName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtName_KeyPress);
@@ -303,9 +305,9 @@
             this.cboResultType.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cboResultType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboResultType.FormattingEnabled = true;
-            this.cboResultType.Location = new System.Drawing.Point(94, 51);
+            this.cboResultType.Location = new System.Drawing.Point(93, 51);
             this.cboResultType.Name = "cboResultType";
-            this.cboResultType.Size = new System.Drawing.Size(207, 25);
+            this.cboResultType.Size = new System.Drawing.Size(208, 25);
             this.cboResultType.TabIndex = 38;
             this.cboResultType.SelectedIndexChanged += new System.EventHandler(this.cboResultType_SelectedIndexChanged);
             // 
@@ -353,7 +355,7 @@
             tableLayoutPanel3.Controls.Add(this.lblMarginClick, 0, 0);
             tableLayoutPanel3.Controls.Add(this.incrementalSearcher1, 1, 0);
             tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            tableLayoutPanel3.Location = new System.Drawing.Point(8, 43);
+            tableLayoutPanel3.Location = new System.Drawing.Point(8, 47);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
             tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -402,7 +404,7 @@
             tableLayoutPanel2.RowCount = 1;
             tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-            tableLayoutPanel2.Size = new System.Drawing.Size(739, 29);
+            tableLayoutPanel2.Size = new System.Drawing.Size(739, 33);
             tableLayoutPanel2.TabIndex = 46;
             // 
             // label1
@@ -411,7 +413,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 27);
+            this.label1.Size = new System.Drawing.Size(63, 31);
             this.label1.TabIndex = 8;
             this.label1.Text = "Code file:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -434,10 +436,10 @@
             this.scintilla1.AnnotationVisible = ScintillaNET.Annotation.Standard;
             this.scintilla1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scintilla1.Lexer = ScintillaNET.Lexer.R;
-            this.scintilla1.Location = new System.Drawing.Point(8, 75);
+            this.scintilla1.Location = new System.Drawing.Point(8, 79);
             this.scintilla1.MarginOptions = ScintillaNET.MarginOptions.None;
             this.scintilla1.Name = "scintilla1";
-            this.scintilla1.Size = new System.Drawing.Size(739, 485);
+            this.scintilla1.Size = new System.Drawing.Size(739, 481);
             this.scintilla1.TabIndex = 24;
             this.scintilla1.MarginClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_MarginClick);
             this.scintilla1.LineSelectClick += new System.EventHandler<ScintillaNET.MarginClickEventArgs>(this.scintilla1_LineSelectClick);
@@ -505,6 +507,7 @@
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

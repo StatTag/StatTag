@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RDotNet;
 using RDotNet.Internals;
+using RDotNet.NativeLibrary;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
@@ -43,11 +44,107 @@ namespace R
             State = new StatPackageState();
         }
 
+        /// <summary>
+        /// Simple wrapper to get the R version from the registry
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        public static Version GetRVersion(StringBuilder logger = null)
+        {
+            var util = new NativeUtility();
+            var ver = util.GetRVersionFromRegistry(logger);
+            return ver;
+        }
+
+        /// <summary>
+        /// Wrapper function to provide commonly used parameters to the main IsAffectedByCFGIssue
+        /// method.  These are split out so the other one can be automatically tested.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        public static bool IsAffectedByCFGIssue(StringBuilder logger = null)
+        {
+            return IsAffectedByCFGIssue(Environment.Is64BitProcess, Environment.OSVersion, GetRVersion(), logger);
+        }
+
+        /// <summary>
+        /// Determine if the user is affected by the Control Flow Guard issue.  We know it affects R 4.0.3 and higher,
+        /// but only the 64-bit version of R.  If the user is running a 32-bit version, it should be fine.
+        /// This method will use registry keys to determine the version of R running.  Any attempts to use REngine from
+        /// RDotNet right now would cause a crash.
+        /// </summary>
+        /// <param name="is64BitProcess">If this process is 64-bit or not</param>
+        /// <param name="version">The R version to check</param>
+        /// <param name="logger">Optional logger to append messages to</param>
+        /// <returns>True if the user is affected by the CFG issue, or false otherwise</returns>
+        public static bool IsAffectedByCFGIssue(bool is64BitProcess, OperatingSystem osVersion, Version version, StringBuilder logger = null)
+        {
+            bool affected = false;
+            try
+            {
+                if ((version == null || osVersion == null || osVersion.Version == null))
+                {
+                    if (logger != null)
+                    {
+                        logger.AppendFormat("Unable to determine if R version is affected by Control Flow Guard issue\r\n");
+                    }
+                    return affected;
+                }
+
+                // As of now this only affects Windows 10 x64.  Not sure if this will be the same in Windows 11, so we
+                // are explicitly checking against Windows 10, and if it is any other version we assume it works.
+                if (osVersion.Version.Major != 10)
+                {
+                    if (logger != null)
+                    {
+                        logger.Append("Not running Windows 10\r\n");
+                    }
+                    return affected;
+                }
+
+                if (!is64BitProcess)
+                {
+                    if (logger != null)
+                    {
+                        logger.Append("Not running a 64-bit process - assuming 32-bit version of R\r\n");
+                    }
+                    return affected;
+                }
+
+                if ((version.Major > 4) || (version.Major == 4 && version.Minor > 0) || (version.Major == 4 && version.Minor == 0 && version.Build > 2))
+                {
+                    affected = true;
+                }
+
+                if (affected && logger != null)
+                {
+                    logger.AppendFormat(
+                        "There are known issues with R 4.0.3 and higher.  Current R version {0} is not supported at this time.\r\n",
+                        version.ToString());
+                }
+            }
+            catch (Exception exc)
+            {
+                if (logger != null)
+                {
+                    logger.AppendFormat("Failed to determine if R version is affected by Control Flow Guard issue: {0}\r\n{1}\r\n", exc.Message, exc.StackTrace);
+                }
+
+            }
+
+            return affected;
+        }
+
         public static string InstallationInformation()
         {
             var builder = new StringBuilder();
             try
             {
+                if (IsAffectedByCFGIssue(builder))
+                {
+                    return builder.ToString().Trim();
+                }
+
                 var engine = REngine.GetInstance(null, true, null, VerbatimLog);
                 foreach (var command in RProfileCommands)
                 {
@@ -73,6 +170,12 @@ namespace R
 
                 try
                 {
+                    if (IsAffectedByCFGIssue())
+                    {
+                        logger.WriteMessage("Client is affected by CFG issue - will not be able to run R");
+                        return false;
+                    }
+
                     logger.WriteMessage("Preparing to set R environment...");
                     REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
                     logger.WriteMessage("Set R environment.  Preparing to get R instances...");
