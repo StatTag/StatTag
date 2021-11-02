@@ -1887,7 +1887,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ScintillaNET FindReplaceDialog, Version=1.4.0.21164, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ScintillaNET FindReplaceDialog, Version=1.4.0.22839, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_401A9D895A1328F1CF0B2765234C1D35"
@@ -3185,7 +3185,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:StatTag"
         "ProductCode" = "8:{AEC14E58-3392-41A1-8532-EE9C26A4B0BF}"
-        "PackageCode" = "8:{0AED4A12-641C-4DEA-8D93-0AB79DB29350}"
+        "PackageCode" = "8:{E293AD8D-9803-4014-9E0C-B1B8734E43BC}"
         "UpgradeCode" = "8:{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -3469,7 +3469,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_1266889EECF14F6A981AB289ECC9BF7B"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -3539,7 +3540,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_1266889EECF14F6A981AB289ECC9BF7B"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "InstallAllUsersVisible"
@@ -3583,7 +3585,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_1266889EECF14F6A981AB289ECC9BF7B"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -3809,7 +3812,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_1266889EECF14F6A981AB289ECC9BF7B"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -3843,7 +3847,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_047B58DED0364741B9EED97322150E92"
             {
-            "SourcePath" = "8:..\\SAS\\obj\\Release\\StatTag.SAS.dll"
+            "SourcePath" = "8:..\\SAS\\obj\\x86\\Release\\StatTag.SAS.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -3899,7 +3903,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2E68B54D64E74658AA6D3DBBF293C7B4"
             {
-            "SourcePath" = "8:..\\..\\dynamic-interop-dll\\DynamicInterop\\obj\\Release\\DynamicInterop.dll"
+            "SourcePath" = "8:..\\..\\dynamic-interop-dll\\DynamicInterop\\obj\\x86\\Release\\DynamicInterop.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -3927,7 +3931,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3165A821B43B4BD4A7127898FE55F4B7"
             {
-            "SourcePath" = "8:..\\R\\obj\\Release\\StatTag.R.dll"
+            "SourcePath" = "8:..\\R\\obj\\x86\\Release\\StatTag.R.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -3955,7 +3959,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_357E9C6C5B80484794A336875AACDC6F"
             {
-            "SourcePath" = "8:..\\StatTag\\obj\\Release\\StatTag.dll"
+            "SourcePath" = "8:..\\StatTag\\obj\\x86\\Release\\StatTag.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4011,7 +4015,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3E802490AA624D509740AFDCDED01845"
             {
-            "SourcePath" = "8:..\\..\\ScintillaNET\\src\\ScintillaNET\\obj\\Release\\ScintillaNET.dll"
+            "SourcePath" = "8:..\\..\\ScintillaNET\\src\\ScintillaNET\\obj\\x86\\Release\\ScintillaNET.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4039,7 +4043,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_67C586E8107F4018866A3F39A04248E9"
             {
-            "SourcePath" = "8:..\\Stata\\obj\\Release\\StatTag.Stata.dll"
+            "SourcePath" = "8:..\\Stata\\obj\\x86\\Release\\StatTag.Stata.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4067,7 +4071,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_89AAC8E0AC1F4EF182D828F4D2960C07"
             {
-            "SourcePath" = "8:..\\..\\rdotnet\\RDotNet.Graphics\\obj\\Release\\RDotNet.Graphics.dll"
+            "SourcePath" = "8:..\\..\\rdotnet\\RDotNet.Graphics\\obj\\x86\\Debug\\RDotNet.Graphics.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4095,7 +4099,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BB3DC79C5F8D40B490E6B1C0ACA1E1D7"
             {
-            "SourcePath" = "8:..\\..\\ScintillaNET-FindReplaceDialog\\ScintillaNet FindReplaceDialog\\obj\\Release\\ScintillaNET FindReplaceDialog.dll"
+            "SourcePath" = "8:..\\..\\ScintillaNET-FindReplaceDialog\\ScintillaNet FindReplaceDialog\\obj\\x86\\Release\\ScintillaNET FindReplaceDialog.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4123,7 +4127,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EE46C0BAFBD6422BB41D18DDDFE7CDD4"
             {
-            "SourcePath" = "8:..\\..\\rdotnet\\R.NET\\obj\\Release\\RDotNet.dll"
+            "SourcePath" = "8:..\\..\\rdotnet\\R.NET\\obj\\x86\\Release\\RDotNet.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4151,7 +4155,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F2B2A8E031CA4DE48093A025BDADE159"
             {
-            "SourcePath" = "8:..\\Core\\obj\\Release\\Core.dll"
+            "SourcePath" = "8:..\\Core\\obj\\x86\\Release\\Core.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
@@ -4179,7 +4183,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F43B8A5871AD4F71B5099E0896239AB3"
             {
-            "SourcePath" = "8:..\\..\\rdotnet\\RDotNet.NativeLibrary\\obj\\Release\\RDotNet.NativeLibrary.dll"
+            "SourcePath" = "8:..\\..\\rdotnet\\RDotNet.NativeLibrary\\obj\\x86\\Release\\RDotNet.NativeLibrary.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8FE1FE290B344CBD8FC34716A21DE9AA"
