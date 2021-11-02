@@ -33,7 +33,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jupyter", "Jupyter\Jupyter.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTests", "EngineTests\EngineTests.csproj", "{C3D91C06-373D-4D54-AB3B-2AF5163CE917}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "StatTag-Setup", "StatTag-Setup\StatTag-Setup.vdproj", "{41477076-9C3A-4028-B495-645458BC6358}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup-x64", "Setup-x64\Setup-x64.vdproj", "{41477076-9C3A-4028-B495-645458BC6358}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup-x86", "Setup-x86\Setup-x86.vdproj", "{41477076-9C3A-4028-B495-645458BC6359}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,6 +157,11 @@ Global
 		{41477076-9C3A-4028-B495-645458BC6358}.Release|Any CPU.ActiveCfg = Release
 		{41477076-9C3A-4028-B495-645458BC6358}.Release|Any CPU.Build.0 = Release
 		{41477076-9C3A-4028-B495-645458BC6358}.Release|x86.ActiveCfg = Release
+		{41477076-9C3A-4028-B495-645458BC6359}.Debug|Any CPU.ActiveCfg = Debug
+		{41477076-9C3A-4028-B495-645458BC6359}.Debug|x86.ActiveCfg = Debug
+		{41477076-9C3A-4028-B495-645458BC6359}.Release|Any CPU.ActiveCfg = Release
+		{41477076-9C3A-4028-B495-645458BC6359}.Release|Any CPU.Build.0 = Release
+		{41477076-9C3A-4028-B495-645458BC6359}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
