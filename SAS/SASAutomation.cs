@@ -156,8 +156,11 @@ namespace SAS
                 };
                 logger.WriteMessage("Preparing to connect to local SAS instance...");
                 Server.Connect();
-                State.EngineConnected = true;
                 logger.WriteMessage("Connected to local SAS instance");
+                logger.WriteMessage("Preparing to connect to command processor...");
+                RunCommand("");
+                logger.WriteMessage("Connected to command processor");
+                State.EngineConnected = true;
 
                 // To protect against blank PDFs being created in different situations (mostly around
                 // when and how we are executing code and how SAS works when submitting code as a 
