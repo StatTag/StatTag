@@ -11,7 +11,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Northwestern University, Feinberg School of Medicine")]
 [assembly: AssemblyProduct("StatTag")]
-[assembly: AssemblyCopyright("Copyright © 2016-2021")]
+[assembly: AssemblyCopyright("Copyright © 2016-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,5 +33,5 @@ using System.Security;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("6.0.3.2")]
-[assembly: AssemblyFileVersion("6.0.3")]
+[assembly: AssemblyVersion("6.0.4.0")]
+[assembly: AssemblyFileVersion("6.0.4-beta1")]
