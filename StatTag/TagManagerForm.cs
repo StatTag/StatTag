@@ -12,6 +12,7 @@ using ScintillaNET;
 using StatTag.Controls;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Models;
+using StatTag.Core.Utility;
 using StatTag.Models;
 using Document = Microsoft.Office.Interop.Word.Document;
 using Font = System.Drawing.Font;
@@ -775,6 +776,19 @@ namespace StatTag
 
         private void cmdRemoveTags_Click(object sender, EventArgs e)
         {
+            var tagLabel = GeneralUtil.Pluralize("Tag", lvwTags.SelectedIndices.Count);
+            if (DialogResult.Yes != MessageBox.Show(
+                string.Format("Do you wish to remove the {0} selected {1} from your project?\r\n\r\nRemoving a tag will not materially change your code file. StatTag will remove references to the tag within the file, but leave the code itself intact.",
+                    lvwTags.SelectedIndices.Count, tagLabel.ToLower()),
+                string.Format("{0} - Remove {1}?", UIUtility.GetAddInName(), tagLabel),
+                MessageBoxButtons.YesNo))
+            {
+                Manager.Logger.WriteMessage("Cancel removing selected tags");
+                return;
+            }
+
+            Manager.Logger.WriteMessage("Proceed with removing selected tags");
+
             var removedTags = new List<Tag>();
             var selectedIndices = lvwTags.SelectedIndices;
             for (int index = (selectedIndices.Count - 1); index >= 0; index--)
