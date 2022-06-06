@@ -33,6 +33,7 @@
             System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TagManagerForm));
             this.cboCodeFiles = new System.Windows.Forms.ComboBox();
+            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             this.cmdInsert = new System.Windows.Forms.Button();
             this.cmdUpdate = new System.Windows.Forms.Button();
             this.lvwTags = new System.Windows.Forms.ListView();
@@ -46,7 +47,6 @@
             this.cmdCheckUnlinkedTags = new System.Windows.Forms.Button();
             this.updateBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.insertBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.txtFilter = new StatTag.Controls.PlaceholderTextBox();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -103,6 +103,20 @@
             this.cboCodeFiles.Sorted = true;
             this.cboCodeFiles.TabIndex = 11;
             this.cboCodeFiles.SelectedIndexChanged += new System.EventHandler(this.cboCodeFiles_SelectedIndexChanged);
+            // 
+            // txtFilter
+            // 
+            this.txtFilter.AutoSize = true;
+            this.txtFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFilter.Location = new System.Drawing.Point(471, 0);
+            this.txtFilter.Margin = new System.Windows.Forms.Padding(15, 0, 0, 0);
+            this.txtFilter.MinimumSize = new System.Drawing.Size(100, 25);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.PlaceholderText = "Search";
+            this.txtFilter.Size = new System.Drawing.Size(214, 31);
+            this.txtFilter.TabIndex = 10;
+            this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
             // tableLayoutPanel2
             // 
@@ -247,13 +261,12 @@
             // cmdCheckUnlinkedTags
             // 
             this.cmdCheckUnlinkedTags.AutoSize = true;
-            this.cmdCheckUnlinkedTags.Enabled = false;
             this.cmdCheckUnlinkedTags.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(483, 3);
+            this.cmdCheckUnlinkedTags.Location = new System.Drawing.Point(540, 3);
             this.cmdCheckUnlinkedTags.Name = "cmdCheckUnlinkedTags";
-            this.cmdCheckUnlinkedTags.Size = new System.Drawing.Size(199, 30);
+            this.cmdCheckUnlinkedTags.Size = new System.Drawing.Size(142, 30);
             this.cmdCheckUnlinkedTags.TabIndex = 14;
-            this.cmdCheckUnlinkedTags.Text = "   Troubleshoot Tags";
+            this.cmdCheckUnlinkedTags.Text = "   Check Tags";
             this.cmdCheckUnlinkedTags.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.cmdCheckUnlinkedTags.UseVisualStyleBackColor = true;
             this.cmdCheckUnlinkedTags.Click += new System.EventHandler(this.cmdCheckUnlinkedTags_Click);
@@ -273,20 +286,6 @@
             this.insertBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.insertBackgroundWorker_DoWork);
             this.insertBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.insertBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
-            // 
-            // txtFilter
-            // 
-            this.txtFilter.AutoSize = true;
-            this.txtFilter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtFilter.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFilter.Location = new System.Drawing.Point(471, 0);
-            this.txtFilter.Margin = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.txtFilter.MinimumSize = new System.Drawing.Size(100, 25);
-            this.txtFilter.Name = "txtFilter";
-            this.txtFilter.PlaceholderText = "Search";
-            this.txtFilter.Size = new System.Drawing.Size(214, 31);
-            this.txtFilter.TabIndex = 10;
-            this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_FilterChanged);
             // 
             // TagManagerForm
             // 

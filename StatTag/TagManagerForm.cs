@@ -38,6 +38,8 @@ namespace StatTag
         /// </summary>
         private bool? FormVisibilityBeforeEdit = null;
 
+        private static Bitmap WarningImage = new Bitmap(StatTag.Properties.Resources.warning, 24, 24);
+
         private const int InnerPadding = 3;
         private int ItemHeight = 60;
         //private const int ItemHeight = 60;
@@ -334,7 +336,16 @@ namespace StatTag
                     lvwTags.Items.Add(new ListViewItem(new string[] { tag.CodeFile.StatisticalPackage, tag.Name, tag.Type, indicator }) { Tag = tag });
                 }
 
-                cmdCheckUnlinkedTags.Enabled = hasWarnings;
+                if (hasWarnings)
+                {
+                    this.cmdCheckUnlinkedTags.Image = WarningImage;
+                    this.cmdCheckUnlinkedTags.Text = "   Check Tags";
+                }
+                else
+                {
+                    this.cmdCheckUnlinkedTags.Image = null;
+                    this.cmdCheckUnlinkedTags.Text = "Check Tags";
+                }
                 UpdateUIForSelection();
             }
             else
