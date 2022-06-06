@@ -27,7 +27,7 @@ namespace EngineTests.R
         {
             Assert.IsTrue(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 0, 3), null));
             Assert.IsTrue(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 1), null));
-            Assert.IsTrue(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(5, 0, 0), null));
+            Assert.IsTrue(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 1, 7), null));
         }
 
         [TestMethod]
@@ -36,6 +36,8 @@ namespace EngineTests.R
             Assert.IsFalse(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 0, 2), null));
             Assert.IsFalse(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 0), null));
             Assert.IsFalse(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(3, 5, 0), null));
+            Assert.IsFalse(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 2), null));
+            Assert.IsFalse(RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 2, 1), null));
         }
 
         [TestMethod]
@@ -67,8 +69,8 @@ namespace EngineTests.R
             Assert.AreEqual<string>("Not running a 64-bit process - assuming 32-bit version of R\r\n", builder.ToString());
             builder.Clear();
 
-            RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(5, 0, 0), builder);
-            Assert.AreEqual<string>("There are known issues with R 4.0.3 and higher.  Current R version 5.0.0 is not supported at this time.\r\n", builder.ToString());
+            RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(4, 1, 2), builder);
+            Assert.AreEqual<string>("There are known issues with R 4.0.3 and higher.  Current R version 4.1.2 is not supported at this time.\r\n", builder.ToString());
             builder.Clear();
 
             RAutomation.IsAffectedByCFGIssue(true, Windows10, new Version(3, 5, 0), builder);
