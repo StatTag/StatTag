@@ -115,7 +115,11 @@ namespace SAS
             // are used when FlushLogLines is called.  Even though we're not really doing anything with these
             // values, don't remove these calls.
             SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+            var tmp = carriageControlTemp.ToString();
+            carriageControlTemp = SAS.LanguageServiceCarriageControl.LanguageServiceCarriageControlNormal;
             SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
+            tmp = lineTypeTemp.ToString();
+            lineTypeTemp = SAS.LanguageServiceLineType.LanguageServiceLineTypeNormal;
 
             //Server.Workspace.LanguageService.FlushLogLines(10000, out carriageControls, out lineTypeArray,
             //    out logLineArray);

@@ -19,6 +19,11 @@ namespace StatTag
 {
     public static class UIUtility
     {
+        /// <summary>
+        /// The maximum number of characters we want to show for an exception message.
+        /// </summary>
+        private const int MaxExceptionMessageLength = 750;
+
         public static IEnumerable<object> RemoveCheckedItems(DataGridView dgvItems, int checkColumn)
         {
             if (dgvItems == null)
@@ -104,7 +109,7 @@ namespace StatTag
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return string.Format("{0} v{1}", GetAddInName(),
-                GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyFileVersionAttribute)));
+                GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyInformationalVersionAttribute)));
         }
 
         public static void WarningMessageBox(string text, LogManager logger)
@@ -144,7 +149,23 @@ namespace StatTag
                 logger.WriteException(exc);
             }
 
-            MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // It is possible to have a very long user message.  This usually happens when we are displaying
+            // code snippets, which are more than just a snippet.  This will check to make sure we truncate
+            // to a certain length of message.  If we do truncate the message, write that to the logger as well,
+            // just in case it's important for us to have the whole thing when debugging.
+            if (exc != null && userMessage != null && userMessage.Length > MaxExceptionMessageLength)
+            {
+                var truncatedMessage = string.Format("{0} ... (truncated)", userMessage.Substring(0, MaxExceptionMessageLength));
+                if (logger != null)
+                {
+                    logger.WriteMessage(string.Format("Truncating exception message.  Full message would have been:\r\n{0}", userMessage));
+                }
+                MessageBox.Show(truncatedMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                MessageBox.Show(userMessage, GetAddInName(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public static IEnumerable<Tag> GetCheckedTagsFromListView(ListView listView)

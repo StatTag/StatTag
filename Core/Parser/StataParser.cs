@@ -442,12 +442,12 @@ namespace StatTag.Core.Parser
                 nextIndex = IndexOfAnyCommentChar(text, nextIndex + 1);
             }
 
-            // If we get a block of code that has unmatched nested comments, we are going to ignore it
-            // and return the original text.  Most likely the code will fail in Stata anyway so we are
-            // going to pass it to the API as-is.
+            // If we get a block of code that has unmatched nested comments, we treat the earliest unmatched starting
+            // index as the starting location, and the end of the text as the end.
             if (startIndices.Count != 0)
             {
-                return text;
+                commentBlocks.Add(new Tuple<int, int, bool>(startIndices.First(), text.Length - 1, false));
+                //return text;
             }
 
             // Sort the comment blocks by the starting index (descending order).  That way we can remove comment blocks
@@ -498,7 +498,6 @@ namespace StatTag.Core.Parser
             // Why are we stripping out trailing lines?  There is apparently an issue with the Stata Automation API where having a trailing
             // comment on a valid line causes that command to fail (e.g.: "sysuse(bpwide)  // comment").  Our workaround is to strip those
             // comments so users don't have to modify their code.  The issue has been reported to Stata.
-            //modifiedText = TrailingLineComment.Replace(modifiedText, "");
             modifiedText = CodeParserUtil.StripTrailingComments(modifiedText);
             modifiedText = RemoveNestedComments(modifiedText).Trim();
             return modifiedText.Split(new string[]{"\r\n"}, StringSplitOptions.None).Select(x => x.Trim()).ToList();
@@ -534,7 +533,7 @@ namespace StatTag.Core.Parser
 
         /// <summary>
         /// Perform pre-processing on the lines of code for an execution step before it is processed
-        /// by STata.
+        /// by Stata.
         /// </summary>
         /// <param name="step"></param>
         /// <returns></returns>

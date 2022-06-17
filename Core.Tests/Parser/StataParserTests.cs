@@ -394,18 +394,6 @@ namespace Core.Tests.Parser
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
             Assert.AreEqual("Fourth line", string.Join("\r\n", parser.PreProcessContent(testList)));
 
-            // This is to test unbalanced comments (missing whitespace near the end so it is treated like
-            // an unending comment.
-            testList = new List<string>(new string[]
-            {
-                "/*First line",
-                "/*Second line*//*More on the same line*/",
-                "/*Third line",
-                "Fourth line*/*/"
-            });
-            Assert.AreEqual(4, parser.PreProcessContent(testList).Count);
-            Assert.AreEqual("/*First line\r\n/*Second line*//*More on the same line*/\r\n/*Third line\r\nFourth line*/*/", string.Join("\r\n", parser.PreProcessContent(testList)));
-
             testList = new List<string>(new string[]
             {
                 "/*First line",
@@ -429,6 +417,62 @@ namespace Core.Tests.Parser
             });
             Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
             Assert.AreEqual("First line", string.Join("\r\n", parser.PreProcessContent(testList)));
+        }
+
+        [TestMethod]
+        public void PreProcessContent_MultiLineComment_OpenComment()
+        {
+            var parser = new StataParser();
+
+            // All text is ignored
+            var testList = new List<string>(new string[]
+            {
+                "/* /*First line",
+                "Second line",
+                "Third line",
+                "*/ Fourth line"
+            });
+            var result = parser.PreProcessContent(testList);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("", string.Join("\r\n", result));
+
+            // Early text is preserved, all remaining text is removed
+            testList = new List<string>(new string[]
+            {
+                "First line",
+                "/*Second line",
+                "/*Third line",
+                "*/ Fourth line"
+            });
+            result = parser.PreProcessContent(testList);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("First line", string.Join("\r\n", result));
+
+            // Early text is preserved, middle text removed until matching comments found,
+            // remaining text is preserved
+            testList = new List<string>(new string[]
+            {
+                "/***** Zeroeth line ******/",  // Is zeroeth even a word...?
+                "First line",
+                "/*Second line",
+                "/*Third line",
+                "*/ Fourth line",
+                "  Fifth line */ ", // There's a blank line here that will get returned
+                "Sixth line"
+            });
+            result = parser.PreProcessContent(testList);
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual("First line\r\n\r\nSixth line", string.Join("\r\n", result));
+
+            testList = new List<string>(new string[]
+            {
+                "/*First line",
+                "/*Second line*//*More on the same line*/",
+                "/*Third line",
+                "Fourth line*/*/"
+            });
+            Assert.AreEqual(1, parser.PreProcessContent(testList).Count);
+            Assert.AreEqual("", string.Join("\r\n", parser.PreProcessContent(testList)));
         }
 
         [TestMethod]
