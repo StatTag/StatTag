@@ -1562,11 +1562,6 @@
             "AssemblyAsmDisplayName" = "8:Core, Version=6.0.4.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_181E7F1605DA9FD1760C1AB4F2546A7E"
-                    {
-                    "Name" = "8:Core.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Core.dll"
             "TargetName" = "8:"
@@ -1593,11 +1588,6 @@
             "AssemblyAsmDisplayName" = "8:DynamicInterop, Version=0.7.5.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1896F97703B783EF2AC39147FBE6D110"
-                    {
-                    "Name" = "8:DynamicInterop.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:DynamicInterop.dll"
             "TargetName" = "8:"
@@ -1664,11 +1654,6 @@
             "AssemblyAsmDisplayName" = "8:RDotNet.NativeLibrary, Version=1.7.0.5, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_2050C93B850FD0B76A610AE8F4CC0304"
-                    {
-                    "Name" = "8:RDotNet.NativeLibrary.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:RDotNet.NativeLibrary.dll"
             "TargetName" = "8:"
@@ -1746,11 +1731,6 @@
             "AssemblyAsmDisplayName" = "8:StatTag.R, Version=6.0.4.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_2707BC23D90EAF53D31C31309BFD4AC1"
-                    {
-                    "Name" = "8:StatTag.R.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:StatTag.R.dll"
             "TargetName" = "8:"
@@ -1839,11 +1819,6 @@
             "AssemblyAsmDisplayName" = "8:StatTag.Stata, Version=6.0.4.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_37088CA0FC6361531CE200775102F434"
-                    {
-                    "Name" = "8:StatTag.Stata.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:StatTag.Stata.dll"
             "TargetName" = "8:"
@@ -2094,11 +2069,6 @@
             "AssemblyAsmDisplayName" = "8:RDotNet.NativeLibrary, Version=1.7.0.5, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_69F4372114361D86EFCD33C9B1307CA1"
-                    {
-                    "Name" = "8:RDotNet.NativeLibrary.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:RDotNet.NativeLibrary.dll"
             "TargetName" = "8:"
@@ -2125,11 +2095,6 @@
             "AssemblyAsmDisplayName" = "8:RDotNet.Graphics, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_73C355116C9B6F9F53A9C17177D45B6B"
-                    {
-                    "Name" = "8:RDotNet.Graphics.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:RDotNet.Graphics.dll"
             "TargetName" = "8:"
@@ -2258,11 +2223,6 @@
             "AssemblyAsmDisplayName" = "8:JupyterKernelManager, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8536D172D84AEC3E4A314BA123C5A47D"
-                    {
-                    "Name" = "8:JupyterKernelManager.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:JupyterKernelManager.dll"
             "TargetName" = "8:"
@@ -2526,11 +2486,6 @@
             "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_A95958AC885D53334C0F03A02115D367"
-                    {
-                    "Name" = "8:Newtonsoft.Json.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Newtonsoft.Json.dll"
             "TargetName" = "8:"
@@ -2557,11 +2512,6 @@
             "AssemblyAsmDisplayName" = "8:ScintillaNET FindReplaceDialog, Version=1.4.0.30951, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B1D831A8A0A932C117FA55F96907CE40"
-                    {
-                    "Name" = "8:ScintillaNET FindReplaceDialog.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:ScintillaNET FindReplaceDialog.dll"
             "TargetName" = "8:"
@@ -2619,11 +2569,6 @@
             "AssemblyAsmDisplayName" = "8:Jupyter, Version=6.0.4.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B8D856EF74FC0B80A051DF48819FDD83"
-                    {
-                    "Name" = "8:Jupyter.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Jupyter.dll"
             "TargetName" = "8:"
@@ -2670,11 +2615,6 @@
             "AssemblyAsmDisplayName" = "8:ScintillaNET, Version=3.6.3.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_C00F636B3ACD19E9493BD5006B074527"
-                    {
-                    "Name" = "8:ScintillaNET.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:ScintillaNET.dll"
             "TargetName" = "8:"
@@ -2721,11 +2661,6 @@
             "AssemblyAsmDisplayName" = "8:HtmlAgilityPack, Version=1.11.32.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_CF19C4E9F02057682B63939153FC15DF"
-                    {
-                    "Name" = "8:HtmlAgilityPack.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:HtmlAgilityPack.dll"
             "TargetName" = "8:"
@@ -2752,11 +2687,6 @@
             "AssemblyAsmDisplayName" = "8:StatTag.SAS, Version=6.0.4.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_CF41895422DB5372620EED6280C96D1C"
-                    {
-                    "Name" = "8:StatTag.SAS.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:StatTag.SAS.dll"
             "TargetName" = "8:"
@@ -2783,11 +2713,6 @@
             "AssemblyAsmDisplayName" = "8:RDotNet, Version=1.7.0.5, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D32EAD4E788B0A4E156917145E22ED5C"
-                    {
-                    "Name" = "8:RDotNet.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:RDotNet.dll"
             "TargetName" = "8:"
@@ -2865,11 +2790,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.IO.RecyclableMemoryStream, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E737FA36C3CA489C4E81F94E512311E9"
-                    {
-                    "Name" = "8:Microsoft.IO.RecyclableMemoryStream.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.IO.RecyclableMemoryStream.dll"
             "TargetName" = "8:"
@@ -2896,11 +2816,6 @@
             "AssemblyAsmDisplayName" = "8:EPPlus, Version=5.6.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E7BAB8360B4A1348023EF413A7106EAD"
-                    {
-                    "Name" = "8:EPPlus.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:EPPlus.dll"
             "TargetName" = "8:"
@@ -3071,11 +2986,6 @@
             "AssemblyAsmDisplayName" = "8:log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_F8BDE8494AFEFCBCA47EC2CFAE00EDD1"
-                    {
-                    "Name" = "8:log4net.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:log4net.dll"
             "TargetName" = "8:"
@@ -3184,15 +3094,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:StatTag"
-        "ProductCode" = "8:{7F4BFDCB-B529-4320-B922-C0344C96211B}"
-        "PackageCode" = "8:{57F26B75-403E-43B6-A038-367BB1351025}"
+        "ProductCode" = "8:{EAF91E15-73D5-4A00-A28A-DEB9849ADD55}"
+        "PackageCode" = "8:{4000AD89-3910-44F5-A7A9-5828E98BB248}"
         "UpgradeCode" = "8:{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:6.0.401"
+        "ProductVersion" = "8:6.0.402"
         "Manufacturer" = "8:Northwestern University"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://stattag.org"
