@@ -104,7 +104,7 @@ namespace StatTag
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return string.Format("{0} v{1}", GetAddInName(),
-                GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyFileVersionAttribute)));
+                GetAssemblyCustomAttribute(assembly, typeof (System.Reflection.AssemblyInformationalVersionAttribute)));
         }
 
         public static void WarningMessageBox(string text, LogManager logger)
