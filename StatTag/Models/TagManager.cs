@@ -361,7 +361,7 @@ namespace StatTag.Models
             }
 
 
-            Log("FindAllUnlinkedTags - Finished");
+            Log("FindAllOverlappingTags - Finished");
             return results;
         }
 
