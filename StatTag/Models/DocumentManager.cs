@@ -346,7 +346,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Insert an image (given a definition from an tag) into the current Word
+        /// Insert an image (given a definition from a tag) into the current Word
         /// document at the current cursor location.
         /// </summary>
         /// <param name="tag"></param>
@@ -712,7 +712,7 @@ namespace StatTag.Models
                     continue;
                 }
 
-                // If we are asked to update an tag, we are only going to update that
+                // If we are asked to update a tag, we are only going to update that
                 // tag specifically.  Otherwise, we will process all tag fields.
                 if (tagUpdatePair != null)
                 {
@@ -756,9 +756,9 @@ namespace StatTag.Models
         /// that has already been done.  Instead it just updates the displayed text of a field
         /// with whatever is set as the current cached value.</remarks>
         /// <param name="tagUpdatePair">An optional tag to update.  If specified, the contents of the tag (including its underlying data) will be refreshed.
-        /// The reaason this is an Tag and not a FieldTag is that the function is only called after a change to the main tag reference.
+        /// The reaason this is a Tag and not a FieldTag is that the function is only called after a change to the main tag reference.
         /// If not specified, all tag fields will be updated</param>
-        /// <param name="matchOnPosition">If set to true, an tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
+        /// <param name="matchOnPosition">If set to true, a tag will only be matched if its line numbers (in the code file) are a match.  This is used when updating
         /// after disambiguating two tags with the same name, but isn't needed otherwise.</param>
         /// </summary>
         public void UpdateFields(UpdatePair<Tag> tagUpdatePair = null, bool matchOnPosition = false, List<Tag> tagFilter = null, IProgressReporter reporter = null)
@@ -1043,7 +1043,7 @@ namespace StatTag.Models
 
                 var range = cell.Range;
 
-                // Make a copy of the tag and set the cell index.  This will let us discriminate which cell an tag
+                // Make a copy of the tag and set the cell index.  This will let us discriminate which cell a tag
                 // value is related with, since we have multiple fields (and therefore multiple copies of the tag) in the
                 // document.  Note that we are wiping out the cached value to just have the individual cell value present.
                 var innerTag = new FieldTag(tag, index)
@@ -1154,7 +1154,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Given an tag, insert the result into the document at the current cursor position.
+        /// Given a tag, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the tag result is already refreshed.  It does not
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
@@ -1166,7 +1166,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Given an tag, insert the result into the document at the current cursor position.
+        /// Given a tag, insert the result into the document at the current cursor position.
         /// <remarks>This method assumes the tag result is already refreshed.  It does not
         /// attempt to refresh or recalculate it.</remarks>
         /// </summary>
@@ -1270,7 +1270,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Manage the process of editing an tag via a dialog, and processing any
+        /// Manage the process of editing a tag via a dialog, and processing any
         /// changes within the document.
         /// </summary>
         /// <remarks>This does not call the statistical software to update values.  It assumes that the tag
@@ -1351,7 +1351,7 @@ namespace StatTag.Models
             }
             catch (Exception exc)
             {
-                Log("An exception was caught while trying to edit an tag");
+                Log("An exception was caught while trying to edit a tag");
                 LogException(exc);
             }
             finally
@@ -1412,7 +1412,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// After an tag has been edited in a dialog, handle all reference updates and saving
+        /// After a tag has been edited in a dialog, handle all reference updates and saving
         /// that tag in its source file.
         /// </summary>
         /// <param name="dialog"></param>
@@ -1595,7 +1595,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Find the master reference of an tag, which is contained in the code files
+        /// Find the master reference of a tag, which is contained in the code files
         /// associated with the current document
         /// </summary>
         /// <param name="id">The tag identifier to search for</param>

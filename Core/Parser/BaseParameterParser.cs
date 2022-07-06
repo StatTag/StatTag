@@ -22,7 +22,7 @@ namespace StatTag.Core.Parser
         }
 
         /// <summary>
-        /// Build the regex to identify and extract a parameter from an tag string.
+        /// Build the regex to identify and extract a parameter from a tag string.
         /// Internally this uses a cache to save created regexes.  These are keyed by the
         /// parameters, as that will uniquely create the regex string.
         /// </summary>

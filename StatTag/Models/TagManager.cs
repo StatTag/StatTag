@@ -20,7 +20,7 @@ namespace StatTag.Models
     /// action for an unlinked tag is to re-link the code file, which is handled by the DocumentManager.
     /// A reference is included back to the DocumentManager class to allow this.
     /// 
-    /// The relationship is that an TagManager only exists in the context of a DocumentManager.  An instance
+    /// The relationship is that a TagManager only exists in the context of a DocumentManager.  An instance
     /// of this class should not exist outside of the DocumentManager.  These methods should only be accessed by
     /// the DocumentManager instance that contains it.
     /// </summary>
@@ -35,7 +35,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Find the master reference of an tag, which is contained in the code files
+        /// Find the master reference of a tag, which is contained in the code files
         /// associated with the current document
         /// </summary>
         /// <param name="tag">The tag to find</param>
@@ -46,7 +46,7 @@ namespace StatTag.Models
         }
 
         /// <summary>
-        /// Find the master reference of an tag, which is contained in the code files
+        /// Find the master reference of a tag, which is contained in the code files
         /// associated with the current document
         /// </summary>
         /// <param name="id">The tag identifier to search for</param>
@@ -56,7 +56,7 @@ namespace StatTag.Models
             var files = DocumentManager.GetCodeFileList();
             if (files == null)
             {
-                Log("Unable to find an tag because the Files collection is null");
+                Log("Unable to find a tag because the Files collection is null");
                 return null;
             }
 
@@ -638,7 +638,7 @@ namespace StatTag.Models
         /// <summary>
         /// Update the tag data in a field.
         /// </summary>
-        /// <remarks>Assumes that the field parameter is known to be an tag field</remarks>
+        /// <remarks>Assumes that the field parameter is known to be a tag field</remarks>
         /// <param name="field">The field to update.  This is the outermost layer of the tag field.</param>
         /// <param name="tag">The tag to be updated.</param>
         public void UpdateTagFieldData(Field field, FieldTag tag)

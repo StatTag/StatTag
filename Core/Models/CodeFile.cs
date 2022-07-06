@@ -180,7 +180,7 @@ namespace StatTag.Core.Models
             if (preserveCache)
             {
                 // Since we are reloading from a file, at this point if we had any cached results for
-                // an tag we want to associate that back with the tag.
+                // a tag we want to associate that back with the tag.
                 foreach (var tag in Tags)
                 {
                     SetCachedTag(savedTags, tag);
@@ -312,7 +312,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Removes an tag from the file, and from the internal cache.
+        /// Removes a tag from the file, and from the internal cache.
         /// </summary>
         /// <param name="tag"></param>
         public void RemoveTag(Tag tag)
@@ -426,7 +426,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Updates or inserts an tag in the file.  An update takes place only if oldTag
+        /// Updates or inserts a tag in the file.  An update takes place only if oldTag
         /// is defined, and it is able to match that old tag.
         /// </summary>
         /// <param name="newTag"></param>

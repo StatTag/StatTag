@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace StatTag.Core.Models
 {
     /// <summary>
-    /// An tag is a sequence of lines in a CodeFile that is defined by special
+    /// A tag is a sequence of lines in a CodeFile that is defined by special
     /// comment tags.  It contains configuration information on how to interpret and
     /// format the result of the code block within the document.
     /// </summary>
@@ -216,7 +216,7 @@ namespace StatTag.Core.Models
         }
 
         /// <summary>
-        /// Ensure that all reserved characters that appear in an tag name are removed
+        /// Ensure that all reserved characters that appear in a tag name are removed
         /// and replaced with a space.
         /// </summary>
         /// <param name="label"></param>

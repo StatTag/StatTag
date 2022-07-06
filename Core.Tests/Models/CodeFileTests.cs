@@ -442,7 +442,7 @@ namespace Core.Tests.Models
                 codeFile.Content[updatedTag.LineStart.Value]);
             Assert.AreEqual("**<<<", codeFile.Content[updatedTag.LineEnd.Value]);
 
-            // Select an tag that's entirely before the existing tag
+            // Select a tag that's entirely before the existing tag
             oldTag = codeFile.Tags[0];
             newTag = new Tag()
             {

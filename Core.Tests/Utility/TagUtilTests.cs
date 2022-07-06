@@ -205,7 +205,7 @@ namespace Core.Tests.Utility
         [TestMethod]
         public void IsDuplicateLabelInSameFile()
         {
-            // We will have results for two different code files.  We will have an tag that is represented in one
+            // We will have results for two different code files.  We will have a tag that is represented in one
             // of the code files, and one that isn't.
             var results = new Dictionary<CodeFile, int[]>();
             results.Add(new CodeFile() { FilePath = "Test1.do"}, new[] { 0, 0 });
