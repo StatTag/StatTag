@@ -68,11 +68,10 @@ namespace R
         }
 
         /// <summary>
-        /// Determine if the user is affected by the Control Flow Guard issue.  We know it affects R 4.0.3 - 4.1.X,
+        /// Determine if the user is affected by the Control Flow Guard issue.  We know it affects R 4.0.3 and higher,
         /// but only the 64-bit version of R.  If the user is running a 32-bit version, it should be fine.
         /// This method will use registry keys to determine the version of R running.  Any attempts to use REngine from
         /// RDotNet right now would cause a crash.
-        /// The issue with R was resolved in R 4.2.
         /// </summary>
         /// <param name="is64BitProcess">If this process is 64-bit or not</param>
         /// <param name="version">The R version to check</param>
@@ -112,7 +111,7 @@ namespace R
                     return affected;
                 }
 
-                if ((version.Major == 4 && version.Minor == 1) || (version.Major == 4 && version.Minor == 0 && version.Build > 2))
+                if ((version.Major > 4) || (version.Major == 4 && version.Minor > 0) || (version.Major == 4 && version.Minor == 0 && version.Build > 2))
                 {
                     affected = true;
                 }
