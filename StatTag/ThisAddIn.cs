@@ -295,10 +295,18 @@ namespace StatTag
                                 Globals.ThisAddIn.Application.ScreenUpdating = false;
                                 LogManager.WriteMessage(string.Format("Code file: {0} found and {1} tags loaded",
                                     file.FilePath, file.Tags.Count));
-                                var results = StatsManager.ExecuteStatPackage(file);
+                                var results = StatsManager.ExecuteStatPackage(file, Constants.ParserFilterMode.IncludeAll);
                                 LogManager.WriteMessage(
                                     string.Format("Executed the statistical code for file, with success = {0}",
                                         results.Success));
+
+                                if (results.Success)
+                                {
+                                    // Now we will refresh all of the tags that are fields.  Since we most likely
+                                    // have more fields than tags, we are going to use the approach of looping
+                                    // through all fields and updating them (via the DocumentManager).
+                                    DocumentManager.UpdateFields(null, null);
+                                }
                             }
                             finally
                             {
