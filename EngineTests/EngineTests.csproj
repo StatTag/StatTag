@@ -68,10 +68,6 @@
       <Project>{1e158613-c109-4d13-8aec-692dce13e762}</Project>
       <Name>R</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SAS\SAS.csproj">
-      <Project>{f8a2e797-74d8-4fb3-b65f-2f0fb81033f7}</Project>
-      <Name>SAS</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Stata\Stata.csproj">
       <Project>{b3eec6bd-9314-4bf4-9971-535a87e6df5d}</Project>
       <Name>Stata</Name>
