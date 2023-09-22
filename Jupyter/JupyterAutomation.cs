@@ -68,7 +68,13 @@ namespace Jupyter
                     Manager.StartKernel();
 
                     logger.WriteMessage("Creating client for kernel");
-                    Client = Manager.CreateClient();
+                    Client = Manager.CreateClientAndWaitForConnection();
+                    if (Client == null)
+                    {
+                        throw new Exception("Jupyter Kernel failed to start up");
+                    }
+
+
                     State.EngineConnected = true;
                     State.WorkingDirectorySet = true;
 
