@@ -21,11 +21,17 @@ namespace StatTag.Core.Models
         // Define the JSON object keys for retrieval
         private const string JupyterKey = "Jupyter";
         private const string PythonKernelsKey = "PythonKernels";
+        private const string RKernelsKey = "RKernels";
 
         /// <summary>
         /// Define the default Jupyter kernel identifier that we will use for Python.
         /// </summary>
         public const string DefaultPythonKernel = "python3";
+
+        /// <summary>
+        /// Define the default Jupyter kernel identifier that we will use for R.
+        /// </summary>
+        public const string DefaultRKernel = "ir";
 
         /// <summary>
         /// An instance of Configuration that is fully populated with acceptable default values.
@@ -71,6 +77,14 @@ namespace StatTag.Core.Models
                 }
 
                 config.PythonKernels = pythonKernels.Select(x => x.ToString()).ToArray();
+
+                var rKernels = (JArray)jupyter[RKernelsKey];
+                if (pythonKernels == null || pythonKernels.Count == 0)
+                {
+                    return config;
+                }
+
+                config.RKernels = rKernels.Select(x => x.ToString()).ToArray();
             }
             catch (Exception)
             {
@@ -81,10 +95,12 @@ namespace StatTag.Core.Models
         }
 
         public string[] PythonKernels { get; private set; }
+        public string[] RKernels { get; private set; }
 
         private Configuration()
         {
             PythonKernels = new string[] { DefaultPythonKernel };
+            RKernels = new string[] { DefaultRKernel };
         }
     }
 }

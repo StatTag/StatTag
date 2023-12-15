@@ -575,7 +575,8 @@ namespace StatTag
                 if (fullDetails)
                 {
                     systemInfoBuilder.Append("R:\r\n\t");
-                    systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    systemInfoBuilder.Append(RKernelAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    //systemInfoBuilder.Append(RAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
                     systemInfoBuilder.Append(StataAutomation.InstallationInformation(SettingsManager.Settings).Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");

@@ -81,9 +81,9 @@ namespace StatTag.Models
                     case Constants.StatisticalPackages.SAS:
                         return new SASAutomation();
                     case Constants.StatisticalPackages.R:
-                        return new RAutomation();
-                    case Constants.StatisticalPackages.RMarkdown:
-                        return new RMarkdownAutomation();
+                        return new RKernelAutomation(Config);
+                    //case Constants.StatisticalPackages.RMarkdown:
+                    //    return new RMarkdownAutomation();
                     case Constants.StatisticalPackages.Python:
                         return new PythonAutomation(Config);
                 }
@@ -180,17 +180,17 @@ namespace StatTag.Models
                 }
             }
 
-            if (codeFile.StatisticalPackage.Equals(Constants.StatisticalPackages.R) || codeFile.StatisticalPackage.Equals(Constants.StatisticalPackages.RMarkdown))
-            {
-                var version = RAutomation.GetRVersion();
-                if (RAutomation.IsAffectedByCFGIssue())
-                {
-                    MessageBox.Show(
-                        string.Format("Warning: Unable to run R {0}. To use StatTag with R, use R version 4.0.2 or below. \r\n\r\nThere is a known issue with StatTag crashing when run with R 4.0.3 and higher on Windows 10 (64-bit only). We have identified the root cause as an interaction between R and a security feature in Windows 10.\r\n\r\nStatTag will continue to work with Stata and SAS.  We are working to resolve the issue with R.  In the meantime, you may use StatTag with R version 4.0.2 or below.", version.ToString()),
-                        string.Format("{0} - Unable to run R {1}", UIUtility.GetAddInName(), version.ToString()), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-            }
+            //if (codeFile.StatisticalPackage.Equals(Constants.StatisticalPackages.R) || codeFile.StatisticalPackage.Equals(Constants.StatisticalPackages.RMarkdown))
+            //{
+            //    var version = RAutomation.GetRVersion();
+            //    if (RAutomation.IsAffectedByCFGIssue())
+            //    {
+            //        MessageBox.Show(
+            //            string.Format("Warning: Unable to run R {0}. To use StatTag with R, use R version 4.0.2 or below. \r\n\r\nThere is a known issue with StatTag crashing when run with R 4.0.3 and higher on Windows 10 (64-bit only). We have identified the root cause as an interaction between R and a security feature in Windows 10.\r\n\r\nStatTag will continue to work with Stata and SAS.  We are working to resolve the issue with R.  In the meantime, you may use StatTag with R version 4.0.2 or below.", version.ToString()),
+            //            string.Format("{0} - Unable to run R {1}", UIUtility.GetAddInName(), version.ToString()), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //        return false;
+            //    }
+            //}
 
             return true;
         }

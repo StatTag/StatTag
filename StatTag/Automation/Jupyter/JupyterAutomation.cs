@@ -183,8 +183,12 @@ namespace Jupyter
                 return null;
             }
 
-            Client.Execute(command);
-            while (Client.HasPendingExecute())
+            Client.Execute(command.Trim().Replace("\r\n", "\n"));
+
+            // Make sure not only that we're waiting for a command to finish, but that the client
+            // is still alive and communicating with the kernel.  Otherwise if the kernel or client
+            // diest, this will hang.
+            while (Client.HasPendingExecute() && Client.IsAlive)
             {
                 Thread.Sleep(100);
             }
