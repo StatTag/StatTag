@@ -21,6 +21,7 @@ namespace StatTag.Core.Parser
         private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
         private static readonly Regex MultiLinePlotRegex = new Regex("\\)\\s*\\+[ \t]*[\\r\\n]+[ \t]*");
         private static readonly Regex MultiLinePipeRegex = new Regex("(%(?:[<T]?>|\\$)%)[ \t]*[\\r\\n]+[ \t]*");
+        private static readonly Regex PrintRegex = new Regex("^\\s*print\\s*\\(", RegexOptions.Multiline);
         //private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         //private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private const char KeyValueDelimiter = '=';
@@ -287,6 +288,23 @@ namespace StatTag.Core.Parser
         {
             var result = GetSaveLocation(command, TableRegex, TableFileParameterName, 2);
             return result;
+        }
+
+        /// <summary>
+        /// Determine if a given command has within it a call to R's print() function.
+        /// This does not assume correct/valid R is present, only detecting that the
+        /// start of the print function is invoked.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool CommandContainsPrint(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                return false;
+            }
+
+            return PrintRegex.IsMatch(command);
         }
 
         /// <summary>

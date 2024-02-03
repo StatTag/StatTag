@@ -519,5 +519,54 @@ namespace Core.Tests.Parser
             Assert.AreEqual("line 3", modifiedText[3]);
             Assert.AreEqual("##<<<", modifiedText[4]);
         }
+
+
+        [TestMethod]
+        public void CommandContainsPrint_EmptyNull()
+        {
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint(null));
+            Assert.IsFalse(parser.CommandContainsPrint(""));
+            Assert.IsFalse(parser.CommandContainsPrint("     "));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_ExistsSingleLine()
+        {
+            var parser = new RParser();
+            Assert.IsTrue(parser.CommandContainsPrint("print(x)"));
+            Assert.IsTrue(parser.CommandContainsPrint("  print(  x  )  "));
+            Assert.IsTrue(parser.CommandContainsPrint("print()"));
+            Assert.IsTrue(parser.CommandContainsPrint(" print ( ) "));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_FalsePositiveKeyword()
+        {
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint("isprint(x)"));
+            Assert.IsFalse(parser.CommandContainsPrint("prints()"));
+            Assert.IsFalse(parser.CommandContainsPrint("pr int()"));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_NotBeginningOfCommand()
+        {
+            // It doesn't matter if these are valid R commands or not, just testing difference scenarios
+            // that the method should handle.
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint("x <- print(y)"));
+            Assert.IsFalse(parser.CommandContainsPrint("myfn(print(x))"));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_MultipleLines()
+        {
+            var parser = new RParser();
+            Assert.IsTrue(parser.CommandContainsPrint("\r\nprint(x)\r\n"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\nprint(\r\n  x\r\n)\r\nx"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\nprint  (\r\n  x\r\n)\r\ny <- 12\r\nprint ( y )\r\n y + x"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\n  print(x)"));
+        }
     }
 }

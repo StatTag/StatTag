@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Jupyter;
 using JupyterKernelManager;
@@ -33,7 +30,6 @@ namespace R
 
         private bool IsInitialized = false;
 
-        private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
         private const string TemporaryImageFileFilter = "*.png";
 
         private static readonly Dictionary<string, string> RProfileCommands = new Dictionary<string, string>()
@@ -192,8 +188,6 @@ namespace R
                 commands = ((RParser)Parser).CollapseMultiLineCommands(commands);
             }
 
-            //commands = new[] { string.Join("\r\n", commands) };
-
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             bool isFigureTag = (tag != null && tag.Type == Constants.TagType.Figure);
@@ -213,6 +207,9 @@ namespace R
                     {
                         CleanTemporaryImageFolder();
                     }
+
+                    // No need to process the code if it's a StatTag tag
+                    continue;
                 }
 
                 var result = RunCommand(command, tag);
@@ -317,6 +314,13 @@ namespace R
                 var htmlValue = GetHtmlValueResult(message);
                 if (string.IsNullOrWhiteSpace(htmlValue))
                 {
+                    if (((RParser)Parser).CommandContainsPrint(command))
+                    {
+                        throw new StatTagUserException(
+                            string.Format("StatTag did not receive a table result for the '{0}' tag. If you have wrapped your result in a print() statement, please remove it in your R code and try again.\r\n\r\nIf this problem persists, please contact the StatTag team at StatTag@northwestern.edu.",
+                            tag.Name));
+                    }
+
                     return new CommandResult() { TableResult = ParseTableResult(GetTextValueResult(message)) };
                 }
                 else
