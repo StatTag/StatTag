@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using Jupyter;
 using JupyterKernelManager;
 using StatTag.Core.Exceptions;
@@ -20,6 +21,18 @@ namespace R
 {
     public class RKernelAutomation : JupyterAutomation
     {
+        public const int MAX_ARRAY_DEPTH = 2;
+        private const char ArrayStart = '[';
+        private const char ArrayEnd = ']';
+        private const char Escape = '\\';
+        private const char Delimiter = ',';
+        private const char SingleQuote = '\'';
+        private const char DoubleQuote = '"';
+        private static readonly Regex ValidArrayString = new Regex("^\\s*\\[.*\\]\\s*$", RegexOptions.Multiline | RegexOptions.Singleline);
+        private static readonly char[] Quotes = { SingleQuote, DoubleQuote };
+
+        private bool IsInitialized = false;
+
         private const string MATRIX_DIMENSION_NAMES_ATTRIBUTE = "dimnames";
         private const string TemporaryImageFileFilter = "*.png";
 
@@ -35,11 +48,8 @@ namespace R
 
         private string TemporaryImageFilePath = "";
 
-        public StatPackageState State { get; set; }
-
         protected override sealed ICodeFileParser Parser { get; set; }
 
-        protected static VerbatimDevice VerbatimLog = new VerbatimDevice();
         protected Configuration Config { get; set; }
         public RKernelAutomation(Configuration config) : base(Configuration.DefaultPythonKernel)
         {
@@ -68,19 +78,23 @@ namespace R
             KernelName = Configuration.DefaultRKernel;
         }
 
-        public static string InstallationInformation()
+        public static string InstallationInformation(Configuration config)
         {
             var builder = new StringBuilder();
             try
             {
-
-                //var engine = REngine.GetInstance(null, true, null, VerbatimLog);
-                foreach (var command in RProfileCommands)
-                {
-                    //var result = engine.Evaluate(command.Key);
-                    //var result = RunCommand(command.Key);
-                    //builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.AsCharacter().ToArray()).Trim());
-                }
+                //var engine = new RKernelAutomation(config);
+                //if (engine.Initialize(null, new LogManager()))
+                //{
+                //    foreach (var command in RProfileCommands)
+                //    {
+                //        var result = engine.RunCommand(command.Key, new Tag() { Type = Constants.TagType.Value } );
+                //        if (result != null && result.ValueResult != null)
+                //        {
+                //            builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
+                //        }
+                //    }
+                //}
             }
             catch (Exception exc)
             {
@@ -92,32 +106,18 @@ namespace R
             return builder.ToString().Trim();
         }
 
-        public virtual bool Initialize(CodeFile file, LogManager logger)
+        public override bool Initialize(CodeFile file, LogManager logger)
         {
-            /*if (Engine == null)
+            var baseInitialized = base.Initialize(file, logger);
+            if (baseInitialized && !IsInitialized)
             {
-                logger.WriteMessage("R Engine instance is null - going through full initialization");
-
                 try
                 {
-                    if (IsAffectedByCFGIssue())
-                    {
-                        logger.WriteMessage("Client is affected by CFG issue - will not be able to run R");
-                        return false;
-                    }
-
-                    logger.WriteMessage("Preparing to set R environment...");
-                    REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
-                    logger.WriteMessage("Set R environment.  Preparing to get R instances...");
-                    Engine = REngine.GetInstance(null, true, null, VerbatimLog);
-
-                    State.EngineConnected = (Engine != null);
-                    logger.WriteMessage(string.Format("R instance creation {0}",
-                        (State.EngineConnected ? "succeeded" : "failed")));
+                    logger.WriteMessage("Preparing to configure R environment...");
 
                     // Set the working directory to the location of the code file, if it is provided and the
                     // R engine has been initialized.
-                    if (Engine != null && file != null)
+                    if (file != null)
                     {
                         var path = Path.GetDirectoryName(file.FilePath);
                         if (!string.IsNullOrEmpty(path))
@@ -125,45 +125,41 @@ namespace R
                             logger.WriteMessage(string.Format("Changing working directory to {0}", path));
                             path = path.Replace("\\", "\\\\").Replace("'", "\\'");
                             RunCommand(string.Format("setwd('{0}')", path), new Tag() { Type = Constants.TagType.Value });  // Escape the path for R
-                            State.WorkingDirectorySet = true;
                         }
                     }
 
-                    logger.WriteMessage("Completed initialization");
+                    TemporaryImageFilePath = AutomationUtil.InitializeTemporaryImageDirectory(file, logger);
+
+                    // Now, set up the R environment so it uses the PNG graphic device by default (if no other device
+                    // is specified).
+                    logger.WriteMessage("Setting R option for default graphics device");
+                    RunCommands(new[]
+                    {
+                        string.Format(".stattag_png = function() {{ png(filename=paste(\"{0}\\\\\", \"StatTagFigure%03d.png\", sep=\"\")) }}",
+                            TemporaryImageFilePath.Replace("\\", "\\\\").Replace("\"", "\\\"")),
+                        "options(device=\".stattag_png\")"
+                    });
+                    logger.WriteMessage("Updated R option for default graphics device");
+
+                    logger.WriteMessage("Completed R initialization");
+                    IsInitialized = true;
                 }
                 catch (Exception exc)
                 {
                     logger.WriteMessage("Caught an exception while trying to initalize R");
                     logger.WriteException(exc);
-                    Engine = null;
+                    State.WorkingDirectorySet = false;
+                    IsInitialized = false;
                     return false;
                 }
             }
 
-            if (Engine != null)
-            {
-                TemporaryImageFilePath = AutomationUtil.InitializeTemporaryImageDirectory(file, logger);
-
-                // Now, set up the R environment so it uses the PNG graphic device by default (if no other device
-                // is specified).
-                logger.WriteMessage("Setting R option for default graphics device");
-                RunCommands(new[]
-                {
-                    string.Format(".stattag_png = function() {{ png(filename=paste(\"{0}\\\\\", \"StatTagFigure%03d.png\", sep=\"\")) }}",
-                        TemporaryImageFilePath.Replace("\\", "\\\\").Replace("\"", "\\\"")),
-                    "options(device=\".stattag_png\")"
-                });
-                logger.WriteMessage("Updated R option for default graphics device");
-
-                return true;
-            }*/
-
-            return false;
+            return baseInitialized;
         }
 
-        public virtual void Dispose()
+        public override void Dispose()
         {
-            /*if (Engine != null)
+            if (Manager != null)
             {
                 // Part of our cleanup is ensuring all graphic devices are closed out.  Not everyone will do this
                 // in their code, and if not it can cause our process to stay running.
@@ -176,13 +172,14 @@ namespace R
                     // We are attempting to close graphic devices, but if it fails, it may not be catastrophic.
                     // For now, we are supressing notification to the user, since it may be a false alarm.
                 }
-            }*/
+            }
 
             CleanTemporaryImageFolder(true);
+            base.Dispose();
         }
 
         
-        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
+        public override CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
             // the R engine at once.  Otherwise we have to worry about collapsing commands, function definitions, etc.
@@ -195,6 +192,8 @@ namespace R
                 commands = ((RParser)Parser).CollapseMultiLineCommands(commands);
             }
 
+            //commands = new[] { string.Join("\r\n", commands) };
+
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
             bool isFigureTag = (tag != null && tag.Type == Constants.TagType.Figure);
@@ -205,7 +204,8 @@ namespace R
                     // Start the verbatim logging cache, if that is what the user wants for this output.
                     if (isVerbatimTag)
                     {
-                        VerbatimLog.StartCache();
+                        VerbatimResultCache = new List<string>();
+                        VerbatimResultCacheEnabled = true;
                     }
                     // If we're going to be doing a figure, we want to clean out the old images so we know
                     // exactly which ones we're writing to.
@@ -222,12 +222,12 @@ namespace R
                 }
                 else if (Parser.IsTagEnd(command))
                 {
-                    if (isVerbatimTag)
+                    if (isVerbatimTag && VerbatimResultCacheEnabled)
                     {
-                        VerbatimLog.StopCache();
+                        VerbatimResultCacheEnabled = false;
                         commandResults.Add(new CommandResult()
                         {
-                            VerbatimResult = string.Join("", VerbatimLog.GetCache())
+                            VerbatimResult = string.Join("\r\n", VerbatimResultCache)
                         });
                     }
                     // If this is the end of a figure tag, only proceed with this temp file processing if we don't
@@ -261,6 +261,15 @@ namespace R
             return commandResults.ToArray();
         }
 
+        private CommandResult CleanPathInResult(CommandResult result)
+        {
+            if (result != null && result.ValueResult != null)
+            {
+                result.ValueResult = result.ValueResult.Trim(Quotes);
+            }
+            return result;
+        }
+
         /// <summary>
         /// Return an expanded, full file path - accounting for variables, functions, relative paths, etc.
         /// </summary>
@@ -268,12 +277,12 @@ namespace R
         /// <returns>The full file path</returns>
         protected string GetExpandedFilePath(string saveLocation)
         {
-            var fileLocation = RunCommand(saveLocation, new Tag() { Type = Constants.TagType.Value });
+            var fileLocation = CleanPathInResult(RunCommand(saveLocation, new Tag() { Type = Constants.TagType.Value }));
             if (((RParser)Parser).IsRelativePath(fileLocation.ValueResult))
             {
                 // Attempt to find the current working directory.  If we are not able to find it, or the value we end up
                 // creating doesn't exist, we will just proceed with whatever image location we had previously.
-                var workingDirResult = RunCommand("getwd()", new Tag() { Type = Constants.TagType.Value });
+                var workingDirResult = CleanPathInResult(RunCommand("getwd()", new Tag() { Type = Constants.TagType.Value }));
                 if (workingDirResult != null)
                 {
                     var path = workingDirResult.ValueResult;
@@ -288,16 +297,276 @@ namespace R
             return fileLocation.ValueResult;
         }
 
-        public virtual CommandResult HandleTableResult(Tag tag, string command)
+        public override CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
             // We take a hint from the tag type to identify tables.  Because of how open R is with its
             // return of results, a user can just specify a variable and get the result.
-            if (tag.Type == Constants.TagType.Table)
+            if (tag.Type.Equals(Constants.TagType.Table) && Parser.IsTableResult(command))
             {
-               // return new CommandResult() { TableResult = GetTableResult(command, result) };
+                var message = result.FirstOrDefault();
+
+                // Check to see if we can identify a file name that contains our table data.  If one
+                // exists, we will start by returning that.  If there is no file name specified, we
+                // will proceed and assume we are pulling data out of some R type.
+                var dataFile = Parser.GetTableDataPath(command);
+                if (!string.IsNullOrWhiteSpace(dataFile))
+                {
+                    return new CommandResult() { TableResult = DataFileToTable.GetTableResult(GetExpandedFilePath(dataFile)) };
+                }
+
+                var htmlValue = GetHtmlValueResult(message);
+                if (string.IsNullOrWhiteSpace(htmlValue))
+                {
+                    return new CommandResult() { TableResult = ParseTableResult(GetTextValueResult(message)) };
+                }
+                else
+                {
+                    return new CommandResult() { TableResult = ParseHtmlTableResult(htmlValue) };
+                }
+
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Take a string result from the Python kernel and convert it into a Table structure that StatTag
+        /// can use to populate a table in Word.
+        /// </summary>
+        /// <param name="valueString">The string result from the Python kernel</param>
+        /// <returns>A populated Table structure</returns>
+        public Table ParseTableResult(string valueString)
+        {
+            // If the string has no data, we want to safely return an empty table.  Similarly, if the table string does not start with
+            // an opening array char, we don't know how to process it.
+            if (string.IsNullOrWhiteSpace(valueString) || !ValidArrayString.IsMatch(valueString))
+            {
+                return new Table(0, 0, null);
+            }
+
+            // Go through each character and process the state change for each symbol, collecting data
+            // along the way.  And yes, we are ignoring the nuances of Python collections and just referring
+            // to them as "arrays" within the code.
+            int arrayDepth = 0;
+            int rows = 0;
+            int cols = 0;
+            int maxCols = 0;
+            string currentValue = "";
+            char? activeQuoteChar = null;
+            bool rowDataTracked = false;
+            bool inOpenArray = false;
+            bool isEscaped = false;
+            var data = new List<List<string>>();
+            foreach (var letter in valueString.ToCharArray())
+            {
+                if (isEscaped)
+                {
+                    isEscaped = false;
+                    // Fall through so we pick up the escaped character
+                }
+                else if (letter.Equals(Escape))
+                {
+                    isEscaped = true;
+                    continue;
+                }
+                else if (letter.Equals(ArrayStart))
+                {
+                    rowDataTracked = false;
+                    inOpenArray = true;
+                    currentValue = "";
+                    arrayDepth++;
+                    cols = 0;
+
+                    if (arrayDepth > MAX_ARRAY_DEPTH)
+                    {
+                        throw new StatTagUserException("StatTag is only able to handle 2-dimensional collections within Python");
+                    }
+                    continue;
+                }
+                else if (letter.Equals(ArrayEnd))
+                {
+                    // Close out the curent array if we have some data.
+                    if (rowDataTracked)
+                    {
+                        cols++;
+                        maxCols = Math.Max(maxCols, cols);
+                        data[rows - 1].Add(currentValue);
+                    }
+                    currentValue = "";
+                    arrayDepth--;
+                    cols = 0;
+                    inOpenArray = false;
+                    rowDataTracked = false;
+                    continue;
+                }
+                else if (letter.Equals(Delimiter))
+                {
+                    // If we are outside of the array and find a delimiter between sub-arrays, we don't want to track this as
+                    // having found data.
+                    if (!inOpenArray)
+                    {
+                        continue;
+                    }
+
+                    cols++;
+                    maxCols = Math.Max(maxCols, cols);
+                    data[rows - 1].Add(currentValue);
+                    currentValue = "";
+                    continue;
+                }
+                else if ((letter.Equals(SingleQuote) || letter.Equals(DoubleQuote)))
+                {
+                    if (!activeQuoteChar.HasValue)
+                    {
+                        // We have come across a quote of some sort, and we're 
+                        activeQuoteChar = letter;
+                        continue;
+                    }
+                    else if (activeQuoteChar.Value.Equals(letter))
+                    {
+                        // Only close out the quote if it's a match.
+                        activeQuoteChar = null;
+                        continue;
+                    }
+
+                    // Otherwise, fall through and pick up the quote character because it's part of a string literal
+                    // that we are tracking.
+                }
+                else if ((letter.Equals(' ') || letter.Equals('\t')) && !activeQuoteChar.HasValue)
+                {
+                    // If we're not in a quoted string, we don't want to capture any whitespace.  Because we need to
+                    // respect the whitespace if it's quoted, we can't just trim the string at the end, so we have this
+                    // check in place.
+                    continue;
+                }
+
+                // If we haven't ruled it out, this character is part of a value that we are tracking and should
+                // be included in the string.
+                currentValue += letter;
+
+                // If this is our first time tracking data for our row, we need to initialize it
+                if (!rowDataTracked)
+                {
+                    rowDataTracked = true;
+                    rows++;
+                    data.Add(new List<string>());
+                }
+            }
+
+            var table = new Table(rows, maxCols, TableUtil.MergeTableVectorsToArray(null, null, FlattenDataToArray(rows, maxCols, data), rows, maxCols));
+            return table;
+        }
+
+        /// <summary>
+        /// Because of how we built StatTag, we have some expectations and existing routines to flatten data to a 1D array.
+        /// This is the implementation for Python results.  In the future we should consider revisiting this to avoid
+        /// the extra processing.
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private string[] FlattenDataToArray(int rows, int cols, List<List<string>> data)
+        {
+            if (rows == 0 || cols == 0)
+            {
+                return null;
+            }
+
+            var flattenedData = new string[rows * cols];
+            for (int row = 0; row < rows; row++)
+            {
+                var rowCols = data[row].Count;
+                for (int col = 0; col < cols; col++)
+                {
+                    // Not every row is guaranteed to have the same number of columns.  We will perform checks to see if
+                    // that's the case, and if so we will provide a null placeholder.
+                    flattenedData[(row * cols) + col] = col >= rowCols ? null : data[row][col];
+                }
+            }
+
+            return flattenedData;
+        }
+
+        /// <summary>
+        /// Given a string containing HTML, extract a balanced table.
+        /// NOTE: This does not account for rowspan/colspan!
+        /// </summary>
+        /// <param name="valueString"></param>
+        /// <returns></returns>
+        public Table ParseHtmlTableResult(string valueString)
+        {
+            if (string.IsNullOrWhiteSpace(valueString))
+            {
+                return new Table();
+            }
+
+            var htmlFragment = new HtmlDocument();
+            htmlFragment.LoadHtml(valueString);
+            var table = htmlFragment.DocumentNode.SelectSingleNode(".//table");
+            if (table != null)
+            {
+                return HandleAsHTMLTable(table);
+            }
+
+            var list = htmlFragment.DocumentNode.SelectSingleNode(".//ol");
+            if (list != null)
+            {
+                return HandleAsHTMLList(list);
+            }
+
+            // If there is no table or list node present, we will return an empty table instead of an error.
+            return new Table();
+        }
+
+        private Table HandleAsHTMLTable(HtmlNode table)
+        {
+            // There's a lot of variation in tables - they can have THEAD and TBODY or not.  They can use TH instead of TD in different places.
+            // We need to account for all of those scenarios.
+            var rows = table.SelectNodes(".//tr");
+            if (rows == null || rows.Count == 0)
+            {
+                return new Table();
+            }
+
+            // Keep in mind that rows and columns can be uneven.  We're going to start with the assumption that the rows are right, and determine
+            // which column count (the max) best represents the total for this data.
+            int numRows = rows.Count;
+            int maxCols = 0;
+            var data = new List<List<string>>();
+            for (int rowIndex = 0; rowIndex < numRows; rowIndex++)
+            {
+                var row = rows[rowIndex];
+                var cols = row.SelectNodes("./td | ./th");
+                maxCols = Math.Max(maxCols, cols.Count);
+                data.Add(new List<string>(cols.Count));
+                foreach (var col in cols)
+                {
+                    data[rowIndex].Add(col.GetDirectInnerText());
+                }
+            }
+
+            var dataTable = new Table(numRows, maxCols, TableUtil.MergeTableVectorsToArray(null, null, FlattenDataToArray(numRows, maxCols, data), numRows, maxCols));
+            return dataTable;
+        }
+
+        private Table HandleAsHTMLList(HtmlNode list)
+        {
+            var items = list.SelectNodes(".//li");
+            if (items == null || items.Count == 0)
+            {
+                return new Table();
+            }
+
+            var numItems = items.Count;
+            var data = new List<string>();
+            for (int itemIndex = 0; itemIndex < numItems; itemIndex++)
+            {
+                data.Add(items[itemIndex].GetDirectInnerText());
+            }
+
+            var dataTable = new Table(numItems, 1, TableUtil.MergeTableVectorsToArray(null, null, data.ToArray(), numItems, 1));
+            return dataTable;
         }
 
         public virtual CommandResult HandleImageResult(Tag tag, string command)
@@ -317,193 +586,6 @@ namespace R
 
             return null;
         }
-
-        public virtual CommandResult HandleValueResult(Tag tag, string command)
-        {
-            // If we have a value command, we will pull out the last relevant line from the output.
-            // Because we treat every type of output as a possible value result, we are only going
-            // to capture the result if it's flagged as a tag.
-            if (tag.Type == Constants.TagType.Value)
-            {
-                //return new CommandResult() { ValueResult = GetValueResult(result) };
-            }
-
-            return null;
-        }
-
-        public CommandResult RunCommand(string command, Tag tag = null)
-        {
-            /*SymbolicExpression result = null;
-            try
-            {
-                result = Engine.Evaluate(command);
-            }
-            catch (Exception exc)
-            {
-                var asciiBytes = Encoding.ASCII.GetBytes(command);
-                var utf8Bytes = Encoding.UTF8.GetBytes(command);
-                if ((asciiBytes != null && utf8Bytes != null) && (asciiBytes.Length != utf8Bytes.Length))
-                {
-                    var message = string.Format("{0}\r\n\r\n**NOTE**: There is a known issue where StatTag does not handle non-ASCII variable names in R (e.g., ä <- 100).  You will need to change this within your R file to an ASCII variable name.",
-                        exc.Message);
-                    throw new StatTagUserException(message, exc);
-                }
-                else
-                {
-                    throw exc;
-                }
-            }
-
-            if (result == null || result.IsInvalid)
-            {
-                return null;
-            }
-
-            // If there is no tag associated with the command that was run, we aren't going to bother
-            // parsing and processing the results.  This is for blocks of codes in between tags where
-            // all we need is for the code to run.
-            if (tag != null)
-            {
-                // Start with tables
-                var commandResult = HandleTableResult(tag, command, result);
-                if (commandResult != null)
-                {
-                    return commandResult;
-                }
-
-                // Image comes next, because everything else we will count as a value type.
-                commandResult = HandleImageResult(tag, command, result);
-                if (commandResult != null)
-                {
-                    return commandResult;
-                }
-
-                commandResult = HandleValueResult(tag, command, result);
-                if (commandResult != null)
-                {
-                    return commandResult;
-                }
-            }*/
-
-            return null;
-        }
-
-        /// <summary>
-        /// Given a 2D data frame, flatten it into a 1D array that is organized as data by row.
-        /// </summary>
-        /// <param name="dataFrame"></param>
-        /// <returns></returns>
-        /*private string[] FlattenDataFrame(DataFrame dataFrame)
-        {
-            // Because we can only cast columns (not individual cells), we will go through all columns
-            // first and cast them to characters so things like NA values are represented appropriately.
-            // If we use the default format for these columns/cells, we end up with large negative int
-            // values where NA exists.
-            var castColumns = new List<CharacterVector>();
-            for (int column = 0; column < dataFrame.ColumnCount; column++)
-            {
-                castColumns.Add(dataFrame[column].AsCharacter());
-            }
-
-            var data = new List<string>(dataFrame.RowCount * dataFrame.ColumnCount);
-            for (int row = 0; row < dataFrame.RowCount; row++)
-            {
-                for (int column = 0; column < dataFrame.ColumnCount; column++)
-                {
-                    data.Add(castColumns[column][row]);
-                }
-            }
-
-            return data.ToArray();
-        }
-
-        /// <summary>
-        /// General function to extract dimension (row/column) names for an R matrix.  This deals with
-        /// the specific of how R packages matrix results, which is different from a data frame.
-        /// </summary>
-        /// <param name="exp"></param>
-        /// <param name="rowNames"></param>
-        /// <returns></returns>
-        private string[] GetMatrixDimensionNames(SymbolicExpression exp, bool rowNames)
-        {
-            var attributeName = exp.GetAttributeNames().FirstOrDefault(x => x.Equals(MATRIX_DIMENSION_NAMES_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase));
-            if (string.IsNullOrEmpty(attributeName))
-            {
-                return null;
-            }
-
-            var dimnames = exp.GetAttribute(attributeName).AsList();
-            if (dimnames == null)
-            {
-                return null;
-            }
-
-            // Per the R specification, the dimnames will contain 0 to 2 vectors that contain
-            // dimension labels.  The first entry is for rows, and the second is for columns.
-            // https://stat.ethz.ch/R-manual/R-devel/library/base/html/matrix.html
-            switch (dimnames.Length)
-            {
-                case 1:
-                {
-                    // If we want columns and we only have one dimname entry, we don't have column names.
-                    if (!rowNames)
-                    {
-                        return null;
-                    }
-                    var nameVector = dimnames[0].AsCharacter();
-                    return (nameVector == null ? null : nameVector.ToArray());
-                }
-                case 2:
-                {
-                    // Sometimes the rownames are null, and so we can try and cast to a character vector,
-                    // but we need to check if that is null before converting to an array.
-                    var nameVector = dimnames[rowNames ? 0 : 1].AsCharacter();
-                    return (nameVector == null ? null : nameVector.ToArray());
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Return the row names (if they exist) for a matrix.
-        /// </summary>
-        /// <param name="exp"></param>
-        /// <returns>An array of strings containing the row names, or null if not present.</returns>
-        private string[] GetMatrixRowNames(SymbolicExpression exp)
-        {
-            return GetMatrixDimensionNames(exp, true);
-        }
-
-        /// <summary>
-        /// Return the column names (if they exist) for a matrix.
-        /// </summary>
-        /// <param name="exp"></param>
-        /// <returns>An array of strings containing the column names, or null if not present.</returns>
-        private string[] GetMatrixColumnNames(SymbolicExpression exp)
-        {
-            return GetMatrixDimensionNames(exp, false);
-        }*/
-
-        /// <summary>
-        /// Take the 2D data in a matrix and flatten it to a 1D representation (by row)
-        /// which we use internally in StatTag.
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns></returns>
-        /*private string[] FlattenMatrix(CharacterMatrix matrix)
-        {
-            var data = new List<string>();
-            for (int row = 0; row < matrix.RowCount; row++)
-            {
-                for (int column = 0; column < matrix.ColumnCount; column++)
-                {
-                    data.Add(matrix[row, column]);
-                }
-            }
-            return data.ToArray();
-        }*/
-
         protected Table GetTableResult(string command)
         {
             /*
@@ -611,12 +693,12 @@ namespace R
             return null;
         }
 
-        public bool IsReturnable(string command)
+        public new bool IsReturnable(string command)
         {
             return Parser.IsValueDisplay(command) || Parser.IsImageExport(command) || Parser.IsTableResult(command);
         }
 
-        public string GetInitializationErrorMessage()
+        public new string GetInitializationErrorMessage()
         {
             if (!State.EngineConnected)
             {
@@ -636,34 +718,6 @@ namespace R
         public void Hide()
         {
             // Since the UI is not shown, no action is needed here.
-        }
-
-        public string FormatErrorMessageFromExecution(Exception exc)
-        {
-            /*if (Engine == null)
-            {
-                return exc.Message;
-            }
-
-            // There is a known issue with R 3.4.3 and R.NET (https://github.com/jmp75/rdotnet/issues/62).  We will attempt
-            // to detect if this setup is consistent with that, and offer targeted guidance if so.
-            if (Engine.DllVersion.Contains("3.4.3"))
-            {
-                // Our check is the presenece of the etc/Renviron.site file.  That was incorrectly deployed with R 3.4.3
-                // installers on Windows, and is causing problems when we run code from R.NET.  If that file exists, we
-                // provide some additional guidance on what to do.
-                var rHome = Environment.GetEnvironmentVariable("R_HOME");
-                var builder = new StringBuilder();
-                if (!string.IsNullOrWhiteSpace(rHome) && File.Exists(Path.Combine(rHome, "etc/Renviron.site")))
-                {
-                    builder.Append(
-                        "There is a known issue with R 3.4.3 that may be causing your code to fail in StatTag.\r\n\r\nIf you have confirmed that your code runs fine from R or RStudio, please check where R is installed to see if the file 'etc/Renviron.site' exists.  If so, renaming or removing the file may fix this issue.");
-                    builder.AppendFormat("\r\n\r\n{0}", exc.Message);
-                    return builder.ToString();
-                }
-            }*/
-
-            return exc.Message;
         }
 
         /// <summary>
@@ -708,28 +762,6 @@ namespace R
             var cleanResult = CleanValueResult(commandResult.ValueResult);
             commandResult.ValueResult = cleanResult;
             return commandResult;
-        }
-
-        protected string GetValueResult()
-        {
-            /*if (result.IsDataFrame())
-            {
-                return result.AsDataFrame()[0].AsCharacter().FirstOrDefault();
-            }
-            else if (result.IsList())
-            {
-                return result.AsList()[0].AsCharacter().FirstOrDefault();
-            }
-
-            switch (result.Type)
-            {
-                case SymbolicExpressionType.NumericVector:
-                case SymbolicExpressionType.IntegerVector:
-                case SymbolicExpressionType.CharacterVector:
-                case SymbolicExpressionType.LogicalVector:
-                    return result.AsCharacter().FirstOrDefault();
-            }*/
-            return null;
         }
 
         /// <summary>

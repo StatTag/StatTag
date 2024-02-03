@@ -15,11 +15,11 @@ namespace Jupyter
         private const string TemporaryImageFileFilter = "*.png";
         protected string KernelName { get; set; }
         protected abstract ICodeFileParser Parser { get; set; }
-        private KernelManager Manager { get; set; }
-        private KernelClient Client { get; set; }
-        private List<string> VerbatimResultCache { get; set; }
-        private bool VerbatimResultCacheEnabled { get; set; }
-        private string TemporaryImageFilePath = "";
+        protected KernelManager Manager { get; set; }
+        protected KernelClient Client { get; set; }
+        protected List<string> VerbatimResultCache { get; set; }
+        protected bool VerbatimResultCacheEnabled { get; set; }
+        protected string TemporaryImageFilePath = "";
 
 
         public StatPackageState State { get; set; }
@@ -74,7 +74,6 @@ namespace Jupyter
                         throw new Exception("Jupyter Kernel failed to start up");
                     }
 
-
                     State.EngineConnected = true;
                     State.WorkingDirectorySet = true;
 
@@ -119,7 +118,7 @@ namespace Jupyter
             CleanTemporaryImageFolder(true);
         }
 
-        public CommandResult[] RunCommands(string[] commands, Tag tag = null)
+        public virtual CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             var commandResults = new List<CommandResult>();
             bool isVerbatimTag = (tag != null && tag.Type == Constants.TagType.Verbatim);
@@ -244,6 +243,12 @@ namespace Jupyter
                 {
                     return commandResult;
                 }
+            }
+            else
+            {
+                // Very important to clear out the execution history.  We don't need anything in the log,
+                // so we will reset it before processing the next block.
+                Client.ClearExecuteLog();
             }
 
             return null;
