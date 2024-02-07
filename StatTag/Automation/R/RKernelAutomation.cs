@@ -174,6 +174,35 @@ namespace R
             base.Dispose();
         }
 
+        /// <summary>
+        /// Utility function to take an array of commands and collapse it into an array of commands with at least
+        /// 3 elements.  This assumes (without checking) that if there are 3 or more lines, that the first line
+        /// represents the starting StatTag tag comment, the last line represents the ending StatTag tag comment,
+        /// and everything in the middle is code that should be collapsed to a single string, separated by newline.
+        /// If there are fewer than 3 elements, the original array is returned.
+        /// </summary>
+        /// <param name="commands">Array of command strings to collapse</param>
+        /// <returns>A collapsed array of maximum 3 command strings</returns>
+        public static string[] CollapseTagCommandsArray(string[] commands)
+        {
+            if (commands == null)
+            {
+                return commands;
+            }
+
+            if (commands.Length >= 3)
+            {
+                string[] newCommands = new[]
+                {
+                        commands[0],
+                        string.Join("\r\n", commands.Skip(1).Take(commands.Length - 2)),
+                        commands[commands.Length - 1]
+                };
+                return newCommands;
+            }
+
+            return commands;
+        }
         
         public override CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
@@ -186,6 +215,12 @@ namespace R
             else
             {
                 commands = ((RParser)Parser).CollapseMultiLineCommands(commands);
+
+                // When processing a tag, we need to keep it so the tag comments are at the beginning and end of the
+                // command array, and all actual code then needs to live in the middle in a single (combined) string.
+                // This is because Jupyter won't do incremental code execution, we need to send it our full block of
+                // commands at once, in a single string.
+                commands = CollapseTagCommandsArray(commands);
             }
 
             var commandResults = new List<CommandResult>();
@@ -573,7 +608,7 @@ namespace R
             return dataTable;
         }
 
-        public virtual CommandResult HandleImageResult(Tag tag, string command)
+        public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
             if (Parser.IsImageExport(command))
             {

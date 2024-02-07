@@ -91,6 +91,14 @@ namespace Core.Tests.Parser
 
             // If we have two image commands in the same text block, we will get the first one
             Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
+
+            // Closing parenthesis in string should be treated as part of the parameter string
+            Assert.AreEqual("\"test).pdf\"", parser.GetImageSaveLocation("pdf(\"test).pdf\")"));
+            Assert.AreEqual("'test).pdf'", parser.GetImageSaveLocation("pdf('test).pdf')"));
+
+            // If we have a larger block of commands, make sure we are only pulling the correct boundaries of the relevant function
+            Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"),\r\nwidth = getw(),\r\nheight = geth())\r\n\r\ntest()"));
+            Assert.AreEqual("\"test.jpg\"", parser.GetImageSaveLocation("jpeg(\"test.jpg\")\r\np <- ggplot(data, aes(x=value)) + geom_histogram()\r\np\r\ndev.off()"));
         }
 
         [TestMethod]

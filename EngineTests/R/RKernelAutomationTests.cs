@@ -35,5 +35,41 @@ namespace EngineTests.R
             // We should only remove bracketed numbers at the beginning of the string
             Assert.AreEqual("Nothing to do for [25]", RKernelAutomation.CleanValueResult("Nothing to do for [25]"));
         }
+
+        [TestMethod]
+        public void CollapseTagCommandsArray_NullEmpty()
+        {
+            Assert.IsNull(RKernelAutomation.CollapseTagCommandsArray(null));
+            var emptyArray = new string[0];
+            Assert.AreEqual(emptyArray, RKernelAutomation.CollapseTagCommandsArray(emptyArray));
+        }
+
+        [TestMethod]
+        public void CollapseTagCommandsArray_TooFewElements()
+        {
+            var oneItem = new string[] { "test line 1" };
+            Assert.AreEqual(oneItem, RKernelAutomation.CollapseTagCommandsArray(oneItem));
+
+            var twoItems = new string[] { "test line 1", "test line 2" };
+            Assert.AreEqual(twoItems, RKernelAutomation.CollapseTagCommandsArray(twoItems));
+        }
+
+        [TestMethod]
+        public void CollapseTagCommandsArray_ThreeElements()
+        {
+            var threeItems = new string[] { "test line 1", "test line 2", "test line 3" };
+            CollectionAssert.AreEqual(threeItems, RKernelAutomation.CollapseTagCommandsArray(threeItems));
+        }
+
+        [TestMethod]
+        public void CollapseTagCommandsArray_MultipleCodeRows()
+        {
+            var code = new string[] { "test line start", "code line 1", "", "code line 2", "", "code line 3", "", "test line end" };
+            var collapseResult = RKernelAutomation.CollapseTagCommandsArray(code);
+            Assert.AreEqual(3, collapseResult.Length);
+            Assert.AreEqual("test line start", collapseResult[0]);
+            Assert.AreEqual("code line 1\r\n\r\ncode line 2\r\n\r\ncode line 3\r\n", collapseResult[1]);
+            Assert.AreEqual("test line end", collapseResult[2]);
+        }
     }
 }
