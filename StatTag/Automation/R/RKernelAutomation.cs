@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
@@ -581,7 +582,7 @@ namespace R
                 data.Add(new List<string>(cols.Count));
                 foreach (var col in cols)
                 {
-                    data[rowIndex].Add(col.GetDirectInnerText());
+                    data[rowIndex].Add(WebUtility.HtmlDecode(col.GetDirectInnerText()));
                 }
             }
 
@@ -601,7 +602,7 @@ namespace R
             var data = new List<string>();
             for (int itemIndex = 0; itemIndex < numItems; itemIndex++)
             {
-                data.Add(items[itemIndex].GetDirectInnerText());
+                data.Add(WebUtility.HtmlDecode(items[itemIndex].GetDirectInnerText()));
             }
 
             var dataTable = new Table(numItems, 1, TableUtil.MergeTableVectorsToArray(null, null, data.ToArray(), numItems, 1));
