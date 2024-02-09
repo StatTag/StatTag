@@ -5,7 +5,9 @@ using StatTag.Core.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Jupyter
@@ -21,6 +23,7 @@ namespace Jupyter
         protected bool VerbatimResultCacheEnabled { get; set; }
         protected string TemporaryImageFilePath = "";
 
+        private static readonly Regex SingleQuoteWrappedString = new Regex("^'([\\s\\S]*)'$");
 
         public StatPackageState State { get; set; }
 
@@ -367,6 +370,34 @@ namespace Jupyter
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// We need to apply some additional formatting to text results that come back from the R kernel.  Because
+        /// these are represented in HTML, we need to consider decoding HTML reserved symbols (e.g., &gt; = >).
+        /// We have also noticed that the R kernel will wrap strings in single quotes.  This is different from how
+        /// results came back before in StatTag, and so we need to strip those.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static string FormatStringFromHtml(string result)
+        {
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                return result;
+            }
+
+            var interim = result;
+
+            // Identify if the value is wrapped in single quotes.  If so, remove them.
+            var match = SingleQuoteWrappedString.Match(interim);
+            if (match.Success)
+            {
+                interim = match.Groups[1].Value;
+            }
+
+            // Final step is to HTML-decode the string.
+            return WebUtility.HtmlDecode(interim);
         }
     }
 }

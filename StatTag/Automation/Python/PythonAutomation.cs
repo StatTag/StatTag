@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 using JupyterKernelManager;
 using StatTag.Core.Exceptions;
@@ -186,7 +183,7 @@ namespace Jupyter
                 data.Add(new List<string>(cols.Count));
                 foreach (var col in cols)
                 {
-                    data[rowIndex].Add(WebUtility.HtmlDecode(col.GetDirectInnerText()));
+                    data[rowIndex].Add(FormatStringFromHtml(col.GetDirectInnerText()));
                 }
             }
 
@@ -352,6 +349,5 @@ namespace Jupyter
 
             return flattenedData;
         }
-
     }
 }

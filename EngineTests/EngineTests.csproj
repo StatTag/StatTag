@@ -51,6 +51,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Jupyter\JupyterAutomationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Python\PythonAutomationTests.cs" />
     <Compile Include="R\RKernelAutomationTests.cs" />

@@ -71,5 +71,38 @@ namespace EngineTests.R
             Assert.AreEqual("code line 1\r\n\r\ncode line 2\r\n\r\ncode line 3\r\n", collapseResult[1]);
             Assert.AreEqual("test line end", collapseResult[2]);
         }
+
+        [TestMethod]
+        public void ProcessHtmlValue_NullEmpty()
+        {
+            Assert.IsNull(RKernelAutomation.ProcessHtmlValue(null));
+            Assert.AreEqual("", RKernelAutomation.ProcessHtmlValue(""));
+            Assert.AreEqual("  ", RKernelAutomation.ProcessHtmlValue("  "));
+        }
+
+        [TestMethod]
+        public void ProcessHtmlValue_ReplaceNA()
+        {
+            Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("NA"));
+            Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("&lt;NA&gt;"));
+            Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("<NA>"));
+        }
+
+        [TestMethod]
+        public void ProcessHtmlValue_NoReplaceNA()
+        {
+            // It must match case
+            Assert.AreEqual("<na>", RKernelAutomation.ProcessHtmlValue("<na>"));
+            // There can be no flanking whitespace
+            Assert.AreEqual("<NA> ", RKernelAutomation.ProcessHtmlValue("<NA> "));
+            Assert.AreEqual(" <NA>", RKernelAutomation.ProcessHtmlValue(" <NA>"));
+            // Must match inner string exactly
+            Assert.AreEqual("<NAN>", RKernelAutomation.ProcessHtmlValue("<NAN>"));
+            // Don't double-decode
+            Assert.AreEqual("&lt;NA>", RKernelAutomation.ProcessHtmlValue("&amp;lt;NA&gt;"));
+            // String value of 'NA' should remain
+            Assert.AreEqual("NA", RKernelAutomation.ProcessHtmlValue("'NA'"));
+            Assert.AreEqual("'NA'", RKernelAutomation.ProcessHtmlValue("&apos;NA&apos;"));
+        }
     }
 }

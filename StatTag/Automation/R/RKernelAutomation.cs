@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
@@ -32,6 +31,8 @@ namespace R
         private bool IsInitialized = false;
 
         private const string TemporaryImageFileFilter = "*.png";
+        private const string BRACKETED_NA_VALUE = "<NA>";
+        private const string NA_VALUE = "NA";
 
         private static readonly Dictionary<string, string> RProfileCommands = new Dictionary<string, string>()
         {
@@ -559,6 +560,37 @@ namespace R
             return new Table();
         }
 
+        /// <summary>
+        /// Helper function to run our pipeline of value processing fields for an HTML result
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string ProcessHtmlValue(string original)
+        {
+            if (string.IsNullOrWhiteSpace(original))
+            {
+                return original;
+            }
+
+            // If the HTML result is just "NA" we assume it represents a real NA value.  If it
+            // were a string containing 'NA', we would expect it to be captured in quotes.
+            if (original.Equals(NA_VALUE))
+            {
+                return string.Empty;
+            }
+
+            var modified = FormatStringFromHtml(original);
+
+            // If the modified (after HTML decoding) exactly equals <NA>, we assume that is
+            // another special representation by the R kernel for an NA result.
+            if (modified.Equals(BRACKETED_NA_VALUE))
+            {
+                return string.Empty;
+            }
+
+            return modified;
+        }
+
         private Table HandleAsHTMLTable(HtmlNode table)
         {
             // There's a lot of variation in tables - they can have THEAD and TBODY or not.  They can use TH instead of TD in different places.
@@ -582,7 +614,7 @@ namespace R
                 data.Add(new List<string>(cols.Count));
                 foreach (var col in cols)
                 {
-                    data[rowIndex].Add(WebUtility.HtmlDecode(col.GetDirectInnerText()));
+                    data[rowIndex].Add(ProcessHtmlValue(col.GetDirectInnerText()));
                 }
             }
 
@@ -602,7 +634,7 @@ namespace R
             var data = new List<string>();
             for (int itemIndex = 0; itemIndex < numItems; itemIndex++)
             {
-                data.Add(WebUtility.HtmlDecode(items[itemIndex].GetDirectInnerText()));
+                data.Add(ProcessHtmlValue(items[itemIndex].GetDirectInnerText()));
             }
 
             var dataTable = new Table(numItems, 1, TableUtil.MergeTableVectorsToArray(null, null, data.ToArray(), numItems, 1));
@@ -780,6 +812,7 @@ namespace R
 
             return original;
         }
+
 
         /// <summary>
         /// Prepare a value result by doing any necessary post-processing.
