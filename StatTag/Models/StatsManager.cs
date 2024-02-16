@@ -44,6 +44,12 @@ namespace StatTag.Models
             /// which can be displayed to the user.
             /// </summary>
             public string ErrorMessage { get; set; }
+
+            /// <summary>
+            /// The code may succeed, but generate warnings.  This contains a fully
+            /// formatted list of warning(s) generated across the execution.
+            /// </summary>
+            public string WarningMessage { get; set; }
         }
 
         /// <summary>
@@ -209,6 +215,7 @@ namespace StatTag.Models
         public ExecuteResult ExecuteStatPackage(CodeFile file, int filterMode = Constants.ParserFilterMode.ExcludeOnDemand, List<Tag> tagsToRun = null)
         {
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
+            var warningMessage = new StringBuilder();
             using (var automation = GetStatAutomation(file))
             {
                 if (!automation.Initialize(file, DocumentManager.Logger))
@@ -256,6 +263,14 @@ namespace StatTag.Models
                         }   
 
                         var results = automation.RunCommands(codeToExecute, step.Tag);
+
+                        foreach (var commandResult in results)
+                        {
+                            if (!string.IsNullOrWhiteSpace(commandResult.WarningResult))
+                            {
+                                warningMessage.AppendLine(commandResult.WarningResult);
+                            }
+                        }
 
                         var tag = DocumentManager.FindTag(step.Tag.Id);
                         if (tag != null && results != null)
@@ -310,6 +325,11 @@ namespace StatTag.Models
                     result.ErrorMessage = message;
                     return result;
                 }
+            }
+
+            if (warningMessage.Length > 0)
+            {
+                result.WarningMessage = warningMessage.ToString();
             }
 
             return result;

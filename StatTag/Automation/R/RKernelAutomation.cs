@@ -351,11 +351,15 @@ namespace R
                 var htmlValue = GetHtmlValueResult(message);
                 if (string.IsNullOrWhiteSpace(htmlValue))
                 {
+                    // We know that print() returns just a plain text representation of the table data.  Because the user wants
+                    // this formatted in Word as an actual table, and we can't reliably parse the text-based table, we will display
+                    // a warning to the user to be shown after execution is done.
                     if (((RParser)Parser).CommandContainsPrint(command))
                     {
-                        throw new StatTagUserException(
-                            string.Format("StatTag did not receive a table result for the '{0}' tag. If you have wrapped your result in a print() statement, please remove it in your R code and try again.\r\n\r\nIf this problem persists, please contact the StatTag team at StatTag@northwestern.edu.",
-                            tag.Name));
+                        return new CommandResult() {
+                            WarningResult = string.Format("StatTag did not receive a table result for the '{0}' tag. If you have wrapped your result in a print() statement, please remove it in your R code and try again.",
+                            tag.Name)
+                        };
                     }
 
                     return new CommandResult() { TableResult = ParseTableResult(GetTextValueResult(message)) };

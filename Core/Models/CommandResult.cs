@@ -12,6 +12,12 @@ namespace StatTag.Core.Models
         public string FigureResult { get; set; }
         public Table TableResult { get; set; }
         public string VerbatimResult { get; set; }
+        /// <summary>
+        /// Holds any warning(s) from the result of the command execution.  It's assumed that any
+        /// warning is not serious enough to halt execution of the code, and so these will be
+        /// displayed at the end of execution.
+        /// </summary>
+        public string WarningResult { get; set; }
 
         /// <summary>
         /// Indicates that a promise is made to deliver table data, but that the data may
@@ -33,7 +39,8 @@ namespace StatTag.Core.Models
                     && string.IsNullOrWhiteSpace(FigureResult)
                     && string.IsNullOrWhiteSpace(VerbatimResult)
                     && (TableResult == null || TableResult.IsEmpty())
-                    && string.IsNullOrWhiteSpace(TableResultPromise));
+                    && string.IsNullOrWhiteSpace(TableResultPromise)
+                    && string.IsNullOrWhiteSpace(WarningResult));
         }
 
         public override string ToString()
@@ -61,6 +68,11 @@ namespace StatTag.Core.Models
             if (!string.IsNullOrWhiteSpace(TableResultPromise))
             {
                 return string.Format("Table promise: {0}", TableResultPromise);
+            }
+
+            if (!string.IsNullOrWhiteSpace(WarningResult))
+            {
+                return WarningResult;
             }
 
             return string.Empty;
