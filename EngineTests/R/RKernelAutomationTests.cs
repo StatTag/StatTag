@@ -86,6 +86,11 @@ namespace EngineTests.R
             Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("NA"));
             Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("&lt;NA&gt;"));
             Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("<NA>"));
+            // There can be flanking whitespace for "NA" -- note that the next set of tests
+            // (ProcessHtmlValue_NoReplaceNA) makes sure flanking whitespace isn't allowed
+            // for the bracketed version.
+            Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("  NA"));
+            Assert.AreEqual(string.Empty, RKernelAutomation.ProcessHtmlValue("NA   "));
         }
 
         [TestMethod]

@@ -578,7 +578,9 @@ namespace R
 
             // If the HTML result is just "NA" we assume it represents a real NA value.  If it
             // were a string containing 'NA', we would expect it to be captured in quotes.
-            if (original.Equals(NA_VALUE))
+            // Note that only for the "NA" value we will account for whitespace.  Later on we will
+            // require it to not have any flanking whitespace.
+            if (original.Trim().Equals(NA_VALUE))
             {
                 return string.Empty;
             }
