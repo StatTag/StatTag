@@ -48,7 +48,11 @@ namespace StatTag.Core.Parser
                 return null;
             }
 
-            return commands.Select(x => KableCommand.Replace(x, "print(")).ToList();
+            // Why replace with "("?  Because the kabel command could be nested, we don't
+            // want to have to worry about matching up the closing parenthesis.  Instead
+            // we can just put whatever is left in parentheses and R will handle it as
+            // if we had just entered the command.
+            return commands.Select(x => KableCommand.Replace(x, "(")).ToList();
         } 
 
         /// <summary>

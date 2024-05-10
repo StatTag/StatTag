@@ -260,6 +260,7 @@
     <Compile Include="Automation\Python\PythonCommands.cs" />
     <Compile Include="Automation\R\RCommands.cs" />
     <Compile Include="Automation\R\RKernelAutomation.cs" />
+    <Compile Include="Automation\R\RMarkdownKernelAutomation.cs" />
     <Compile Include="Automation\R\VerbatimDevice.cs" />
     <Compile Include="Automation\SAS\SASAutomation.cs" />
     <Compile Include="Automation\SAS\SASCommands.cs" />

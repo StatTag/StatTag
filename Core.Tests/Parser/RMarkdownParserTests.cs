@@ -132,8 +132,8 @@ namespace Core.Tests.Parser
         {
             var parser = new RMarkdownParser();
             Assert.IsNull(parser.ReplaceKnitrCommands(null));
-            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\nprint(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "knitr::kable(PrettyTable)" })));
-            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\nprint(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "kable(PrettyTable)" })));
+            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\n(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "knitr::kable(PrettyTable)" })));
+            Assert.AreEqual("PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)\r\n(PrettyTable)", string.Join("\r\n", parser.ReplaceKnitrCommands(new List<string>() { "PrettyTable <- print(TableOne, printToggle = FALSE, noSpaces = TRUE)", "kable(PrettyTable)" })));
         }
     }
 }

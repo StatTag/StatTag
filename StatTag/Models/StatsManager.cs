@@ -88,8 +88,8 @@ namespace StatTag.Models
                         return new SASAutomation();
                     case Constants.StatisticalPackages.R:
                         return new RKernelAutomation(Config);
-                    //case Constants.StatisticalPackages.RMarkdown:
-                    //    return new RMarkdownAutomation();
+                    case Constants.StatisticalPackages.RMarkdown:
+                        return new RMarkdownKernelAutomation(Config);
                     case Constants.StatisticalPackages.Python:
                         return new PythonAutomation(Config);
                 }
