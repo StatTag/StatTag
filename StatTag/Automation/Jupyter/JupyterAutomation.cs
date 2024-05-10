@@ -305,7 +305,14 @@ namespace Jupyter
             // to capture the result if it's flagged as a tag.
             if (tag.Type == Constants.TagType.Value)
             {
-                var valueResult = GetTextValueResult(result.FirstOrDefault());
+                // Try to get the first non-stderr result.  We can get stderr messages (which may appear first in the list)
+                // if there is a warning in R.  We want to get the first actual result, where possible.  If our first filter
+                // returns nothing, then we will fall back to just grabbing whatever is in the first result.
+                var resultResponseToUse = result.FirstOrDefault(r => r != null &&
+                        r.Content != null &&
+                        r.Content.name != null &&
+                        !r.Content.name.ToString().Trim().Equals("stderr"));
+                var valueResult = GetTextValueResult(resultResponseToUse ?? result.FirstOrDefault());
                 if (valueResult != null)
                 {
                     return new CommandResult() {ValueResult = valueResult};
