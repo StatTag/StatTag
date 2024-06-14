@@ -216,115 +216,127 @@ namespace StatTag.Models
         {
             var result = new ExecuteResult() { Success = false, UpdatedTags = new List<Tag>() };
             var warningMessage = new StringBuilder();
-            using (var automation = GetStatAutomation(file))
+            try
             {
-                if (!automation.Initialize(file, DocumentManager.Logger))
+                using (var automation = GetStatAutomation(file))
                 {
-                    result.ErrorMessage = automation.GetInitializationErrorMessage();
-                    return result;
-                }
-
-                var parser = Factories.GetParser(file);
-                if (parser == null)
-                {
-                    return result;
-                }
-
-                var document = Globals.ThisAddIn.SafeGetActiveDocument();
-                var metadata = DocumentManager.LoadMetadataFromDocument(document, true);
-
-                try
-                {
-                    // Get all of the commands in the code file that should be executed given the current filter
-                    var steps = parser.GetExecutionSteps(file, automation, filterMode, tagsToRun);
-                    for (int index = 0; index < steps.Count; index++)
+                    if (!automation.Initialize(file, DocumentManager.Logger))
                     {
-                        var step = steps[index];
+                        result.ErrorMessage = automation.GetInitializationErrorMessage();
+                        return result;
+                    }
 
-                        // Every few steps, we will allow the screen to update, otherwise the UI looks like it's
-                        // completely hung up.  Note that we will only do this if screen updating is disabled when
-                        // we invoke this method.  Otherwise we run the risk of not re-enabling screen updates.
-                        if (!Globals.ThisAddIn.Application.ScreenUpdating && (index%RefreshStepInterval == 0))
+                    var parser = Factories.GetParser(file);
+                    if (parser == null)
+                    {
+                        return result;
+                    }
+
+                    var document = Globals.ThisAddIn.SafeGetActiveDocument();
+                    var metadata = DocumentManager.LoadMetadataFromDocument(document, true);
+
+                    try
+                    {
+                        // Get all of the commands in the code file that should be executed given the current filter
+                        var steps = parser.GetExecutionSteps(file, automation, filterMode, tagsToRun);
+                        for (int index = 0; index < steps.Count; index++)
+                        {
+                            var step = steps[index];
+
+                            // Every few steps, we will allow the screen to update, otherwise the UI looks like it's
+                            // completely hung up.  Note that we will only do this if screen updating is disabled when
+                            // we invoke this method.  Otherwise we run the risk of not re-enabling screen updates.
+                            if (!Globals.ThisAddIn.Application.ScreenUpdating && (index % RefreshStepInterval == 0))
+                            {
+                                Globals.ThisAddIn.Application.ScreenUpdating = true;
+                                Globals.ThisAddIn.Application.ScreenRefresh();
+                                Globals.ThisAddIn.Application.ScreenUpdating = false;
+                            }
+
+                            // Call any parser-dependent processing hooks for preparing the code in this step.
+                            var codeToExecute = parser.PreProcessExecutionStepCode(step);
+
+                            // If there is no tag, we want to continue our loop with the next step,
+                            // since there's no processing needed outside of running the code.
+                            if (step.Tag == null)
+                            {
+                                automation.RunCommands(codeToExecute);
+                                continue;
+                            }
+
+                            var results = automation.RunCommands(codeToExecute, step.Tag);
+
+                            foreach (var commandResult in results)
+                            {
+                                if (!string.IsNullOrWhiteSpace(commandResult.WarningResult))
+                                {
+                                    warningMessage.AppendLine(commandResult.WarningResult);
+                                }
+                            }
+
+                            var tag = DocumentManager.FindTag(step.Tag.Id);
+                            if (tag != null && results != null)
+                            {
+                                var resultList = new List<CommandResult>(results);
+
+                                // Determine if we had a cached list, and if so if the results have changed.
+                                // If the cached list is null, we will always try to refresh.
+                                bool resultsChanged = (tag.CachedResult == null) ||
+                                                        (tag.CachedResult != null &&
+                                                           !resultList.SequenceEqual(tag.CachedResult));
+                                tag.CachedResult = resultList;
+
+                                // If the results did change, we need to sweep the document and update all of the results
+                                if (resultsChanged)
+                                {
+                                    // For all table tags, update the formatted cells collection
+                                    if (tag.IsTableTag())
+                                    {
+                                        tag.CachedResult.FindAll(x => x.TableResult != null).ForEach(
+                                            x =>
+                                                x.TableResult.FormattedCells =
+                                                    tag.TableFormat.Format(x.TableResult,
+                                                        Factories.GetValueFormatter(tag.CodeFile),
+                                                        metadata));
+                                    }
+
+                                    result.UpdatedTags.Add(tag);
+                                }
+                            }
+                        }
+
+                        result.Success = true;
+                    }
+                    catch (Exception exc)
+                    {
+                        if (DocumentManager != null && DocumentManager.Logger != null)
+                        {
+                            DocumentManager.Logger.WriteException(exc);
+                        }
+
+                        // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's
+                        // done to avoid any UI artifacts in Word.
+                        automation.Hide();
+                        if (!Globals.ThisAddIn.Application.ScreenUpdating)
                         {
                             Globals.ThisAddIn.Application.ScreenUpdating = true;
                             Globals.ThisAddIn.Application.ScreenRefresh();
-                            Globals.ThisAddIn.Application.ScreenUpdating = false;
                         }
 
-                        // Call any parser-dependent processing hooks for preparing the code in this step.
-                        var codeToExecute = parser.PreProcessExecutionStepCode(step);
-
-                        // If there is no tag, we want to continue our loop with the next step,
-                        // since there's no processing needed outside of running the code.
-                        if (step.Tag == null)
-                        {
-                            automation.RunCommands(codeToExecute);
-                            continue;
-                        }   
-
-                        var results = automation.RunCommands(codeToExecute, step.Tag);
-
-                        foreach (var commandResult in results)
-                        {
-                            if (!string.IsNullOrWhiteSpace(commandResult.WarningResult))
-                            {
-                                warningMessage.AppendLine(commandResult.WarningResult);
-                            }
-                        }
-
-                        var tag = DocumentManager.FindTag(step.Tag.Id);
-                        if (tag != null && results != null)
-                        {
-                            var resultList = new List<CommandResult>(results);
-
-                            // Determine if we had a cached list, and if so if the results have changed.
-                            // If the cached list is null, we will always try to refresh.
-                            bool resultsChanged = (tag.CachedResult == null) ||
-                                                    (tag.CachedResult != null &&
-                                                       !resultList.SequenceEqual(tag.CachedResult));
-                            tag.CachedResult = resultList;
-
-                            // If the results did change, we need to sweep the document and update all of the results
-                            if (resultsChanged)
-                            {
-                                // For all table tags, update the formatted cells collection
-                                if (tag.IsTableTag())
-                                {
-                                    tag.CachedResult.FindAll(x => x.TableResult != null).ForEach(
-                                        x =>
-                                            x.TableResult.FormattedCells =
-                                                tag.TableFormat.Format(x.TableResult,
-                                                    Factories.GetValueFormatter(tag.CodeFile),
-                                                    metadata));
-                                }
-
-                                result.UpdatedTags.Add(tag);
-                            }
-                        }
+                        var message = automation.FormatErrorMessageFromExecution(exc);
+                        result.ErrorMessage = message;
+                        return result;
                     }
-
-                    result.Success = true;
                 }
-                catch (Exception exc)
+            }
+            catch (Exception exc)
+            {
+                if (DocumentManager != null && DocumentManager.Logger != null)
                 {
-                    if (DocumentManager != null && DocumentManager.Logger != null)
-                    {
-                        DocumentManager.Logger.WriteException(exc);
-                    }
-
-                    // Hide the statistical program UI (if applicable), and ensure the screen is refreshed once that's
-                    // done to avoid any UI artifacts in Word.
-                    automation.Hide();
-                    if (!Globals.ThisAddIn.Application.ScreenUpdating)
-                    {
-                        Globals.ThisAddIn.Application.ScreenUpdating = true;
-                        Globals.ThisAddIn.Application.ScreenRefresh();
-                    }
-
-                    var message = automation.FormatErrorMessageFromExecution(exc);
-                    result.ErrorMessage = message;
-                    return result;
+                    DocumentManager.Logger.WriteException(exc);
                 }
+                result.ErrorMessage = exc.Message;
+                return result;
             }
 
             if (warningMessage.Length > 0)

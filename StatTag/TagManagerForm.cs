@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using ScintillaNET;
 using StatTag.Controls;
@@ -951,7 +952,17 @@ namespace StatTag
         /// <param name="e"></param>
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            CompletedBackgroundWorker(e.Error, e.Cancelled, (ExecutionResult)e.Result);
+            try
+            {
+                // In situations with exceptions, we may not be able to convert e.Result (or even reference it) without
+                // an exception being thrown.  We will attempt to use e.Result, but if that throws a TargetInvocationException
+                // we will call to complete the background worker again, but with no attempt to use the result.
+                CompletedBackgroundWorker(e.Error, e.Cancelled, (ExecutionResult)e.Result);
+            }
+            catch (TargetInvocationException exc)
+            {
+                CompletedBackgroundWorker(e.Error, e.Cancelled, null);
+            }
         }
 
         /// <summary>
