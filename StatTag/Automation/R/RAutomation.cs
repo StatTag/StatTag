@@ -76,6 +76,12 @@ namespace R
             KernelName = Configuration.DefaultRKernel;
         }
 
+        /// <summary>
+        /// Provides information about the R installation on the user's machine.  This uses an instance of the 
+        /// automation object to issue commands in order to gather system information.
+        /// </summary>
+        /// <param name="config">The configuration object needed to initialize the automation object</param>
+        /// <returns>A formatted string of system information, which can be displayed to the user</returns>
         public static string InstallationInformation(Configuration config)
         {
             var builder = new StringBuilder();

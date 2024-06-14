@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using JupyterKernelManager;
@@ -29,7 +30,8 @@ namespace Jupyter
 
         private static readonly Dictionary<string, string> PythonProfileCommands = new Dictionary<string, string>()
         {
-            { "import sys; print(sys.version)", "Version" }
+            { "import sys; print(sys.version)", "Version" },
+            { "sys.executable", "Path" }
         };
 
         protected Configuration Config { get; set; }
@@ -59,6 +61,40 @@ namespace Jupyter
 
             // It shouldn't have changed, but we will set the kernel explicitly to the default just in case.
             KernelName = Configuration.DefaultPythonKernel;
+        }
+
+        /// <summary>
+        /// Provides information about the Python installation on the user's machine.  This uses an instance of the 
+        /// automation object to issue commands in order to gather system information.
+        /// </summary>
+        /// <param name="config">The configuration object needed to initialize the automation object</param>
+        /// <returns>A formatted string of system information, which can be displayed to the user</returns>
+        public static string InstallationInformation(Configuration config)
+        {
+            var builder = new StringBuilder();
+            try
+            {
+                var engine = new PythonAutomation(config);
+                if (engine.Initialize(null, new LogManager()))
+                {
+                    foreach (var command in PythonProfileCommands)
+                    {
+                        var result = engine.RunCommand(command.Key, new Tag() { Type = Constants.TagType.Value });
+                        if (result != null && result.ValueResult != null)
+                        {
+                            builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                builder.AppendFormat(
+                    "Unable to communicate with Python. Python or its kernel may not be installed or there might be other configuration issues.\r\n");
+                builder.AppendFormat("{0}\r\n", exc.Message);
+            }
+
+            return builder.ToString().Trim();
         }
 
         public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)

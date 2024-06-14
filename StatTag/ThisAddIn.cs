@@ -580,6 +580,8 @@ namespace StatTag
                     systemInfoBuilder.Append(StataAutomation.InstallationInformation(SettingsManager.Settings).Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
                     systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    systemInfoBuilder.Append("\r\n\r\nPython:\r\n\t");
+                    systemInfoBuilder.Append(PythonAutomation.InstallationInformation(Config).Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nJupyter Kernels:\r\n\t");
                     systemInfoBuilder.Append(JupyterAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
                     lock (ThisAddIn.SystemInformation)
