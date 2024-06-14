@@ -81,18 +81,18 @@ namespace R
             var builder = new StringBuilder();
             try
             {
-                //var engine = new RKernelAutomation(config);
-                //if (engine.Initialize(null, new LogManager()))
-                //{
-                //    foreach (var command in RProfileCommands)
-                //    {
-                //        var result = engine.RunCommand(command.Key, new Tag() { Type = Constants.TagType.Value } );
-                //        if (result != null && result.ValueResult != null)
-                //        {
-                //            builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
-                //        }
-                //    }
-                //}
+                var engine = new RAutomation(config);
+                if (engine.Initialize(null, new LogManager()))
+                {
+                    foreach (var command in RProfileCommands)
+                    {
+                        var result = engine.RunCommand(command.Key, new Tag() { Type = Constants.TagType.Value });
+                        if (result != null && result.ValueResult != null)
+                        {
+                            builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
+                        }
+                    }
+                }
             }
             catch (Exception exc)
             {
