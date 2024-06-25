@@ -248,7 +248,9 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="About.cs" />
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
@@ -259,84 +261,123 @@
     <Compile Include="Automation\R\RCommands.cs" />
     <Compile Include="Automation\R\RAutomation.cs" />
     <Compile Include="Automation\R\RMarkdownAutomation.cs" />
-    <Compile Include="Automation\R\VerbatimDevice.cs" />
     <Compile Include="Automation\SAS\SASAutomation.cs" />
     <Compile Include="Automation\SAS\SASCommands.cs" />
     <Compile Include="Automation\SAS\SasServer.cs" />
     <Compile Include="Automation\Stata\StataAutomation.cs" />
     <Compile Include="Automation\Stata\StataCommands.cs" />
-    <Compile Include="CheckDocument.cs" />
+    <Compile Include="CheckDocument.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CheckDocument.Designer.cs">
       <DependentUpon>CheckDocument.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\CodeFileEntry.cs" />
+    <Compile Include="Controls\CodeFileEntry.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\CodeFileEntry.Designer.cs">
       <DependentUpon>CodeFileEntry.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\CollidingTagsGroup.cs" />
+    <Compile Include="Controls\CollidingTagsGroup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\CollidingTagsGroup.Designer.cs">
       <DependentUpon>CollidingTagsGroup.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DateTimeValueProperties.cs" />
+    <Compile Include="Controls\DateTimeValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\DateTimeValueProperties.Designer.cs">
       <DependentUpon>DateTimeValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MissingValueSettings.cs" />
+    <Compile Include="Controls\MissingValueSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\MissingValueSettings.Designer.cs">
       <DependentUpon>MissingValueSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\NumericValueProperties.cs" />
+    <Compile Include="Controls\NumericValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\NumericValueProperties.Designer.cs">
       <DependentUpon>NumericValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PercentageValueProperties.cs" />
+    <Compile Include="Controls\PercentageValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\PercentageValueProperties.Designer.cs">
       <DependentUpon>PercentageValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PlaceholderTextBox.cs" />
+    <Compile Include="Controls\PlaceholderTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\PlaceholderTextBox.Designer.cs">
       <DependentUpon>PlaceholderTextBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ScintillaEditorPopover.cs" />
-    <Compile Include="Controls\SplitButton.cs" />
-    <Compile Include="Controls\TableProperties.cs" />
+    <Compile Include="Controls\ScintillaEditorPopover.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\SplitButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TableProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\TableProperties.Designer.cs">
       <DependentUpon>TableProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ValueProperties.cs" />
+    <Compile Include="Controls\ValueProperties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\ValueProperties.Designer.cs">
       <DependentUpon>ValueProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\HorizontalLine.cs" />
+    <Compile Include="Controls\HorizontalLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\HorizontalLine.Designer.cs">
       <DependentUpon>HorizontalLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\VerticalLine.cs" />
+    <Compile Include="Controls\VerticalLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\VerticalLine.Designer.cs">
       <DependentUpon>VerticalLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocumentProperties.cs" />
+    <Compile Include="DocumentProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DocumentProperties.Designer.cs">
       <DependentUpon>DocumentProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="EditTag.cs" />
+    <Compile Include="EditTag.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="EditTag.Designer.cs">
       <DependentUpon>EditTag.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExecutionProgressForm.cs" />
+    <Compile Include="ExecutionProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ExecutionProgressForm.Designer.cs">
       <DependentUpon>ExecutionProgressForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IProgressReporter.cs" />
-    <Compile Include="LinkCodeFiles.cs" />
+    <Compile Include="LinkCodeFiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="LinkCodeFiles.Designer.cs">
       <DependentUpon>LinkCodeFiles.cs</DependentUpon>
     </Compile>
-    <Compile Include="LoadAnalysisCode.cs" />
+    <Compile Include="LoadAnalysisCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="LoadAnalysisCode.Designer.cs">
       <DependentUpon>LoadAnalysisCode.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainRibbon.cs" />
+    <Compile Include="MainRibbon.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MainRibbon.Designer.cs">
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
@@ -360,11 +401,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="TagManagerForm.cs" />
+    <Compile Include="TagManagerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="TagManagerForm.Designer.cs">
       <DependentUpon>TagManagerForm.cs</DependentUpon>
     </Compile>
@@ -474,14 +519,6 @@
     <ProjectReference Include="..\..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj">
       <Project>{eadc745a-47dd-4354-a387-06591debb797}</Project>
       <Name>JupyterKernelManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\R.NET\RDotNet.csproj">
-      <Project>{0923e1a0-2032-4997-ab73-49e42c4034a9}</Project>
-      <Name>RDotNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\rdotnet\RDotNet.NativeLibrary\RDotNet.NativeLibrary.csproj">
-      <Project>{2a089a59-0f22-4484-b442-0fe8bda10879}</Project>
-      <Name>RDotNet.NativeLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ScintillaNET-FindReplaceDialog\ScintillaNet FindReplaceDialog\ScintillaNET FindReplaceDialog.csproj">
       <Project>{548fd833-9a3b-41bb-9850-570afe9a91b7}</Project>
