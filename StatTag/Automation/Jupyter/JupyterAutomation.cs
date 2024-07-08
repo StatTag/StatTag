@@ -4,6 +4,7 @@ using StatTag.Core.Models;
 using StatTag.Core.Utility;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -24,6 +25,20 @@ namespace Jupyter
         protected string TemporaryImageFilePath = "";
 
         private static readonly Regex SingleQuoteWrappedString = new Regex("^'([\\s\\S]*)'$");
+
+        /// <summary>
+        /// MIME types for images that can be returned by a Jupyter kernel
+        /// </summary>
+        private class ImageMimeTypes
+        {
+            public const string PNG = "image/png";
+            public const string JPEG = "image/jpeg";
+            public const string BMP = "image/bmp";
+            public const string GIF = "image/gif";
+            public const string PDF = "application/pdf";
+            public const string SVG = "image/svg+xml";
+            public const string TIFF = "image/tiff";
+        }
 
         public StatPackageState State { get; set; }
 
@@ -293,8 +308,147 @@ namespace Jupyter
             return null;
         }
 
+        /// <summary>
+        /// Utility class to make it easier to ship around data from GetImageData
+        /// </summary>
+        private class ImageDataResult
+        {
+            public dynamic Data = null;
+            public string MimeType = null;
+            public string Extension = null;
+        }
+
+        /// <summary>
+        /// Pull image data (if available) from a Jupyter kernel message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private ImageDataResult GetImageData(Message message)
+        {
+            if (message == null)
+            {
+                return null;
+            }
+
+            var imageData = message.SafeGetData(ImageMimeTypes.PNG);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.PNG,
+                    Extension = "png"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.JPEG);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.JPEG,
+                    Extension = "jpg"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.BMP);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.BMP,
+                    Extension = "bmp"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.GIF);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.GIF,
+                    Extension = "gif"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.PDF);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.PDF,
+                    Extension = "pdf"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.SVG);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.SVG,
+                    Extension = "svg"
+                };
+            }
+
+            imageData = message.SafeGetData(ImageMimeTypes.TIFF);
+            if (imageData != null)
+            {
+                return new ImageDataResult()
+                {
+                    Data = imageData,
+                    MimeType = ImageMimeTypes.TIFF,
+                    Extension = "tiff"
+                };
+            }
+
+            return null;
+        }
+
         public virtual CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
+            // If we have a tag, it's not the end of the tag, and the tag is for a figure, see if the Jupyter
+            // kernel returned some sort of image data.
+            if (tag != null && tag.Type == Constants.TagType.Figure && !Parser.IsTagEnd(command))
+            {
+                // If the temporary image file path hasn't been initialized for this execution, we can't proceed.
+                // We go off the assumption that the initialization for the stat automation code will take care
+                // of creating this directory, so if it fails we don't try again.
+                if (!Directory.Exists(TemporaryImageFilePath))
+                {
+                    return null;
+                }
+
+                // A result can have multiple messages, which may include things like a warning before the actual
+                // image.  We will process all of the messages in the result until we find one that gives us an
+                // image.  If we don't find anything, we'll return a null result.
+                foreach (var message in result)
+                {
+                    var imageData = GetImageData(message);
+                    if (imageData == null)
+                    {
+                        continue;
+                    }
+
+                    // Part one is to write this to our temporary image folder
+                    var tempImageFile = Path.Combine(TemporaryImageFilePath, "tmp." + imageData.Extension);
+                    File.WriteAllBytes(tempImageFile, Convert.FromBase64String(imageData.Data));
+
+                    // We know this is a tag, so we know we need to save the file.  We will just go ahead and save this
+                    // up a level to a valid directory so the file can be referenced later.
+                    var correctedPath = Path.GetFullPath(Path.Combine(TemporaryImageFilePath, ".."));
+                    var imageFile = Path.Combine(correctedPath, string.Format("{0}.png", TagUtil.TagNameAsFileName(tag)));
+                    File.Copy(tempImageFile, imageFile, true);
+
+                    return new CommandResult() { FigureResult = imageFile };
+                }
+            }
+
             return null;
         }
 

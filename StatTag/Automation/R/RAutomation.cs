@@ -655,6 +655,8 @@ namespace R
 
         public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
+            // Checking for an image export command is our first attempt, since it is specific to our R automation
+            // workflow.  Otherwise, we will fallback to default behavior.
             if (Parser.IsImageExport(command))
             {
                 // Attempt to extract the save location (either a file name, relative path, or absolute path)
@@ -668,7 +670,8 @@ namespace R
                 return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
             }
 
-            return null;
+            // Try pulling out a base64-encoded image from the response
+            return base.HandleImageResult(tag, command, result);
         }
         protected Table GetTableResult(string command)
         {
