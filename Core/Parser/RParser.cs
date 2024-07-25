@@ -18,7 +18,7 @@ namespace StatTag.Core.Parser
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
         public static readonly string[] TableCommands = {"write.csv", "write.csv2", "write.table"};
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)), RegexOptions.Multiline);
         private static readonly Regex MultiLinePlotRegex = new Regex("\\)\\s*\\+[ \t]*[\\r\\n]+[ \t]*");
         private static readonly Regex MultiLinePipeRegex = new Regex("(%(?:[<T]?>|\\$)%)[ \t]*[\\r\\n]+[ \t]*");
         private static readonly Regex PrintRegex = new Regex("^\\s*print\\s*\\(", RegexOptions.Multiline);

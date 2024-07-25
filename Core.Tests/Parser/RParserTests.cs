@@ -148,6 +148,34 @@ namespace Core.Tests.Parser
         }
 
         [TestMethod]
+        public void GetTableDataPath_MultiLine()
+        {
+            // Although we will always allow something to be considered a table, this will test if we can
+            // pull a file name out of call to write output.
+            var parser = new RParser();
+            Assert.AreEqual("\"test.txt\"", parser.GetTableDataPath("y <- 5\r\nwrite.table(x, file=\"test.txt\", append=FALSE, sep = \",\")"));
+
+            // Detect positional placement of file parameter
+            Assert.AreEqual("\"test.txt\"", parser.GetTableDataPath("y <- 5\r\nprint(y)\r\nwrite.table(x, \"test.txt\")"));
+
+            // Mix order of parameters
+            Assert.AreEqual("\"test2.csv\"", parser.GetTableDataPath("y <- 5\r\nwrite.csv2(x, append=FALSE, file=\"test2.csv\", sep = \",\")\r\nprint(y)"));
+
+            // Don't return anything for assignment/other operations that end up creating a table-compatible object
+            Assert.AreEqual("", parser.GetTableDataPath("x <- c(1,2,3,4,5)"));
+
+            // Handle variables used as file paths
+            Assert.AreEqual("out_file", parser.GetTableDataPath("out_file <- \"test.csv\"\r\nwrite.table(x, out_file)"));
+            Assert.AreEqual("out_file", parser.GetTableDataPath("out_file <- \"test.csv\"\r\nwrite.table(x, file=out_file)"));
+
+            // Handle functions used as file paths
+            Assert.AreEqual("paste(getwd(), \"test.txt\", sep = \"\")", parser.GetTableDataPath("y <- 5\r\nwrite.table(x, file = paste(getwd(), \"test.txt\", sep = \"\"))"));
+
+            // Handle single quotes in file paths
+            Assert.AreEqual("\"C:/Test/Stats/Test's/test.csv\"", parser.GetTableDataPath("y <- 5\r\nwrite.csv(df, \"C:/Test/Stats/Test's/test.csv\")"));
+        }
+
+        [TestMethod]
         public void CollapseMultiLineCommands()
         {
             var parser = new RParser();

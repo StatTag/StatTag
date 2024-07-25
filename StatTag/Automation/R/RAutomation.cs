@@ -96,8 +96,15 @@ namespace R
                         if (result != null && result.ValueResult != null)
                         {
                             builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
+                        } else
+                        {
+                            builder.AppendFormat("{0} : returned an empty result\r\n", command.Value);
                         }
                     }
+                }
+                else
+                {
+                    builder.AppendFormat("Failed to initialize the R automation engine");
                 }
             }
             catch (Exception exc)
@@ -182,36 +189,6 @@ namespace R
             base.Dispose();
         }
 
-        /// <summary>
-        /// Utility function to take an array of commands and collapse it into an array of commands with at least
-        /// 3 elements.  This assumes (without checking) that if there are 3 or more lines, that the first line
-        /// represents the starting StatTag tag comment, the last line represents the ending StatTag tag comment,
-        /// and everything in the middle is code that should be collapsed to a single string, separated by newline.
-        /// If there are fewer than 3 elements, the original array is returned.
-        /// </summary>
-        /// <param name="commands">Array of command strings to collapse</param>
-        /// <returns>A collapsed array of maximum 3 command strings</returns>
-        public static string[] CollapseTagCommandsArray(string[] commands)
-        {
-            if (commands == null)
-            {
-                return commands;
-            }
-
-            if (commands.Length >= 3)
-            {
-                string[] newCommands = new[]
-                {
-                        commands[0],
-                        string.Join("\r\n", commands.Skip(1).Take(commands.Length - 2)),
-                        commands[commands.Length - 1]
-                };
-                return newCommands;
-            }
-
-            return commands;
-        }
-        
         public override CommandResult[] RunCommands(string[] commands, Tag tag = null)
         {
             // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
@@ -657,7 +634,7 @@ namespace R
         {
             // Checking for an image export command is our first attempt, since it is specific to our R automation
             // workflow.  Otherwise, we will fallback to default behavior.
-            if (Parser.IsImageExport(command))
+            if (Parser.IsImageExport(command) && !Parser.IsTagStart(command))
             {
                 // Attempt to extract the save location (either a file name, relative path, or absolute path)
                 // If it is empty, we will assign one to the image based on the tag name, and use that so
