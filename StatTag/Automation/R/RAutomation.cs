@@ -104,7 +104,7 @@ namespace R
                 }
                 else
                 {
-                    builder.AppendFormat("Failed to initialize the R automation engine");
+                    builder.AppendFormat("No R environment with IRkernel support could be found");
                 }
             }
             catch (Exception exc)

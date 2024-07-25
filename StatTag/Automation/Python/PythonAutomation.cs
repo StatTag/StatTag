@@ -86,6 +86,10 @@ namespace Jupyter
                         }
                     }
                 }
+                else
+                {
+                    builder.AppendFormat("No Python environment with IPython support could be found");
+                }
             }
             catch (Exception exc)
             {
