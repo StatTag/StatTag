@@ -97,19 +97,60 @@ namespace Jupyter
             return builder.ToString().Trim();
         }
 
+        public override CommandResult[] RunCommands(string[] commands, Tag tag = null)
+        {
+            // If there is no tag, and we're just running a big block of code, it's much easier if we can send that to
+            // the R engine at once.  Otherwise we have to worry about collapsing commands, function definitions, etc.
+            if (tag == null)
+            {
+                commands = new[] { string.Join("\r\n", commands) };
+            }
+            else
+            {
+                // commands = ((RParser)Parser).CollapseMultiLineCommands(commands);
+
+                // When processing a tag, we need to keep it so the tag comments are at the beginning and end of the
+                // command array, and all actual code then needs to live in the middle in a single (combined) string.
+                // This is because Jupyter won't do incremental code execution, we need to send it our full block of
+                // commands at once, in a single string.
+                commands = CollapseTagCommandsArray(commands);
+            }
+
+            return base.RunCommands(commands, tag);
+        }
+
         public override CommandResult HandleImageResult(Tag tag, string command, List<Message> result)
         {
-            if (tag.Type == Constants.TagType.Figure && Parser.IsImageExport(command))
+            // If it's not an image tag, we won't even try to do any other checks.
+            if (tag.Type != Constants.TagType.Figure)
             {
-                // Attempt to extract the save location (either a file name, relative path, or absolute path)
-                // If it is empty, we will assign one to the image based on the tag name, and use that so
-                // the image is properly imported.
-                var saveLocation = Parser.GetImageSaveLocation(command);
-                if (string.IsNullOrWhiteSpace(saveLocation))
+                return null;
+            }
+
+            // If it's not the start tag (which wouldn't have results), try to get an image result
+            if (!Parser.IsTagStart(command))
+            {
+                // First, try pulling out a base64-encoded image from the response.  If that doesn't work, 
+                // check to see if there was a saved file.
+                var commandResult = base.HandleImageResult(tag, command, result);
+                if (commandResult != null)
                 {
-                    saveLocation = "\"tmp\"";
+                    return commandResult;
                 }
-                return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
+
+                if (Parser.IsImageExport(command))
+                {
+                    // Attempt to extract the save location (either a file name, relative path, or absolute path)
+                    // If it is empty, we will assign one to the image based on the tag name, and use that so
+                    // the image is properly imported.
+                    var saveLocation = Parser.GetImageSaveLocation(command);
+                    if (string.IsNullOrWhiteSpace(saveLocation))
+                    {
+                        saveLocation = "\"tmp\"";
+                    }
+                    return new CommandResult() { FigureResult = GetExpandedFilePath(saveLocation) };
+
+                }
             }
 
             return null;
@@ -158,7 +199,7 @@ namespace Jupyter
         /// <returns>A Table object containing the table data, if a table can be extracted.  Null otherwise.</returns>
         public override CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
-            if (tag.Type.Equals(Constants.TagType.Table) && Parser.IsTableResult(command))
+            if (tag.Type.Equals(Constants.TagType.Table) && !Parser.IsTagStart(command) && Parser.IsTableResult(command))
             {
                 var message = result.FirstOrDefault();
                 var htmlValue = GetHtmlValueResult(message);

@@ -303,6 +303,36 @@ namespace Jupyter
             return exc.Message;
         }
 
+        /// <summary>
+        /// Utility function to take an array of commands and collapse it into an array of commands with at least
+        /// 3 elements.  This assumes (without checking) that if there are 3 or more lines, that the first line
+        /// represents the starting StatTag tag comment, the last line represents the ending StatTag tag comment,
+        /// and everything in the middle is code that should be collapsed to a single string, separated by newline.
+        /// If there are fewer than 3 elements, the original array is returned.
+        /// </summary>
+        /// <param name="commands">Array of command strings to collapse</param>
+        /// <returns>A collapsed array of maximum 3 command strings</returns>
+        public static string[] CollapseTagCommandsArray(string[] commands)
+        {
+            if (commands == null)
+            {
+                return commands;
+            }
+
+            if (commands.Length >= 3)
+            {
+                string[] newCommands = new[]
+                {
+                        commands[0],
+                        string.Join("\r\n", commands.Skip(1).Take(commands.Length - 2)),
+                        commands[commands.Length - 1]
+                };
+                return newCommands;
+            }
+
+            return commands;
+        }
+
         public virtual CommandResult HandleTableResult(Tag tag, string command, List<Message> result)
         {
             return null;
