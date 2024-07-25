@@ -488,7 +488,6 @@
     <Content Include="StatTag-config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="StatTag_3_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -502,7 +501,6 @@
       <SubType>Code</SubType>
     </Compile>
     <None Include="StatTag_4_TemporaryKey.pfx" />
-    <None Include="StatTag_TemporaryKey.pfx" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>
@@ -512,10 +510,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dynamic-interop-dll\DynamicInterop\DynamicInterop.csproj">
-      <Project>{37e8df32-0d37-418e-b976-10f4b36a0073}</Project>
-      <Name>DynamicInterop</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\JupyterKernelManager\JupyterKernelManager\JupyterKernelManager.csproj">
       <Project>{eadc745a-47dd-4354-a387-06591debb797}</Project>
       <Name>JupyterKernelManager</Name>
