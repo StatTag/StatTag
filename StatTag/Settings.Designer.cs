@@ -44,6 +44,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cmdStataLocation = new System.Windows.Forms.Button();
+            this.chkStataAutomation = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.tabLogging = new System.Windows.Forms.TabPage();
@@ -54,9 +55,16 @@
             this.cmdLogLocation = new System.Windows.Forms.Button();
             this.chkEnableLogging = new System.Windows.Forms.CheckBox();
             this.tabStata = new System.Windows.Forms.TabPage();
+            this.tabR = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblRSupportStatus = new System.Windows.Forms.Label();
+            this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
+            this.cmdInstallRSupport = new System.Windows.Forms.Button();
+            this.txtRSupportProgress = new System.Windows.Forms.TextBox();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
-            this.chkStataAutomation = new System.Windows.Forms.CheckBox();
             this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.txtStataLocation = new StatTag.Controls.PlaceholderTextBox();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -78,6 +86,10 @@
             this.tableLayoutPanel5.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.tabStata.SuspendLayout();
+            this.tabR.SuspendLayout();
+            this.tableLayoutPanel9.SuspendLayout();
+            this.tableLayoutPanel10.SuspendLayout();
+            this.tableLayoutPanel11.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -120,7 +132,7 @@
             this.chkRunCodeOnOpen.Location = new System.Drawing.Point(6, 6);
             this.chkRunCodeOnOpen.Margin = new System.Windows.Forms.Padding(3, 3, 3, 20);
             this.chkRunCodeOnOpen.Name = "chkRunCodeOnOpen";
-            this.chkRunCodeOnOpen.Size = new System.Drawing.Size(412, 21);
+            this.chkRunCodeOnOpen.Size = new System.Drawing.Size(411, 21);
             this.chkRunCodeOnOpen.TabIndex = 17;
             this.chkRunCodeOnOpen.Text = "Automatically run statistical code when a StatTag document opens";
             this.chkRunCodeOnOpen.UseVisualStyleBackColor = true;
@@ -228,7 +240,7 @@
             this.label3.CausesValidation = false;
             this.label3.Location = new System.Drawing.Point(3, 44);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(247, 17);
+            this.label3.Size = new System.Drawing.Size(246, 17);
             this.label3.TabIndex = 22;
             this.label3.Text = "Total number of debug text files to keep:";
             // 
@@ -294,6 +306,17 @@
             tableLayoutPanel7.Size = new System.Drawing.Size(727, 229);
             tableLayoutPanel7.TabIndex = 18;
             // 
+            // chkStataAutomation
+            // 
+            this.chkStataAutomation.AutoSize = true;
+            this.chkStataAutomation.Location = new System.Drawing.Point(6, 6);
+            this.chkStataAutomation.Name = "chkStataAutomation";
+            this.chkStataAutomation.Size = new System.Drawing.Size(191, 21);
+            this.chkStataAutomation.TabIndex = 20;
+            this.chkStataAutomation.Text = "Enable Stata automation API";
+            this.chkStataAutomation.UseVisualStyleBackColor = true;
+            this.chkStataAutomation.CheckedChanged += new System.EventHandler(this.chkStataAutomation_CheckedChanged);
+            // 
             // tableLayoutPanel8
             // 
             tableLayoutPanel8.ColumnCount = 2;
@@ -318,6 +341,7 @@
             this.tabSettings.Controls.Add(this.tabGeneral);
             this.tabSettings.Controls.Add(this.tabLogging);
             this.tabSettings.Controls.Add(this.tabStata);
+            this.tabSettings.Controls.Add(this.tabR);
             this.tabSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabSettings.Location = new System.Drawing.Point(8, 8);
             this.tabSettings.Name = "tabSettings";
@@ -363,7 +387,7 @@
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(733, 235);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(733, 239);
             this.tableLayoutPanel5.TabIndex = 19;
             // 
             // lblLogWarning
@@ -445,6 +469,101 @@
             this.tabStata.Text = "Stata";
             this.tabStata.UseVisualStyleBackColor = true;
             // 
+            // tabR
+            // 
+            this.tabR.Controls.Add(this.tableLayoutPanel9);
+            this.tabR.Location = new System.Drawing.Point(4, 26);
+            this.tabR.Name = "tabR";
+            this.tabR.Size = new System.Drawing.Size(733, 235);
+            this.tabR.TabIndex = 3;
+            this.tabR.Text = "R";
+            this.tabR.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel9
+            // 
+            this.tableLayoutPanel9.AutoSize = true;
+            this.tableLayoutPanel9.ColumnCount = 1;
+            this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel9.Controls.Add(this.tableLayoutPanel10, 0, 0);
+            this.tableLayoutPanel9.Controls.Add(this.tableLayoutPanel11, 0, 1);
+            this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel9.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
+            this.tableLayoutPanel9.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel9.Name = "tableLayoutPanel9";
+            this.tableLayoutPanel9.RowCount = 2;
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel9.Size = new System.Drawing.Size(733, 235);
+            this.tableLayoutPanel9.TabIndex = 0;
+            // 
+            // tableLayoutPanel10
+            // 
+            this.tableLayoutPanel10.AutoSize = true;
+            this.tableLayoutPanel10.ColumnCount = 2;
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel10.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel10.Controls.Add(this.lblRSupportStatus, 1, 0);
+            this.tableLayoutPanel10.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel10.Name = "tableLayoutPanel10";
+            this.tableLayoutPanel10.RowCount = 1;
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel10.Size = new System.Drawing.Size(171, 17);
+            this.tableLayoutPanel10.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(70, 17);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "R Support:";
+            // 
+            // lblRSupportStatus
+            // 
+            this.lblRSupportStatus.AutoSize = true;
+            this.lblRSupportStatus.Location = new System.Drawing.Point(79, 0);
+            this.lblRSupportStatus.Name = "lblRSupportStatus";
+            this.lblRSupportStatus.Size = new System.Drawing.Size(89, 17);
+            this.lblRSupportStatus.TabIndex = 1;
+            this.lblRSupportStatus.Text = "Not detected!";
+            // 
+            // tableLayoutPanel11
+            // 
+            this.tableLayoutPanel11.ColumnCount = 1;
+            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel11.Controls.Add(this.cmdInstallRSupport, 0, 0);
+            this.tableLayoutPanel11.Controls.Add(this.txtRSupportProgress, 0, 1);
+            this.tableLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel11.Location = new System.Drawing.Point(3, 26);
+            this.tableLayoutPanel11.Name = "tableLayoutPanel11";
+            this.tableLayoutPanel11.RowCount = 2;
+            this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel11.Size = new System.Drawing.Size(727, 206);
+            this.tableLayoutPanel11.TabIndex = 2;
+            // 
+            // cmdInstallRSupport
+            // 
+            this.cmdInstallRSupport.Location = new System.Drawing.Point(3, 3);
+            this.cmdInstallRSupport.Name = "cmdInstallRSupport";
+            this.cmdInstallRSupport.Size = new System.Drawing.Size(146, 31);
+            this.cmdInstallRSupport.TabIndex = 0;
+            this.cmdInstallRSupport.Text = "Install R Support";
+            this.cmdInstallRSupport.UseVisualStyleBackColor = true;
+            this.cmdInstallRSupport.Click += new System.EventHandler(this.cmdInstallRSupport_Click);
+            // 
+            // txtRSupportProgress
+            // 
+            this.txtRSupportProgress.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtRSupportProgress.Location = new System.Drawing.Point(3, 40);
+            this.txtRSupportProgress.Multiline = true;
+            this.txtRSupportProgress.Name = "txtRSupportProgress";
+            this.txtRSupportProgress.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtRSupportProgress.Size = new System.Drawing.Size(721, 163);
+            this.txtRSupportProgress.TabIndex = 1;
+            // 
             // cmdCancel
             // 
             this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -471,17 +590,6 @@
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
-            // 
-            // chkStataAutomation
-            // 
-            this.chkStataAutomation.AutoSize = true;
-            this.chkStataAutomation.Location = new System.Drawing.Point(6, 6);
-            this.chkStataAutomation.Name = "chkStataAutomation";
-            this.chkStataAutomation.Size = new System.Drawing.Size(191, 21);
-            this.chkStataAutomation.TabIndex = 20;
-            this.chkStataAutomation.Text = "Enable Stata automation API";
-            this.chkStataAutomation.UseVisualStyleBackColor = true;
-            this.chkStataAutomation.CheckedChanged += new System.EventHandler(this.chkStataAutomation_CheckedChanged);
             // 
             // missingValueSettings1
             // 
@@ -547,6 +655,14 @@
             this.tableLayoutPanel4.PerformLayout();
             this.tabStata.ResumeLayout(false);
             this.tabStata.PerformLayout();
+            this.tabR.ResumeLayout(false);
+            this.tabR.PerformLayout();
+            this.tableLayoutPanel9.ResumeLayout(false);
+            this.tableLayoutPanel9.PerformLayout();
+            this.tableLayoutPanel10.ResumeLayout(false);
+            this.tableLayoutPanel10.PerformLayout();
+            this.tableLayoutPanel11.ResumeLayout(false);
+            this.tableLayoutPanel11.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -578,5 +694,13 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.CheckBox chkStataAutomation;
         private Controls.PlaceholderTextBox txtStataLocation;
+        private System.Windows.Forms.TabPage tabR;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
+        private System.Windows.Forms.Label lblRSupportStatus;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel11;
+        private System.Windows.Forms.Button cmdInstallRSupport;
+        private System.Windows.Forms.TextBox txtRSupportProgress;
     }
 }

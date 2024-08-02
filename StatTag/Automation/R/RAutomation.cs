@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,13 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Jupyter;
 using JupyterKernelManager;
+using Microsoft.Win32;
 using StatTag.Core.Exceptions;
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Parser;
 using StatTag.Core.Utility;
+using StatTag.Models;
 
 namespace R
 {
@@ -837,6 +840,175 @@ namespace R
         {
             // TODO: Can we make passing graphics.off less brute-force?  We want to ensure we're not trying to access a file that's associated with an open graphics device.
             AutomationUtil.CleanTemporaryImageFolder(this, new[] { "graphics.off()" }, TemporaryImageFilePath, TemporaryImageFileFilter, deleteFolder);
+        }
+
+        /// <summary>
+        /// Determine the best active R installation location.
+        /// 
+        /// This is a modification of the original RDotNet library code.
+        /// </summary>
+        /// <returns></returns>
+        public static string DetectRPath()
+        {
+            var rHome = Environment.GetEnvironmentVariable("R_HOME");
+            if (!string.IsNullOrWhiteSpace(rHome) && Directory.Exists(rHome))
+            {
+                return rHome;
+            }
+
+            rHome = GetRHomeFromRegistry(@"SOFTWARE\R-core");
+            if (rHome == null)
+            {
+                rHome = GetRHomeFromRegistry(@"SOFTWARE\WOW6432Node\R-core");
+            }
+
+            rHome = Path.Combine(rHome, "bin", Environment.Is64BitProcess ? "x64" : "i386");
+            if (Directory.Exists(rHome))
+            {
+                return rHome;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Determine if we can find the R installation location using an anchor in the registry.
+        /// This will allow us to try multiple anchor registry keys, as it can vary based on
+        /// platform.
+        /// </summary>
+        /// <param name="baseKey"></param>
+        /// <returns></returns>
+        private static string GetRHomeFromRegistry(string baseKey)
+        {
+            var rCore = Registry.LocalMachine.OpenSubKey(baseKey);
+            if (rCore == null)
+            {
+                rCore = Registry.CurrentUser.OpenSubKey(baseKey);
+                if (rCore == null)
+                {
+                    return null;
+                }
+            }
+
+            var subKey = Environment.Is64BitProcess ? "R64" : "R";
+            var rKey = rCore.OpenSubKey(subKey);
+            if (rKey == null)
+            {
+                return null;
+            }
+
+            return GetRInstallPathFromRCoreKegKey(rKey);
+        }
+
+        /// <summary>
+        /// Utility function adapted from RDotNet code to identify the installation path for R
+        /// </summary>
+        /// <param name="rCoreKey"></param>
+        /// <returns></returns>
+        private static string GetRInstallPathFromRCoreKegKey(RegistryKey rCoreKey)
+        {
+            string installPath = null;
+            string[] subKeyNames = rCoreKey.GetSubKeyNames();
+            string[] valueNames = rCoreKey.GetValueNames();
+            if (valueNames.Length == 0)
+            {
+                return RecurseFirstSubkey(rCoreKey);
+            }
+            else
+            {
+                const string installPathKey = "InstallPath";
+                if (valueNames.Contains(installPathKey))
+                {
+                    installPath = (string)rCoreKey.GetValue(installPathKey);
+                }
+                else
+                {
+                    if (valueNames.Contains("Current Version"))
+                    {
+                        string currentVersion = (string)rCoreKey.GetValue("Current Version");
+                        if (currentVersion != null && subKeyNames.Contains(currentVersion))
+                        {
+                            RegistryKey rVersionCoreKey = rCoreKey.OpenSubKey(currentVersion);
+                            return GetRInstallPathFromRCoreKegKey(rVersionCoreKey);
+                        }
+                    }
+                    else
+                    {
+                        return RecurseFirstSubkey(rCoreKey);
+                    }
+                }
+            }
+            return installPath;
+        }
+
+        /// <summary>
+        /// Utility function adapted from RDotNet code base to recurse and check for R install
+        /// paths in sub-keys of a registry entry.
+        /// </summary>
+        /// <param name="rCoreKey"></param>
+        /// <returns></returns>
+        private static string RecurseFirstSubkey(RegistryKey rCoreKey)
+        {
+            string[] subKeyNames = rCoreKey.GetSubKeyNames();
+            if (subKeyNames.Length > 0)
+            {
+                var versionNum = subKeyNames.First();
+                var rVersionCoreKey = rCoreKey.OpenSubKey(versionNum);
+                return GetRInstallPathFromRCoreKegKey(rVersionCoreKey);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Utility function to run R commands via R at the command line.  This is not used for general StatTag operations within documents,
+        /// but instead used for setup and configuration of software for StatTag to work properly.
+        /// </summary>
+        /// <param name="rPath"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static CheckResult RunRFromCommandLine(string rPath, string command, string appendPath = "", bool showWindow = true)
+        {
+            try
+            {
+                var info = new ProcessStartInfo(rPath, command)
+                {
+                    CreateNoWindow = !showWindow,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
+
+                // If needed, append to the PATH environment variable.  This is intended primarily when we want to use
+                // our embedded Jupyter executables.
+                if (!string.IsNullOrWhiteSpace(appendPath) && info.EnvironmentVariables.ContainsKey("PATH"))
+                {
+                    var updatedPath = string.Format("{0};{1}", info.EnvironmentVariables["PATH"], appendPath);
+                    info.EnvironmentVariables.Remove("PATH");
+                    info.EnvironmentVariables.Add("PATH", updatedPath);
+                }
+
+                var process = Process.Start(info);
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                if (0 == process.ExitCode)
+                {
+                    return new CheckResult() { Result = true, Details = string.Format("Command succeeded: {0} {1}\r\n{2}", rPath, command, output) };
+                }
+                else
+                {
+                    return new CheckResult() { Result = false, Details = string.Format("Command failed with exit code {0}: {1} {2}\r\nOutput: {3}\r\nError: {4}",
+                        process.ExitCode, rPath, command, output, error) };
+                }
+            }
+            catch (Exception exc)
+            {
+                return new CheckResult() { Result = false, Details = string.Format("Command failed: {0}\r\nInstalled via: {1} {2}",
+                    exc.Message, rPath, command) };
+            }
         }
     }
 }

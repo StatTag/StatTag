@@ -382,6 +382,7 @@
       <DependentUpon>MainRibbon.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\BackgroundWorkerProgressReporter.cs" />
+    <Compile Include="Models\CheckResult.cs" />
     <Compile Include="Models\ExecutionResult.cs" />
     <Compile Include="Models\ObservableConcurrentQueue.cs" />
     <Compile Include="Models\StatTagWordWindow.cs" />

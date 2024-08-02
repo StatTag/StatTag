@@ -310,5 +310,111 @@ namespace StatTag
             txtStataLocation.Enabled = enabled;
             cmdStataLocation.Enabled = enabled;
         }
+
+        private void cmdInstallRSupport_Click(object sender, EventArgs e)
+        {
+            Logger.WriteMessage("Beginning installation of R support");
+
+            var result = MessageBox.Show("StatTag will attempt to install and configure the IRkernel package in R.  This will make changes to your R setup.  Do you wish to continue?",
+                        UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+            if (DialogResult.Yes != result)
+            {
+                Logger.WriteMessage("User cancelled setting up IRkernel");
+                LogRStatusFailure();
+                return;
+            }
+
+            LogRStatusAndLogger("Proceeding with IRkernel setup. Locating R...");
+            var rPath = RAutomation.DetectRPath();
+            if (string.IsNullOrWhiteSpace(rPath))
+            {
+                LogRStatusAndLogger("Unable to locate an R installation using the registry");
+                LogRStatusFailure();
+                return;
+            }
+            else if (!Directory.Exists(rPath))
+            {
+                LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
+                LogRStatusFailure();
+                return;
+            }
+            else
+            {
+                LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
+            }
+
+            rPath = Path.Combine(rPath, "R.exe");
+            if (!File.Exists(rPath))
+            {
+                LogRStatusAndLogger(string.Format("Could not find R.exe at {0}", rPath));
+                LogRStatusFailure();
+                return;
+            }
+
+            LogRStatusAndLogger("Attempting to install IRkernel...");
+
+            var irKernelResult = RAutomation.RunRFromCommandLine(rPath, "-e \"install.packages('IRkernel', repos = 'https://cloud.r-project.org')\"");
+            if (irKernelResult.Result)
+            {
+                LogRStatusAndLogger("Successfully installed (or confirmed installation of) IRkernel");
+                LogRStatusAndLogger(irKernelResult.Details);
+            }
+            else
+            {
+                LogRStatusAndLogger("Failed to install IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                LogRStatusAndLogger(irKernelResult.Details);
+                LogRStatusFailure();
+                return;
+            }
+
+            LogRStatusAndLogger("Attempging to configure IRkernel...");
+
+            var embeddedJupyterPath = "";
+            var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            if (Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
+            {
+                var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
+                var embeddedJupyterBase = Path.Combine(codeBasePath, "python-embed");
+                if (Directory.Exists(embeddedJupyterBase))
+                {
+                    LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterBase));
+                    embeddedJupyterPath = string.Format("{0};{1}",
+                        embeddedJupyterBase,
+                        Path.Combine(embeddedJupyterBase, "Scripts"));
+                }
+            }
+
+            var configResult = RAutomation.RunRFromCommandLine(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterPath);
+            if (configResult.Result)
+            {
+                LogRStatusAndLogger("Successfully configured IRkernel");
+            }
+            else
+            {
+                LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                LogRStatusAndLogger(configResult.Details);
+                LogRStatusFailure();
+            }
+        }
+
+        /// <summary>
+        /// Utility function to write a final "failed" message during R support setup
+        /// </summary>
+        private void LogRStatusFailure()
+        {
+            LogRStatusAndLogger("\r\n*** SETUP FAILED ***");
+        }
+
+        /// <summary>
+        /// Utility function to log the same text both to the dialog text field, as well as the log (if enabled)
+        /// </summary>
+        /// <param name="text"></param>
+        private void LogRStatusAndLogger(string text)
+        {
+            txtRSupportProgress.Text += text + "\r\n";
+            txtRSupportProgress.SelectionStart = txtRSupportProgress.Text.Length;
+            txtRSupportProgress.ScrollToCaret();
+            Logger.WriteMessage(text);
+        }
     }
 }

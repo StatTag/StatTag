@@ -2,8 +2,10 @@
 using StatTag.Core.Interfaces;
 using StatTag.Core.Models;
 using StatTag.Core.Utility;
+using StatTag.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,6 +50,77 @@ namespace Jupyter
             KernelName = kernelName;
         }
 
+        /// <summary>
+        /// Determine if Jupyter is set up on the user's system in a way that we can already
+        /// access the jupyter commands.  This means no customization would be 
+        /// </summary>
+        /// <returns>A CheckResult indicating if Jupyter was found or not.  If the result is
+        /// false, details will be available on why it failed.</returns>
+        public static CheckResult DetectJupyter(string appendPath = null)
+        {
+            try
+            {
+                var info = new ProcessStartInfo("jupyter", "kernelspec --version")
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
+
+                // If the caller has asked us to append something to the PATH environment variable,
+                // do so.  This can be used for when we are using the embedded Python environment.
+                if (!string.IsNullOrWhiteSpace(appendPath))
+                {
+                    if (info.EnvironmentVariables.ContainsKey("PATH"))
+                    {
+                        var updatedPath = string.Format("{0};{1}", info.EnvironmentVariables["PATH"], appendPath);
+                        info.EnvironmentVariables.Remove("PATH");
+                        info.EnvironmentVariables.Add("PATH", updatedPath);
+                    }
+                }
+
+                // Don't allow PYTHONEXECUTABLE to be passed to kernel process. If set, it can bork all
+                // the things.  This comes from the Jupyter kernel manager code.
+                if (info.EnvironmentVariables.ContainsKey("PYTHONEXECUTABLE"))
+                {
+                    info.EnvironmentVariables.Remove("PYTHONEXECUTABLE");
+                }
+
+                bool anacondaDetected = false;
+                var modifiedInfo = KernelManager.AdjustLaunchCommandForAnaconda(info);
+                if (!modifiedInfo.FileName.Equals(info.FileName))
+                {
+                    info = modifiedInfo;
+                    anacondaDetected = true;
+                }
+
+                var process = Process.Start(info);
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                var processWaitResult = process.WaitForExit(3000);  // Arbitrarily selected timeout of 3 seconds
+                if (!processWaitResult)
+                {
+                    return new CheckResult() { Result = false, Details = "jupyter kernelspec did not return within the expected time." };
+                }
+
+                if (0 == process.ExitCode)
+                {
+                    if (anacondaDetected)
+                    {
+                        output = string.Format("Detected Anaconda - using for Jupyter execution\r\n{0}", output);
+                    }
+                    return new CheckResult() { Result = true, Details = output };
+                }
+
+                return new CheckResult() { Result = false, Details = "Jupyter was not found on the system" };
+            }
+            catch (Exception exc)
+            {
+                return new CheckResult() { Result = false, Details = exc.Message };
+            }
+        }
+
         public static string InstallationInformation()
         {
             var specManager = new KernelSpecManager();
@@ -78,9 +151,10 @@ namespace Jupyter
                 try
                 {
                     logger.WriteMessage(string.Format("Attempting to create KernelManager for {0}", KernelName));
-                    Manager = new KernelManager(KernelName, new StatTagJupyterLogger(logger));
-
-                    Manager.Debug = false;
+                    Manager = new KernelManager(KernelName, new StatTagJupyterLogger(logger))
+                    {
+                        Debug = false
+                    };
 
                     logger.WriteMessage("Starting kernel");
                     Manager.StartKernel();
