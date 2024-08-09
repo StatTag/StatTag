@@ -29,6 +29,12 @@ namespace StatTag
         private DocumentManager Manager { get; set; }
         private bool StataAutomationEnabledOnEntry { get; set; }
         private SystemDetails SystemInformation { get; set; }
+        
+        /// <summary>
+        /// If set when the dialog closes, this signals that a configuration change took place and
+        /// that StatTag should refresh the system information cache.
+        /// </summary>
+        public bool RefreshSystemInformation { get; private set; }
 
         public Settings(Core.Models.UserSettings properties, DocumentManager manager, SystemDetails sysInfo)
         {
@@ -40,6 +46,7 @@ namespace StatTag
             MinimumSize = Size;
             Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
+            RefreshSystemInformation = false;
 
             tabSettings.AutoSize = true;
             tabGeneral.AutoSize = true;
@@ -49,7 +56,7 @@ namespace StatTag
             StataAutomationEnabledOnEntry = Stata.StataAutomation.IsAutomationEnabled();
             chkStataAutomation.Checked = StataAutomationEnabledOnEntry;
             UpdateStataSettingsUI();
-            UpdateRSettingsUI();
+            UpdateRSettingsUI(SystemInformation.RSupport);
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
@@ -152,6 +159,7 @@ namespace StatTag
                 Cursor = Cursors.Default;
             }
 
+            RefreshSystemInformation = true;
             return true;
         }
         
@@ -186,6 +194,7 @@ namespace StatTag
                 Cursor = Cursors.Default;
             }
 
+            RefreshSystemInformation = true;
             return true;
         }
 
@@ -314,10 +323,10 @@ namespace StatTag
             cmdStataLocation.Enabled = enabled;
         }
 
-        private void UpdateRSettingsUI()
+        private void UpdateRSettingsUI(bool supported)
         {
-            lblRSupportStatus.Text = SystemInformation.RSupport ? "Enabled" : "Not detected";
-            lblRSupportStatus.ForeColor = SystemInformation.RSupport ? Color.Green : Color.Red;
+            lblRSupportStatus.Text = supported ? "Enabled" : "Not detected";
+            lblRSupportStatus.ForeColor = supported ? Color.Green : Color.Red;
         }
         private void cmdInstallRSupport_Click(object sender, EventArgs e)
         {
@@ -396,6 +405,8 @@ namespace StatTag
             if (configResult.Result)
             {
                 LogRStatusAndLogger("Successfully configured IRkernel");
+                UpdateRSettingsUI(true);
+                RefreshSystemInformation = true;
             }
             else
             {

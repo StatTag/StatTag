@@ -225,6 +225,13 @@ namespace StatTag
                     SettingsManager.Save();
                     LogManager.UpdateSettings(SettingsDialog.Properties);
                 }
+
+                // If something changed with the system information, we will go ahead and refresh
+                // the cache with more details.
+                if (SettingsDialog != null && SettingsDialog.RefreshSystemInformation)
+                {
+                    Globals.ThisAddIn.RefreshSystemInformation();
+                }
             }
             catch (StatTagUserException uex)
             {

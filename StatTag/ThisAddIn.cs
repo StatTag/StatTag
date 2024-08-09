@@ -104,9 +104,7 @@ namespace StatTag
             ModifiedCodeFiles.ItemAdded += OnModifiedCodeFileAdded;
             AfterFullSystemDetailsLoadedCallback += OnAfterFullSystemDetailsLoadedCallback;
 
-            SystemDetailsThread = new System.Threading.Thread(LoadFullSystemDetails) { IsBackground = true };
-            SystemDetailsThread.SetApartmentState(ApartmentState.STA);
-            SystemDetailsThread.Start();
+            RefreshSystemInformation();
 
             try
             {
@@ -127,6 +125,18 @@ namespace StatTag
             {
                 UIUtility.ReportException(exc, "There was an unexpected error when trying to initialize StatTag.  Not all functionality may be available.", LogManager);
             }
+        }
+
+        /// <summary>
+        /// Kick off the thread that reloads the system information.  This is useful if there is a change
+        /// in the configuration while StatTag is running, since otherwise this is only invoked when
+        /// StatTag starts.
+        /// </summary>
+        public void RefreshSystemInformation()
+        {
+            SystemDetailsThread = new System.Threading.Thread(LoadFullSystemDetails) { IsBackground = true };
+            SystemDetailsThread.SetApartmentState(ApartmentState.STA);
+            SystemDetailsThread.Start();
         }
 
         private void OnAfterFullSystemDetailsLoadedCallback(object sender, EventArgs e)
@@ -544,12 +554,16 @@ namespace StatTag
         /// <returns></returns>
         public SystemDetails GetUserEnvironmentDetails(bool fullDetails = false)
         {
-            // If we have cached the system information, it means everything was fully loaded.  We can just return that each time now.
-            lock (ThisAddIn.SystemInformation)
+            // If this is not a full refresh, let's check our cache.  If we have cached the system information,
+            // it means everything was fully loaded.  We can just return that each time now.
+            if (!fullDetails)
             {
-                if (SystemInformation.Complete)
+                lock (ThisAddIn.SystemInformation)
                 {
-                    return SystemInformation;
+                    if (SystemInformation.Complete)
+                    {
+                        return SystemInformation;
+                    }
                 }
             }
 
