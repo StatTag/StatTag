@@ -971,10 +971,12 @@ namespace R
         /// Utility function to run R commands via R at the command line.  This is not used for general StatTag operations within documents,
         /// but instead used for setup and configuration of software for StatTag to work properly.
         /// </summary>
-        /// <param name="rPath"></param>
-        /// <param name="command"></param>
+        /// <param name="rPath">Path to R.exe</param>
+        /// <param name="command">The command to run with R</param>
+        /// <param name="appendPath">Addition to the system PATH environment variable (if needed)</param>
+        /// <param name="showWindow">Whether or not to show the command window while running the R command</param>
         /// <returns></returns>
-        public static CheckResult RunRFromCommandLine(string rPath, string command, string appendPath = "", bool showWindow = true)
+        public static CheckResult RunRFromCommandLine(string rPath, string command, string appendPath = "", bool showWindow = false)
         {
             try
             {
