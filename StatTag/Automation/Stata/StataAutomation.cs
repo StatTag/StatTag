@@ -103,19 +103,22 @@ namespace Stata
         /// back to the caller.
         /// </summary>
         /// <returns></returns>
-        public static string InstallationInformation(UserSettings settings)
+        public static CheckResult InstallationInformation(UserSettings settings)
         {
             var builder = new StringBuilder();
+            var infoResult = new CheckResult();
             stata.StataOLEApp application = null;
             try
             {
                 if (settings == null || !File.Exists(settings.StataLocation))
                 {
                     builder.Append("Stata is not currently configured in this instance of StatTag");
+                    infoResult.Result = false;
                 }
                 else if (IsStataRunning(settings.StataLocation))
                 {
                     builder.Append("Stata is installed and running");
+                    infoResult.Result = true;
                 }
                 else
                 {
@@ -127,6 +130,7 @@ namespace Stata
                     // of what we originally named it in order to be accessed via MacroValue.
                     var version = application.MacroValue("__stattag_stata_version");
                     builder.AppendFormat("Stata {0} detected.", version);
+                    infoResult.Result = true;
                 }
             }
             catch (Exception exc)
@@ -134,13 +138,15 @@ namespace Stata
                 builder.AppendFormat(
                     "Unable to communicate with Stata. Stata may not be installed or there might be other configuration issues.\r\n");
                 builder.AppendFormat("{0}\r\n", exc.Message);
+                infoResult.Result = false;
             }
             finally
             {
                 application = null;
             }
 
-            return builder.ToString().Trim();
+            infoResult.Details = builder.ToString().Trim();
+            return infoResult;
         }
 
         public bool Initialize(CodeFile file, LogManager logger)

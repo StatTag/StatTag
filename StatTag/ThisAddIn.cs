@@ -31,7 +31,7 @@ namespace StatTag
         public Configuration Config = Configuration.Default;
         private Thread DoubleClickThread = null;
         private Thread SystemDetailsThread = null;
-        private static string SystemInformation = "";
+        private static SystemDetails SystemInformation = new SystemDetails();
 
         /// <summary>
         /// A thread-safe collection of any code files that have been modified, which we have not alerted
@@ -60,14 +60,14 @@ namespace StatTag
         }
 
         /// <summary>
-        /// Access our system information string.  This may be partially or fully loaded depending on when it is called.
+        /// Access our system information object.  This may be partially or fully loaded depending on when it is called.
         /// </summary>
         /// <returns></returns>
-        public string GetSystemInformation()
+        public SystemDetails GetSystemInformation()
         {
             lock (ThisAddIn.SystemInformation)
             {
-                if (SystemInformation.Equals(string.Empty))
+                if (!SystemInformation.Complete)
                 {
                     return GetUserEnvironmentDetails();
                 }
@@ -96,7 +96,7 @@ namespace StatTag
             SettingsManager.Load();
             LogManager.UpdateSettings(SettingsManager.Settings.EnableLogging, SettingsManager.Settings.LogLocation,
                 SettingsManager.Settings.MaxLogFileSize, SettingsManager.Settings.MaxLogFiles);
-            LogManager.WriteMessage(GetUserEnvironmentDetails());
+            LogManager.WriteMessage(GetUserEnvironmentDetails().Details);
             LogManager.WriteMessage("Startup completed");
             DocumentManager.Logger = LogManager;
             DocumentManager.TagManager.Logger = LogManager;
@@ -132,7 +132,7 @@ namespace StatTag
         private void OnAfterFullSystemDetailsLoadedCallback(object sender, EventArgs e)
         {
             LogManager.WriteMessage("Full system details have loaded:");
-            LogManager.WriteMessage(GetSystemInformation());
+            LogManager.WriteMessage(GetSystemInformation().Details);
             SystemDetailsThread = null;
         }
 
@@ -542,12 +542,12 @@ namespace StatTag
         /// Produce a logging string that contains information about the user's environment (StatTag, Word and OS)
         /// </summary>
         /// <returns></returns>
-        public string GetUserEnvironmentDetails(bool fullDetails = false)
+        public SystemDetails GetUserEnvironmentDetails(bool fullDetails = false)
         {
             // If we have cached the system information, it means everything was fully loaded.  We can just return that each time now.
             lock (ThisAddIn.SystemInformation)
             {
-                if (!(SystemInformation.Equals(string.Empty)))
+                if (SystemInformation.Complete)
                 {
                     return SystemInformation;
                 }
@@ -575,18 +575,28 @@ namespace StatTag
                 if (fullDetails)
                 {
                     systemInfoBuilder.Append("R:\r\n\t");
-                    systemInfoBuilder.Append(RAutomation.InstallationInformation(Config).Replace("\r\n", "\r\n\t"));
+                    var rResult = RAutomation.InstallationInformation(Config);
+                    systemInfoBuilder.Append(rResult.Details.Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nStata:\r\n\t");
-                    systemInfoBuilder.Append(StataAutomation.InstallationInformation(SettingsManager.Settings).Replace("\r\n", "\r\n\t"));
+                    var stataResult = StataAutomation.InstallationInformation(SettingsManager.Settings);
+                    systemInfoBuilder.Append(stataResult.Details.Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nSAS:\r\n\t");
-                    systemInfoBuilder.Append(SASAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    var sasResult = SASAutomation.InstallationInformation();
+                    systemInfoBuilder.Append(sasResult.Details.Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nPython:\r\n\t");
-                    systemInfoBuilder.Append(PythonAutomation.InstallationInformation(Config).Replace("\r\n", "\r\n\t"));
+                    var pythonResult = PythonAutomation.InstallationInformation(Config);
+                    systemInfoBuilder.Append(pythonResult.Details.Replace("\r\n", "\r\n\t"));
                     systemInfoBuilder.Append("\r\n\r\nJupyter Kernels:\r\n\t");
-                    systemInfoBuilder.Append(JupyterAutomation.InstallationInformation().Replace("\r\n", "\r\n\t"));
+                    var jupyterResult = JupyterAutomation.InstallationInformation();
+                    systemInfoBuilder.Append(jupyterResult.Details.Replace("\r\n", "\r\n\t"));
                     lock (ThisAddIn.SystemInformation)
                     {
-                        SystemInformation = systemInfoBuilder.ToString().Trim();
+                        SystemInformation.Details = systemInfoBuilder.ToString().Trim();
+                        SystemInformation.RSupport = rResult.Result;
+                        SystemInformation.StataSupport = stataResult.Result;
+                        SystemInformation.SASSupport = sasResult.Result;
+                        SystemInformation.PythonSupport = pythonResult.Result;
+                        SystemInformation.Complete = true;
                     }
                 }
                 else
@@ -594,16 +604,21 @@ namespace StatTag
                     // If we are not loading the full details, we aren't going to cache our results.  We will return what we have in the
                     // string builder so far.  Subsequent calls will ideally get this to fully load.
                     systemInfoBuilder.Append("\r\n(Additional information about R, SAS, Stata, and Python is still loading...)");
-                    return systemInfoBuilder.ToString().Trim();
+                    // Note that this is the only time it's okay to return a new SystemDetails object.  Every other instance will use the
+                    // ThisAddIn.SystemInformation object instance.  This particular branch of code is only ever invoked while partial
+                    // loading is done.
+                    return new SystemDetails() { Details = systemInfoBuilder.ToString().Trim(), Complete = false };
                 }
             }
             catch (Exception exc)
             {
                 lock (ThisAddIn.SystemInformation)
                 {
-                    SystemInformation = string.Format(
-                        "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
-                        exc.Message, exc.StackTrace);
+                    SystemInformation.Details = string.Format(
+                            "An unexpected error occurred when trying to gather your system information.  Please report this to StatTag@northwestern.edu.\r\n{0}\r\n\r\n{1}",
+                            exc.Message, exc.StackTrace);
+                    SystemInformation.Complete = true;
+                    SystemInformation.Error = true;
                 }
             }
 

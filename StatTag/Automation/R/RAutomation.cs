@@ -85,9 +85,10 @@ namespace R
         /// </summary>
         /// <param name="config">The configuration object needed to initialize the automation object</param>
         /// <returns>A formatted string of system information, which can be displayed to the user</returns>
-        public static string InstallationInformation(Configuration config)
+        public static CheckResult InstallationInformation(Configuration config)
         {
             var builder = new StringBuilder();
+            var infoResult = new CheckResult();
             try
             {
                 var engine = new RAutomation(config);
@@ -104,10 +105,12 @@ namespace R
                             builder.AppendFormat("{0} : returned an empty result\r\n", command.Value);
                         }
                     }
+                    infoResult.Result = true;
                 }
                 else
                 {
                     builder.AppendFormat("No R environment with IRkernel support could be found");
+                    infoResult.Result = false;
                 }
             }
             catch (Exception exc)
@@ -115,9 +118,11 @@ namespace R
                 builder.AppendFormat(
                     "Unable to communicate with R. R may not be installed or there might be other configuration issues.\r\n");
                 builder.AppendFormat("{0}\r\n", exc.Message);
+                infoResult.Result = false;
             }
 
-            return builder.ToString().Trim();
+            infoResult.Details = builder.ToString().Trim();
+            return infoResult;
         }
 
         public override bool Initialize(CodeFile file, LogManager logger)

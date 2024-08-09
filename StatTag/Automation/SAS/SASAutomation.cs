@@ -70,9 +70,10 @@ namespace SAS
         /// back to the caller.
         /// </summary>
         /// <returns></returns>
-        public static string InstallationInformation()
+        public static CheckResult InstallationInformation()
         {
             var builder = new StringBuilder();
+            var infoResult = new CheckResult();
             SasServer server = null;
             try
             {
@@ -84,12 +85,14 @@ namespace SAS
                 builder.AppendFormat("SAS {0} detected.\r\n", RunCommand(server, "%put &SYSVER;").FirstOrDefault());
                 builder.AppendFormat("SAS Home: {0}\r\n", RunCommand(server, "%put %sysget(SASROOT);").FirstOrDefault());
                 builder.AppendFormat("Initial workspace: {0}\r\n", server.Workspace.Name);
+                infoResult.Result = true;
             }
             catch (Exception exc)
             {
                 builder.AppendFormat(
                     "Unable to communicate with SAS. SAS may not be installed or there might be other configuration issues.\r\n");
                 builder.AppendFormat("{0}\r\n", exc.Message);
+                infoResult.Result = false;
             }
             finally
             {
@@ -100,7 +103,8 @@ namespace SAS
                 server = null;
             }
 
-            return builder.ToString().Trim();
+            infoResult.Details = builder.ToString().Trim();
+            return infoResult;
         }
 
         public static List<string> RunCommand(SasServer server, string command)

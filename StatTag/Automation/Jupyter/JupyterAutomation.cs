@@ -121,11 +121,12 @@ namespace Jupyter
             }
         }
 
-        public static string InstallationInformation()
+        public static CheckResult InstallationInformation()
         {
             var specManager = new KernelSpecManager();
             var specs = specManager.GetAllSpecs();
             var builder = new StringBuilder();
+            var result = new CheckResult();
             if (specs != null && specs.Count > 0)
             {
                 foreach (var spec in specs)
@@ -135,13 +136,16 @@ namespace Jupyter
                     builder.AppendFormat("   Arguments: {0}\r\n", string.Join(", ", spec.Value.Arguments));
                     builder.AppendFormat("   Resource directory: {0}\r\n", spec.Value.ResourceDirectory);
                 }
+                result.Result = true;
             }
             else
             {
                 builder.Append("No Jupyter kernels could be found.");
+                result.Result = false;
             }
 
-            return builder.ToString();
+            result.Details = builder.ToString();
+            return result;
         }
 
         public virtual bool Initialize(CodeFile file, LogManager logger)

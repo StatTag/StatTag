@@ -28,13 +28,15 @@ namespace StatTag
         private LogManager Logger { get; set; }
         private DocumentManager Manager { get; set; }
         private bool StataAutomationEnabledOnEntry { get; set; }
+        private SystemDetails SystemInformation { get; set; }
 
-        public Settings(Core.Models.UserSettings properties, DocumentManager manager)
+        public Settings(Core.Models.UserSettings properties, DocumentManager manager, SystemDetails sysInfo)
         {
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
             Properties = properties;
             Manager = manager;
+            SystemInformation = sysInfo;
             MinimumSize = Size;
             Logger = new LogManager();
             UIUtility.SetDialogTitle(this);
@@ -47,6 +49,7 @@ namespace StatTag
             StataAutomationEnabledOnEntry = Stata.StataAutomation.IsAutomationEnabled();
             chkStataAutomation.Checked = StataAutomationEnabledOnEntry;
             UpdateStataSettingsUI();
+            UpdateRSettingsUI();
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
@@ -311,6 +314,11 @@ namespace StatTag
             cmdStataLocation.Enabled = enabled;
         }
 
+        private void UpdateRSettingsUI()
+        {
+            lblRSupportStatus.Text = SystemInformation.RSupport ? "Enabled" : "Not detected";
+            lblRSupportStatus.ForeColor = SystemInformation.RSupport ? Color.Green : Color.Red;
+        }
         private void cmdInstallRSupport_Click(object sender, EventArgs e)
         {
             Logger.WriteMessage("Beginning installation of R support");

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StatTag.Models
+namespace StatTag.Core.Models
 {
     /// <summary>
     /// Specialized result object where a boolean response is desired, but you may want

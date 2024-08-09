@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StatTag.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +13,9 @@ namespace StatTag
 {
     public sealed partial class About : Form
     {
-        private string SystemInformation { get; set; }
+        private SystemDetails SystemInformation { get; set; }
 
-        public About(string systemInformation)
+        public About(SystemDetails systemInformation)
         {
             InitializeComponent();
             SystemInformation = systemInformation;
@@ -36,7 +37,7 @@ namespace StatTag
         private void UpdateSystemDetails()
         {
             rtbSystemDetails.SelectionTabs = new int[] { 10, 20, 30, 40 };
-            rtbSystemDetails.Text = SystemInformation;
+            rtbSystemDetails.Text = SystemInformation.Details;
             rtbSystemDetails.ReadOnly = true;
         }
 

@@ -69,9 +69,10 @@ namespace Jupyter
         /// </summary>
         /// <param name="config">The configuration object needed to initialize the automation object</param>
         /// <returns>A formatted string of system information, which can be displayed to the user</returns>
-        public static string InstallationInformation(Configuration config)
+        public static CheckResult InstallationInformation(Configuration config)
         {
             var builder = new StringBuilder();
+            var infoResult = new CheckResult();
             try
             {
                 var engine = new PythonAutomation(config);
@@ -85,10 +86,12 @@ namespace Jupyter
                             builder.AppendFormat("{0} : {1}\r\n", command.Value, string.Join("\r\n", result.ValueResult.Trim()));
                         }
                     }
+                    infoResult.Result = true;
                 }
                 else
                 {
                     builder.AppendFormat("No Python environment with IPython support could be found");
+                    infoResult.Result = false;
                 }
             }
             catch (Exception exc)
@@ -96,9 +99,11 @@ namespace Jupyter
                 builder.AppendFormat(
                     "Unable to communicate with Python. Python or its kernel may not be installed or there might be other configuration issues.\r\n");
                 builder.AppendFormat("{0}\r\n", exc.Message);
+                infoResult.Result = false;
             }
 
-            return builder.ToString().Trim();
+            infoResult.Details = builder.ToString().Trim();
+            return infoResult;
         }
 
         public override CommandResult[] RunCommands(string[] commands, Tag tag = null)
