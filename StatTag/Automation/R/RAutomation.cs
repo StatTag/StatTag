@@ -1007,6 +1007,11 @@ namespace R
                 }
                 else
                 {
+                    if (string.IsNullOrWhiteSpace(error))
+                    {
+                        error = "(No additional error information was provided)";
+                    }
+
                     return new CheckResult() { Result = false, Details = string.Format("Command failed with exit code {0}: {1} {2}\r\nOutput: {3}\r\nError: {4}",
                         process.ExitCode, rPath, command, output, error) };
                 }

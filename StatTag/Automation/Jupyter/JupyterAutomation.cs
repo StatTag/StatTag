@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -667,6 +668,106 @@ namespace Jupyter
 
             // Final step is to HTML-decode the string.
             return WebUtility.HtmlDecode(interim);
+        }
+
+        /// <summary>
+        /// Clean up the temporary file path location.  Used in conjunction with ExtractPythonToTempFolder,
+        /// although this is essentially just a safe wrapper around Directory.Delete.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool CleanupTempPythonFolder(string path)
+        {
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (Exception exc)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Unpack our embedded Python from the installer folder, and return the temp path
+        /// where it can be accessed.  This allows us to keep the embedded Python compressed
+        /// until we actually need it.
+        /// </summary>
+        /// <returns></returns>
+        public static string ExtractPythonToTempFolder()
+        {
+            try
+            {
+                // NOTE: Commented code in this method is for the use of a TEMP folder to extract the
+                // archive to.  This was triggering A/V alerts (understandably), so it was changed to
+                // use the folder where the archive is located.
+
+                //// Make sure we have a valid TEMP path location
+                //var tempPath = Path.GetTempPath();
+                //if (!Directory.Exists(tempPath))
+                //{
+                //    return null;
+                //}
+
+                //var tempStatTagPath = Path.Combine(tempPath, "StatTag");
+                //var info = Directory.CreateDirectory(tempStatTagPath);
+                //if (!Directory.Exists(tempStatTagPath))
+                //{
+                //    return null;
+                //}
+
+                var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+                if (!Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
+                {
+                    return null;
+                }
+
+                var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
+
+                // We typically expect there to be one and only one archive file for embedded Python.
+                // If in the event there is more than one, we will just grab the first.
+                var archiveFiles = Directory.GetFiles(codeBasePath, "python-embed*.zip");
+                if (archiveFiles.Length < 1)
+                {
+                    return null;
+                }
+
+                var archiveFile = archiveFiles.First();
+                if (!File.Exists(archiveFile))
+                {
+                    return null;
+                }
+
+                var archiveFolderName = Path.GetFileNameWithoutExtension(archiveFile);
+                //var extractedPath = Path.Combine(tempStatTagPath, archiveFolderName);
+                var extractedPath = Path.Combine(codeBasePath, archiveFolderName);
+
+                // If the directory already exists, we need to clean it up first before unzipping the archive again.
+                // It's possible that the folder contains all of the files we need, but it's also possible the folder
+                // only has some of the files (or is empty).  It's better to take the time to delete and re-extract
+                // instead of using the folder.
+                if (Directory.Exists(extractedPath))
+                {
+                    Directory.Delete(extractedPath, true);
+                }
+
+                //var workingArchiveFileLocation = Path.Combine(tempStatTagPath, Path.GetFileName(archiveFile));
+                //ZipFile.ExtractToDirectory(archiveFile, tempStatTagPath);
+                var workingArchiveFileLocation = Path.Combine(codeBasePath, Path.GetFileName(archiveFile));
+                ZipFile.ExtractToDirectory(archiveFile, codeBasePath);
+                if (Directory.Exists(extractedPath))
+                {
+                    return extractedPath;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return null;
         }
     }
 }

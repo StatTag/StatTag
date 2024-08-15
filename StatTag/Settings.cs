@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Jupyter;
 using R;
 using SAS;
 using Stata;
@@ -384,24 +385,50 @@ namespace StatTag
                 return;
             }
 
-            LogRStatusAndLogger("Attempging to configure IRkernel...");
-
-            var embeddedJupyterPath = "";
-            var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-            if (Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
+            LogRStatusAndLogger("Detecting Jupyter...");
+            string embeddedJupyterPath = null;
+            var jupyterStatus = JupyterAutomation.DetectJupyter();
+            if (jupyterStatus.Result)
             {
-                var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
-                var embeddedJupyterBase = Path.Combine(codeBasePath, "python-embed");
-                if (Directory.Exists(embeddedJupyterBase))
+                LogRStatusAndLogger("Found Jupyter: " + jupyterStatus.Details);
+            }
+            else
+            {
+                LogRStatusAndLogger("Did not find a Jupyter.  Using embedded environment");
+                embeddedJupyterPath = JupyterAutomation.ExtractPythonToTempFolder();
+                if (string.IsNullOrWhiteSpace(embeddedJupyterPath))
                 {
-                    LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterBase));
-                    embeddedJupyterPath = string.Format("{0};{1}",
-                        embeddedJupyterBase,
-                        Path.Combine(embeddedJupyterBase, "Scripts"));
+                    LogRStatusAndLogger("Failed to use embedded Python/Jupyter environment.  No available Jupyter environment to use for IRkernel setup.");
+                    LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                    return;
+                }
+                else
+                {
+                    LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterPath));
                 }
             }
 
-            var configResult = RAutomation.RunRFromCommandLine(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterPath);
+            LogRStatusAndLogger("Attempging to configure IRkernel...");
+
+            //var embeddedJupyterPath = "";
+            //var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            //if (Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
+            //{
+            //    var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
+            //    var embeddedJupyterBase = Path.Combine(codeBasePath, "python-embed");
+            //    if (Directory.Exists(embeddedJupyterBase))
+            //    {
+            //        LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterBase));
+            //        embeddedJupyterPath = string.Format("{0};{1}",
+            //            embeddedJupyterBase,
+            //            Path.Combine(embeddedJupyterBase, "Scripts"));
+            //    }
+            //}
+
+            // The embeddedJupyterPath contains the base path for where the files exist.  We need to expand this for adding
+            // to the PATH variable to include the base as well as the \Scripts subfolder.
+            var embeddedJupyterExpandedPaths = string.Format("{0};{0}\\Scripts", embeddedJupyterPath);
+            var configResult = RAutomation.RunRFromCommandLine(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterExpandedPaths);
             if (configResult.Result)
             {
                 LogRStatusAndLogger("Successfully configured IRkernel");
@@ -413,6 +440,12 @@ namespace StatTag
                 LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
                 LogRStatusAndLogger(configResult.Details);
                 LogRStatusFailure();
+            }
+
+            // If we used a temporary Jupyter/Python environment to do this, clean it up.
+            if (!string.IsNullOrWhiteSpace(embeddedJupyterPath))
+            {
+                JupyterAutomation.CleanupTempPythonFolder(embeddedJupyterPath);
             }
         }
 
