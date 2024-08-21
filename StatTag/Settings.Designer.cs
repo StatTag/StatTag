@@ -37,6 +37,7 @@
             this.lblEmptyValueWarning = new System.Windows.Forms.Label();
             this.chkRunCodeOnOpen = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.txtMaxLogSize = new System.Windows.Forms.NumericUpDown();
@@ -44,6 +45,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cmdStataLocation = new System.Windows.Forms.Button();
+            this.txtStataLocation = new StatTag.Controls.PlaceholderTextBox();
             this.chkStataAutomation = new System.Windows.Forms.CheckBox();
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -65,8 +67,6 @@
             this.txtRSupportProgress = new System.Windows.Forms.TextBox();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
-            this.missingValueSettings1 = new StatTag.Controls.MissingValueSettings();
-            this.txtStataLocation = new StatTag.Controls.PlaceholderTextBox();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -147,6 +147,17 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "For a new document, if a table has a missing value (empty cell), default to displ" +
     "ay the missing value using:";
+            // 
+            // missingValueSettings1
+            // 
+            this.missingValueSettings1.AutoSize = true;
+            this.missingValueSettings1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missingValueSettings1.Location = new System.Drawing.Point(23, 69);
+            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(20, 5, 0, 5);
+            this.missingValueSettings1.Name = "missingValueSettings1";
+            this.missingValueSettings1.Size = new System.Drawing.Size(701, 77);
+            this.missingValueSettings1.TabIndex = 18;
             // 
             // tableLayoutPanel2
             // 
@@ -286,6 +297,19 @@
             this.cmdStataLocation.UseVisualStyleBackColor = true;
             this.cmdStataLocation.Click += new System.EventHandler(this.cmdStataLocation_Click);
             // 
+            // txtStataLocation
+            // 
+            this.txtStataLocation.AutoSize = true;
+            this.txtStataLocation.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtStataLocation.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtStataLocation.Location = new System.Drawing.Point(0, 0);
+            this.txtStataLocation.Margin = new System.Windows.Forms.Padding(0);
+            this.txtStataLocation.MinimumSize = new System.Drawing.Size(100, 25);
+            this.txtStataLocation.Name = "txtStataLocation";
+            this.txtStataLocation.PlaceholderText = "Select or enter the Stata executable location";
+            this.txtStataLocation.Size = new System.Drawing.Size(664, 29);
+            this.txtStataLocation.TabIndex = 18;
+            // 
             // tableLayoutPanel7
             // 
             tableLayoutPanel7.AutoSize = true;
@@ -387,7 +411,7 @@
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(733, 239);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(733, 235);
             this.tableLayoutPanel5.TabIndex = 19;
             // 
             // lblLogWarning
@@ -556,10 +580,13 @@
             // 
             // txtRSupportProgress
             // 
+            this.txtRSupportProgress.CausesValidation = false;
             this.txtRSupportProgress.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtRSupportProgress.Location = new System.Drawing.Point(3, 40);
+            this.txtRSupportProgress.MaxLength = 100000;
             this.txtRSupportProgress.Multiline = true;
             this.txtRSupportProgress.Name = "txtRSupportProgress";
+            this.txtRSupportProgress.ReadOnly = true;
             this.txtRSupportProgress.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtRSupportProgress.Size = new System.Drawing.Size(721, 163);
             this.txtRSupportProgress.TabIndex = 1;
@@ -590,30 +617,6 @@
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
-            // 
-            // missingValueSettings1
-            // 
-            this.missingValueSettings1.AutoSize = true;
-            this.missingValueSettings1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.missingValueSettings1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missingValueSettings1.Location = new System.Drawing.Point(23, 69);
-            this.missingValueSettings1.Margin = new System.Windows.Forms.Padding(20, 5, 0, 5);
-            this.missingValueSettings1.Name = "missingValueSettings1";
-            this.missingValueSettings1.Size = new System.Drawing.Size(701, 77);
-            this.missingValueSettings1.TabIndex = 18;
-            // 
-            // txtStataLocation
-            // 
-            this.txtStataLocation.AutoSize = true;
-            this.txtStataLocation.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtStataLocation.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtStataLocation.Location = new System.Drawing.Point(0, 0);
-            this.txtStataLocation.Margin = new System.Windows.Forms.Padding(0);
-            this.txtStataLocation.MinimumSize = new System.Drawing.Size(100, 25);
-            this.txtStataLocation.Name = "txtStataLocation";
-            this.txtStataLocation.PlaceholderText = "Select or enter the Stata executable location";
-            this.txtStataLocation.Size = new System.Drawing.Size(664, 29);
-            this.txtStataLocation.TabIndex = 18;
             // 
             // Settings
             // 

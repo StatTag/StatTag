@@ -676,11 +676,14 @@ namespace Jupyter
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static bool CleanupTempPythonFolder(string path)
+        public static bool RemoveEmbeddedJupyter(string path)
         {
             try
             {
-                Directory.Delete(path, true);
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
             }
             catch (Exception exc)
             {
@@ -695,8 +698,8 @@ namespace Jupyter
         /// where it can be accessed.  This allows us to keep the embedded Python compressed
         /// until we actually need it.
         /// </summary>
-        /// <returns></returns>
-        public static string ExtractPythonToTempFolder()
+        /// <returns>A string containing the path to the embedded jupyter environment.  Null if one could not be found.</returns>
+        public static string SetupEmbeddedJupyter(ref string details)
         {
             try
             {
@@ -719,11 +722,15 @@ namespace Jupyter
                 //}
 
                 var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-                if (!Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
-                {
-                    return null;
-                }
+                //if (!Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
+                //{
+                //    debug = "invalid uri: " + executingAssembly.CodeBase;
+                //    return null;
+                //}
 
+                // Originally we wanted to check Uri.IsWellFormedUriString before attempting to use it and get
+                // the path, however there are odd issues with IsWellFormedUriString with well-formed URI strings...
+                // Instead we'll just let errors show up in other checks/exception handlers.
                 var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
 
                 // We typically expect there to be one and only one archive file for embedded Python.
@@ -731,18 +738,22 @@ namespace Jupyter
                 var archiveFiles = Directory.GetFiles(codeBasePath, "python-embed*.zip");
                 if (archiveFiles.Length < 1)
                 {
+                    if (details != null) { details = string.Format("No archives found at: {0}", codeBasePath); }
                     return null;
                 }
 
                 var archiveFile = archiveFiles.First();
                 if (!File.Exists(archiveFile))
                 {
+                    if (details != null) { details = string.Format("No archive file exists: {0}", archiveFile); }
                     return null;
                 }
 
                 var archiveFolderName = Path.GetFileNameWithoutExtension(archiveFile);
                 //var extractedPath = Path.Combine(tempStatTagPath, archiveFolderName);
-                var extractedPath = Path.Combine(codeBasePath, archiveFolderName);
+                //var extractedPath = Path.Combine(codeBasePath, archiveFolderName);
+                var tempPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var extractedPath = Path.Combine(tempPath, archiveFolderName);
 
                 // If the directory already exists, we need to clean it up first before unzipping the archive again.
                 // It's possible that the folder contains all of the files we need, but it's also possible the folder
@@ -755,19 +766,90 @@ namespace Jupyter
 
                 //var workingArchiveFileLocation = Path.Combine(tempStatTagPath, Path.GetFileName(archiveFile));
                 //ZipFile.ExtractToDirectory(archiveFile, tempStatTagPath);
-                var workingArchiveFileLocation = Path.Combine(codeBasePath, Path.GetFileName(archiveFile));
-                ZipFile.ExtractToDirectory(archiveFile, codeBasePath);
-                if (Directory.Exists(extractedPath))
+                //var workingArchiveFileLocation = Path.Combine(codeBasePath, Path.GetFileName(archiveFile));
+                //ZipFile.ExtractToDirectory(archiveFile, codeBasePath);
+                var workingArchiveFileLocation = Path.Combine(tempPath, Path.GetFileName(archiveFile));
+                ZipFile.ExtractToDirectory(archiveFile, tempPath);
+                if (!Directory.Exists(extractedPath))
                 {
-                    return extractedPath;
+                    if (details != null) { details = string.Format("Attempted to extract but path no longer found or accessible: {0}", extractedPath); }
+                    return null;
                 }
+
+                return extractedPath;
             }
-            catch (Exception)
+            catch (Exception exc)
             {
+                if (details != null) { details = string.Format("Exception: {0}", exc.Message);  }
                 return null;
             }
 
+            if (details != null) { details = "Unable to determine embedded path"; }
             return null;
+        }
+
+        /// <summary>
+        /// Utility function to run R commands via R at the command line.  This is not used for general StatTag operations within documents,
+        /// but instead used for setup and configuration of software for StatTag to work properly.
+        /// </summary>
+        /// <param name="commandPath">Path to command</param>
+        /// <param name="command">The command parameters</param>
+        /// <param name="appendPath">Addition to the system PATH environment variable (if needed)</param>
+        /// <param name="showWindow">Whether or not to show the command window while running the R command</param>
+        /// <returns></returns>
+        public static CheckResult RunCommand(string commandPath, string parameters, string appendPath = "", bool showWindow = false)
+        {
+            try
+            {
+                var info = new ProcessStartInfo(commandPath, parameters)
+                {
+                    CreateNoWindow = !showWindow,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
+
+                // If needed, append to the PATH environment variable.  This is intended primarily when we want to use
+                // our embedded Jupyter executables.
+                if (!string.IsNullOrWhiteSpace(appendPath) && info.EnvironmentVariables.ContainsKey("PATH"))
+                {
+                    var updatedPath = string.Format("{0};{1}", info.EnvironmentVariables["PATH"], appendPath);
+                    info.EnvironmentVariables.Remove("PATH");
+                    info.EnvironmentVariables.Add("PATH", updatedPath);
+                }
+
+                var process = Process.Start(info);
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                if (0 == process.ExitCode)
+                {
+                    return new CheckResult() { Result = true, Details = string.Format("Command succeeded: {0} {1}\r\n{2}", commandPath, parameters, output) };
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(error))
+                    {
+                        error = "(No additional error information was provided)";
+                    }
+
+                    return new CheckResult()
+                    {
+                        Result = false,
+                        Details = string.Format("Command failed with exit code {0}: {1} {2}\r\nOutput: {3}\r\nError: {4}", 
+                            process.ExitCode, commandPath, parameters, output, error)
+                    };
+                }
+            }
+            catch (Exception exc)
+            {
+                return new CheckResult()
+                {
+                    Result = false,
+                    Details = string.Format("Command failed: {0}\r\nInstalled via: {1} {2}",
+                        exc.Message, commandPath, parameters)
+                };
+            }
         }
     }
 }

@@ -331,121 +331,155 @@ namespace StatTag
         }
         private void cmdInstallRSupport_Click(object sender, EventArgs e)
         {
-            Logger.WriteMessage("Beginning installation of R support");
+            try
+            {
+                txtRSupportProgress.Text = "";
 
-            var result = MessageBox.Show("StatTag will attempt to install and configure the IRkernel package in R.  This will make changes to your R setup.  Do you wish to continue?",
-                        UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
-            if (DialogResult.Yes != result)
-            {
-                Logger.WriteMessage("User cancelled setting up IRkernel");
-                LogRStatusFailure();
-                return;
-            }
-
-            LogRStatusAndLogger("Proceeding with IRkernel setup. Locating R...");
-            var rPath = RAutomation.DetectRPath();
-            if (string.IsNullOrWhiteSpace(rPath))
-            {
-                LogRStatusAndLogger("Unable to locate an R installation using the registry");
-                LogRStatusFailure();
-                return;
-            }
-            else if (!Directory.Exists(rPath))
-            {
-                LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
-                LogRStatusFailure();
-                return;
-            }
-            else
-            {
-                LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
-            }
-
-            rPath = Path.Combine(rPath, "R.exe");
-            if (!File.Exists(rPath))
-            {
-                LogRStatusAndLogger(string.Format("Could not find R.exe at {0}", rPath));
-                LogRStatusFailure();
-                return;
-            }
-
-            LogRStatusAndLogger("Attempting to install IRkernel...");
-
-            var irKernelResult = RAutomation.RunRFromCommandLine(rPath, "-e \"install.packages('IRkernel', repos = 'https://cloud.r-project.org')\"");
-            if (irKernelResult.Result)
-            {
-                LogRStatusAndLogger("Successfully installed (or confirmed installation of) IRkernel");
-                LogRStatusAndLogger(irKernelResult.Details);
-            }
-            else
-            {
-                LogRStatusAndLogger("Failed to install IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
-                LogRStatusAndLogger(irKernelResult.Details);
-                LogRStatusFailure();
-                return;
-            }
-
-            LogRStatusAndLogger("Detecting Jupyter...");
-            string embeddedJupyterPath = null;
-            var jupyterStatus = JupyterAutomation.DetectJupyter();
-            if (jupyterStatus.Result)
-            {
-                LogRStatusAndLogger("Found Jupyter: " + jupyterStatus.Details);
-            }
-            else
-            {
-                LogRStatusAndLogger("Did not find a Jupyter.  Using embedded environment");
-                embeddedJupyterPath = JupyterAutomation.ExtractPythonToTempFolder();
-                if (string.IsNullOrWhiteSpace(embeddedJupyterPath))
+                if (SystemInformation.RSupport)
                 {
-                    LogRStatusAndLogger("Failed to use embedded Python/Jupyter environment.  No available Jupyter environment to use for IRkernel setup.");
-                    LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                    var existingRResponse = MessageBox.Show("Your system already appears to be set up with R support for StatTag.  You can attempt to re-install R support if you are having problems getting StatTag to execute R code.\r\n\r\nDo you wish to continue?",
+                        UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+                    if (DialogResult.Yes != existingRResponse)
+                    {
+                        LogRStatusAndLogger("User cancelled setting up IRkernel");
+                        return;
+                    }
+                }
+
+
+                Logger.WriteMessage("Beginning installation of R support");
+
+                LogRStatusAndLogger("Proceeding with IRkernel setup. Locating R...");
+                var rPath = RAutomation.DetectRPath();
+                if (string.IsNullOrWhiteSpace(rPath))
+                {
+                    LogRStatusAndLogger("Unable to locate an R installation using the registry");
+                    LogRStatusFailure();
+                    return;
+                }
+                else if (!Directory.Exists(rPath))
+                {
+                    LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
+                    LogRStatusFailure();
                     return;
                 }
                 else
                 {
-                    LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterPath));
+                    LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
+                }
+
+                rPath = Path.Combine(rPath, "R.exe");
+                if (!File.Exists(rPath))
+                {
+                    LogRStatusAndLogger(string.Format("Could not find R.exe at {0}", rPath));
+                    LogRStatusFailure();
+                    return;
+                }
+
+                var result = MessageBox.Show("StatTag will attempt to install and configure the IRkernel package in R.  This will make changes to your R setup.\r\n\r\nDo you wish to continue?",
+                UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+                if (DialogResult.Yes != result)
+                {
+                    LogRStatusAndLogger("User cancelled setting up IRkernel");
+                    return;
+                }
+
+                this.Cursor = Cursors.WaitCursor;
+
+                LogRStatusAndLogger("Attempting to install IRkernel...");
+
+                var irKernelResult = JupyterAutomation.RunCommand(rPath, "-e \"install.packages('IRkernel', repos = 'https://cloud.r-project.org')\"");
+                if (irKernelResult.Result)
+                {
+                    LogRStatusAndLogger("Successfully installed (or confirmed installation of) IRkernel");
+                    LogRStatusAndLogger(irKernelResult.Details);
+                }
+                else
+                {
+                    LogRStatusAndLogger("Failed to install IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                    LogRStatusAndLogger(irKernelResult.Details);
+                    LogRStatusFailure();
+                    return;
+                }
+
+                LogRStatusAndLogger("Detecting Jupyter...");
+                string embeddedJupyterExpandedPaths = null;
+                string embeddedJupyterPath = null;
+                var jupyterStatus = JupyterAutomation.DetectJupyter();
+                if (jupyterStatus.Result)
+                {
+                    LogRStatusAndLogger("Found Jupyter: " + jupyterStatus.Details);
+                }
+                else
+                {
+                    LogRStatusAndLogger("Did not find Jupyter.  Using embedded Python environment.");
+                    string embeddedJupyterSetupDetails = "";
+                    embeddedJupyterPath = JupyterAutomation.SetupEmbeddedJupyter(ref embeddedJupyterSetupDetails);
+                    if (string.IsNullOrWhiteSpace(embeddedJupyterPath))
+                    {
+                        LogRStatusAndLogger("Failed to use embedded Python environment.  No available Python environment to use for IRkernel setup.");
+                        if (!string.IsNullOrWhiteSpace(embeddedJupyterSetupDetails))
+                        {
+                            LogRStatusAndLogger(embeddedJupyterSetupDetails);
+                        }
+                        LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                        return;
+                    }
+                    else
+                    {
+                        LogRStatusAndLogger(string.Format("Using embedded Python at: {0}", embeddedJupyterPath));
+                        // The embeddedJupyterPath contains the base path for where the files exist.  We need to expand this for adding
+                        // to the PATH variable to include the base as well as the \Scripts subfolder.
+                        embeddedJupyterExpandedPaths = string.Format("{0};{0}\\Scripts", embeddedJupyterPath);
+                    }
+                }
+
+                // If we are using embedded Python, we need to install Jupyter libraries (just the minimum) in order
+                // to have support for all Jupyter-related commands.
+                if (!string.IsNullOrWhiteSpace(embeddedJupyterPath))
+                {
+                    LogRStatusAndLogger("Attempting to install Jupyter support...");
+                    var jupyterInstallResult = JupyterAutomation.RunCommand(
+                        Path.Combine(embeddedJupyterPath, "python.exe"),
+                        "-m pip install jupyter-core jupyter-client",
+                        embeddedJupyterExpandedPaths);
+                    if (!jupyterInstallResult.Result)
+                    {
+                        LogRStatusAndLogger("Failed to install Jupyter core libraries");
+                        LogRStatusAndLogger(string.Format("Error: ", jupyterInstallResult.Details));
+                        JupyterAutomation.RemoveEmbeddedJupyter(embeddedJupyterPath);
+                        return;
+                    }
+                    else
+                    {
+                        LogRStatusAndLogger("Successfully installed Jupyter infrastructure");
+                    }
+                }
+
+                LogRStatusAndLogger("Attempting to configure IRkernel...");
+                var configResult = JupyterAutomation.RunCommand(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterExpandedPaths);
+                if (configResult.Result)
+                {
+                    LogRStatusAndLogger("Successfully configured IRkernel");
+                    UpdateRSettingsUI(true);
+                    RefreshSystemInformation = true;
+                }
+                else
+                {
+                    LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
+                    LogRStatusAndLogger(configResult.Details);
+                    LogRStatusFailure();
+                }
+
+                // If we used a temporary Jupyter/Python environment to do this, clean it up.
+                if (!string.IsNullOrWhiteSpace(embeddedJupyterPath))
+                {
+                    JupyterAutomation.RemoveEmbeddedJupyter(embeddedJupyterPath);
                 }
             }
-
-            LogRStatusAndLogger("Attempging to configure IRkernel...");
-
-            //var embeddedJupyterPath = "";
-            //var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-            //if (Uri.IsWellFormedUriString(executingAssembly.CodeBase, UriKind.Absolute))
-            //{
-            //    var codeBasePath = Path.GetDirectoryName(new Uri(executingAssembly.CodeBase).LocalPath);
-            //    var embeddedJupyterBase = Path.Combine(codeBasePath, "python-embed");
-            //    if (Directory.Exists(embeddedJupyterBase))
-            //    {
-            //        LogRStatusAndLogger(string.Format("Using embedded Jupyter at: {0}", embeddedJupyterBase));
-            //        embeddedJupyterPath = string.Format("{0};{1}",
-            //            embeddedJupyterBase,
-            //            Path.Combine(embeddedJupyterBase, "Scripts"));
-            //    }
-            //}
-
-            // The embeddedJupyterPath contains the base path for where the files exist.  We need to expand this for adding
-            // to the PATH variable to include the base as well as the \Scripts subfolder.
-            var embeddedJupyterExpandedPaths = string.Format("{0};{0}\\Scripts", embeddedJupyterPath);
-            var configResult = RAutomation.RunRFromCommandLine(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterExpandedPaths);
-            if (configResult.Result)
+            finally
             {
-                LogRStatusAndLogger("Successfully configured IRkernel");
-                UpdateRSettingsUI(true);
-                RefreshSystemInformation = true;
-            }
-            else
-            {
-                LogRStatusAndLogger("Failed to configure IRkernel.  Please see the StatTag User Guide for more instructions on how to set up R support.");
-                LogRStatusAndLogger(configResult.Details);
-                LogRStatusFailure();
-            }
-
-            // If we used a temporary Jupyter/Python environment to do this, clean it up.
-            if (!string.IsNullOrWhiteSpace(embeddedJupyterPath))
-            {
-                JupyterAutomation.CleanupTempPythonFolder(embeddedJupyterPath);
+                this.Cursor = Cursors.Default;
             }
         }
 
