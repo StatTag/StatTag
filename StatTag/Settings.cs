@@ -45,7 +45,7 @@ namespace StatTag
             Manager = manager;
             SystemInformation = sysInfo;
             MinimumSize = Size;
-            Logger = new LogManager();
+            Logger = (Manager != null && Manager.Logger != null) ? Manager.Logger : new LogManager();
             UIUtility.SetDialogTitle(this);
             RefreshSystemInformation = false;
 
@@ -376,12 +376,17 @@ namespace StatTag
                     return;
                 }
 
-                var result = MessageBox.Show("StatTag will attempt to install and configure the IRkernel package in R.  This will make changes to your R setup.\r\n\r\nDo you wish to continue?",
-                UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
-                if (DialogResult.Yes != result)
+                // If the user already has R support, they will have answered "Yes" above to proceeding.  We don't need to bother
+                // them again with another confirmation.
+                if (!SystemInformation.RSupport)
                 {
-                    LogRStatusAndLogger("User cancelled setting up IRkernel");
-                    return;
+                    var result = MessageBox.Show("StatTag will attempt to install and configure the IRkernel package in R.  This will make changes to your R setup.\r\n\r\nDo you wish to continue?",
+                    UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+                    if (DialogResult.Yes != result)
+                    {
+                        LogRStatusAndLogger("User cancelled setting up IRkernel");
+                        return;
+                    }
                 }
 
                 this.Cursor = Cursors.WaitCursor;
@@ -500,6 +505,7 @@ namespace StatTag
             txtRSupportProgress.Text += text + "\r\n";
             txtRSupportProgress.SelectionStart = txtRSupportProgress.Text.Length;
             txtRSupportProgress.ScrollToCaret();
+            this.Update();
             Logger.WriteMessage(text);
         }
     }
