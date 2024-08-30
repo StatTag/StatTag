@@ -1095,7 +1095,7 @@ namespace R
                     // The first one has our command, so we can skip it
                     lines = lines.Skip(1);
                 }
-                return lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                paths.AddRange(lines.Where(x => !string.IsNullOrWhiteSpace(x)));
             }
 
             //return parts;

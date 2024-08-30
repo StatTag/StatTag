@@ -401,41 +401,55 @@ namespace StatTag
                     {
                         LogRStatusAndLogger("Could not find any available R library paths...");
                         var libPath = RAutomation.GetUserLibPath();
+                        // It's possible that the libPath exists but we couldn't detect it in R.  If that's the case, we want
+                        // to skip all of the setup steps, since the directory is there.
                         if (!string.IsNullOrWhiteSpace(libPath))
                         {
-                            var result = MessageBox.Show(
-                                string.Format("StatTag is unable to find an R library directory to install the IRkernel package.  We can attempt to create one at {0}\r\n\r\nThis will create the directory, which R can use for other packages.  If you don't want to create the directory, installation will proceed but may fail.\r\n\r\nDo you wish to create {0}?", libPath),
-                                                UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
-                            if (result == DialogResult.Yes)
+                            if (!Directory.Exists(libPath))
                             {
-                                LogRStatusAndLogger("Attempting to create " + libPath);
-                                try
+                                var result = MessageBox.Show(
+                                    string.Format("StatTag is unable to find an R library directory to install the IRkernel package.  We can attempt to create one at {0}\r\n\r\nThis will create the directory, which R can use for other packages.  If you don't want to create the directory, installation will proceed but may fail.\r\n\r\nDo you wish to create {0}?", libPath),
+                                                    UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+                                if (result == DialogResult.Yes)
                                 {
-                                    Directory.CreateDirectory(libPath);
-                                }
-                                catch (Exception exc)
-                                {
-                                    LogRStatusAndLogger("Failed to create user libPath: " + exc.Message);
-                                }
-                                LogRStatusAndLogger("Created user libPath");
+                                    LogRStatusAndLogger("Attempting to create " + libPath);
+                                    try
+                                    {
+                                        Directory.CreateDirectory(libPath);
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        LogRStatusAndLogger("Failed to create user libPath: " + exc.Message);
+                                    }
+                                    LogRStatusAndLogger("Created user libPath");
 
-                                var libPathRegistrationResult = JupyterAutomation.RunCommand(rPath, "-q -e \".libPaths(c('" + libPath.Replace("\\", "/") + "', .libPaths()))\"");
-                                if (libPathRegistrationResult.Result)
-                                {
-                                    LogRStatusAndLogger("Registered user libPath");
+                                    var libPathRegistrationResult = JupyterAutomation.RunCommand(rPath, "-q -e \".libPaths(c('" + libPath.Replace("\\", "/") + "', .libPaths()))\"");
+                                    if (libPathRegistrationResult.Result)
+                                    {
+                                        LogRStatusAndLogger("Registered user libPath");
+                                    }
+                                    else
+                                    {
+                                        LogRStatusAndLogger("Failed to register libPath: " + libPathRegistrationResult.Details);
+                                    }
                                 }
                                 else
                                 {
-                                    LogRStatusAndLogger("Failed to register libPath: " + libPathRegistrationResult.Details);
+                                    LogRStatusAndLogger("Not creating " + libPath);
                                 }
                             }
                             else
                             {
-                                LogRStatusAndLogger("Not creating " + libPath);
+                                LogRStatusAndLogger("User libPath already exists: " + libPath);
                             }
                         }
+                        else
+                        {
+                            LogRStatusAndLogger("Unable to find a valid user libPath");
+                        }
                     }
-                } else
+                }
+                else
                 {
                     LogRStatusAndLogger("Unable to determine existing libPaths:");
                     LogRStatusAndLogger(libPathResult.Details);

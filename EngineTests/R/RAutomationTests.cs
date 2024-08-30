@@ -142,5 +142,13 @@ namespace EngineTests.R
             Assert.AreEqual("C:/Users/test/AppData/Local/R/win-library/4.4", result[1]);
             Assert.AreEqual("C:/Users/test/custom-lib", result[2]);
         }
+
+        [TestMethod]
+        public void ParseLibPathResults_ResultPathAfterOtherText()
+        {
+            var result = RAutomation.ParseLibPathResults("Some leading text that goes here just for testing\r\n> .libPaths()\r\n[1] \"C:/Program Files (x86)/R/$-4.4.1/library\"\r\n>");
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("C:/Program Files (x86)/R/$-4.4.1/library", result[0]);
+        }
     }
 }
