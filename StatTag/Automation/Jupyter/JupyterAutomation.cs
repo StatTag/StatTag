@@ -819,9 +819,25 @@ namespace Jupyter
                 }
 
                 var process = Process.Start(info);
-                string output = process.StandardOutput.ReadToEnd();
-                string error = process.StandardError.ReadToEnd();
+
+                // A million thanks for the solution here: https://stackoverflow.com/a/47213952
+                // Originally I would just use ReadToEnd:
+                //      string output = process.StandardOutput.ReadToEnd();
+                //      string error = process.StandardError.ReadToEnd();
+                // When we had lengthy output, this would cause the whole process to hang.  Using this alternate
+                // approach with threads as suggested on SO solves the problem.
+                string error = null;
+                Thread errorThread = new Thread(() => { error = process.StandardError.ReadToEnd(); });
+                errorThread.Start();
+
+                string output = null;
+                Thread outputThread = new Thread(() => { output = process.StandardOutput.ReadToEnd(); });
+                outputThread.Start();
+
                 process.WaitForExit();
+                outputThread.Join();
+                errorThread.Join();
+
                 if (0 == process.ExitCode)
                 {
                     return new CheckResult() { Result = true, Details = string.Format("Command succeeded: {0} {1}\r\n{2}", commandPath, parameters, output) };

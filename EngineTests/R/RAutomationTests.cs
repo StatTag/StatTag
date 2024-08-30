@@ -109,5 +109,38 @@ namespace EngineTests.R
             Assert.AreEqual("NA", RAutomation.ProcessHtmlValue("'NA'"));
             Assert.AreEqual("'NA'", RAutomation.ProcessHtmlValue("&apos;NA&apos;"));
         }
+
+        [TestMethod]
+        public void ParseLibPathResults_EmptyNull()
+        {
+            Assert.AreEqual(0, RAutomation.ParseLibPathResults(null).Length);
+            Assert.AreEqual(0, RAutomation.ParseLibPathResults("").Length);
+            Assert.AreEqual(0, RAutomation.ParseLibPathResults("  \r\n \t  ").Length);
+        }
+
+        [TestMethod]
+        public void ParseLibPathResults_ResultNoPaths()
+        {
+            Assert.AreEqual(0, RAutomation.ParseLibPathResults("> .libPaths()\r\n\r\n>\r\n>").Length);
+            Assert.AreEqual(0, RAutomation.ParseLibPathResults("> .libPaths()\r\n[1] \r\n>\r\n>").Length);
+        }
+
+        [TestMethod]
+        public void ParseLibPathResults_ResultOnePath()
+        {
+            var result = RAutomation.ParseLibPathResults("> .libPaths()\r\n[1] \"C:/Program Files (x86)/R/$-4.4.1/library\"\r\n>");
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("C:/Program Files (x86)/R/$-4.4.1/library", result[0]);
+        }
+
+        [TestMethod]
+        public void ParseLibPathResults_ResultMultiplePaths()
+        {
+            var result = RAutomation.ParseLibPathResults("> .libPaths()\r\n[1] \"C:/Program Files (x86)/R/R-4.4.1/library\"\r\n[2] \"C:/Users/test/AppData/Local/R/win-library/4.4\"\r\n[3] \"C:/Users/test/custom-lib\"\r\n>\r\n>");
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual("C:/Program Files (x86)/R/R-4.4.1/library", result[0]);
+            Assert.AreEqual("C:/Users/test/AppData/Local/R/win-library/4.4", result[1]);
+            Assert.AreEqual("C:/Users/test/custom-lib", result[2]);
+        }
     }
 }

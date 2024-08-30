@@ -393,7 +393,56 @@ namespace StatTag
 
                 LogRStatusAndLogger("Attempting to install IRkernel...");
 
-                var irKernelResult = JupyterAutomation.RunCommand(rPath, "-e \"install.packages('IRkernel', repos = 'https://cloud.r-project.org')\"");
+                var libPathResult = JupyterAutomation.RunCommand(rPath, "-q -e \".libPaths()\"");
+                if (libPathResult.Result)
+                {
+                    var libPaths = RAutomation.GetAccessibleLibPaths(libPathResult.Details);
+                    if (libPaths.Length == 0)
+                    {
+                        LogRStatusAndLogger("Could not find any available R library paths...");
+                        var libPath = RAutomation.GetUserLibPath();
+                        if (!string.IsNullOrWhiteSpace(libPath))
+                        {
+                            var result = MessageBox.Show(
+                                string.Format("StatTag is unable to find an R library directory to install the IRkernel package.  We can attempt to create one at {0}\r\n\r\nThis will create the directory, which R can use for other packages.  If you don't want to create the directory, installation will proceed but may fail.\r\n\r\nDo you wish to create {0}?", libPath),
+                                                UIUtility.GetAddInName(), MessageBoxButtons.YesNoCancel);
+                            if (result == DialogResult.Yes)
+                            {
+                                LogRStatusAndLogger("Attempting to create " + libPath);
+                                try
+                                {
+                                    Directory.CreateDirectory(libPath);
+                                }
+                                catch (Exception exc)
+                                {
+                                    LogRStatusAndLogger("Failed to create user libPath: " + exc.Message);
+                                }
+                                LogRStatusAndLogger("Created user libPath");
+
+                                var libPathRegistrationResult = JupyterAutomation.RunCommand(rPath, "-q -e \".libPaths(c('" + libPath.Replace("\\", "/") + "', .libPaths()))\"");
+                                if (libPathRegistrationResult.Result)
+                                {
+                                    LogRStatusAndLogger("Registered user libPath");
+                                }
+                                else
+                                {
+                                    LogRStatusAndLogger("Failed to register libPath: " + libPathRegistrationResult.Details);
+                                }
+                            }
+                            else
+                            {
+                                LogRStatusAndLogger("Not creating " + libPath);
+                            }
+                        }
+                    }
+                } else
+                {
+                    LogRStatusAndLogger("Unable to determine existing libPaths:");
+                    LogRStatusAndLogger(libPathResult.Details);
+                    LogRStatusAndLogger("Proceeding with IRkernel installation command");
+                }
+
+                var irKernelResult = JupyterAutomation.RunCommand(rPath, "-q -e \"install.packages('IRkernel', repos = 'https://cloud.r-project.org')\"");
                 if (irKernelResult.Result)
                 {
                     LogRStatusAndLogger("Successfully installed (or confirmed installation of) IRkernel");
@@ -462,7 +511,7 @@ namespace StatTag
                 }
 
                 LogRStatusAndLogger("Attempting to configure IRkernel...");
-                var configResult = JupyterAutomation.RunCommand(rPath, "-e \"IRkernel::installspec()\"", embeddedJupyterExpandedPaths);
+                var configResult = JupyterAutomation.RunCommand(rPath, "-q -e \"IRkernel::installspec()\"", embeddedJupyterExpandedPaths);
                 if (configResult.Result)
                 {
                     LogRStatusAndLogger("Successfully configured IRkernel");

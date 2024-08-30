@@ -30,6 +30,7 @@ namespace R
         private const char DoubleQuote = '"';
         private static readonly Regex ValidArrayString = new Regex("^\\s*\\[.*\\]\\s*$", RegexOptions.Multiline | RegexOptions.Singleline);
         private static readonly char[] Quotes = { SingleQuote, DoubleQuote };
+        private static readonly char[] LibPathTrimChars = { '\r', '\n', '\t', ' ', '"' };
 
         private bool IsInitialized = false;
 
@@ -867,6 +868,11 @@ namespace R
                 rHome = GetRHomeFromRegistry(@"SOFTWARE\WOW6432Node\R-core");
             }
 
+            if (string.IsNullOrWhiteSpace(rHome))
+            {
+                return null;
+            }
+
             rHome = Path.Combine(rHome, "bin", Environment.Is64BitProcess ? "x64" : "i386");
             if (Directory.Exists(rHome))
             {
@@ -946,6 +952,57 @@ namespace R
             return installPath;
         }
 
+        private static string GetRVersionFromRegistry(string baseKey)
+        {
+            var rCore = Registry.LocalMachine.OpenSubKey(baseKey);
+            if (rCore == null)
+            {
+                rCore = Registry.CurrentUser.OpenSubKey(baseKey);
+                if (rCore == null)
+                {
+                    return null;
+                }
+            }
+
+            var subKey = Environment.Is64BitProcess ? "R64" : "R";
+            var rKey = rCore.OpenSubKey(subKey);
+            if (rKey == null)
+            {
+                return null;
+            }
+
+            return GetRInstallPathFromRCoreKegKey(rKey);
+        }
+
+        /// <summary>
+        /// Utility function adapted from RDotNet code to identify the version of the
+        /// active version of R
+        /// </summary>
+        /// <param name="rCoreKey"></param>
+        /// <returns></returns>
+        private static string GetRVersionFromRCoreKegKey(RegistryKey rCoreKey)
+        {
+            string[] subKeyNames = rCoreKey.GetSubKeyNames();
+            string[] valueNames = rCoreKey.GetValueNames();
+            if (valueNames.Length == 0)
+            {
+                return RecurseFirstSubkey(rCoreKey);
+            }
+            else
+            {
+                if (valueNames.Contains("Current Version"))
+                {
+                    string currentVersion = (string)rCoreKey.GetValue("Current Version");
+                    return currentVersion;
+                }
+                else
+                {
+                    return RecurseFirstSubkey(rCoreKey);
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// Utility function adapted from RDotNet code base to recurse and check for R install
         /// paths in sub-keys of a registry entry.
@@ -965,6 +1022,111 @@ namespace R
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Using the same approach as R: https://github.com/r-lib/r-svn/blob/440c5430cc247949caf9d109d18cfed04aba09b8/src/library/utils/R/packages2.R#L315-L347
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static string[] GetAccessibleLibPaths(string result)
+        {
+            var accessiblePaths = new List<string>();
+            var paths = RAutomation.ParseLibPathResults(result);
+            if (paths.Length == 0)
+            {
+                return paths;
+            }
+
+            foreach (var path in paths)
+            {
+                try
+                {
+                    // Not our job to create it - if it doesn't exist, we just skip it from consideration
+                    if (!Directory.Exists(path))
+                    {
+                        continue;
+                    }
+
+                    var testDir = Path.Combine(path, "_test_dir_");
+                    Directory.CreateDirectory(testDir);
+                    Directory.Delete(testDir, true);
+
+                    // If we made it this far, it's valid
+                    accessiblePaths.Add(path);
+                }
+                catch
+                {
+                    // Eat the exception - it means we can't use this path
+                }
+            }
+
+            return accessiblePaths.ToArray();
+        }
+
+        /// <summary>
+        /// Special utility function to take the results of the .libPaths() command and return an
+        /// array of all libPath entries that are set.
+        /// </summary>
+        /// <param name="result">The string result from executing .libPaths() in R</param>
+        /// <returns>Array of stringing containing libPath entries, if any exist</returns>
+        public static string[] ParseLibPathResults(string result)
+        {
+            var paths = new List<string>();
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                return paths.ToArray();
+            }
+
+            var parts = Regex.Split(result, "^>", RegexOptions.Multiline).Where(x => !string.IsNullOrWhiteSpace(x));
+            if (parts.Count() == 0)
+            {
+                return paths.ToArray();
+            }
+
+            // We now need to split by newline each response and clean it up to get back the path
+            foreach (var part in parts)
+            {
+                var lines = part.Split('\n')
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => CleanValueResult(x).Trim(LibPathTrimChars));
+                if (lines.Count() > 0)
+                {
+                    // The first one has our command, so we can skip it
+                    lines = lines.Skip(1);
+                }
+                return lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            }
+
+            //return parts;
+
+            return paths.ToArray();
+        }
+
+        /// <summary>
+        /// Determine possible path, same as R does: https://github.com/r-lib/r-svn/blob/440c5430cc247949caf9d109d18cfed04aba09b8/src/library/base/R/library.R#L988
+        /// </summary>
+        /// <returns></returns>
+        public static string GetUserLibPath()
+        {
+            var version = GetRVersionFromRegistry(@"SOFTWARE\R-core");
+            if (version == null)
+            {
+                version = GetRHomeFromRegistry(@"SOFTWARE\WOW6432Node\R-core");
+            }
+
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return null;
+            }
+
+            var majorMinor = Regex.Match(version, @"([\d]+\.[\d]+)");
+            if (!majorMinor.Success)
+            {
+                return null;
+            }
+
+            return Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"), "R", "win-library", majorMinor.Captures[0].Value);
         }
     }
 }
