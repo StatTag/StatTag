@@ -514,8 +514,9 @@ namespace StatTag
                     if (!jupyterInstallResult.Result)
                     {
                         LogRStatusAndLogger("Failed to install Jupyter core libraries");
-                        LogRStatusAndLogger(string.Format("Error: ", jupyterInstallResult.Details));
+                        LogRStatusAndLogger(string.Format("Error: {0}", jupyterInstallResult.Details));
                         JupyterAutomation.RemoveEmbeddedJupyter(embeddedJupyterPath);
+                        LogRStatusFailure();
                         return;
                     }
                     else
