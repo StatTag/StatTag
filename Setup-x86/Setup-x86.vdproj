@@ -1201,7 +1201,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ScintillaNET FindReplaceDialog, Version=1.4.0.25363, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:ScintillaNET FindReplaceDialog, Version=1.4.0.29779, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_51A316B3E29BD4FCAB457528DF94766C"
@@ -1899,7 +1899,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Core, Version=7.0.0.1, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:Core, Version=7.0.0.2, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_EBB6933C7EA08217672667E9A1FBA85D"
@@ -2117,15 +2117,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:StatTag"
-        "ProductCode" = "8:{887E4D90-74DE-4AEF-AE8A-263818205308}"
-        "PackageCode" = "8:{47C93916-187E-4864-8C78-0588B3ECDCB7}"
+        "ProductCode" = "8:{03E7BB38-1883-46B5-A3F7-716AA13E84CB}"
+        "PackageCode" = "8:{ED7F69F4-9E78-4A15-BB74-2994B1CF3D42}"
         "UpgradeCode" = "8:{AEC2B59D-045C-4D6D-A4B4-1C87125EA095}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:7.0.002"
+        "ProductVersion" = "8:7.0.003"
         "Manufacturer" = "8:Northwestern University"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://stattag.org"
