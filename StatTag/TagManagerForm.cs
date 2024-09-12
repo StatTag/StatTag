@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using ScintillaNET;
 using StatTag.Controls;
@@ -894,6 +895,7 @@ namespace StatTag
             var refreshedFiles = new List<CodeFile>();
             var files = tags.Select(x => x.CodeFile).Distinct().ToArray();
             int length = files.Length;
+            var warnings = new List<string>();
             for (int index = 0; index < length; index++)
             {
                 // If the user cancels while running code files, exit right away so we don't do any of
@@ -915,6 +917,12 @@ namespace StatTag
                     {
                         throw new StatTagUserException(result.ErrorMessage);
                     }
+                    else if (!string.IsNullOrWhiteSpace(result.WarningMessage))
+                    {
+                        warnings.Add(string.Format("{0}:\r\n{1}",
+                            Path.GetFileName(codeFile.FilePath),
+                            result.WarningMessage));
+                    }
 
                     refreshedFiles.Add(codeFile);
                 }
@@ -928,6 +936,13 @@ namespace StatTag
             // through all fields and updating them (via the DocumentManager).
             Manager.UpdateFields(tags, progressReporter);
             e.Cancel = worker.CancellationPending;
+
+            var executionResult = new ExecutionResult();
+            if (warnings.Count > 0)
+            {
+                executionResult.WarningMessage = string.Join("\r\n", warnings);
+            }
+            e.Result = executionResult;
         }
 
         /// <summary>
@@ -937,7 +952,17 @@ namespace StatTag
         /// <param name="e"></param>
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            CompletedBackgroundWorker(e.Error, e.Cancelled);
+            try
+            {
+                // In situations with exceptions, we may not be able to convert e.Result (or even reference it) without
+                // an exception being thrown.  We will attempt to use e.Result, but if that throws a TargetInvocationException
+                // we will call to complete the background worker again, but with no attempt to use the result.
+                CompletedBackgroundWorker(e.Error, e.Cancelled, (ExecutionResult)e.Result);
+            }
+            catch (TargetInvocationException exc)
+            {
+                CompletedBackgroundWorker(e.Error, e.Cancelled, null);
+            }
         }
 
         /// <summary>
@@ -945,7 +970,7 @@ namespace StatTag
         /// This resets the state of dialogs/forms, and handles any exception reporting from the work.
         /// </summary>
         /// <param name="exception"></param>
-        private void CompletedBackgroundWorker(Exception exception = null, bool cancelled = false)
+        private void CompletedBackgroundWorker(Exception exception = null, bool cancelled = false, ExecutionResult result = null)
         {
             if (CurrentProgress != null)
             {
@@ -962,6 +987,13 @@ namespace StatTag
             {
                 Manager.Logger.WriteMessage("The code execution was cancelled by the user");
                 UIUtility.WarningMessageBox("You have cancelled updates.\r\n\r\nThe values in your document may not be accurate until you update all tags.", Manager.Logger);
+            }
+
+            if (result != null && !string.IsNullOrWhiteSpace(result.WarningMessage))
+            {
+                UIUtility.WarningMessageBox(
+                    string.Format("Your code file(s) ran, but the following warnings were reported:\r\n\r\n{0}", result.WarningMessage),
+                    Manager.Logger);
             }
 
             this.TopMost = true;

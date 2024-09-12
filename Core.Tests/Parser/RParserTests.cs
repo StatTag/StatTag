@@ -91,6 +91,14 @@ namespace Core.Tests.Parser
 
             // If we have two image commands in the same text block, we will get the first one
             Assert.AreEqual("\"test.pdf\"", parser.GetImageSaveLocation("pdf(\"test.pdf\");png(\"test.png\")"));
+
+            // Closing parenthesis in string should be treated as part of the parameter string
+            Assert.AreEqual("\"test).pdf\"", parser.GetImageSaveLocation("pdf(\"test).pdf\")"));
+            Assert.AreEqual("'test).pdf'", parser.GetImageSaveLocation("pdf('test).pdf')"));
+
+            // If we have a larger block of commands, make sure we are only pulling the correct boundaries of the relevant function
+            Assert.AreEqual("paste(\"test\", \".pdf\")", parser.GetImageSaveLocation("pdf(file=paste(\"test\", \".pdf\"),\r\nwidth = getw(),\r\nheight = geth())\r\n\r\ntest()"));
+            Assert.AreEqual("\"test.jpg\"", parser.GetImageSaveLocation("jpeg(\"test.jpg\")\r\np <- ggplot(data, aes(x=value)) + geom_histogram()\r\np\r\ndev.off()"));
         }
 
         [TestMethod]
@@ -137,6 +145,34 @@ namespace Core.Tests.Parser
 
             // Handle single quotes in file paths
             Assert.AreEqual("\"C:/Test/Stats/Test's/test.csv\"", parser.GetTableDataPath("write.csv(df, \"C:/Test/Stats/Test's/test.csv\")"));
+        }
+
+        [TestMethod]
+        public void GetTableDataPath_MultiLine()
+        {
+            // Although we will always allow something to be considered a table, this will test if we can
+            // pull a file name out of call to write output.
+            var parser = new RParser();
+            Assert.AreEqual("\"test.txt\"", parser.GetTableDataPath("y <- 5\r\nwrite.table(x, file=\"test.txt\", append=FALSE, sep = \",\")"));
+
+            // Detect positional placement of file parameter
+            Assert.AreEqual("\"test.txt\"", parser.GetTableDataPath("y <- 5\r\nprint(y)\r\nwrite.table(x, \"test.txt\")"));
+
+            // Mix order of parameters
+            Assert.AreEqual("\"test2.csv\"", parser.GetTableDataPath("y <- 5\r\nwrite.csv2(x, append=FALSE, file=\"test2.csv\", sep = \",\")\r\nprint(y)"));
+
+            // Don't return anything for assignment/other operations that end up creating a table-compatible object
+            Assert.AreEqual("", parser.GetTableDataPath("x <- c(1,2,3,4,5)"));
+
+            // Handle variables used as file paths
+            Assert.AreEqual("out_file", parser.GetTableDataPath("out_file <- \"test.csv\"\r\nwrite.table(x, out_file)"));
+            Assert.AreEqual("out_file", parser.GetTableDataPath("out_file <- \"test.csv\"\r\nwrite.table(x, file=out_file)"));
+
+            // Handle functions used as file paths
+            Assert.AreEqual("paste(getwd(), \"test.txt\", sep = \"\")", parser.GetTableDataPath("y <- 5\r\nwrite.table(x, file = paste(getwd(), \"test.txt\", sep = \"\"))"));
+
+            // Handle single quotes in file paths
+            Assert.AreEqual("\"C:/Test/Stats/Test's/test.csv\"", parser.GetTableDataPath("y <- 5\r\nwrite.csv(df, \"C:/Test/Stats/Test's/test.csv\")"));
         }
 
         [TestMethod]
@@ -518,6 +554,55 @@ namespace Core.Tests.Parser
             Assert.AreEqual("line 2", modifiedText[2]);
             Assert.AreEqual("line 3", modifiedText[3]);
             Assert.AreEqual("##<<<", modifiedText[4]);
+        }
+
+
+        [TestMethod]
+        public void CommandContainsPrint_EmptyNull()
+        {
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint(null));
+            Assert.IsFalse(parser.CommandContainsPrint(""));
+            Assert.IsFalse(parser.CommandContainsPrint("     "));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_ExistsSingleLine()
+        {
+            var parser = new RParser();
+            Assert.IsTrue(parser.CommandContainsPrint("print(x)"));
+            Assert.IsTrue(parser.CommandContainsPrint("  print(  x  )  "));
+            Assert.IsTrue(parser.CommandContainsPrint("print()"));
+            Assert.IsTrue(parser.CommandContainsPrint(" print ( ) "));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_FalsePositiveKeyword()
+        {
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint("isprint(x)"));
+            Assert.IsFalse(parser.CommandContainsPrint("prints()"));
+            Assert.IsFalse(parser.CommandContainsPrint("pr int()"));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_NotBeginningOfCommand()
+        {
+            // It doesn't matter if these are valid R commands or not, just testing difference scenarios
+            // that the method should handle.
+            var parser = new RParser();
+            Assert.IsFalse(parser.CommandContainsPrint("x <- print(y)"));
+            Assert.IsFalse(parser.CommandContainsPrint("myfn(print(x))"));
+        }
+
+        [TestMethod]
+        public void CommandContainsPrint_MultipleLines()
+        {
+            var parser = new RParser();
+            Assert.IsTrue(parser.CommandContainsPrint("\r\nprint(x)\r\n"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\nprint(\r\n  x\r\n)\r\nx"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\nprint  (\r\n  x\r\n)\r\ny <- 12\r\nprint ( y )\r\n y + x"));
+            Assert.IsTrue(parser.CommandContainsPrint("x <- 5\r\n  print(x)"));
         }
     }
 }

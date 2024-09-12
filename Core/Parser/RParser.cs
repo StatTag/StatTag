@@ -18,9 +18,10 @@ namespace StatTag.Core.Parser
         public static readonly string[] FigureCommands = new[] { "pdf", "win.metafile", "png", "jpeg", "bmp", "postscript" };
         private static readonly Regex FigureRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", FigureCommands)));
         public static readonly string[] TableCommands = {"write.csv", "write.csv2", "write.table"};
-        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)));
+        private static readonly Regex TableRegex = new Regex(string.Format("^\\s*(?:{0})\\s*\\((\\s*?[\\s\\S]*)\\)", string.Join("|", TableCommands)), RegexOptions.Multiline);
         private static readonly Regex MultiLinePlotRegex = new Regex("\\)\\s*\\+[ \t]*[\\r\\n]+[ \t]*");
         private static readonly Regex MultiLinePipeRegex = new Regex("(%(?:[<T]?>|\\$)%)[ \t]*[\\r\\n]+[ \t]*");
+        private static readonly Regex PrintRegex = new Regex("^\\s*print\\s*\\(", RegexOptions.Multiline);
         //private static readonly Regex TableKeywordRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         //private static readonly Regex TableRegex = new Regex(string.Format("^\\s*{0}\\b[\\S\\s]*file\\s*=\\s*[\"'](.*?)[\"'][\\S\\s]*;", FormatCommandListAsNonCapturingGroup(TableCommands)), RegexOptions.IgnoreCase);
         private const char KeyValueDelimiter = '=';
@@ -51,11 +52,15 @@ namespace StatTag.Core.Parser
         /// named or unnamed parameters, so the positional index is important.
         /// </summary>
         /// <remarks>This method assumes we have stripped away the outer function call, and that all we have left are the
-        /// actual parameters sent to that function call.  We need to account for a few things:
+        /// actual parameters sent to that function call.  Sometimes that isn't true though, because of the imperfection
+        /// of (our) regex. We need to account for a few things:
         /// 1. Named parameters (e.g., a = b)
         /// 2. Functions as parameters (e.g., max(c))
         /// 3. String parameters with parameter list-related characters in them (e.g., "my, test.pdf")
-        /// 4. Combinations of 1-3</remarks>
+        /// 4. Combinations of 1-3
+        /// 5. Hitting a true end-of function call closing parenthesis.  This means we need to short-circuit any other
+        ///    processing.
+        /// </remarks>
         /// <param name="arguments"></param>
         /// <returns></returns>
         private List<FunctionParam> ParseFunctionParameters(string arguments)
@@ -71,8 +76,9 @@ namespace StatTag.Core.Parser
             int singleQuoteCounter = 0;
             bool isNamedParameter = false;
             bool noState = true; // Set at the beginning, just to track we haven't done any other tracking
+            int argumentStringLength = arguments.Length;  // Track separately because of a fringe scenario where this needs to be modified
             var parameters = new List<FunctionParam>();
-            for (int index = 0; index < arguments.Length; index++)
+            for (int index = 0; index < argumentStringLength; index++)
             {
                 char argChar = arguments[index];
                 if (argChar == '\'')
@@ -116,10 +122,23 @@ namespace StatTag.Core.Parser
                     functionCounter++;
                     isInFunction = true;
                 }
-                else if (isInFunction && argChar == ')')
+                else if (argChar == ')')
                 {
-                    functionCounter--;
-                    isInFunction = (functionCounter != 0);
+                    // If we have a closing parenthesis, capture the closing of the function.
+                    if (isInFunction)
+                    {
+                        functionCounter--;
+                        isInFunction = (functionCounter != 0);
+                    }
+                    // If we were not in a function, and we're not in a string, it means our regex
+                    // didn't properly strip out the wrapping function call.  This is the closing
+                    // parenthesis of the function call we are supposed to be processing, so that
+                    // means we are at the "end" of the string, and we need to update the state
+                    // accordingly.
+                    else if (!isInQuote)
+                    {
+                        argumentStringLength = index + 1;
+                    }
                 }
 
                 // If we are in a quote or in a function, we are not going to allow processing other characters (since they
@@ -136,7 +155,7 @@ namespace StatTag.Core.Parser
                 }
                 // Don't allow the argument delimiter to be processed if we are in the middle of a function, since we want
                 // to keep that function in its entirety as a parameter for the image command.
-                else if (((!isInFunction) && argChar == ArgumentDelimiter) || argChar == CommandDelimiter || index == (arguments.Length - 1))
+                else if (((!isInFunction) && argChar == ArgumentDelimiter) || argChar == CommandDelimiter || index == (argumentStringLength - 1))
                 {
                     int valueEndIndex = (index == (arguments.Length - 1)) ? arguments.Length : index;
                     int valueStartIndex = (isNamedParameter ? (parameterNameDelimiterIndex.Value + 1) : parameterStartIndex);
@@ -287,6 +306,23 @@ namespace StatTag.Core.Parser
         {
             var result = GetSaveLocation(command, TableRegex, TableFileParameterName, 2);
             return result;
+        }
+
+        /// <summary>
+        /// Determine if a given command has within it a call to R's print() function.
+        /// This does not assume correct/valid R is present, only detecting that the
+        /// start of the print function is invoked.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool CommandContainsPrint(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                return false;
+            }
+
+            return PrintRegex.IsMatch(command);
         }
 
         /// <summary>

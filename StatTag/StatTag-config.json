@@ -1,7 +1,10 @@
 ﻿{
-    "Jupyter": {
-        "PythonKernels": [
-            "python3"
-        ]
-    }
+  "Jupyter": {
+    "PythonKernels": [
+      "python3"
+    ],
+    "RKernels": [
+      "ir"
+    ]
+  }
 }

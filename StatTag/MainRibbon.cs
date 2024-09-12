@@ -53,7 +53,7 @@ namespace StatTag
             get { return Globals.ThisAddIn.SafeGetActiveDocument();  }
         }
 
-        public string SystemInformation
+        public SystemDetails SystemInformation
         {
             get { return Globals.ThisAddIn.GetSystemInformation(); }
         }
@@ -218,12 +218,19 @@ namespace StatTag
                     SetManageTagsFormVisibility(false, true);
                 }
 
-                SettingsDialog = new Settings(SettingsManager.Settings, Manager);
+                SettingsDialog = new Settings(SettingsManager.Settings, Manager, SystemInformation);
                 if (DialogResult.OK == SettingsDialog.ShowDialog())
                 {
                     SettingsManager.Settings = SettingsDialog.Properties;
                     SettingsManager.Save();
                     LogManager.UpdateSettings(SettingsDialog.Properties);
+                }
+
+                // If something changed with the system information, we will go ahead and refresh
+                // the cache with more details.
+                if (SettingsDialog != null && SettingsDialog.RefreshSystemInformation)
+                {
+                    Globals.ThisAddIn.RefreshSystemInformation();
                 }
             }
             catch (StatTagUserException uex)

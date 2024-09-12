@@ -51,6 +51,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Jupyter\JupyterAutomationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Python\PythonAutomationTests.cs" />
     <Compile Include="R\RAutomationTests.cs" />
@@ -60,17 +61,9 @@
       <Project>{f77d97b2-eda9-4f08-8765-41ff692db52b}</Project>
       <Name>Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Jupyter\Jupyter.csproj">
-      <Project>{7d918fa2-fe9c-4df4-810d-902e0143f90a}</Project>
-      <Name>Jupyter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\R\R.csproj">
-      <Project>{1e158613-c109-4d13-8aec-692dce13e762}</Project>
-      <Name>R</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Stata\Stata.csproj">
-      <Project>{b3eec6bd-9314-4bf4-9971-535a87e6df5d}</Project>
-      <Name>Stata</Name>
+    <ProjectReference Include="..\StatTag\StatTag.csproj">
+      <Project>{5ddb8db2-68b0-4339-bfa7-71339ff7e95f}</Project>
+      <Name>StatTag</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
