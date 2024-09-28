@@ -431,23 +431,6 @@ namespace StatTag
                 {
                     return;
                 }
-                //var rPath = RAutomation.DetectRPath();
-                //if (string.IsNullOrWhiteSpace(rPath))
-                //{
-                //    LogRStatusAndLogger("Unable to locate an R installation using the registry");
-                //    LogRStatusFailure();
-                //    return;
-                //}
-                //else if (!Directory.Exists(rPath))
-                //{
-                //    LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
-                //    LogRStatusFailure();
-                //    return;
-                //}
-                //else
-                //{
-                //    LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
-                //}
 
                 rPath = Path.Combine(rPath, "R.exe");
                 if (!File.Exists(rPath))
