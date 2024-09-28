@@ -24,6 +24,9 @@ namespace StatTag.Models
         private const string MaxLogFiles = "Max Num Log Files";
         private const string MissingValuesOption = "Missing Values";
         private const string MissingValuesCustomValue = "Custom Missing Value String";
+        private const string RDetectionKey = "R Detection";
+        private const string RLocationKey = "R Location";
+        private const string RCustomPathKey = "R Custom Path";
 
         public Core.Models.UserSettings Settings { get; set; }
 
@@ -55,6 +58,9 @@ namespace StatTag.Models
                 Core.Models.UserSettings.MaxLogFilesDefault), RegistryValueKind.DWord);
             key.SetValue(MissingValuesOption, Settings.RepresentMissingValues, RegistryValueKind.String);
             key.SetValue(MissingValuesCustomValue, Settings.CustomMissingValue, RegistryValueKind.String);
+            key.SetValue(RDetectionKey, Settings.RDetection, RegistryValueKind.String);
+            key.SetValue(RCustomPathKey, Settings.RCustomPath, RegistryValueKind.String);
+            key.SetValue(RLocationKey, Settings.RLocation, RegistryValueKind.String);
         }
 
         /// <summary>
@@ -132,6 +138,9 @@ namespace StatTag.Models
             Settings.RepresentMissingValues =
                 key.GetValue(MissingValuesOption, Constants.MissingValueOption.BlankString).ToString();
             Settings.CustomMissingValue = key.GetValue(MissingValuesCustomValue, string.Empty).ToString();
+            Settings.RDetection = key.GetValue(RDetectionKey, Constants.RDetectionOption.System).ToString();
+            Settings.RLocation = key.GetValue(RLocationKey, string.Empty).ToString();
+            Settings.RCustomPath = key.GetValue(RCustomPathKey, string.Empty).ToString();
         }
     }
 }

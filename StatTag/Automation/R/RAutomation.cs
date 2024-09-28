@@ -37,6 +37,7 @@ namespace R
         private const string TemporaryImageFileFilter = "*.png";
         private const string BRACKETED_NA_VALUE = "<NA>";
         private const string NA_VALUE = "NA";
+        private const string R_INSTALL_PATH_KEY = "InstallPath";
 
         private static readonly Dictionary<string, string> RProfileCommands = new Dictionary<string, string>()
         {
@@ -849,6 +850,42 @@ namespace R
         }
 
         /// <summary>
+        /// Utility method to detect all known paths to R installations on the user's machine.
+        /// This includes from environment variables (R_HOME) and the registry.
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> DetectAllRPaths()
+        {
+            var rPaths = new List<string>();
+
+            var rHome = Environment.GetEnvironmentVariable("R_HOME");
+            if (!string.IsNullOrWhiteSpace(rHome) && Directory.Exists(rHome))
+            {
+                rPaths.Add(rHome);
+            }
+
+            rPaths.AddRange(GetAllRPathsFromRegistry(@"SOFTWARE\R-core"));
+            rPaths.AddRange(GetAllRPathsFromRegistry(@"SOFTWARE\WOW6432Node\R-core"));
+
+            // Although this should typically just give us a unique list of R paths, we want
+            // to do what we can to avoid duplication.  This is admiittedly imperfect - we're
+            // ignoring where case differences may exist, etc., but the chances of that seem
+            // low enough that we're reducing the overhead of implementing an exhaustive check.
+            rPaths = rPaths.Distinct<string>().ToList<string>();
+            var expandedRPaths = new List<string>();
+            foreach (var rPath in rPaths)
+            {
+                var path = Path.Combine(rPath, "bin", Environment.Is64BitProcess ? "x64" : "i386");
+                if (Directory.Exists(path))
+                {
+                    expandedRPaths.Add(path);
+                }
+            }
+
+            return expandedRPaths;
+        }
+
+        /// <summary>
         /// Determine the best active R installation location.
         /// 
         /// This is a modification of the original RDotNet library code.
@@ -880,6 +917,62 @@ namespace R
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Find all R installations registered in the registry under the base key provided.
+        /// </summary>
+        /// <param name="baseKey">The base registry key to search under - this must be some route to R-core</param>
+        /// <returns>A list of strings containing the R path (empty if no paths are found)</returns>
+        private static List<string> GetAllRPathsFromRegistry(string baseKey)
+        {
+            var rPaths = new List<string>();
+            rPaths.AddRange(GetAllRPathsFromRegistryRoot(Registry.LocalMachine, baseKey));
+            rPaths.AddRange(GetAllRPathsFromRegistryRoot(Registry.CurrentUser, baseKey));
+            return rPaths;
+        }
+
+
+        /// <summary>
+        /// Find all R installations registered in the registry under the root and base key provided.
+        /// </summary>
+        /// <param name="rootKey">The root registry key to search under</param>
+        /// <param name="baseKey">The base registry key to search under - this must be some route to R-core</param>
+        /// <returns>A list of strings containing the R path (empty if no paths are found)</returns>
+        private static List<string> GetAllRPathsFromRegistryRoot(RegistryKey rootKey, string baseKey)
+        {
+            var rPaths = new List<string>();
+            var rCoreKey = rootKey.OpenSubKey(baseKey);
+            if (rCoreKey == null)
+            {
+                return rPaths;
+            }
+
+            // Although R32 and R64 sub-keys also exist, each should be under "R".  We are just going to
+            // scan that, which also should also help avoid duplication.
+            var rListKey = rCoreKey.OpenSubKey("R");
+            if (rListKey == null)
+            {
+                return rPaths;
+            }
+
+            var subKeyNames = rListKey.GetSubKeyNames();
+            foreach (var subKeyName in subKeyNames)
+            {
+                var rVersionKey = rListKey.OpenSubKey(subKeyName);
+                if (rVersionKey == null)
+                {
+                    continue;
+                }
+
+                var rInstallPathKey = rVersionKey.GetValue(R_INSTALL_PATH_KEY);
+                if (rInstallPathKey != null)
+                {
+                    rPaths.Add(rInstallPathKey.ToString());
+                }
+            }
+
+            return rPaths;
         }
 
         /// <summary>
@@ -927,10 +1020,9 @@ namespace R
             }
             else
             {
-                const string installPathKey = "InstallPath";
-                if (valueNames.Contains(installPathKey))
+                if (valueNames.Contains(R_INSTALL_PATH_KEY))
                 {
-                    installPath = (string)rCoreKey.GetValue(installPathKey);
+                    installPath = (string)rCoreKey.GetValue(R_INSTALL_PATH_KEY);
                 }
                 else
                 {

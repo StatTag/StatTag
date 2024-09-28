@@ -131,6 +131,7 @@
     <Compile Include="Models\DocumentMetadataTests.cs" />
     <Compile Include="Models\MonitoredCodeFileTests.cs" />
     <Compile Include="Models\TagWithLineNumEqualityComparerTests.cs" />
+    <Compile Include="Models\UserSettingsTests.cs" />
     <Compile Include="Models\ValueFormatTests.cs" />
     <Compile Include="Parser\StataParserTests.cs" />
     <Compile Include="Parser\BaseParserTests.cs" />
