@@ -57,7 +57,8 @@ namespace StatTag
             StataAutomationEnabledOnEntry = Stata.StataAutomation.IsAutomationEnabled();
             chkStataAutomation.Checked = StataAutomationEnabledOnEntry;
             UpdateStataSettingsUI();
-            UpdateRSettingsUI(SystemInformation.RSupport);
+            UpdateJupyterSettingsUI(SystemInformation.RSupport);
+            UpdateRSettingsUI(DetectRInstallation(false));
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
@@ -324,11 +325,87 @@ namespace StatTag
             cmdStataLocation.Enabled = enabled;
         }
 
-        private void UpdateRSettingsUI(bool supported)
+        private void UpdateRSettingsUI(string rPath)
         {
-            lblRSupportStatus.Text = supported ? "Enabled" : "Not detected";
-            lblRSupportStatus.ForeColor = supported ? Color.Green : Color.Red;
+            var supported = !(string.IsNullOrWhiteSpace(rPath));
+            lblRSupportStatus.Text = supported ? rPath : "No R installation was detected";
+            lblRSupportStatus.ForeColor = supported ? Color.Black : Color.Red;
         }
+        private void UpdateJupyterSettingsUI(bool supported)
+        {
+            lblRJupyterStatus.Text = supported ? "Enabled" : "Not detected";
+            lblRJupyterStatus.ForeColor = supported ? Color.Green : Color.Red;
+        }
+
+        /// <summary>
+        /// Utility method to detect and confirm an R installation.
+        /// </summary>
+        /// <returns>If R is found, it returns the base R path.  If it is not found, this returns a blank string.</returns>
+        private string DetectRInstallation(bool writeLog)
+        {
+            try
+            {
+                if (writeLog)
+                {
+                    LogRStatusAndLogger("Locating R...");
+                }
+
+                // If the user has selected a version of R, return that.  Note that we are (for now)
+                // explicitly ignoring any additional checks that the path exists, like we do with
+                // the system auto-detect of R.
+                if (string.Equals(Properties.RDetection, Constants.RDetectionOption.Selected))
+                {
+                    return Properties.RLocation;
+                }
+
+                var rPath = RAutomation.DetectRPath();
+                if (string.IsNullOrWhiteSpace(rPath))
+                {
+                    if (writeLog)
+                    {
+                        LogRStatusAndLogger("Unable to locate an R installation using the registry");
+                        LogRStatusFailure();
+                    }
+                    return "";
+                }
+                else if (!Directory.Exists(rPath))
+                {
+                    if (writeLog)
+                    {
+                        LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
+                        LogRStatusFailure();
+                    }
+                    return "";
+                }
+                else if (writeLog)
+                {
+                    LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
+                }
+
+                var rExePath = Path.Combine(rPath, "R.exe");
+                if (!File.Exists(rExePath))
+                {
+                    if (writeLog)
+                    {
+                        LogRStatusAndLogger(string.Format("Could not find R.exe at {0}", rExePath));
+                        LogRStatusFailure();
+                    }
+                    return "";
+                }
+
+                return rPath;
+            }
+            catch (Exception exc)
+            {
+                if (writeLog)
+                {
+                    LogRStatusAndLogger(exc.Message);
+                    LogRStatusFailure();
+                }
+                return "";
+            }
+        }
+
         private void cmdInstallRSupport_Click(object sender, EventArgs e)
         {
             try
@@ -346,26 +423,13 @@ namespace StatTag
                     }
                 }
 
-
                 Logger.WriteMessage("Beginning installation of R support");
 
-                LogRStatusAndLogger("Proceeding with IRkernel setup. Locating R...");
-                var rPath = RAutomation.DetectRPath();
+                LogRStatusAndLogger("Proceeding with IRkernel setup.");
+                var rPath = DetectRInstallation(true);
                 if (string.IsNullOrWhiteSpace(rPath))
                 {
-                    LogRStatusAndLogger("Unable to locate an R installation using the registry");
-                    LogRStatusFailure();
                     return;
-                }
-                else if (!Directory.Exists(rPath))
-                {
-                    LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
-                    LogRStatusFailure();
-                    return;
-                }
-                else
-                {
-                    LogRStatusAndLogger(string.Format("R path found: {0}", rPath));
                 }
 
                 rPath = Path.Combine(rPath, "R.exe");
@@ -530,7 +594,7 @@ namespace StatTag
                 if (configResult.Result)
                 {
                     LogRStatusAndLogger("Successfully configured IRkernel");
-                    UpdateRSettingsUI(true);
+                    UpdateJupyterSettingsUI(true);
                     RefreshSystemInformation = true;
                 }
                 else
@@ -571,6 +635,47 @@ namespace StatTag
             txtRSupportProgress.ScrollToCaret();
             this.Update();
             Logger.WriteMessage(text);
+        }
+
+        private void cmdSelectR_Click(object sender, EventArgs e)
+        {
+            var dialog = new RVersion(Properties);
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                // Detect if the settings changed.  If so, then we will trigger reloading
+                // the settings.  Otherwise if it's the same we will leave the settings
+                // dialog the way it was.
+                var reloadR = dialog.Properties.RSettingsChanged(Properties);
+
+                Properties.RDetection = dialog.Properties.RDetection;
+                Properties.RLocation = dialog.Properties.RLocation;
+                Properties.RCustomPath = dialog.Properties.RCustomPath;
+
+                if (Manager.SettingsManager != null)
+                {
+                    // Ensure we are only saving the R-related settings.  We don't want to include any interim
+                    // other settings that may get cancelled from being saved.
+                    Manager.SettingsManager.Settings.RDetection = Properties.RDetection;
+                    Manager.SettingsManager.Settings.RLocation = Properties.RLocation;
+                    Manager.SettingsManager.Settings.RCustomPath = Properties.RCustomPath;
+                    Manager.SettingsManager.Save();
+                }
+
+                if (reloadR)
+                {
+                    RefreshSystemInformation = true;
+
+                    if (Properties.RDetection.Equals(Constants.RDetectionOption.System))
+                    {
+                        lblRSupportStatus.Text = RAutomation.DetectRPath();
+                    }
+                    else
+                    {
+                        lblRSupportStatus.Text = Properties.RLocation;
+                    }
+                    UpdateJupyterSettingsUI(false);
+                }
+            }
         }
     }
 }

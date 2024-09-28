@@ -252,5 +252,11 @@ namespace StatTag.Core.Models
             public const string CustomValue = "CustomValue";
             public const string BlankString = "BlankString";
         }
+
+        public static class RDetectionOption
+        {
+            public const string System = "System";
+            public const string Selected = "Selected";
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace StatTag.Core.Models
     /// <summary>
     /// User preferences and settings for StatTag.
     /// </summary>
-    public class UserSettings
+    public class UserSettings : ICloneable
     {
         public const ulong MaxLogFileSizeMin = (1 * Constants.BytesToMegabytesConversion);
         public const ulong MaxLogFileSizeMax = (10000 * Constants.BytesToMegabytesConversion);
@@ -64,6 +64,33 @@ namespace StatTag.Core.Models
         public string CustomMissingValue { get; set; }
 
         /// <summary>
+        /// How StatTag should select the version of R to use.  The allowed values
+        /// should come from Constants.RDetectionOption
+        /// </summary>
+        public string RDetection { get; set; }
+
+        /// <summary>
+        /// If the user wants to select the version of R to use, this is the
+        /// path to the root R directory to use
+        /// </summary>
+        public string RLocation { get; set; }
+
+        /// <summary>
+        /// If the user needs to navigate to and define a custom R path because
+        /// it's not discoverable (not in the registry), this contains that path.
+        /// We will save it so the user doesn't have to re-enter it each time,
+        /// although it may not be the version of R they have selected (RSelectedPath).
+        /// A user may have multiple custom R paths to define, however we are
+        /// choosing to only save the last one.
+        /// </summary>
+        public string RCustomPath { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        /// <summary>
         /// Helper method to return a value that is within our allowed ranges.
         /// </summary>
         /// <param name="value"></param>
@@ -89,6 +116,34 @@ namespace StatTag.Core.Models
             }
 
             return defaultValue;
+        }
+
+        public bool RSettingsChanged(UserSettings oldSettings)
+        {
+            if (oldSettings == null)
+            {
+                return true;
+            }
+
+            // If how we're detecting R changes, we're going to flag that as enough of a change.
+            // Technically the auto-detect and the manually selected versions could be the same,
+            // but even in that scenario we're going to call this a "change".
+            if (!string.Equals(oldSettings.RDetection, this.RDetection))
+            {
+                return true;
+            }
+
+            // If the R location was changed at all, consider that a change.  Again, there are
+            // fringe cases where this may not actually be "different", but we are being lenient
+            // on what we consider a change.
+            if (!string.Equals(oldSettings.RLocation, this.RLocation))
+            {
+                return true;
+            }
+
+            // Note that we are not looking at RCustomPath.  This is because that doesn't make
+            // a difference for whether or not the active R is changed.
+            return false;
         }
     }
 }
