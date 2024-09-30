@@ -50,6 +50,7 @@ namespace StatTag
             {
                 var rPath = Path.GetDirectoryName(openFile.FileName);
                 Properties.RCustomPath = rPath;
+                Properties.RLocation = rPath;
                 LoadRPaths();
             }
         }
@@ -75,16 +76,21 @@ namespace StatTag
                 {
                     lstRVersions.Items.Add(rPath);
                 }
-            }
 
-            // If the user has defined a custom path for R, we are going to add it to
-            // our list of R versions.  Note that we are not confirming that the path
-            // is still valid - if the user had it at one point, we are going to preserve
-            // it.
-            if (!string.IsNullOrWhiteSpace(Properties.RCustomPath))
-            {
-                CustomRPath = Properties.RCustomPath;
-                lstRVersions.Items.Add(Properties.RCustomPath);
+                // If the user has defined a custom path for R, we are going to add it to
+                // our list of R versions.  Note that we are not confirming that the path
+                // is still valid - if the user had it at one point, we are going to preserve
+                // it.
+                if (!string.IsNullOrWhiteSpace(Properties.RCustomPath))
+                {
+                    CustomRPath = Properties.RCustomPath;
+
+                    // Only add the path if it doesn't already exist
+                    if (!rPaths.Contains(Properties.RCustomPath))
+                    {
+                        lstRVersions.Items.Add(Properties.RCustomPath);
+                    }
+                }
             }
 
             // If the user has defined a selected R location that they wish to use, we

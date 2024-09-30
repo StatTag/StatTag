@@ -58,7 +58,6 @@ namespace StatTag
             chkStataAutomation.Checked = StataAutomationEnabledOnEntry;
             UpdateStataSettingsUI();
             UpdateJupyterSettingsUI(SystemInformation.RSupport);
-            UpdateRSettingsUI(DetectRInstallation(false));
         }
 
         private void cmdStataLocation_Click(object sender, EventArgs e)
@@ -328,7 +327,7 @@ namespace StatTag
         private void UpdateRSettingsUI(string rPath)
         {
             var supported = !(string.IsNullOrWhiteSpace(rPath));
-            lblRSupportStatus.Text = supported ? rPath : "No R installation was detected";
+            lblRSupportStatus.Text = supported ? rPath : "R is not installed or selected R was not found";
             lblRSupportStatus.ForeColor = supported ? Color.Black : Color.Red;
         }
         private void UpdateJupyterSettingsUI(bool supported)
@@ -355,7 +354,28 @@ namespace StatTag
                 // the system auto-detect of R.
                 if (string.Equals(Properties.RDetection, Constants.RDetectionOption.Selected))
                 {
-                    return Properties.RLocation;
+                    if (writeLog)
+                    {
+                        LogRStatusAndLogger("Using user-selected R");
+                    }
+
+                    if (Directory.Exists(Properties.RLocation))
+                    {
+                        if (writeLog)
+                        {
+                            LogRStatusAndLogger(string.Format("R path found: {0}", Properties.RLocation));
+                        }
+                        return Properties.RLocation;
+                    }
+                    else
+                    {
+                        if (writeLog)
+                        {
+                            LogRStatusAndLogger(string.Format("Selected R path could not be found: {0}", Properties.RLocation));
+                            LogRStatusFailure();
+                        }
+                        return string.Empty;
+                    }
                 }
 
                 var rPath = RAutomation.DetectRPath();
@@ -366,7 +386,7 @@ namespace StatTag
                         LogRStatusAndLogger("Unable to locate an R installation using the registry");
                         LogRStatusFailure();
                     }
-                    return "";
+                    return string.Empty;
                 }
                 else if (!Directory.Exists(rPath))
                 {
@@ -375,7 +395,7 @@ namespace StatTag
                         LogRStatusAndLogger(string.Format("R path in registry but could not be found: {0}", rPath));
                         LogRStatusFailure();
                     }
-                    return "";
+                    return string.Empty;
                 }
                 else if (writeLog)
                 {
@@ -390,7 +410,7 @@ namespace StatTag
                         LogRStatusAndLogger(string.Format("Could not find R.exe at {0}", rExePath));
                         LogRStatusFailure();
                     }
-                    return "";
+                    return string.Empty;
                 }
 
                 return rPath;
@@ -402,7 +422,7 @@ namespace StatTag
                     LogRStatusAndLogger(exc.Message);
                     LogRStatusFailure();
                 }
-                return "";
+                return string.Empty;
             }
         }
 
@@ -410,7 +430,7 @@ namespace StatTag
         {
             try
             {
-                txtRSupportProgress.Text = "";
+                txtRSupportProgress.Text = string.Empty;
 
                 if (SystemInformation.RSupport)
                 {
@@ -661,18 +681,18 @@ namespace StatTag
                     Manager.SettingsManager.Save();
                 }
 
+                if (Properties.RDetection.Equals(Constants.RDetectionOption.System))
+                {
+                    UpdateRSettingsUI(RAutomation.DetectRPath());
+                }
+                else
+                {
+                    UpdateRSettingsUI(Properties.RLocation);
+                }
+
                 if (reloadR)
                 {
                     RefreshSystemInformation = true;
-
-                    if (Properties.RDetection.Equals(Constants.RDetectionOption.System))
-                    {
-                        lblRSupportStatus.Text = RAutomation.DetectRPath();
-                    }
-                    else
-                    {
-                        lblRSupportStatus.Text = Properties.RLocation;
-                    }
                     UpdateJupyterSettingsUI(false);
                 }
             }
