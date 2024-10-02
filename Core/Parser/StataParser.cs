@@ -18,7 +18,13 @@ namespace StatTag.Core.Parser
         private static readonly char[] CalculationOperators = { '*', '/', '-', '+' };
         public static readonly string[] ValueCommands = { "display", "dis", "di" };
         private static readonly Regex ValueKeywordRegex = new Regex(string.Format("^\\s*(?:{0})\\b", FormatCommandListAsNonCapturingGroup(ValueCommands)));
-        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})((\\s*\\()|(\\s+))(.*)(?(2)\\))", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})(\\s+|\\()([^\\r\\n]*)", FormatCommandListAsNonCapturingGroup(ValueCommands)));
+        // This is the previous version of the regex used to detect value commands.  This was replaced in 7.0.1 because of a bug
+        // where trailing calculations outside of a parenthesis were being skipped.  For example:  (x + y)/2  was becoming x + y.
+        // The new regex above uses a more streamlined approach where we take everything up until a delimiter (newline or ;).
+        // This builds on the assumption that PreProcessContent has been run on the commands already, to strip out multiline
+        // commands that would otherwise have newlines in them.
+        //private static readonly Regex ValueRegex = new Regex(string.Format("^\\s*(?:{0})((\\s*\\()|(\\s+))(.*)(?(2)\\))", FormatCommandListAsNonCapturingGroup(ValueCommands)));
         public static readonly string[] GraphCommands = {"gr(?:aph)? export"};
         private static readonly Regex GraphKeywordRegex = new Regex(string.Format("^\\s*{0}\\b", FormatCommandListAsNonCapturingGroup(GraphCommands)));
         private static readonly Regex GraphRegex = new Regex(string.Format("^\\s*{0}\\s+\\\"?([^\\\",]*)[\\\",]?", FormatCommandListAsNonCapturingGroup(GraphCommands)));
@@ -156,13 +162,20 @@ namespace StatTag.Core.Parser
         /// <summary>
         /// Returns the name of the variable/scalar to display.
         /// </summary>
-        /// <remarks>Assumes that you have verified this is a display command using
-        /// IsValueDisplay first.</remarks>
+        /// <remarks>
+        /// Assumes:
+        /// 1. The command has been run through PreProcessContent.
+        /// 2. You have verified this is a display command using IsValueDisplay first.
+        /// </remarks>
         /// <param name="command"></param>
         /// <returns></returns>
         public override string GetValueName(string command)
         {
-            return MatchRegexReturnGroup(command, ValueRegex, 4);
+            return MatchRegexReturnGroups(command, ValueRegex, 1, 2);
+
+            // This is a reminder for the old regex that was used.  That had more capture groups,
+            // while the new one has fewer that need to be merged together.
+            //return MatchRegexReturnGroup(command, ValueRegex, 4);
         }
 
         /// <summary>

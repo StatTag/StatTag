@@ -191,16 +191,18 @@ namespace Core.Tests.Parser
             Assert.AreEqual("$x2", parser.GetValueName("display  $x2"));
             Assert.AreEqual("test", parser.GetValueName(" display   test  "));
             Assert.AreEqual(string.Empty, parser.GetValueName("adisplay test"));
-            Assert.AreEqual("test", parser.GetValueName("display (test)"));
-            Assert.AreEqual("test", parser.GetValueName("display(test)"));
+            Assert.AreEqual("(test)", parser.GetValueName("display (test)"));
+            Assert.AreEqual("(test)", parser.GetValueName("display(test)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)"));
             Assert.AreEqual("n*(3)", parser.GetValueName("display n*(3)"));
             Assert.AreEqual("r(n)", parser.GetValueName("display r(n)\r\n\r\n*Some comments following"));
             Assert.AreEqual("2", parser.GetValueName("display 2 \r\n \r\n*Some comments following"));
-            Assert.AreEqual("5*2", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
-            Assert.AreEqual("5*2+(7*8)", parser.GetValueName("display(5*2+(7*8))")); // Handle calculations with nested parentheses
+            Assert.AreEqual("(5*2)", parser.GetValueName("display (5*2)")); // Handle calculations as display parameters
+            Assert.AreEqual("(5*2+(7*8))", parser.GetValueName("display(5*2+(7*8))")); // Handle calculations with nested parentheses
             Assert.AreEqual("(5*2", parser.GetValueName("display (5*2")); // Mismatched parentheses.  We want to grab it, even though it'll be an error in Stata
-            Assert.AreEqual("7   *    8   +   ( 5 * 7 )", parser.GetValueName("  display   (  7   *    8   +   ( 5 * 7 )  )   "));
+            Assert.AreEqual("(  7   *    8   +   ( 5 * 7 )  )", parser.GetValueName("  display   (  7   *    8   +   ( 5 * 7 )  )   "));
+            Assert.AreEqual("(x + y)/2", parser.GetValueName("di (x + y)/2"));
+            Assert.AreEqual("(r(ub) - r(lb))/2", parser.GetValueName("di (r(ub) - r(lb))/2"));
             // Stata does not appear to support multiple commands on one line, even in a do file, so this shouldn't work.  We are just asserting that we don't
             // support this functionality.
             Assert.AreNotEqual("test", parser.GetValueName("display test; display test"));

@@ -381,6 +381,19 @@ namespace StatTag.Core.Parser
             return string.Empty;
         }
 
+        protected string MatchRegexReturnGroups(string text, Regex regex, int groupNum1, int groupNum2)
+        {
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                var part1 = match.Groups[groupNum1].Value;
+                var part2 = match.Groups[groupNum2].Value;
+                return string.Concat(part1, part2).Trim();
+            }
+
+            return string.Empty;
+        }
+
         protected string[] GlobalMatchRegexReturnGroup(string text, Regex regex, int groupNum)
         {
             var matches = regex.Matches(text);
