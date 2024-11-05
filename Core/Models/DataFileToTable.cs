@@ -74,6 +74,11 @@ namespace StatTag.Core.Models
             }
 
             var excelFile = new FileInfo(tableFilePath);
+
+            // To avoid LicenseException, we need to provide attestation that this is used in a non-commercial
+            // context.  See https://epplussoftware.com/developers/licenseexception for more information.
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
             using (var package = new ExcelPackage(excelFile))
             {
                 var worksheets = package.Workbook.Worksheets;
