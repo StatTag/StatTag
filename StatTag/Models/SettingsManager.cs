@@ -46,8 +46,10 @@ namespace StatTag.Models
                 return;
             }
 
-            key.SetValue(StataLocationKey, Settings.StataLocation, RegistryValueKind.String);
-            key.SetValue(LogLocationKey, Settings.LogLocation, RegistryValueKind.String);
+            // For all string values, ensure that we don't write a null value.  Detect null and change to
+            // a blank string (string.Empty) before saving to the registry.
+            key.SetValue(StataLocationKey, Settings.StataLocation ?? string.Empty, RegistryValueKind.String);
+            key.SetValue(LogLocationKey, Settings.LogLocation ?? string.Empty, RegistryValueKind.String);
             key.SetValue(LogEnabledKey, Settings.EnableLogging, RegistryValueKind.DWord);
             key.SetValue(RunCodeOnOpenKey, Settings.RunCodeOnOpen, RegistryValueKind.DWord);
             key.SetValue(MaxLogFileSize, Settings.GetValueInRange(Settings.MaxLogFileSize,
@@ -56,11 +58,11 @@ namespace StatTag.Models
             key.SetValue(MaxLogFiles, Settings.GetValueInRange(Settings.MaxLogFiles,
                 Core.Models.UserSettings.MaxLogFilesMin, Core.Models.UserSettings.MaxLogFilesMax,
                 Core.Models.UserSettings.MaxLogFilesDefault), RegistryValueKind.DWord);
-            key.SetValue(MissingValuesOption, Settings.RepresentMissingValues, RegistryValueKind.String);
-            key.SetValue(MissingValuesCustomValue, Settings.CustomMissingValue, RegistryValueKind.String);
-            key.SetValue(RDetectionKey, Settings.RDetection, RegistryValueKind.String);
-            key.SetValue(RCustomPathKey, Settings.RCustomPath, RegistryValueKind.String);
-            key.SetValue(RLocationKey, Settings.RLocation, RegistryValueKind.String);
+            key.SetValue(MissingValuesOption, Settings.RepresentMissingValues ?? string.Empty, RegistryValueKind.String);
+            key.SetValue(MissingValuesCustomValue, Settings.CustomMissingValue ?? string.Empty, RegistryValueKind.String);
+            key.SetValue(RDetectionKey, Settings.RDetection ?? string.Empty, RegistryValueKind.String);
+            key.SetValue(RCustomPathKey, Settings.RCustomPath ?? string.Empty, RegistryValueKind.String);
+            key.SetValue(RLocationKey, Settings.RLocation ?? string.Empty, RegistryValueKind.String);
         }
 
         /// <summary>
