@@ -19,6 +19,28 @@ There are a few ways to contact the StatTag development team.
 ## Contributing to StatTag
 We welcome anyone that wishes to contribute to StatTag.  Please download the code and feel free to submit any proposed changes as a pull request.
 
+## Development Setup
+
+To compile StatTag, you will need the following:
+
+* Visual Studio 2022 Community Edition
+  * In Visual Studio Installer, select the following Workloads
+    * .NET desktop development
+	* Office/SharePoint development
+  * From Visual Studio, install the Microsoft Visual Studio Installer Projects 2022
+    * Extensions > Manage Extentions > Browse
+	* Search for and install "Microsoft Visual Studio Installer"
+	* Restart Visual Studio to complete installation
+* Source code
+  * Create a folder called "StatTag" to hold all of the code repositories
+  * Clone the following repositories from GitHub into the "StatTag" folder you created
+	* [StatTag/StatTag](https://github.com/StatTag/StatTag)
+	* [StatTag/JupyterKernelManager](https://github.com/StatTag/JupyterKernelManager)
+	* [StatTag/ScintillaNET-FindReplaceDialog](https://github.com/StatTag/ScintillaNET-FindReplaceDialog)
+	* [StatTag/scintilla](https://github.com/StatTag/scintilla)
+* [SAS Integration Technologies Client for Windows](https://support.sas.com/downloads/browse.htm?cat=56) (Requires a SAS login to access)
+
+
 ## Referencing StatTag
 Please cite StatTag in any manuscripts that use it:
 

@@ -116,7 +116,7 @@ namespace StatTag
             // Only if the R detection option is set to "Selected" do we need to worry
             // about changing the default. Even if the RDetection value is something
             // unexpected (blank, etc.) we want to just use the default selection then.
-            if (Properties.RDetection.Equals(Constants.RDetectionOption.Selected))
+            if (!string.IsNullOrEmpty(Properties.RDetection) && Properties.RDetection.Equals(Constants.RDetectionOption.Selected))
             {
                 radDefaultR.Checked = false;
                 radCustomR.Checked = true;
